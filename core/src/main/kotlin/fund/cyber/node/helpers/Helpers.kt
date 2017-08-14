@@ -13,7 +13,7 @@ suspend fun <R> retryUntilSuccess(retryDelay: Long = 5, block: suspend () -> R):
         try {
             return block()
         } catch (e: Exception) {
-            Helpers.LOGGER.debug("Error during trying execute block", e)
+            Helpers.LOGGER.debug("Error during trying execute block ", e)
             delay(retryDelay, TimeUnit.SECONDS)
         }
     }
