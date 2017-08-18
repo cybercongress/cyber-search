@@ -1,4 +1,4 @@
-package fund.cyber.node.kafka
+package fund.cyber.node.connectors.kafka
 
 import org.apache.kafka.common.serialization.Deserializer
 import com.fasterxml.jackson.databind.ObjectMapper
