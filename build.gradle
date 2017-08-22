@@ -6,7 +6,7 @@ buildscript {
     ext.jackson_version = '2.8.9'
     ext.okHttp_version = '3.8.1'
     ext.undertow_version = '1.4.18.Final'
-    ext.kafka_clients_version = '0.11.0.0'
+    ext.kafka_version = '0.10.2.1'
 
     //tests
     ext.junit_version = '5.0.0-M5'
@@ -18,6 +18,8 @@ buildscript {
     ext.slf4j_version = '1.7.25'
     ext.lockback_version = '1.2.3'
 
+    ext.shadow_version = '2.0.1'
+
     repositories {
         jcenter()
         mavenCentral()
@@ -25,7 +27,8 @@ buildscript {
 
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-        classpath "org.junit.platform:junit-platform-gradle-plugin:${junit_platform_version}"
+        classpath("org.junit.platform:junit-platform-gradle-plugin:${junit_platform_version}")
+        classpath("com.github.jengelman.gradle.plugins:shadow:${shadow_version}")
     }
 }
 
@@ -57,15 +60,16 @@ subprojects {
         compile("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
         compile("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlin_coroutines_version")
 
+        compile("com.squareup.okhttp3:okhttp:${okHttp_version}")
         compile("com.fasterxml.jackson.core:jackson-databind:$jackson_version")
         compile("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
 
-        compile("org.apache.kafka:kafka-clients:${kafka_clients_version}")
+        compileOnly("org.apache.kafka:connect-api:${kafka_version}")
 
         testCompile("org.junit.jupiter:junit-jupiter-api:${junit_version}")
         testCompile("org.junit.platform:junit-platform-launcher:${junit_platform_version}")
         testCompile("org.mockito:mockito-core:${mockito_version}")
-        testCompile "com.nhaarman:mockito-kotlin:${mockito_kotlin_version}"
+        testCompile("com.nhaarman:mockito-kotlin:${mockito_kotlin_version}")
         testRuntime("org.junit.jupiter:junit-jupiter-engine:${junit_version}")
     }
 }

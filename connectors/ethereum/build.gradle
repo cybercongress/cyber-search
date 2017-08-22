@@ -1,12 +1,14 @@
-apply plugin: 'application'
+apply plugin: 'com.github.johnrengelman.shadow'
 
-run {
-    systemProperties System.getProperties()
-}
+project.tasks.assemble.dependsOn project.tasks.shadowJar
 
 dependencies {
     compile project(':core')
 }
 
-mainClassName = "fund.cyber.node.connectors.EthereumConnectorApplicationKt"
-
+shadowJar {
+    destinationDir = file("$buildDir/libs/connect")
+    baseName = 'ethereum-source-connect'
+    classifier = null
+    version = '1.0.0'
+}

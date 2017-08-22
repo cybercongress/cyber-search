@@ -7,4 +7,5 @@ cd devops
 docker-compose up -d
 ```
 
-Than, all local kafka data will be stored in *devops/out/* folder.
+localhost:9000 - kafka manager
+localhost:8000 - kafka connect manager

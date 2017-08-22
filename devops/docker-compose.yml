@@ -1,43 +1,76 @@
-version: "2"
+---
+
+version: '2.1'
 services:
-  zoo1:
-    container_name: cm_zookeeper1
-    image: zookeeper:3.4.10
-    ports:
-     - "2181:2181"
+
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:3.3.0
+    network_mode: host
     environment:
-      ZOO_MY_ID: 1
-      ZOO_SERVERS: server.1=zoo1:2888:3888
-    volumes:
-     - ./out/zookeeper1/data:/data
-     - ./out/zookeeper1/datalog:/datalog
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+
+
   kafka:
-    container_name: cm_kafka
-    image: ches/kafka:0.10.2.1
-    ports:
-     - "9092:9092"
-     - "1099:1099"
-    environment:
-      # Hostname and port which kafka will tell to consumers
-      KAFKA_ADVERTISED_HOST_NAME: "kafka"
-      KAFKA_ADVERTISED_PORT: "9092"
-      KAFKA_BROKER_ID: "1"
-      KAFKA_PORT: "9092"
-      ZOOKEEPER_CONNECTION_STRING: "zoo1:2181"
-      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka -Dcom.sun.management.jmxremote.rmi.port=1099"
-      JMX_PORT: 1099
-    volumes:
-      - ./out/kafka1:/data
+    image: confluentinc/cp-kafka:3.3.0
+    network_mode: host
     depends_on:
-      - zoo1
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 0
+      KAFKA_ZOOKEEPER_CONNECT: localhost:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 19192
+      KAFKA_JMX_HOSTNAME: localhost
+
+
+
   kafka_manager:
-    container_name: cm_kafka_manager
+    network_mode: host
     image: sheepkiller/kafka-manager
-    ports:
-      - "9000:9000"
-    depends_on:
-      - kafka
     environment:
-      ZK_HOSTS: "zoo1:2181"
-      # https://github.com/yahoo/kafka-manager/blob/master/conf/application.conf#L13
-      APPLICATION_SECRET: "dilbert"
+      ZK_HOSTS: localhost:2181
+      APPLICATION_SECRET: "random_secret"
+
+
+
+  kafka-connect:
+    network_mode: host
+    image: confluentinc/cp-kafka-connect:3.3.0
+    environment:
+
+      CONNECT_REST_ADVERTISED_HOST_NAME: "localhost"
+      CONNECT_REST_ADVERTISED_PORT: "8083"
+      CONNECT_REST_PORT: 8083
+
+      CONNECT_BOOTSTRAP_SERVERS: localhost:9092
+      CONNECT_ZOOKEEPER_CONNECT: localhost:2181
+
+      CONNECT_GROUP_ID: "cybernode"
+      CONNECT_CONFIG_STORAGE_TOPIC: "cybernode.config"
+      CONNECT_OFFSET_STORAGE_TOPIC: "cybernode.offsets"
+      CONNECT_STATUS_STORAGE_TOPIC: "cybernode.status"
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 5000
+
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+
+      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+    volumes:
+      - ../connectors/ethereum/build/libs/connect/:/etc/kafka-connect/jars
+
+
+  kafka-connect-ui:
+    network_mode: host
+    image: landoop/kafka-connect-ui:0.9.2
+    environment:
+      CONNECT_URL: localhost:8083
