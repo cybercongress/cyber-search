@@ -6,7 +6,7 @@ buildscript {
     ext.jackson_version = '2.8.9'
     ext.okHttp_version = '3.8.1'
     ext.undertow_version = '1.4.18.Final'
-    ext.kafka_version = '0.10.2.1'
+    ext.kafka_version = '0.11.0.0'
 
     //tests
     ext.junit_version = '5.0.0-M5'
@@ -44,6 +44,10 @@ subprojects {
         }
     }
 
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
 /* Java dependencies part */
     repositories {
         jcenter()
@@ -60,10 +64,10 @@ subprojects {
         compile("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
         compile("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlin_coroutines_version")
 
-        compile("com.squareup.okhttp3:okhttp:${okHttp_version}")
         compile("com.fasterxml.jackson.core:jackson-databind:$jackson_version")
         compile("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
 
+        compile 'org.web3j:core:2.3.0'
         compileOnly("org.apache.kafka:connect-api:${kafka_version}")
 
         testCompile("org.junit.jupiter:junit-jupiter-api:${junit_version}")
