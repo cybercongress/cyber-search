@@ -30,10 +30,11 @@ services:
 
   kafka_manager:
     network_mode: host
-    image: sheepkiller/kafka-manager
+    image: sheepkiller/kafka-manager:1.3.1.8
     environment:
       ZK_HOSTS: localhost:2181
       APPLICATION_SECRET: "random_secret"
+      KM_ARGS: -Dpidfile.path=/dev/null
 
 
 
@@ -45,6 +46,9 @@ services:
       CONNECT_REST_ADVERTISED_HOST_NAME: "localhost"
       CONNECT_REST_ADVERTISED_PORT: "8083"
       CONNECT_REST_PORT: 8083
+
+
+      CONNECT_PLUGIN_PATH: /etc/kafka-connect/custom-plugins
 
       CONNECT_BOOTSTRAP_SERVERS: localhost:9092
       CONNECT_ZOOKEEPER_CONNECT: localhost:2181
@@ -59,6 +63,7 @@ services:
       CONNECT_OFFSET_FLUSH_INTERVAL_MS: 5000
 
       CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
       CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
@@ -69,7 +74,7 @@ services:
       CONNECT_ACCESS_CONTROL_ALLOW_ORIGIN: '*'
       CONNECT_ACCESS_CONTROL_ALLOW_METHODS: 'GET,OPTIONS,HEAD,POST,PUT,DELETE'
     volumes:
-      - ../connectors/ethereum/build/libs/connect/:/etc/kafka-connect/jars
+      - ../connectors/ethereum/build/libs/connect/:/etc/kafka-connect/custom-plugins
 
 
 
@@ -90,3 +95,4 @@ services:
     image: landoop/fast-data-dev:cp3.3.0
     environment:
        WEB_ONLY: 1
+       RUNTESTS: 0
