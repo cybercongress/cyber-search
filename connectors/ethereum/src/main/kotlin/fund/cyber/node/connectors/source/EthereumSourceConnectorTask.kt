@@ -2,6 +2,7 @@ package fund.cyber.node.connectors.source
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import fund.cyber.node.connectors.configuration.EthereumConnectorConfiguration
+import fund.cyber.node.connectors.configuration.batch_size_default
 import fund.cyber.node.connectors.model.Block
 import org.apache.kafka.connect.data.Schema.STRING_SCHEMA
 import org.apache.kafka.connect.source.SourceRecord
@@ -11,9 +12,10 @@ import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameter
 import org.web3j.protocol.http.HttpService
 import java.math.BigInteger
-import java.math.BigInteger.TEN
-import java.math.BigInteger.ZERO
+import java.math.BigInteger.*
 import java.util.concurrent.Executors
+
+import fund.cyber.node.common.plus
 
 
 class EthereumSourceConnectorTask : SourceTask() {
@@ -24,13 +26,22 @@ class EthereumSourceConnectorTask : SourceTask() {
     private lateinit var parityClient: Web3j
     private lateinit var jsonSerializer: ObjectMapper
 
+    private lateinit var chunkSize: BigInteger
+    private var batchSize: Int = batch_size_default
+
     private lateinit var lastNetworkBlockOnStartup: BigInteger
     private lateinit var lastParsedBlockNumber: BigInteger
 
 
     override fun start(properties: Map<String, String>) {
+
         taskConfiguration = EthereumConnectorConfiguration(properties)
-        parityClient = Web3j.build(HttpService(taskConfiguration.parityUrl), 15 * 1000, Executors.newScheduledThreadPool(32))
+
+        chunkSize = BigInteger.valueOf(taskConfiguration.chunkSize)
+        batchSize = taskConfiguration.batchSize
+
+        val executorService = Executors.newScheduledThreadPool(batchSize)
+        parityClient = Web3j.build(HttpService(taskConfiguration.parityUrl), 15 * 1000, executorService)
         jsonSerializer = ObjectMapper()
 
         lastParsedBlockNumber = lastParsedBlockNumber()
@@ -43,10 +54,10 @@ class EthereumSourceConnectorTask : SourceTask() {
         try {
 
             val isBatchFetch = lastNetworkBlockOnStartup - lastParsedBlockNumber > TEN
-            val batchSize = if (isBatchFetch) 8L else 1L
+            val rangeEnd = if (isBatchFetch) batchSize else 1
 
-            val blocks = LongRange(1, batchSize)
-                    .map { increment -> lastParsedBlockNumber + BigInteger.valueOf(increment) }
+            val blocks = IntRange(1, rangeEnd)
+                    .map { increment -> lastParsedBlockNumber + increment }
                     .map { blockNumber -> blockParameter(blockNumber) }
                     .map { blockParameter -> parityClient.ethGetBlockByNumber(blockParameter, true).sendAsync() }
                     .map { futureBlock ->
@@ -56,10 +67,9 @@ class EthereumSourceConnectorTask : SourceTask() {
                     }
                     .map { ethBlock ->
                         Block(
+                                chunk_id = (ethBlock.block.number / chunkSize).toString(),
                                 number = ethBlock.block.number.toString(),
-                                hash = ethBlock.block.hash,
-                                timestamp = ethBlock.block.timestamp.toLong().toString() + "000",
-                                rawBlock = jsonSerializer.writeValueAsString(ethBlock.block).removePrefix("{")
+                                rawBlock = "a" + jsonSerializer.writeValueAsString(ethBlock.block)
                         )
                     }
                     .map { block ->
@@ -71,7 +81,7 @@ class EthereumSourceConnectorTask : SourceTask() {
                     }
                     .toList()
 
-            lastParsedBlockNumber += BigInteger.valueOf(batchSize)
+            lastParsedBlockNumber += batchSize
             return blocks
         } catch (e: Exception) {
             log.error("Unexpected error during polling ethereum chain", e)
