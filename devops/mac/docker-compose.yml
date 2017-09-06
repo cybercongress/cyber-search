@@ -1,0 +1,74 @@
+---
+
+version: '2.1'
+services:
+
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:3.3.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+
+
+  kafka:
+    image: confluentinc/cp-kafka:3.3.0
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 0
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+
+
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:3.3.0
+    environment:
+
+      CONNECT_REST_ADVERTISED_HOST_NAME: "localhost"
+      CONNECT_REST_ADVERTISED_PORT: "8083"
+      CONNECT_REST_PORT: 8083
+
+      CONNECT_PLUGIN_PATH: /etc/kafka-connect/custom-plugins
+
+      CONNECT_BOOTSTRAP_SERVERS: kafka:9092
+      CONNECT_ZOOKEEPER_CONNECT: zookeeper:2181
+
+      CONNECT_GROUP_ID: "cybernode"
+      CONNECT_CONFIG_STORAGE_TOPIC: "cybernode.config"
+      CONNECT_OFFSET_STORAGE_TOPIC: "cybernode.offsets"
+      CONNECT_STATUS_STORAGE_TOPIC: "cybernode.status"
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 5000
+
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+
+      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+
+      CONNECT_ACCESS_CONTROL_ALLOW_ORIGIN: '*'
+      CONNECT_ACCESS_CONTROL_ALLOW_METHODS: 'GET,OPTIONS,HEAD,POST,PUT,DELETE'
+    volumes:
+      - ../../connectors/ethereum/build/libs/connect/:/etc/kafka-connect/custom-plugins
+    ports:
+      - "8083:8083"
+
+
+  kafka-connect-ui:
+    image: landoop/kafka-connect-ui:0.9.2
+    environment:
+      CONNECT_URL: kafka-connect:8083
+    links:
+      - kafka-connect
+    ports:
+      - "8000:8000"
