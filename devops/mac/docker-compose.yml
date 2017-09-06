@@ -62,6 +62,8 @@ services:
       - ../../connectors/ethereum/build/libs/connect/:/etc/kafka-connect/custom-plugins
     ports:
       - "8083:8083"
+    links:
+      - elassandra-1
 
 
   kafka-connect-ui:
@@ -72,3 +74,26 @@ services:
       - kafka-connect
     ports:
       - "8000:8000"
+
+  elassandra-1:
+    image: strapdata/elassandra:2.4.5.5
+    volumes:
+      - /opt/cyberfund/elassandra-1:/var/lib/cassandra
+    ports:
+        - "9042:9042"
+        - "9200:9200"
+        - "7199:7199"
+    environment:
+          CASSANDRA_DC: PRODUCTION
+          CASSANDRA_CLUSTER_NAME: CYBERNODE
+
+  elassandra-2:
+    image: strapdata/elassandra:2.4.5.5
+    volumes:
+      - /opt/cyberfund/elassandra-2:/var/lib/cassandra
+    environment:
+          CASSANDRA_DC: PRODUCTION
+          CASSANDRA_CLUSTER_NAME: CYBERNODE
+          CASSANDRA_SEEDS: elassandra-1
+    links:
+      - elassandra-1
