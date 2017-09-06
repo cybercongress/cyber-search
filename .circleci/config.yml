@@ -1,0 +1,71 @@
+version: 2
+
+
+defaults:
+
+  container: &default_container
+    working_directory: ~/build
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+  release_filter: &release_filter
+    filters:
+      tags:
+        only: /^release-.*/
+      branches:
+        ignore: /.*/
+
+
+jobs:
+
+  build_connectors:
+    <<: *default_container
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - connectors-dependencies-{{ checksum "build.gradle" }}
+            - connectors-dependencies
+          paths:
+            - ~/.gradle/caches/
+            - ~/.gradle/wrapper/
+      - run:
+          name: Test and build kafka-connectors project
+          command: ./gradlew clean build
+      - save_cache:
+          key: connectors-dependencies-{{ checksum "build.gradle" }}
+          paths:
+            - ~/.gradle/caches/
+            - ~/.gradle/wrapper/
+
+
+  deploy_connectors_image:
+     <<: *default_container
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.05.0-ce
+       - run:
+           name: Build kafka-connectors docker image
+           command: |
+             docker build -t build/cn-kafka-connectors -f ./devops/cyber-connectors/Dockerfile ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/cn-kafka-connectors cybernode/cn-kafka-connectors:$CIRCLE_TAG
+             docker push cybernode/cn-kafka-connectors:$CIRCLE_TAG
+             docker tag build/cn-kafka-connectors cybernode/cn-kafka-connectors:latest
+             docker push cybernode/cn-kafka-connectors:latest
+
+
+workflows:
+  version: 2
+
+  kafka-connectors_build:
+    jobs:
+      - build_connectors:
+          filters:
+            tags:
+              only: /.*/
+      - deploy_connectors_image:
+          <<: *release_filter
+          requires:
+            - build_connectors
