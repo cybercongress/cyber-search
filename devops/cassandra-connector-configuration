@@ -1,8 +1,8 @@
 connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
 connect.cassandra.key.space=blockchains
-topics=ethereum-source
+topics=ethereum-source,bitcoin-source
 tasks.max=1
-connect.cassandra.kcql=INSERT INTO ethereum SELECT * FROM ethereum-source
+connect.cassandra.kcql=INSERT INTO ethereum SELECT * FROM ethereum-source;INSERT INTO bitcoin SELECT * FROM bitcoin-source
 connect.cassandra.fetch.size=5000
 connect.cassandra.max.retries=20
 connect.progress.enabled=false

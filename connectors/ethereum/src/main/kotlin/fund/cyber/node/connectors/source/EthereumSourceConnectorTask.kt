@@ -3,7 +3,6 @@ package fund.cyber.node.connectors.source
 import com.fasterxml.jackson.databind.ObjectMapper
 import fund.cyber.node.connectors.configuration.EthereumConnectorConfiguration
 import fund.cyber.node.connectors.configuration.batch_size_default
-import fund.cyber.node.connectors.model.Block
 import org.apache.kafka.connect.data.Schema.STRING_SCHEMA
 import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.source.SourceTask
@@ -16,6 +15,7 @@ import java.math.BigInteger.*
 import java.util.concurrent.Executors
 
 import fund.cyber.node.common.plus
+import fund.cyber.node.model.Block
 
 
 class EthereumSourceConnectorTask : SourceTask() {
@@ -69,7 +69,7 @@ class EthereumSourceConnectorTask : SourceTask() {
                         Block(
                                 chunk_id = (ethBlock.block.number / chunkSize).toString(),
                                 number = ethBlock.block.number.toString(),
-                                rawBlock = "a" + jsonSerializer.writeValueAsString(ethBlock.block)
+                                rawBlock = "ethereum " + jsonSerializer.writeValueAsString(ethBlock.block)
                         )
                     }
                     .map { block ->

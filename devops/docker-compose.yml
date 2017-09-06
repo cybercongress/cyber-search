@@ -74,7 +74,7 @@ services:
       CONNECT_ACCESS_CONTROL_ALLOW_ORIGIN: '*'
       CONNECT_ACCESS_CONTROL_ALLOW_METHODS: 'GET,OPTIONS,HEAD,POST,PUT,DELETE'
     volumes:
-      - ../connectors/ethereum/build/libs/connect/:/etc/kafka-connect/custom-plugins
+      - ../cyber-connectors/:/etc/kafka-connect/custom-plugins
 
 
 
