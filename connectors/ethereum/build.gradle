@@ -7,7 +7,7 @@ dependencies {
 }
 
 shadowJar {
-    destinationDir = file("$buildDir/libs/connect")
+    destinationDir = file("$rootDir/cyber-connectors")
     baseName = 'ethereum-source-connect'
     classifier = null
     version = '1.0.0'

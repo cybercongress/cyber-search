@@ -30,3 +30,4 @@ cyber.markets.properties
 # Gradle
 .gradle/
 build
+/cyber-connectors/
