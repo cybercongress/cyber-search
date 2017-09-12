@@ -4,7 +4,7 @@ buildscript {
         kotlinVersion = "1.1.4-3"
         kotlinCoroutinesVersion = "0.18"
         jacksonVersion = "2.8.9"
-        undertowVersion = "1.4.18.Final"
+        undertowVersion = "1.4.20.Final"
         kafkaVersion = "0.11.0.0"
         web3jVersion = "2.3.0"
         apacheHttpClientVersion = "4.1.3"
