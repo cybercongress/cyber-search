@@ -1,24 +1,28 @@
 /* Gradle plugins part */
 buildscript {
+    ext {
+        kotlinVersion = "1.1.4-3"
+        kotlinCoroutinesVersion = "0.18"
+        jacksonVersion = "2.8.9"
+        undertowVersion = "1.4.18.Final"
+        kafkaVersion = "0.11.0.0"
+        web3jVersion = "2.3.0"
+        apacheHttpClientVersion = "4.1.3"
 
-    ext.kotlin_version = '1.1.3-2'
-    ext.kotlin_coroutines_version = '0.17'
-    ext.jackson_version = '2.8.9'
-    ext.okHttp_version = '3.8.1'
-    ext.undertow_version = '1.4.18.Final'
-    ext.kafka_version = '0.11.0.0'
+        // plugins
+        dependencyPluginVersion = "1.0.3.RELEASE"
+        shadowPluginVersion = "2.0.1"
 
-    //tests
-    ext.junit_version = '5.0.0-M5'
-    ext.junit_platform_version = '1.0.0-M5'
-    ext.mockito_version = '2.1.0'
-    ext.mockito_kotlin_version = '0.7.0'
+        // tests
+        junitVersion = "5.0.0"
+        junitPlatformVersion = "1.0.0"
+        mockitoVersion = "2.1.0"
+        mockitoKotlinVersion = "0.7.0"
 
-    //logs
-    ext.slf4j_version = '1.7.25'
-    ext.lockback_version = '1.2.3'
-
-    ext.shadow_version = '2.0.1'
+        // logs
+        slf4jVersion = "1.7.25"
+        lockbackVersion = "1.2.3"
+    }
 
     repositories {
         jcenter()
@@ -26,17 +30,18 @@ buildscript {
     }
 
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-        classpath("org.junit.platform:junit-platform-gradle-plugin:${junit_platform_version}")
-        classpath("com.github.jengelman.gradle.plugins:shadow:${shadow_version}")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("io.spring.gradle:dependency-management-plugin:$dependencyPluginVersion")
+        classpath("org.junit.platform:junit-platform-gradle-plugin:$junitPlatformVersion")
+        classpath("com.github.jengelman.gradle.plugins:shadow:$shadowPluginVersion")
     }
 }
 
 
 subprojects {
-/* Gradle plugins settings part */
-    apply plugin: 'kotlin'
-    apply plugin: 'org.junit.platform.gradle.plugin'
+    apply plugin: "kotlin"
+    apply plugin: "org.junit.platform.gradle.plugin"
+    apply plugin: "io.spring.dependency-management"
 
     kotlin {
         experimental {
@@ -44,37 +49,71 @@ subprojects {
         }
     }
 
-    compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-
-/* Java dependencies part */
     repositories {
         jcenter()
         mavenCentral()
     }
 
+    dependencyManagement {
+        dependencies {
+            dependency("org.slf4j:slf4j-api:$slf4jVersion")
+            dependency("ch.qos.logback:logback-classic:$lockbackVersion")
+
+            dependency("org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion")
+            dependency("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+            dependency("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinCoroutinesVersion")
+
+            dependency("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+            dependency("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+
+            dependency("io.undertow:undertow-core:$undertowVersion")
+            dependency("org.apache.httpcomponents:httpasyncclient:$apacheHttpClientVersion")
+
+            dependency("org.apache.kafka:kafka-clients:$kafkaVersion")
+            dependency("org.apache.kafka:connect-api:$kafkaVersion")
+
+            dependency("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+            dependency("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
+            dependency("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+            dependency("org.mockito:mockito-core:$mockitoVersion")
+            dependency("com.nhaarman:mockito-kotlin:$mockitoKotlinVersion")
+
+            dependency("org.web3j:core:$web3jVersion")
+        }
+    }
+
     dependencies {
-
-
-        compile("org.slf4j:jcl-over-slf4j:$slf4j_version")
-        compile("ch.qos.logback:logback-classic:$lockback_version")
-
-        compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version")
-        compile("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
-        compile("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlin_coroutines_version")
-
-        compile("com.fasterxml.jackson.core:jackson-databind:$jackson_version")
-        compile("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
-
-        compile 'org.web3j:core:2.3.0'
-        compileOnly("org.apache.kafka:connect-api:${kafka_version}")
-
-        testCompile("org.junit.jupiter:junit-jupiter-api:${junit_version}")
-        testCompile("org.junit.platform:junit-platform-launcher:${junit_platform_version}")
-        testCompile("org.mockito:mockito-core:${mockito_version}")
-        testCompile("com.nhaarman:mockito-kotlin:${mockito_kotlin_version}")
-        testRuntime("org.junit.jupiter:junit-jupiter-engine:${junit_version}")
+        testCompile("org.junit.jupiter:junit-jupiter-api")
+        testCompile("org.junit.platform:junit-platform-launcher")
+        testCompile("org.mockito:mockito-core")
+        testCompile("com.nhaarman:mockito-kotlin")
+        testRuntime("org.junit.jupiter:junit-jupiter-engine")
     }
 }
 
+
+project(":core") {
+    dependencies {
+        compile("org.slf4j:slf4j-api")
+        compile("ch.qos.logback:logback-classic")
+
+        compile("org.jetbrains.kotlin:kotlin-stdlib-jre8")
+        compile("org.jetbrains.kotlin:kotlin-reflect")
+        compile("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
+
+        compile("com.fasterxml.jackson.core:jackson-databind")
+        compile("com.fasterxml.jackson.module:jackson-module-kotlin")
+    }
+}
+
+
+project(":search-api") {
+    apply plugin: "application"
+
+    dependencies {
+        compile(project(":core"))
+        compile("io.undertow:undertow-core")
+    }
+
+    mainClassName = "fund.cyber.search.SearchApiApplication"
+}

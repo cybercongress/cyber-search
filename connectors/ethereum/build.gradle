@@ -4,6 +4,9 @@ project.tasks.assemble.dependsOn project.tasks.shadowJar
 
 dependencies {
     compile project(':core')
+    compile 'org.web3j:core'
+    compile 'org.apache.kafka:kafka-clients'
+    compileOnly 'org.apache.kafka:connect-api'
 }
 
 shadowJar {
