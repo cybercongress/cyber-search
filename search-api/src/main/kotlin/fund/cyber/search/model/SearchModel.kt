@@ -1,5 +1,7 @@
 package fund.cyber.search.model
 
+import fund.cyber.node.model.ItemPreview
+
 class SearchResponseItem
 
 class SearchResponse(
@@ -10,5 +12,5 @@ class SearchResponse(
 
         val totalHits: Int,
         val searchTime: Int, //ms
-        val items: List<SearchResponseItem>
+        val items: List<ItemPreview>
 )

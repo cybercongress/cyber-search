@@ -11,27 +11,50 @@ import java.math.BigDecimal
 
 
 data class Transaction(
-        val txid: String, val hex: String, val version: Int, val locktime: Long,
-        @JsonDeserialize(using = TransactionInputDeserializer::class) val vin: List<TransactionInput>,
-        val vout: List<TransactionOutput>
+        val txid: String,
+        val hex: String,
+        val version: Int,
+        val locktime: Long,
+        val vout: List<TransactionOutput>,
+
+        @JsonDeserialize(using = TransactionInputDeserializer::class)
+        val vin: List<TransactionInput>
 )
 
-data class TransactionOutput(val value: BigDecimal, val n: Int, val scriptPubKey: PubKeyScript)
+data class TransactionOutput(
+        val value: BigDecimal,
+        val n: Int,
+        val scriptPubKey: PubKeyScript
+)
 
 sealed class TransactionInput
 
 data class CoinbaseTransactionInput(
-        val coinbase: String, val sequence: Long, val txinwitness: String = ""
+        val coinbase: String,
+        val sequence: Long,
+        val txinwitness: String = ""
 ) : TransactionInput()
 
 data class RegularTransactionInput(
-        val txid: String, val vout: Int, val scriptSig: SignatureScript, val sequence: Long, val txinwitness: String = ""
+        val txid: String,
+        val vout: Int,
+        val scriptSig: SignatureScript,
+        val sequence: Long,
+        val txinwitness: String = ""
 ) : TransactionInput()
 
-data class PubKeyScript(val asm: String, val hex: String, val reqSigs: Int, val type: String, val addresses: List<String>)
+data class PubKeyScript(
+        val asm: String,
+        val hex: String,
+        val reqSigs: Int,
+        val type: String,
+        val addresses: List<String>
+)
 
-data class SignatureScript(val asm: String, val hex: String)
-
+data class SignatureScript(
+        val asm: String,
+        val hex: String
+)
 
 class TransactionInputDeserializer : JsonDeserializer<List<TransactionInput>>() {
 
