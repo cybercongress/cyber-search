@@ -22,6 +22,8 @@ buildscript {
         // logs
         slf4jVersion = "1.7.25"
         lockbackVersion = "1.2.3"
+
+        sparkVersion="2.2.0"
     }
 
     repositories {
@@ -116,4 +118,22 @@ project(":search-api") {
     }
 
     mainClassName = "fund.cyber.search.SearchApiApplication"
+}
+
+
+project(":stream-processing") {
+
+    apply plugin: "com.github.johnrengelman.shadow"
+
+    dependencies {
+        // Dependencies which will be included in fatjar
+        compile("org.jetbrains.kotlin:kotlin-stdlib-jre8")
+
+        compileOnly("org.apache.spark:spark-sql_2.11:$sparkVersion")
+        compileOnly("org.apache.spark:spark-streaming_2.11:$sparkVersion")
+
+        compileOnly("org.apache.kafka:kafka_2.11:$kafkaVersion")
+        compileOnly("org.apache.spark:spark-streaming-kafka-0-10_2.11:$sparkVersion")
+        compileOnly("org.apache.spark:spark-sql-kafka-0-10_2.11:$sparkVersion")
+    }
 }
