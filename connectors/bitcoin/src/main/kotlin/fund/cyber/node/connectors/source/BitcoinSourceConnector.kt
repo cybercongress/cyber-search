@@ -8,7 +8,6 @@ import org.apache.kafka.connect.source.SourceConnector
 
 
 val bitcoin = "bitcoin"
-val bitcoinSourceTopic = "bitcoin-source"
 
 class BitcoinSourceConnector : SourceConnector() {
 

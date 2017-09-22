@@ -1,4 +1,4 @@
-package fund.cyber.node.connectors.bitcoin.model
+package fund.cyber.index.btcd
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -8,7 +8,31 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.math.BigDecimal
+import java.math.BigInteger
+import kotlin.collections.map
+import kotlin.collections.toList
+import kotlin.jvm.java
 
+sealed class BtcdBitcoinElement
+
+
+data class BtcdBlock(
+        val hash: String,
+        val confirmations: Int,
+        val strippedsize: Int,
+        val size: Int,
+        val height: BigInteger,
+        val weight: Int,
+        val version: Int,
+        val merkleroot: String,
+        val tx: List<Transaction>,
+        val time: Long,
+        val nonce: Int,
+        val bits: Int,
+        val difficulty: BigDecimal,
+        val previousblockhash: String,
+        val nextblockhash: String
+) : BtcdBitcoinElement()
 
 data class Transaction(
         val txid: String,
@@ -19,7 +43,7 @@ data class Transaction(
 
         @JsonDeserialize(using = TransactionInputDeserializer::class)
         val vin: List<TransactionInput>
-)
+) : BtcdBitcoinElement()
 
 data class TransactionOutput(
         val value: BigDecimal,
