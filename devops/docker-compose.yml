@@ -1,41 +1,68 @@
 ---
 
-version: '2.1'
+# Image settings https://github.com/docker-library/docs/tree/master/cassandra
+
+# CASSANDRA_SEEDS -> specify ~3 seed nodes for dc.
+# They are used by gossip for bootstrapping new nodes joining a cluster.
+
+# Ports:
+#    7199: cassandra JMX
+#    1099  kafka jmx
+#    9042: CQL
+#    9200: ElasticSearch HTTP
+#    2181: zookeper
+#    9092: kafka
+#
+#    8000: kafka-topics-ui
+#    9000: kafka-manager
+# todo find a way to not expose as host due mac team members
+
+version: '3.3'
 services:
 
-
-  zookeeper:
-    image: confluentinc/cp-zookeeper:3.3.0
+  elassandra:
     network_mode: host
+    image: strapdata/elassandra:2.4.5.5
+    volumes:
+      - /opt/cyberfund/search/elassandra:/var/lib/cassandra
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+       CASSANDRA_DC: LOCAL_DEVELOPMENT
+       CASSANDRA_CLUSTER_NAME: CYBERNODE
 
+
+  zoo:
+    network_mode: host
+    image: confluentinc/cp-zookeeper:3.3.0
+    environment:
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_CLIENT_PORT: 2181
+      KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
+    volumes:
+      - /opt/cyberfund/search/zoo/data:/var/lib/zookeeper/data
+      - /opt/cyberfund/search/zoo/log:/var/lib/zookeeper/log
 
 
   kafka:
-    image: confluentinc/cp-kafka:3.3.0
     network_mode: host
-    depends_on:
-      - zookeeper
+    image: confluentinc/cp-kafka:3.3.0
     environment:
       KAFKA_BROKER_ID: 0
       KAFKA_ZOOKEEPER_CONNECT: localhost:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_JMX_PORT: 19192
-      KAFKA_JMX_HOSTNAME: localhost
-
+      KAFKA_JMX_PORT: 1099
+      KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
+    volumes:
+      - /opt/cyberfund/search/kafka/data:/var/lib/kafka/data
 
 
   kafka_manager:
     network_mode: host
-    image: sheepkiller/kafka-manager:1.3.1.8
+    image: hlebalbau/kafka-manager:1.3.3.13
     environment:
-      ZK_HOSTS: localhost:2181
-      APPLICATION_SECRET: "random_secret"
-      KM_ARGS: -Dpidfile.path=/dev/null
-
+      ZK_HOSTS: "localhost:2181"
+      APPLICATION_SECRET: "random-secret"
+    command: -Dpidfile.path=/dev/null
 
 
   kafka-connect:
