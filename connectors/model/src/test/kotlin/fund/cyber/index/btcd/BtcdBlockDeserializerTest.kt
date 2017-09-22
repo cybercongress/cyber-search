@@ -1,4 +1,4 @@
-package fund.cyber.node.connectors.bitcoin.model
+package fund.cyber.index.btcd
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
+import java.math.BigInteger
 
 private val rawBlock = """
 {
@@ -97,8 +98,8 @@ private val transaction = Transaction(
         vout = listOf(regularOut)
 )
 
-private val block = Block(
-        hash = "blockhash", confirmations = 5, size = 5, height = 322, strippedsize = 10,
+private val block = BtcdBlock(
+        hash = "blockhash", confirmations = 5, size = 5, height = BigInteger.valueOf(322), strippedsize = 10,
         merkleroot = "1qwefsadf", time = 35346574567, nonce = 123123, difficulty = BigDecimal("2.33"),
         previousblockhash = "hash", nextblockhash = "hash", bits = 234234234, version = 1, weight = 322,
         tx = listOf(transaction)
@@ -106,7 +107,7 @@ private val block = Block(
 
 
 @DisplayName("Btcd block deserialization test: ")
-class BlockDeserializerTest {
+class BtcdBlockDeserializerTest {
 
     @Test
     @DisplayName("Should parse block")
@@ -115,7 +116,7 @@ class BlockDeserializerTest {
         val deserializer = ObjectMapper().registerKotlinModule()
         deserializer.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-        val parsedBlock = deserializer.readValue(rawBlock, Block::class.java)
+        val parsedBlock = deserializer.readValue(rawBlock, BtcdBlock::class.java)
 
         Assertions.assertEquals(block, parsedBlock)
     }

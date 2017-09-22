@@ -1,4 +1,4 @@
-package fund.cyber.node.connectors.bitcoin.model
+package fund.cyber.index.btcd
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper

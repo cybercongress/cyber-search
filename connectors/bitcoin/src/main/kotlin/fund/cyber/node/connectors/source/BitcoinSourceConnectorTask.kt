@@ -1,12 +1,12 @@
 package fund.cyber.node.connectors.source
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import fund.cyber.index.IndexTopics
 import fund.cyber.node.common.readTextAndClose
 import fund.cyber.node.connectors.client.AsyncBtcdClient
 import fund.cyber.node.connectors.client.BlockResponse
 import fund.cyber.node.connectors.configuration.BitcoinConnectorConfiguration
 import fund.cyber.node.connectors.configuration.batch_size_default
-import fund.cyber.node.model.Block
 import org.apache.kafka.connect.data.Schema.STRING_SCHEMA
 import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.source.SourceTask
@@ -64,16 +64,9 @@ class BitcoinSourceConnectorTask : SourceTask() {
                         jsonDeserializer.readValue(rawResult, BlockResponse::class.java).getRawBlock()
                     }
                     .map { (blockNumber, rawBlock) ->
-                        Block(
-                                chunk_id = (blockNumber / chunkSize).toString(),
-                                number = blockNumber.toString(),
-                                rawBlock = "bitcoin " + rawBlock
-                        )
-                    }
-                    .map { block ->
                         SourceRecord(
-                                sourcePartition, sourceOffset(lastParsedBlockNumber), bitcoinSourceTopic,
-                                STRING_SCHEMA, jsonSerializer.writeValueAsString(block)
+                                sourcePartition, sourceOffset(blockNumber), IndexTopics.bitcoinSourceTopic,
+                                STRING_SCHEMA, jsonSerializer.writeValueAsString(rawBlock)
                         )
 
                     }
