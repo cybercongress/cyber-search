@@ -66,7 +66,7 @@ class BitcoinSourceConnectorTask : SourceTask() {
                     .map { (blockNumber, rawBlock) ->
                         SourceRecord(
                                 sourcePartition, sourceOffset(blockNumber), IndexTopics.bitcoinSourceTopic,
-                                STRING_SCHEMA, jsonSerializer.writeValueAsString(rawBlock)
+                                null, jsonSerializer.writeValueAsString(rawBlock)
                         )
 
                     }
