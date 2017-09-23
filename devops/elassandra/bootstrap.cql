@@ -22,11 +22,10 @@ CREATE TABLE IF NOT EXISTS blockchains.ethereum (
      transactionsCount int,
      miner text,
 
-     uncles list<FROZEN <blockchains.ethereum_block_uncle>>,
-     txs list<FROZEN <blockchains.ethereum_block_tx>>
+     txs list<FROZEN <blockchains.ethereum_tx>>
 );
 
-CREATE TABLE IF NOT EXISTS blockchains.ethereum_block_tx (
+CREATE TABLE IF NOT EXISTS blockchains.ethereum_tx (
      hash text PRIMARY KEY,
      nonce int,
      blockHash text,
@@ -115,4 +114,17 @@ CREATE TABLE IF NOT EXISTS blockchains.bitcoin_tx (
      total_output text,
      ins list<FROZEN <blockchains.bitcoin_tx_in>>,
      outs list<FROZEN <blockchains.bitcoin_tx_out>>
+);
+CREATE TABLE IF NOT EXISTS blockchains.ethereum_address (
+    address text PRIMARY KEY,
+    ethBalance text,
+    txs list<FROZEN <blockchains.ethereum_tx>>
+);
+
+CREATE TABLE IF NOT EXISTS blockchains.ethereum_contract (
+    address text PRIMARY KEY,
+    ethBalance text,
+    contractCode text,
+    contractCreator text,
+    txs list<FROZEN <blockchains.ethereum_tx>>
 );
