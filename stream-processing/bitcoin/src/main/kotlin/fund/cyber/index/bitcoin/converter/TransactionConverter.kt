@@ -72,7 +72,7 @@ class BitcoinTransactionConverter {
         return btcdTxIns.map { (txid, vout, scriptSig) ->
             val daoTxOut = inputDaoTransactionById[txid]!!.getOutputByNumber(vout)
             BitcoinTransactionIn(
-                    address = daoTxOut.address, amount = daoTxOut.amount, asm = scriptSig.asm, tx_hash = txid, tx_out = vout
+                    address = daoTxOut.address, amount = daoTxOut.amount, asm = scriptSig.asm, tx_id = txid, tx_out = vout
             )
         }
     }

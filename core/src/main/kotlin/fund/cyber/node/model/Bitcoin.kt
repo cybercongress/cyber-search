@@ -86,7 +86,7 @@ data class BitcoinTransactionIn(
         val address: String,
         val amount: BigDecimal,
         val asm: String,
-        val tx_hash: String,
+        val tx_id: String,
         val tx_out: Int
 )
 
