@@ -12,6 +12,13 @@ import java.time.Instant
 
 class BitcoinTransactionConverter {
 
+    fun btcdTransactionsToDao(
+            btcdBlock: BtcdBlock, inputDaoTransactionById: Map<String, BitcoinTransaction>): List<BitcoinTransaction> {
+
+        return btcdBlock.rawtx
+                .map { btcdTransaction -> btcdTransactionToDao(btcdTransaction, btcdBlock, inputDaoTransactionById) }
+    }
+
 
     fun btcdTransactionToDao(
             btcdTransaction: BtcdTransaction, btcdBlock: BtcdBlock,

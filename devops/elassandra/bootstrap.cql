@@ -45,7 +45,7 @@ CREATE TYPE IF NOT EXISTS blockchains.bitcoin_tx_in (
     address text,
     amount decimal,
     asm text,
-    tx_hash text,
+    tx_id text,
     tx_out tinyint
 );
 
