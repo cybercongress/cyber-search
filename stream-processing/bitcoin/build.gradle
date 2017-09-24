@@ -6,6 +6,8 @@ dependencies {
     compile("org.jetbrains.kotlin:kotlin-stdlib-jre8")
     compile("org.apache.kafka:kafka-streams")
     compile("org.apache.kafka:kafka-clients")
+    compile("com.datastax.cassandra:cassandra-driver-core")
+    compile("com.datastax.cassandra:cassandra-driver-mapping")
 }
 
 mainClassName = "fund.cyber.index.bitcoin.BitcoinBlockSplitterApplication"
