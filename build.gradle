@@ -5,7 +5,7 @@ buildscript {
         kotlinCoroutinesVersion = "0.18"
         jacksonVersion = "2.8.9"
         undertowVersion = "1.4.20.Final"
-        kafkaVersion = "0.11.0.0"
+        kafkaVersion = "0.11.0.1"
         web3jVersion = "2.3.0"
         apacheHttpClientVersion = "4.1.3"
 
@@ -22,8 +22,6 @@ buildscript {
         // logs
         slf4jVersion = "1.7.25"
         lockbackVersion = "1.2.3"
-
-        sparkVersion="2.2.0"
     }
 
     repositories {
@@ -51,6 +49,10 @@ subprojects {
         }
     }
 
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
     repositories {
         jcenter()
         mavenCentral()
@@ -72,6 +74,8 @@ subprojects {
             dependency("org.apache.httpcomponents:httpasyncclient:$apacheHttpClientVersion")
 
             dependency("org.apache.kafka:kafka-clients:$kafkaVersion")
+            dependency("org.apache.kafka:kafka-streams:$kafkaVersion")
+
             dependency("org.apache.kafka:connect-api:$kafkaVersion")
 
             dependency("org.junit.jupiter:junit-jupiter-api:$junitVersion")
@@ -79,6 +83,7 @@ subprojects {
             dependency("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
             dependency("org.mockito:mockito-core:$mockitoVersion")
             dependency("com.nhaarman:mockito-kotlin:$mockitoKotlinVersion")
+
 
             dependency("org.web3j:core:$web3jVersion")
         }
@@ -105,6 +110,8 @@ project(":core") {
 
         compile("com.fasterxml.jackson.core:jackson-databind")
         compile("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+        compile("org.apache.kafka:kafka-clients")
     }
 }
 
@@ -118,22 +125,4 @@ project(":search-api") {
     }
 
     mainClassName = "fund.cyber.search.SearchApiApplication"
-}
-
-
-project(":stream-processing") {
-
-    apply plugin: "com.github.johnrengelman.shadow"
-
-    dependencies {
-        // Dependencies which will be included in fatjar
-        compile("org.jetbrains.kotlin:kotlin-stdlib-jre8")
-
-        compileOnly("org.apache.spark:spark-sql_2.11:$sparkVersion")
-        compileOnly("org.apache.spark:spark-streaming_2.11:$sparkVersion")
-
-        compileOnly("org.apache.kafka:kafka_2.11:$kafkaVersion")
-        compileOnly("org.apache.spark:spark-streaming-kafka-0-10_2.11:$sparkVersion")
-        compileOnly("org.apache.spark:spark-sql-kafka-0-10_2.11:$sparkVersion")
-    }
 }

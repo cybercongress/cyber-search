@@ -11,6 +11,7 @@ CREATE TYPE IF NOT EXISTS blockchains.bitcoin_block_tx_io (
 CREATE TYPE IF NOT EXISTS blockchains.bitcoin_block_tx (
     fee decimal,
     lock_time timestamp,
+    hash text,
     ins list<FROZEN <blockchains.bitcoin_block_tx_io>>,
     outs list<FROZEN <blockchains.bitcoin_block_tx_io>>
 );

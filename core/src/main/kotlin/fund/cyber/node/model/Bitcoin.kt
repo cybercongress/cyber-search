@@ -41,13 +41,14 @@ data class BitcoinBlock(
         val version: Int,
         val weight: Int,
         val bits: Int,
-        val difficulty: BigInteger,
+        val difficulty: BigDecimal,
         val txs: List<BitcoinBlockTransaction>
 ) : Item
 
 data class BitcoinBlockTransaction(
         val fee: BigDecimal,
         val lock_time: Instant,
+        val hash: String,
         val ins: List<BitcoinBlockTransactionIO>,
         val outs: List<BitcoinBlockTransactionIO>
 )
