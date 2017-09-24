@@ -9,9 +9,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.math.BigDecimal
 import java.math.BigInteger
-import kotlin.collections.map
-import kotlin.collections.toList
-import kotlin.jvm.java
 
 sealed class BtcdBitcoinElement
 
@@ -25,27 +22,34 @@ data class BtcdBlock(
         val weight: Int,
         val version: Int,
         val merkleroot: String,
-        val tx: List<Transaction>,
+        val rawtx: List<BtcdTransaction>,
         val time: Long,
         val nonce: Int,
-        val bits: Int,
+        val bits: String,
         val difficulty: BigDecimal,
         val previousblockhash: String,
         val nextblockhash: String
 ) : BtcdBitcoinElement()
 
-data class Transaction(
+data class BtcdTransaction(
         val txid: String,
         val hex: String,
         val version: Int,
-        val locktime: Long,
-        val vout: List<TransactionOutput>,
+        val size: Int,
+        val locktime: BigInteger,
+        val vout: List<BtcdTransactionOutput>,
 
         @JsonDeserialize(using = TransactionInputDeserializer::class)
         val vin: List<TransactionInput>
-) : BtcdBitcoinElement()
+) : BtcdBitcoinElement() {
 
-data class TransactionOutput(
+    fun regularInputs(): List<BtcdRegularTransactionInput> =
+            vin.filter { input -> input is BtcdRegularTransactionInput }
+                    .map { input -> input as BtcdRegularTransactionInput }
+}
+
+
+data class BtcdTransactionOutput(
         val value: BigDecimal,
         val n: Int,
         val scriptPubKey: PubKeyScript
@@ -59,7 +63,7 @@ data class CoinbaseTransactionInput(
         val txinwitness: String = ""
 ) : TransactionInput()
 
-data class RegularTransactionInput(
+data class BtcdRegularTransactionInput(
         val txid: String,
         val vout: Int,
         val scriptSig: SignatureScript,
@@ -70,7 +74,7 @@ data class RegularTransactionInput(
 data class PubKeyScript(
         val asm: String,
         val hex: String,
-        val reqSigs: Int,
+        val reqSigs: Short,
         val type: String,
         val addresses: List<String>
 )
@@ -97,7 +101,7 @@ class TransactionInputDeserializer : JsonDeserializer<List<TransactionInput>>() 
                     if (tx["coinbase"] != null) {
                         objectMapper.treeToValue(tx, CoinbaseTransactionInput::class.java)
                     } else {
-                        objectMapper.treeToValue(tx, RegularTransactionInput::class.java)
+                        objectMapper.treeToValue(tx, BtcdRegularTransactionInput::class.java)
                     }
                 }
     }
