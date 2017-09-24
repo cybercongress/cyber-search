@@ -1,5 +1,8 @@
 include "core"
 include "search-api"
-include "stream-processing"
+include "connectors/model"
 include "connectors/ethereum"
 include "connectors/bitcoin"
+
+include "stream-processing/common"
+include "stream-processing/bitcoin"
