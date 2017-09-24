@@ -40,7 +40,7 @@ data class BitcoinBlock(
         val size: Int,
         val version: Int,
         val weight: Int,
-        val bits: Int,
+        val bits: String,
         val difficulty: BigDecimal,
         val txs: List<BitcoinBlockTransaction>
 ) : Item
@@ -58,6 +58,7 @@ data class BitcoinBlockTransactionIO(
         val amount: BigDecimal
 )
 
+
 /*
 *
 * Bitcoin transaction
@@ -65,29 +66,34 @@ data class BitcoinBlockTransactionIO(
 */
 
 data class BitcoinTransaction(
-        val hash: String,
+        val txId: String,
         val block_number: BigInteger,
-        val coinbase: String?,
-        val lock_time: Instant,
+        val coinbase: String? = null,
+        val lock_time: BigInteger, //indicate earliest block when that transaction may be added to the block chain //todo make separate field with time
+        val blockTime: Instant,
+        val size: Int,
         val fee: BigDecimal,
         val total_input: BigDecimal,
         val total_output: BigDecimal,
         val ins: List<BitcoinTransactionIn>,
         val outs: List<BitcoinTransactionOut>
-) : Item
+) : Item {
+
+    fun getOutputByNumber(number: Int): BitcoinTransactionOut = outs.find { out -> out.out == number }!!
+}
 
 data class BitcoinTransactionIn(
         val address: String,
         val amount: BigDecimal,
         val asm: String,
         val tx_hash: String,
-        val tx_out: String
+        val tx_out: Int
 )
 
 data class BitcoinTransactionOut(
         val address: String,
         val amount: BigDecimal,
         val asm: String,
-        val out: Short,
+        val out: Int,
         val required_signatures: Short
 )

@@ -1,7 +1,7 @@
 /* Gradle plugins part */
 buildscript {
     ext {
-        kotlinVersion = "1.1.4-3"
+        kotlinVersion = "1.1.50"
         kotlinCoroutinesVersion = "0.18"
         jacksonVersion = "2.8.9"
         undertowVersion = "1.4.20.Final"

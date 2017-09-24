@@ -21,15 +21,16 @@ private val rawBlock = """
   "merkleroot"       : "1qwefsadf",
   "time"             : 35346574567,
   "nonce"            : 123123,
-  "bits"             : 234234234,
+  "bits"             : "234234234",
   "difficulty"       : 2.33,
-  "previousblockhash": "hash",
-  "nextblockhash"    : "hash",
-  "tx"               : [
+  "previousblockhash": "txId",
+  "nextblockhash"    : "txId",
+  "rawtx"               : [
     {
       "hex"     : "01000000010000000000000000000000000000000000000000000000000000000000000000f...",
       "txid"    : "90743aad855880e517270550d2a881627d84db5265142fd1e7fb7add38b08be9",
       "version" : 1,
+      "size"    : 259,
       "locktime": 0,
       "vin"     : [
         {
@@ -67,7 +68,7 @@ private val rawBlock = """
 }
 """
 
-private val regularVin = RegularTransactionInput(
+private val regularVin = BtcdRegularTransactionInput(
         txid = "60ac4b057247b3d0b9a8173de56b5e1be8c1d1da970511c626ef53706c66be04",
         vout = 0, sequence = 4294967295,
         scriptSig = SignatureScript(
@@ -81,7 +82,7 @@ private val coinbaseVin = CoinbaseTransactionInput(
         sequence = 4294967295, txinwitness = "data"
 )
 
-private val regularOut = TransactionOutput(
+private val regularOut = BtcdTransactionOutput(
         value = BigDecimal("25.1394"), n = 0,
         scriptPubKey = PubKeyScript(
                 asm = "OP_DUP OP_HASH160 ea132286328cfc819457b9dec386c4b5c84faa5c OP_EQUALVERIFY OP_CHECKSIG",
@@ -90,10 +91,10 @@ private val regularOut = TransactionOutput(
         )
 )
 
-private val transaction = Transaction(
+private val transaction = BtcdTransaction(
         hex = "01000000010000000000000000000000000000000000000000000000000000000000000000f...",
         txid = "90743aad855880e517270550d2a881627d84db5265142fd1e7fb7add38b08be9",
-        version = 1, locktime = 0,
+        version = 1, locktime = BigInteger.ZERO, size = 259,
         vin = listOf(regularVin, coinbaseVin),
         vout = listOf(regularOut)
 )
@@ -101,8 +102,8 @@ private val transaction = Transaction(
 private val block = BtcdBlock(
         hash = "blockhash", confirmations = 5, size = 5, height = BigInteger.valueOf(322), strippedsize = 10,
         merkleroot = "1qwefsadf", time = 35346574567, nonce = 123123, difficulty = BigDecimal("2.33"),
-        previousblockhash = "hash", nextblockhash = "hash", bits = 234234234, version = 1, weight = 322,
-        tx = listOf(transaction)
+        previousblockhash = "txId", nextblockhash = "txId", bits = "234234234", version = 1, weight = 322,
+        rawtx = listOf(transaction)
 )
 
 
