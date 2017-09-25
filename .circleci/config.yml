@@ -18,14 +18,14 @@ defaults:
 
 jobs:
 
-  build_connectors:
+  build_project:
     <<: *default_container
     steps:
       - checkout
       - restore_cache:
           keys:
-            - connectors-dependencies-{{ checksum "build.gradle" }}
-            - connectors-dependencies
+            - project-dependencies-{{ checksum "build.gradle" }}
+            - project-dependencies
           paths:
             - ~/.gradle/caches/
             - ~/.gradle/wrapper/
@@ -33,7 +33,7 @@ jobs:
           name: Test and build kafka-connectors project
           command: ./gradlew clean build
       - save_cache:
-          key: connectors-dependencies-{{ checksum "build.gradle" }}
+          key: project-dependencies-{{ checksum "build.gradle" }}
           paths:
             - ~/.gradle/caches/
             - ~/.gradle/wrapper/
@@ -56,16 +56,37 @@ jobs:
              docker push cybernode/cn-kafka-connectors:latest
 
 
+    deploy_bitcoin_processor_image:
+       <<: *default_container
+       steps:
+         - checkout
+         - setup_remote_docker:
+             version: 17.05.0-ce
+         - run:
+             name: Build kafka-streams processor for bitcoin
+             command: |
+               docker build -t build/cs-bitcoin-processor -f ./devops/stream-processing/bitcoin ./
+               docker login -u $DOCKER_USER -p $DOCKER_PASS
+               docker tag build/cs-bitcoin-processor cybernode/cs-bitcoin-processor:$CIRCLE_TAG
+               docker push cybernode/cs-bitcoin-processor:$CIRCLE_TAG
+               docker tag build/cs-bitcoin-processor cybernode/cs-bitcoin-processor:latest
+               docker push cybernode/cs-bitcoin-processor:latest
+
+
 workflows:
   version: 2
 
   kafka-connectors_build:
     jobs:
-      - build_connectors:
+      - build_project:
           filters:
             tags:
               only: /.*/
       - deploy_connectors_image:
           <<: *release_filter
           requires:
-            - build_connectors
+            - build_project
+      - deploy_bitcoin_processor_image:
+          <<: *release_filter
+          requires:
+            - build_project
