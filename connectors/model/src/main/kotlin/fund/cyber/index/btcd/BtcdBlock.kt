@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.math.BigDecimal
-import java.math.BigInteger
 
 sealed class BtcdBitcoinElement
 
@@ -18,13 +17,13 @@ data class BtcdBlock(
         val confirmations: Int,
         val strippedsize: Int,
         val size: Int,
-        val height: BigInteger,
+        val height: Long,
         val weight: Int,
         val version: Int,
         val merkleroot: String,
         val rawtx: List<BtcdTransaction>,
         val time: Long,
-        val nonce: Int,
+        val nonce: Long,
         val bits: String,
         val difficulty: BigDecimal,
         val previousblockhash: String,
@@ -36,7 +35,7 @@ data class BtcdTransaction(
         val hex: String,
         val version: Int,
         val size: Int,
-        val locktime: BigInteger,
+        val locktime: Long,
         val vout: List<BtcdTransactionOutput>,
 
         @JsonDeserialize(using = TransactionInputDeserializer::class)
@@ -50,7 +49,7 @@ data class BtcdTransaction(
 
 
 data class BtcdTransactionOutput(
-        val value: BigDecimal,
+        val value: String,
         val n: Int,
         val scriptPubKey: PubKeyScript
 )
@@ -74,9 +73,9 @@ data class BtcdRegularTransactionInput(
 data class PubKeyScript(
         val asm: String,
         val hex: String,
-        val reqSigs: Short,
+        val reqSigs: Int,
         val type: String,
-        val addresses: List<String>
+        val addresses: List<String> = listOf("no address")
 )
 
 data class SignatureScript(

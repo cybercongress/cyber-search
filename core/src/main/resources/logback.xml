@@ -22,6 +22,7 @@
     <logger name="io.undertow.websockets.core.request" level="ERROR"/>
     <logger name="org.apache.http" level="ERROR"/>
    <logger name="org.apache.kafka" level="ERROR"/>
+   <logger name="com.datastax.driver.core" level="ERROR"/>
 
     <root level="debug">
         <appender-ref ref="STDOUT"/>

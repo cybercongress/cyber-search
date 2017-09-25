@@ -34,30 +34,32 @@ CREATE TABLE IF NOT EXISTS blockchains.bitcoin (
 
 CREATE TYPE IF NOT EXISTS blockchains.bitcoin_tx_out (
     address text,
-    amount decimal,
+    amount text,
     asm text,
-    out tinyint,
-    required_signatures tinyint
+    out int,
+    required_signatures int
 );
 
 
 CREATE TYPE IF NOT EXISTS blockchains.bitcoin_tx_in (
     address text,
-    amount decimal,
+    amount text,
     asm text,
     tx_id text,
-    tx_out tinyint
+    tx_out int
 );
 
 
 CREATE TABLE IF NOT EXISTS blockchains.bitcoin_tx (
-     hash text PRIMARY KEY,
-     block_number varint,
+     txid text PRIMARY KEY,
+     block_number bigint,
+     size int,
      coinbase text,
-     lock_time timestamp,
-     fee decimal,
-     total_input decimal,
-     total_output decimal,
+     lock_time bigint,
+     blockTime timestamp,
+     fee text,
+     total_input text,
+     total_output text,
      ins list<FROZEN <blockchains.bitcoin_tx_in>>,
      outs list<FROZEN <blockchains.bitcoin_tx_out>>
 );

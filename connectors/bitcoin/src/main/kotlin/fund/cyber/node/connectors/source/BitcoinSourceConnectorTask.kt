@@ -1,13 +1,14 @@
 package fund.cyber.node.connectors.source
 
+import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import fund.cyber.index.IndexTopics
 import fund.cyber.node.common.readTextAndClose
 import fund.cyber.node.connectors.client.AsyncBtcdClient
 import fund.cyber.node.connectors.client.BlockResponse
 import fund.cyber.node.connectors.configuration.BitcoinConnectorConfiguration
 import fund.cyber.node.connectors.configuration.batch_size_default
-import org.apache.kafka.connect.data.Schema.STRING_SCHEMA
 import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.source.SourceTask
 import org.slf4j.LoggerFactory
@@ -37,8 +38,8 @@ class BitcoinSourceConnectorTask : SourceTask() {
         batchSize = taskConfiguration.batchSize
 
         btcdClient = AsyncBtcdClient(taskConfiguration)
-        jsonSerializer = ObjectMapper()
-        jsonDeserializer = ObjectMapper()
+        jsonSerializer = ObjectMapper().registerKotlinModule().configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
+        jsonDeserializer = ObjectMapper().registerKotlinModule().configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
 
         lastParsedBlockNumber = lastParsedBlockNumber()
         lastNetworkBlockOnStartup = btcdClient.getLastBlockNumber()
@@ -60,15 +61,13 @@ class BitcoinSourceConnectorTask : SourceTask() {
                     }
                     .mapValues { (blockNumber, httpEntity) ->
                         val rawResult = httpEntity.content.readTextAndClose()
-                        log.debug(rawResult)
                         jsonDeserializer.readValue(rawResult, BlockResponse::class.java).getRawBlock()
                     }
                     .map { (blockNumber, rawBlock) ->
                         SourceRecord(
                                 sourcePartition, sourceOffset(blockNumber), IndexTopics.bitcoinSourceTopic,
-                                null, jsonSerializer.writeValueAsString(rawBlock)
+                                null, rawBlock
                         )
-
                     }
                     .toList()
 

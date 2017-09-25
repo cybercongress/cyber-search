@@ -5,24 +5,22 @@ import fund.cyber.node.common.sumByBigDecimal
 import fund.cyber.node.model.BitcoinTransaction
 import fund.cyber.node.model.BitcoinTransactionIn
 import fund.cyber.node.model.BitcoinTransactionOut
-import java.math.BigDecimal
+import org.ehcache.Cache
 import java.time.Instant
+
 
 //todo remove top lvl function
 
-class BitcoinTransactionConverter {
+class BitcoinTransactionConverter(private val transactionCache: Cache<String, BitcoinTransaction>) {
 
-    fun btcdTransactionsToDao(
-            btcdBlock: BtcdBlock, inputDaoTransactionById: Map<String, BitcoinTransaction>): List<BitcoinTransaction> {
+    fun btcdTransactionsToDao(btcdBlock: BtcdBlock): List<BitcoinTransaction> {
 
-        return btcdBlock.rawtx
-                .map { btcdTransaction -> btcdTransactionToDao(btcdTransaction, btcdBlock, inputDaoTransactionById) }
+        return btcdBlock.rawtx.map { btcdTransaction -> btcdTransactionToDao(btcdTransaction, btcdBlock) }
     }
 
 
     fun btcdTransactionToDao(
-            btcdTransaction: BtcdTransaction, btcdBlock: BtcdBlock,
-            inputDaoTransactionById: Map<String, BitcoinTransaction>): BitcoinTransaction {
+            btcdTransaction: BtcdTransaction, btcdBlock: BtcdBlock): BitcoinTransaction {
 
         val firstInput = btcdTransaction.vin.first()
 
@@ -31,17 +29,20 @@ class BitcoinTransactionConverter {
             return btcdCoinbaseTxToDao(btcdTransaction, btcdBlock)
         }
 
-        val inputs = btcdTxInToDao(btcdTransaction.regularInputs(), inputDaoTransactionById)
+        val inputs = btcdTxInToDao(btcdTransaction.regularInputs())
         val outputs = btcdTransaction.vout.map { btcdTxOut -> btcdTxOutToDao(btcdTxOut) }
 
         val totalInput = inputs.sumByBigDecimal { input -> input.amount }
         val totalOutput = outputs.sumByBigDecimal { out -> out.amount }
 
-        return BitcoinTransaction(
+        val transaction = BitcoinTransaction(
                 txId = btcdTransaction.txid, block_number = btcdBlock.height, lock_time = btcdTransaction.locktime,
-                ins = inputs, outs = outputs, total_input = totalInput, total_output = totalOutput,
-                fee = totalInput - totalOutput, size = btcdTransaction.size, blockTime = Instant.ofEpochSecond(btcdBlock.time)
+                ins = inputs, outs = outputs, total_input = totalInput.toString(), total_output = totalOutput.toString(),
+                fee = (totalInput - totalOutput).toString(), size = btcdTransaction.size,
+                blockTime = Instant.ofEpochSecond(btcdBlock.time).toString()
         )
+        transactionCache.put(transaction.txId, transaction)
+        return transaction
     }
 
 
@@ -55,12 +56,16 @@ class BitcoinTransactionConverter {
                 amount = firstOutput.value, out = firstOutput.n, required_signatures = firstOutput.scriptPubKey.reqSigs
         )
 
-        return BitcoinTransaction(
+        val transaction = BitcoinTransaction(
                 txId = btcdTransaction.txid, block_number = btcdBlock.height, lock_time = btcdTransaction.locktime,
-                coinbase = firstInput.coinbase, fee = BigDecimal.ZERO, blockTime = Instant.ofEpochSecond(btcdBlock.time),
-                ins = emptyList(), total_input = BigDecimal.ZERO,
-                outs = listOf(output), total_output = BigDecimal.ZERO, size = btcdTransaction.size
+                coinbase = firstInput.coinbase, fee = "0",
+                blockTime = Instant.ofEpochSecond(btcdBlock.time).toString(),
+                ins = emptyList(), total_input = "0",
+                outs = listOf(output), total_output = "0", size = btcdTransaction.size
         )
+
+        transactionCache.put(transaction.txId, transaction)
+        return transaction
     }
 
 
@@ -71,13 +76,11 @@ class BitcoinTransactionConverter {
      *   outputs defined by txid and n.
      *
      * @param btcdTxIns current transaction inputs
-     * @param inputDaoTransactionById earlier transactions, that used as given input for current transaction.
      */
-    fun btcdTxInToDao(btcdTxIns: List<BtcdRegularTransactionInput>,
-                      inputDaoTransactionById: Map<String, BitcoinTransaction>): List<BitcoinTransactionIn> {
+    fun btcdTxInToDao(btcdTxIns: List<BtcdRegularTransactionInput>): List<BitcoinTransactionIn> {
 
         return btcdTxIns.map { (txid, vout, scriptSig) ->
-            val daoTxOut = inputDaoTransactionById[txid]!!.getOutputByNumber(vout)
+            val daoTxOut = transactionCache[txid].getOutputByNumber(vout)
             BitcoinTransactionIn(
                     address = daoTxOut.address, amount = daoTxOut.amount, asm = scriptSig.asm, tx_id = txid, tx_out = vout
             )

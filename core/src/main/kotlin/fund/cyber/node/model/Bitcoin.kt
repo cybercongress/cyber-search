@@ -1,5 +1,7 @@
 package fund.cyber.node.model
 
+import com.datastax.driver.mapping.annotations.Table
+import com.datastax.driver.mapping.annotations.UDT
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
@@ -13,14 +15,14 @@ import java.time.Instant
 data class BitcoinBlockPreview(
         val hash: String,
         val height: BigInteger,
-        val time: Instant,
+        val time: String,
         val merkleroot: String,
         val size: Int
 ) : ItemPreview
 
 data class BitcoinTransactionPreview(
         val hash: String,
-        val lock_time: Instant,
+        val lock_time: Long,
         val block_number: BigInteger,
         val fee: BigDecimal
 ) : ItemPreview
@@ -33,9 +35,9 @@ data class BitcoinTransactionPreview(
 
 data class BitcoinBlock(
         val hash: String,
-        val height: BigInteger,
-        val time: Instant,
-        val nonce: Int,
+        val height: Long,
+        val time: String,
+        val nonce: Long,
         val merkleroot: String,
         val size: Int,
         val version: Int,
@@ -46,7 +48,7 @@ data class BitcoinBlock(
 ) : Item
 
 data class BitcoinBlockTransaction(
-        val fee: BigDecimal,
+        val fee: String,
         val lock_time: Instant,
         val hash: String,
         val ins: List<BitcoinBlockTransactionIO>,
@@ -64,17 +66,19 @@ data class BitcoinBlockTransactionIO(
 * Bitcoin transaction
 *
 */
-
+@Table(keyspace = "blockchains", name = "bitcoin_tx",
+        readConsistency = "QUORUM", writeConsistency = "QUORUM",
+        caseSensitiveKeyspace = false, caseSensitiveTable = false)
 data class BitcoinTransaction(
         val txId: String,
-        val block_number: BigInteger,
+        val block_number: Long,
         val coinbase: String? = null,
-        val lock_time: BigInteger, //indicate earliest block when that transaction may be added to the block chain //todo make separate field with time
-        val blockTime: Instant,
+        val lock_time: Long, //indicate earliest block when that transaction may be added to the block chain //todo make separate field with time
+        val blockTime: String,
         val size: Int,
-        val fee: BigDecimal,
-        val total_input: BigDecimal,
-        val total_output: BigDecimal,
+        val fee: String,
+        val total_input: String,
+        val total_output: String,
         val ins: List<BitcoinTransactionIn>,
         val outs: List<BitcoinTransactionOut>
 ) : Item {
@@ -82,18 +86,26 @@ data class BitcoinTransaction(
     fun getOutputByNumber(number: Int): BitcoinTransactionOut = outs.find { out -> out.out == number }!!
 }
 
+@UDT(name = "bitcoin_tx_in")
 data class BitcoinTransactionIn(
         val address: String,
-        val amount: BigDecimal,
+        val amount: String,
         val asm: String,
         val tx_id: String,
         val tx_out: Int
-)
+) {
 
+    constructor() : this("", "0", "", "", 0)
+}
+
+@UDT(name = "bitcoin_tx_out")
 data class BitcoinTransactionOut(
         val address: String,
-        val amount: BigDecimal,
+        val amount: String,
         val asm: String,
         val out: Int,
-        val required_signatures: Short
-)
+        val required_signatures: Int
+) {
+
+    constructor() : this("", "0", "", 0, 1)
+}
