@@ -73,6 +73,23 @@ jobs:
              docker push cybernode/cs-bitcoin-processor:latest
 
 
+  deploy_search_api_image:
+     <<: *default_container
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.05.0-ce
+       - run:
+           name: Build cyber search api image
+           command: |
+             docker build -t build/cs-search-api -f ./devops/search-api/search-api ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/cs-search-api cybernode/cs-search-api:$CIRCLE_TAG
+             docker push cybernode/cs-search-api:$CIRCLE_TAG
+             docker tag build/cs-search-api cybernode/cs-search-api:latest
+             docker push cybernode/cs-search-api:latest
+
+
 workflows:
   version: 2
 
@@ -87,6 +104,10 @@ workflows:
           requires:
             - build_project
       - deploy_bitcoin_processor_image:
+          <<: *release_filter
+          requires:
+            - build_project
+      - deploy_search_api_image:
           <<: *release_filter
           requires:
             - build_project

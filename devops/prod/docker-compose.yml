@@ -92,7 +92,7 @@ services:
       CONNECT_ACCESS_CONTROL_ALLOW_ORIGIN: '*'
       CONNECT_ACCESS_CONTROL_ALLOW_METHODS: 'GET,OPTIONS,HEAD,POST,PUT,DELETE'
 
-  cs-kafka-bitcoin:
+  cs-bitcoin-process:
     image: cybernode/cs-bitcoin-processor:release-0.5.2
     environment:
       CASSANDRA_CONNECTION: cs-elassandra

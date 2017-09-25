@@ -24,8 +24,6 @@ object BitcoinBlockSplitterApplication {
 
     private val log = LoggerFactory.getLogger(BitcoinBlockSplitterApplication::class.java)
 
-    var blocNumber = 0L
-
     @JvmStatic
     fun main(args: Array<String>) {
 
@@ -70,9 +68,7 @@ object BitcoinBlockSplitterApplication {
             val inputTransactions = loadInputTransactions(btcdBlock, cassandra)
             cache.putAll(inputTransactions)
 
-            val list = transactionConverter.btcdTransactionsToDao(btcdBlock)
-            blocNumber++
-            list
+            transactionConverter.btcdTransactionsToDao(btcdBlock)
         } catch (e: Exception) {
             Thread.sleep(1000)
             tryToHandleTransaction(btcdBlock, cache, cassandra, transactionConverter)

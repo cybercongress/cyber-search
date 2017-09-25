@@ -12,3 +12,5 @@ dependencies {
 }
 
 mainClassName = "fund.cyber.index.bitcoin.BitcoinBlockSplitterApplication"
+applicationName = "bitcoin-processor"
+
