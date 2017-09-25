@@ -76,7 +76,7 @@ jobs:
 workflows:
   version: 2
 
-  kafka-connectors_build:
+  search_build:
     jobs:
       - build_project:
           filters:
