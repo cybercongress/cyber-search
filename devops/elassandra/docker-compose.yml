@@ -18,14 +18,10 @@ version: '3.3'
 services:
 
   elassandra:
-    container_name: cyber_markets_elassandra_dev
+    network_mode: host
     image: strapdata/elassandra:2.4.5.5
     volumes:
-      - /opt/cyberfund/markets/elassandra:/var/lib/cassandra
-    ports:
-        - "9042:9042"
-        - "9200:9200"
-        - "7199:7199"
+      - /opt/cyberfund/search/elassandra:/var/lib/cassandra
     environment:
-          CASSANDRA_DC: LOCAL_DEVELOPMENT
-          CASSANDRA_CLUSTER_NAME: CYBERNODE
+       CASSANDRA_DC: LOCAL_DEVELOPMENT
+       CASSANDRA_CLUSTER_NAME: CYBERNODE

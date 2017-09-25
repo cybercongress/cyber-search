@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
-import java.math.BigInteger
 
 private val rawBlock = """
 {
@@ -83,7 +82,7 @@ private val coinbaseVin = CoinbaseTransactionInput(
 )
 
 private val regularOut = BtcdTransactionOutput(
-        value = BigDecimal("25.1394"), n = 0,
+        value = "25.1394", n = 0,
         scriptPubKey = PubKeyScript(
                 asm = "OP_DUP OP_HASH160 ea132286328cfc819457b9dec386c4b5c84faa5c OP_EQUALVERIFY OP_CHECKSIG",
                 hex = "76a914ea132286328cfc819457b9dec386c4b5c84faa5c88ac",
@@ -94,13 +93,13 @@ private val regularOut = BtcdTransactionOutput(
 private val transaction = BtcdTransaction(
         hex = "01000000010000000000000000000000000000000000000000000000000000000000000000f...",
         txid = "90743aad855880e517270550d2a881627d84db5265142fd1e7fb7add38b08be9",
-        version = 1, locktime = BigInteger.ZERO, size = 259,
+        version = 1, locktime = 0, size = 259,
         vin = listOf(regularVin, coinbaseVin),
         vout = listOf(regularOut)
 )
 
 private val block = BtcdBlock(
-        hash = "blockhash", confirmations = 5, size = 5, height = BigInteger.valueOf(322), strippedsize = 10,
+        hash = "blockhash", confirmations = 5, size = 5, height = 322, strippedsize = 10,
         merkleroot = "1qwefsadf", time = 35346574567, nonce = 123123, difficulty = BigDecimal("2.33"),
         previousblockhash = "txId", nextblockhash = "txId", bits = "234234234", version = 1, weight = 322,
         rawtx = listOf(transaction)

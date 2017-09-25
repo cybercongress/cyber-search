@@ -2,6 +2,7 @@ package fund.cyber.node.connectors.client
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import fund.cyber.index.btcd.BtcdBlock
 import fund.cyber.node.connectors.configuration.BitcoinConnectorConfiguration
 import fund.cyber.node.model.Request
 import org.apache.http.HttpResponse

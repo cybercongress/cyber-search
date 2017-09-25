@@ -1,9 +1,11 @@
 package fund.cyber.node.kafka
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serializer
+import java.nio.charset.StandardCharsets.UTF_8
 
 class JsonSerializer<T> : Serializer<T> {
     private val objectMapper = ObjectMapper().registerKotlinModule()
@@ -18,10 +20,11 @@ class JsonSerializer<T> : Serializer<T> {
 
 class JsonDeserializer<T>(private val type: Class<T>) : Deserializer<T> {
     private val objectMapper = ObjectMapper().registerKotlinModule()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     override fun deserialize(topic: String, data: ByteArray): T {
-
-        return objectMapper.readValue(data, type)
+        val block = String(data, UTF_8).replace("\\", "")
+        return objectMapper.readValue(block.substring(1, block.length - 1), type)
     }
 
     override fun configure(configs: MutableMap<String, *>, isKey: Boolean) {}
