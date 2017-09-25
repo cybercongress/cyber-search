@@ -1,0 +1,508 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-elassandra
+    name: cs-elassandra
+  spec:
+    ports:
+    - name: "9042"
+      port: 9042
+      targetPort: 9042
+    - name: "9200"
+      port: 9200
+      targetPort: 9200
+    - name: "7199"
+      port: 7199
+      targetPort: 7199
+    selector:
+      io.kompose.service: cs-elassandra
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka
+    name: cs-kafka
+  spec:
+    ports:
+    - name: "9092"
+      port: 9092
+      targetPort: 9092
+    - name: "1099"
+      port: 1099
+      targetPort: 1099
+    selector:
+      io.kompose.service: cs-kafka
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka-bitcoin
+    name: cs-kafka-bitcoin
+  spec:
+    clusterIP: None
+    ports:
+    - name: headless
+      port: 55555
+      targetPort: 0
+    selector:
+      io.kompose.service: cs-kafka-bitcoin
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka-connect
+    name: cs-kafka-connect
+  spec:
+    ports:
+    - name: "8083"
+      port: 8083
+      targetPort: 8083
+    selector:
+      io.kompose.service: cs-kafka-connect
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka-connect-ui
+    name: cs-kafka-connect-ui
+  spec:
+    ports:
+    - name: "8000"
+      port: 8000
+      targetPort: 8000
+    selector:
+      io.kompose.service: cs-kafka-connect-ui
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka-manager
+    name: cs-kafka-manager
+  spec:
+    ports:
+    - name: "9000"
+      port: 9000
+      targetPort: 9000
+    selector:
+      io.kompose.service: cs-kafka-manager
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-zoo
+    name: cs-zoo
+  spec:
+    ports:
+    - name: "2181"
+      port: 2181
+      targetPort: 2181
+    selector:
+      io.kompose.service: cs-zoo
+  status:
+    loadBalancer: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-elassandra
+    name: cs-elassandra
+  spec:
+    replicas: 1
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-elassandra
+      spec:
+        containers:
+        - env:
+          - name: CASSANDRA_CLUSTER_NAME
+            value: CYBERNODE
+          - name: CASSANDRA_DC
+            value: LOCAL_DEVELOPMENT
+          image: strapdata/elassandra:2.4.5.5
+          name: cs-elassandra
+          ports:
+          - containerPort: 9042
+          - containerPort: 9200
+          - containerPort: 7199
+          resources: {}
+          volumeMounts:
+          - mountPath: /var/lib/cassandra
+            name: cs-elassandra-claim0
+        restartPolicy: Always
+        volumes:
+        - name: cs-elassandra-claim0
+          persistentVolumeClaim:
+            claimName: cs-elassandra-claim0
+  status: {}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-elassandra-claim0
+    name: cs-elassandra-claim0
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 100Mi
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka
+    name: cs-kafka
+  spec:
+    replicas: 1
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-kafka
+      spec:
+        containers:
+        - env:
+          - name: KAFKA_ADVERTISED_LISTENERS
+            value: PLAINTEXT://cs-kafka:9092
+          - name: KAFKA_BROKER_ID
+            value: "1"
+          - name: KAFKA_JMX_PORT
+            value: "1099"
+          - name: KAFKA_LOG4J_ROOT_LOGLEVEL
+            value: ERROR
+          - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+            value: "1"
+          - name: KAFKA_ZOOKEEPER_CONNECT
+            value: cs-zoo:2181
+          image: confluentinc/cp-kafka:3.3.0
+          name: cs-kafka
+          ports:
+          - containerPort: 9092
+          - containerPort: 1099
+          resources: {}
+          volumeMounts:
+          - mountPath: /var/lib/kafka
+            name: cs-kafka-claim0
+        restartPolicy: Always
+        volumes:
+        - name: cs-kafka-claim0
+          persistentVolumeClaim:
+            claimName: cs-kafka-claim0
+  status: {}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka-claim0
+    name: cs-kafka-claim0
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 100Mi
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka-bitcoin
+    name: cs-kafka-bitcoin
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-kafka-bitcoin
+      spec:
+        containers:
+        - env:
+          - name: CASSANDRA_CONNECTION
+            value: cs-elassandra
+          - name: KAFKA_CONNECTION
+            value: cs-kafka:9092
+          image: cybernode/cs-bitcoin-processor:release-0.5.2
+          name: cs-kafka-bitcoin
+          resources: {}
+        restartPolicy: Always
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka-connect
+    name: cs-kafka-connect
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-kafka-connect
+      spec:
+        containers:
+        - env:
+          - name: CONNECT_ACCESS_CONTROL_ALLOW_METHODS
+            value: GET,OPTIONS,HEAD,POST,PUT,DELETE
+          - name: CONNECT_ACCESS_CONTROL_ALLOW_ORIGIN
+            value: '*'
+          - name: CONNECT_BOOTSTRAP_SERVERS
+            value: cs-kafka:9092
+          - name: CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR
+            value: "1"
+          - name: CONNECT_CONFIG_STORAGE_TOPIC
+            value: cybernode.config
+          - name: CONNECT_CONSUMER_INTERCEPTOR_CLASSES
+            value: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+          - name: CONNECT_GROUP_ID
+            value: cybernode
+          - name: CONNECT_INTERNAL_KEY_CONVERTER
+            value: org.apache.kafka.connect.json.JsonConverter
+          - name: CONNECT_INTERNAL_VALUE_CONVERTER
+            value: org.apache.kafka.connect.json.JsonConverter
+          - name: CONNECT_KEY_CONVERTER
+            value: org.apache.kafka.connect.json.JsonConverter
+          - name: CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE
+            value: "false"
+          - name: CONNECT_OFFSET_FLUSH_INTERVAL_MS
+            value: "5000"
+          - name: CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR
+            value: "1"
+          - name: CONNECT_OFFSET_STORAGE_TOPIC
+            value: cybernode.offsets
+          - name: CONNECT_PRODUCER_INTERCEPTOR_CLASSES
+            value: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+          - name: CONNECT_REST_ADVERTISED_HOST_NAME
+            value: cs-kafka-connect
+          - name: CONNECT_REST_ADVERTISED_PORT
+            value: "8083"
+          - name: CONNECT_REST_PORT
+            value: "8083"
+          - name: CONNECT_STATUS_STORAGE_REPLICATION_FACTOR
+            value: "1"
+          - name: CONNECT_STATUS_STORAGE_TOPIC
+            value: cybernode.status
+          - name: CONNECT_VALUE_CONVERTER
+            value: org.apache.kafka.connect.json.JsonConverter
+          - name: CONNECT_ZOOKEEPER_CONNECT
+            value: cs-zoo:2181
+          image: cybernode/cn-kafka-connectors:release-0.5.2
+          name: cs-kafka-connect
+          ports:
+          - containerPort: 8083
+          resources: {}
+        restartPolicy: Always
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka-connect-ui
+    name: cs-kafka-connect-ui
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-kafka-connect-ui
+      spec:
+        containers:
+        - env:
+          - name: CONNECT_URL
+            value: cs-kafka-connect:8083
+          image: landoop/kafka-connect-ui:0.9.2
+          name: cs-kafka-connect-ui
+          ports:
+          - containerPort: 8000
+          resources: {}
+        restartPolicy: Always
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka-manager
+    name: cs-kafka-manager
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-kafka-manager
+      spec:
+        containers:
+        - args:
+          - -Dpidfile.path=/dev/null
+          env:
+          - name: APPLICATION_SECRET
+            value: random-secret
+          - name: ZK_HOSTS
+            value: cs-zoo:2181
+          image: hlebalbau/kafka-manager:1.3.3.14
+          name: cs-kafka-manager
+          ports:
+          - containerPort: 9000
+          resources: {}
+        restartPolicy: Always
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-zoo
+    name: cs-zoo
+  spec:
+    replicas: 1
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-zoo
+      spec:
+        containers:
+        - env:
+          - name: KAFKA_LOG4J_ROOT_LOGLEVEL
+            value: ERROR
+          - name: ZOOKEEPER_CLIENT_PORT
+            value: "2181"
+          - name: ZOOKEEPER_TICK_TIME
+            value: "2000"
+          image: confluentinc/cp-zookeeper:3.3.0
+          name: cs-zoo
+          ports:
+          - containerPort: 2181
+          resources: {}
+          volumeMounts:
+          - mountPath: /var/lib/zookeeper/data
+            name: cs-zoo-claim0
+          - mountPath: /var/lib/zookeeper/log
+            name: cs-zoo-claim1
+        restartPolicy: Always
+        volumes:
+        - name: cs-zoo-claim0
+          persistentVolumeClaim:
+            claimName: cs-zoo-claim0
+        - name: cs-zoo-claim1
+          persistentVolumeClaim:
+            claimName: cs-zoo-claim1
+  status: {}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-zoo-claim0
+    name: cs-zoo-claim0
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 100Mi
+  status: {}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-zoo-claim1
+    name: cs-zoo-claim1
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 100Mi
+  status: {}
+kind: List
+metadata: {}
+
