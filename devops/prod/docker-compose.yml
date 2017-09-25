@@ -6,7 +6,7 @@ services:
   cs-elassandra:
     image: strapdata/elassandra:2.4.5.5
     volumes:
-      - /opt/cyberfund/markets/elassandra:/var/lib/cassandra
+      - /opt/cyberfund/search/elassandra:/var/lib/cassandra
     ports:
         - "9042:9042"
         - "9200:9200"
@@ -25,8 +25,8 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
     volumes:
-      - /opt/cyberfund/markets/zoo/data:/var/lib/zookeeper/data
-      - /opt/cyberfund/markets/zoo/log:/var/lib/zookeeper/log
+      - /opt/cyberfund/search/zoo/data:/var/lib/zookeeper/data
+      - /opt/cyberfund/search/zoo/log:/var/lib/zookeeper/log
 
 
 
@@ -37,13 +37,13 @@ services:
       - "1099:1099"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zoo:2181
+      KAFKA_ZOOKEEPER_CONNECT: cs-zoo:2181
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cn-kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cs-kafka:9092
       KAFKA_JMX_PORT: 1099
       KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
     volumes:
-      - /opt/cyberfund/markets/kafka/data:/var/lib/kafka/data
+      - /opt/cyberfund/search/kafka/data:/var/lib/kafka/data
 
 
 
@@ -52,7 +52,7 @@ services:
     ports:
       - "9000:9000"
     environment:
-      ZK_HOSTS: "zoo:2181"
+      ZK_HOSTS: "cs-zoo:2181"
       APPLICATION_SECRET: "random-secret"
     command: -Dpidfile.path=/dev/null
 
@@ -64,12 +64,12 @@ services:
       - "8083:8083"
     environment:
 
-      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
+      CONNECT_REST_ADVERTISED_HOST_NAME: "cs-kafka-connect"
       CONNECT_REST_ADVERTISED_PORT: "8083"
       CONNECT_REST_PORT: 8083
 
-      CONNECT_BOOTSTRAP_SERVERS: kafka:9092
-      CONNECT_ZOOKEEPER_CONNECT: zoo:2181
+      CONNECT_BOOTSTRAP_SERVERS: cs-kafka:9092
+      CONNECT_ZOOKEEPER_CONNECT: cs-zoo:2181
 
       CONNECT_GROUP_ID: "cybernode"
       CONNECT_CONFIG_STORAGE_TOPIC: "cybernode.config"
@@ -95,9 +95,8 @@ services:
   cs-kafka-bitcoin:
     image: cybernode/cs-bitcoin-processor:release-0.5.2
     environment:
-      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
-      CONNECT_REST_ADVERTISED_PORT: "8083"
-      CONNECT_REST_PORT: 8083
+      CASSANDRA_CONNECTION: cs-elassandra
+      KAFKA_CONNECTION: cs-kafka:9092
 
 
   cs-kafka-connect-ui:
@@ -105,4 +104,4 @@ services:
     ports:
       - "8000:8000"
     environment:
-      CONNECT_URL: kafka-connect:8083
+      CONNECT_URL: cs-kafka-connect:8083
