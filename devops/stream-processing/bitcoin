@@ -8,4 +8,4 @@ RUN ./gradlew clean :stream-processing/bitcoin:installDist
 FROM openjdk:8u131-jre-alpine
 VOLUME /cyberdata
 COPY --from=build /cs/stream-processing/bitcoin/build/install/stream-processing/bitcoin /cyberapp
-ENTRYPOINT ["/cyberapp/bin/bitcoin"]
+ENTRYPOINT ["/cyberapp/bin/stream-processing/bitcoin"]
