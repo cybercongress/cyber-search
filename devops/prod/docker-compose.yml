@@ -10,6 +10,7 @@ services:
     ports:
         - "9042:9042"
         - "9200:9200"
+        - "9300:9300"
         - "7199:7199"
     environment:
           CASSANDRA_DC: LOCAL_DEVELOPMENT
@@ -59,7 +60,7 @@ services:
 
 
   cs-kafka-connect:
-    image: cybernode/cn-kafka-connectors:release-0.5.2
+    image: cybernode/cn-kafka-connectors:release-0.5.3
     ports:
       - "8083:8083"
     environment:
@@ -93,11 +94,19 @@ services:
       CONNECT_ACCESS_CONTROL_ALLOW_METHODS: 'GET,OPTIONS,HEAD,POST,PUT,DELETE'
 
   cs-bitcoin-process:
-    image: cybernode/cs-bitcoin-processor:release-0.5.2
+    image: cybernode/cs-bitcoin-processor:release-0.5.3
     environment:
       CASSANDRA_CONNECTION: cs-elassandra
       KAFKA_CONNECTION: cs-kafka:9092
 
+  cs-search-api:
+    image: cybernode/cs-search-api:release-0.5.3
+    ports:
+      - "8085:8085"
+    environment:
+      ELASTIC_HOST_CONNECTION: cs-elassandra
+      ELASTIC_PORT_CONNECTION: 9300
+      ELASTIC_CLUSTER_NAME: CYBERNODE
 
   cs-kafka-connect-ui:
     image: landoop/kafka-connect-ui:0.9.2
