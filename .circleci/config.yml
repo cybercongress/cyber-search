@@ -56,21 +56,21 @@ jobs:
              docker push cybernode/cn-kafka-connectors:latest
 
 
-    deploy_bitcoin_processor_image:
-       <<: *default_container
-       steps:
-         - checkout
-         - setup_remote_docker:
-             version: 17.05.0-ce
-         - run:
-             name: Build kafka-streams processor for bitcoin
-             command: |
-               docker build -t build/cs-bitcoin-processor -f ./devops/stream-processing/bitcoin ./
-               docker login -u $DOCKER_USER -p $DOCKER_PASS
-               docker tag build/cs-bitcoin-processor cybernode/cs-bitcoin-processor:$CIRCLE_TAG
-               docker push cybernode/cs-bitcoin-processor:$CIRCLE_TAG
-               docker tag build/cs-bitcoin-processor cybernode/cs-bitcoin-processor:latest
-               docker push cybernode/cs-bitcoin-processor:latest
+  deploy_bitcoin_processor_image:
+     <<: *default_container
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.05.0-ce
+       - run:
+           name: Build kafka-streams processor for bitcoin
+           command: |
+             docker build -t build/cs-bitcoin-processor -f ./devops/stream-processing/bitcoin ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/cs-bitcoin-processor cybernode/cs-bitcoin-processor:$CIRCLE_TAG
+             docker push cybernode/cs-bitcoin-processor:$CIRCLE_TAG
+             docker tag build/cs-bitcoin-processor cybernode/cs-bitcoin-processor:latest
+             docker push cybernode/cs-bitcoin-processor:latest
 
 
 workflows:
