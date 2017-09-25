@@ -10,7 +10,7 @@ class SearchResponse(
         val page: Int,
         val pageSize: Int,
 
-        val totalHits: Int,
-        val searchTime: Int, //ms
+        val totalHits: Long,
+        val searchTime: Long, //ms
         val items: List<ItemPreview>
 )

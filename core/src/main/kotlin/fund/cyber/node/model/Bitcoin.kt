@@ -3,29 +3,9 @@ package fund.cyber.node.model
 import com.datastax.driver.mapping.annotations.Table
 import com.datastax.driver.mapping.annotations.UDT
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.time.Instant
 
-/*
-*
-* Items Previews
-*
-*/
 
-data class BitcoinBlockPreview(
-        val hash: String,
-        val height: BigInteger,
-        val time: String,
-        val merkleroot: String,
-        val size: Int
-) : ItemPreview
-
-data class BitcoinTransactionPreview(
-        val hash: String,
-        val lock_time: Long,
-        val block_number: BigInteger,
-        val fee: BigDecimal
-) : ItemPreview
 
 /*
 *
@@ -45,7 +25,7 @@ data class BitcoinBlock(
         val bits: String,
         val difficulty: BigDecimal,
         val txs: List<BitcoinBlockTransaction>
-) : Item
+)
 
 data class BitcoinBlockTransaction(
         val fee: String,
@@ -81,7 +61,7 @@ data class BitcoinTransaction(
         val total_output: String,
         val ins: List<BitcoinTransactionIn>,
         val outs: List<BitcoinTransactionOut>
-) : Item {
+) {
 
     fun getOutputByNumber(number: Int): BitcoinTransactionOut = outs.find { out -> out.out == number }!!
 }

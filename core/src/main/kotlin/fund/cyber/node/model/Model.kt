@@ -1,8 +1,12 @@
 package fund.cyber.node.model
 
+import com.fasterxml.jackson.annotation.JsonRawValue
 
-interface Item
-interface ItemPreview
+
+data class ItemPreview(
+        val type: String,
+        @JsonRawValue val data: String
+)
 
 data class Block(
         val chunk_id: String,
