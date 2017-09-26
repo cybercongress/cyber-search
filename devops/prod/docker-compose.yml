@@ -114,3 +114,12 @@ services:
       - "8000:8000"
     environment:
       CONNECT_URL: cs-kafka-connect:8083
+
+  cs-btcd:
+    image: cybernode/bitcoin-btcd
+    ports:
+      - "8334:8334"
+    command: "--rpcuser=cyber --rpcpass=cyber --rpclisten=0.0.0.0:8334 --notls"
+    volumes:
+      - /cyberdata:/cyberdata
+ 

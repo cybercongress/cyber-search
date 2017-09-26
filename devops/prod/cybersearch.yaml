@@ -28,6 +28,25 @@ items:
       kompose.version: 1.1.0 (36652f6)
     creationTimestamp: null
     labels:
+      io.kompose.service: cs-btcd
+    name: cs-btcd
+  spec:
+    ports:
+    - name: "8334"
+      port: 8334
+      targetPort: 8334
+    selector:
+      io.kompose.service: cs-btcd
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
       io.kompose.service: cs-elassandra
     name: cs-elassandra
   spec:
@@ -194,6 +213,60 @@ items:
           name: cs-bitcoin-process
           resources: {}
         restartPolicy: Always
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-btcd
+    name: cs-btcd
+  spec:
+    replicas: 1
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-btcd
+      spec:
+        containers:
+        - args:
+          - --rpcuser=cyber
+          - --rpcpass=cyber
+          - --rpclisten=0.0.0.0:8334
+          - --notls
+          image: cybernode/bitcoin-btcd
+          name: cs-btcd
+          ports:
+          - containerPort: 8334
+          resources: {}
+          volumeMounts:
+          - mountPath: /cyberdata
+            name: cs-btcd-claim0
+        restartPolicy: Always
+        volumes:
+        - name: cs-btcd-claim0
+          persistentVolumeClaim:
+            claimName: cs-btcd-claim0
+  status: {}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-btcd-claim0
+    name: cs-btcd-claim0
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 100Mi
   status: {}
 - apiVersion: extensions/v1beta1
   kind: Deployment
