@@ -107,6 +107,8 @@ services:
       ELASTIC_HOST_CONNECTION: cs-elassandra
       ELASTIC_PORT_CONNECTION: 9300
       ELASTIC_CLUSTER_NAME: CYBERNODE
+    labels:
+      kompose.service.type: loadbalancer
 
   cs-kafka-connect-ui:
     image: landoop/kafka-connect-ui:0.9.2
