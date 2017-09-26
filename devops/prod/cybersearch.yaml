@@ -5,7 +5,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-bitcoin-process
@@ -25,7 +25,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-btcd
@@ -44,7 +44,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-elassandra
@@ -72,7 +72,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-kafka
@@ -94,7 +94,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-kafka-connect
@@ -113,7 +113,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-kafka-connect-ui
@@ -132,7 +132,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-kafka-manager
@@ -152,7 +152,7 @@ items:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
       kompose.service.type: loadbalancer
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-search-api
@@ -172,7 +172,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-zoo
@@ -191,7 +191,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-bitcoin-process
@@ -221,7 +221,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-btcd
@@ -275,7 +275,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-elassandra
@@ -332,7 +332,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-kafka
@@ -395,7 +395,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-kafka-connect
@@ -467,7 +467,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-kafka-connect-ui
@@ -497,7 +497,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-kafka-manager
@@ -532,7 +532,7 @@ items:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
       kompose.service.type: loadbalancer
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-search-api
@@ -566,7 +566,7 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
+      kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
       io.kompose.service: cs-zoo
