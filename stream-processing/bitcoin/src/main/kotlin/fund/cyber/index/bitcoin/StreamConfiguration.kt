@@ -10,7 +10,7 @@ import java.util.*
 class StreamConfiguration(
         val kafkaServers: String = env("KAFKA_CONNECTION", "localhost:9092"),
         val cassandraServers: String = env("CASSANDRA_CONNECTION", "127.0.0.1"),
-        val applicationId: String = "cyber.index.bitcoin.block.splitter"
+        val applicationId: String = "cyber.index.bitcoin.block.splitter1"
 ) {
     fun streamProperties(): Properties {
         return Properties().apply {

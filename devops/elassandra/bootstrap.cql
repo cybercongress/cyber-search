@@ -4,29 +4,31 @@ CREATE KEYSPACE IF NOT EXISTS blockchains
 
 CREATE TYPE IF NOT EXISTS blockchains.bitcoin_block_tx_io (
     address text,
-    amount decimal
+    amount text
 );
 
 
 CREATE TYPE IF NOT EXISTS blockchains.bitcoin_block_tx (
-    fee decimal,
-    lock_time timestamp,
+    fee text,
+    lock_time bigint,
     hash text,
     ins list<FROZEN <blockchains.bitcoin_block_tx_io>>,
     outs list<FROZEN <blockchains.bitcoin_block_tx_io>>
 );
 
 
-CREATE TABLE IF NOT EXISTS blockchains.bitcoin (
+CREATE TABLE IF NOT EXISTS blockchains.bitcoin_block (
      hash text,
-     height varint PRIMARY KEY,
+     height bigint PRIMARY KEY,
      time timestamp,
-     nonce int,
+     nonce bigint,
      merkleroot text,
      size int,
      version int,
      weight int,
-     bits int,
+     bits text,
+     tx_number int,
+     total_outputs_value text,
      difficulty varint,
      txs list<FROZEN <blockchains.bitcoin_block_tx>>
 );
@@ -53,10 +55,11 @@ CREATE TYPE IF NOT EXISTS blockchains.bitcoin_tx_in (
 CREATE TABLE IF NOT EXISTS blockchains.bitcoin_tx (
      txid text PRIMARY KEY,
      block_number bigint,
+     block_hash text,
+     block_time timestamp,
      size int,
      coinbase text,
      lock_time bigint,
-     blockTime timestamp,
      fee text,
      total_input text,
      total_output text,

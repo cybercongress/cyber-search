@@ -86,12 +86,13 @@ subprojects {
             dependency("org.mockito:mockito-core:$mockitoVersion")
             dependency("com.nhaarman:mockito-kotlin:$mockitoKotlinVersion")
 
+            dependency("org.ehcache:ehcache:$ehcacheVersion")
+            dependency("org.elasticsearch:elasticsearch:$elasticVersion") {
+                exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+            }
+
             dependency("com.datastax.cassandra:cassandra-driver-core:$cassandraConfluentVersion")
             dependency("com.datastax.cassandra:cassandra-driver-mapping:$cassandraConfluentVersion")
-            dependency("com.datastax.cassandra:cassandra-driver-extras:$cassandraConfluentVersion")
-
-            dependency("org.ehcache:ehcache:$ehcacheVersion")
-            dependency("org.elasticsearch:elasticsearch:$elasticVersion")
 
             dependency("org.web3j:core:$web3jVersion")
         }
@@ -120,6 +121,7 @@ project(":core") {
         compile("com.fasterxml.jackson.module:jackson-module-kotlin")
 
         compile("org.apache.kafka:kafka-clients")
+        compile("com.datastax.cassandra:cassandra-driver-core")
         compile("com.datastax.cassandra:cassandra-driver-mapping")
     }
 }
