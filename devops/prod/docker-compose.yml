@@ -61,7 +61,7 @@ services:
 
 
   cs-kafka-connect:
-    image: cybernode/cn-kafka-connectors:release-0.5.4
+    image: cybernode/cn-kafka-connectors:release-0.5.5
     ports:
       - "8083:8083"
     environment:
@@ -102,14 +102,14 @@ services:
 
 
   cs-bitcoin-process:
-    image: cybernode/cs-bitcoin-processor:release-0.5.4
+    image: cybernode/cs-bitcoin-processor:release-0.5.5
     environment:
       CASSANDRA_CONNECTION: cs-elassandra
       KAFKA_CONNECTION: cs-kafka:9092
 
 
   cs-search-api:
-    image: cybernode/cs-search-api:release-0.5.4
+    image: cybernode/cs-search-api:release-0.5.5
     ports:
       - "8085:8085"
     environment:
