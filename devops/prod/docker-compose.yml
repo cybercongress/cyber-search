@@ -62,7 +62,7 @@ services:
 
 
   cs-kafka-connect:
-    image: cybernode/cn-kafka-connectors:release-0.5.3
+    image: cybernode/cn-kafka-connectors:release-0.5.4
     ports:
       - "8083:8083"
     environment:
@@ -101,14 +101,16 @@ services:
       CONNECT_ACCESS_CONTROL_ALLOW_ORIGIN: '*'
       CONNECT_ACCESS_CONTROL_ALLOW_METHODS: 'GET,OPTIONS,HEAD,POST,PUT,DELETE'
 
+
   cs-bitcoin-process:
-    image: cybernode/cs-bitcoin-processor:release-0.5.3
+    image: cybernode/cs-bitcoin-processor:release-0.5.4
     environment:
       CASSANDRA_CONNECTION: cs-elassandra
       KAFKA_CONNECTION: cs-kafka:9092
 
+
   cs-search-api:
-    image: cybernode/cs-search-api:release-0.5.3
+    image: cybernode/cs-search-api:release-0.5.4
     ports:
       - "8085:8085"
     environment:
@@ -132,4 +134,4 @@ services:
     command: "--rpcuser=cyber --rpcpass=cyber --rpclisten=0.0.0.0:8334 --notls"
     volumes:
       - /cyberdata:/cyberdata
- 
+
