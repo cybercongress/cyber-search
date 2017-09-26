@@ -211,7 +211,7 @@ items:
             value: cs-elassandra
           - name: KAFKA_CONNECTION
             value: cs-kafka:9092
-          image: cybernode/cs-bitcoin-processor:release-0.5.3
+          image: cybernode/cs-bitcoin-processor:release-0.5.4
           name: cs-bitcoin-process
           resources: {}
         restartPolicy: Always
@@ -469,7 +469,7 @@ items:
             value: "false"
           - name: CONNECT_ZOOKEEPER_CONNECT
             value: cs-zoo:2181
-          image: cybernode/cn-kafka-connectors:release-0.5.3
+          image: cybernode/cn-kafka-connectors:release-0.5.4
           name: cs-kafka-connect
           ports:
           - containerPort: 8083
@@ -568,7 +568,7 @@ items:
             value: cs-elassandra
           - name: ELASTIC_PORT_CONNECTION
             value: "9300"
-          image: cybernode/cs-search-api:release-0.5.3
+          image: cybernode/cs-search-api:release-0.5.4
           name: cs-search-api
           ports:
           - containerPort: 8085
