@@ -120,13 +120,6 @@ services:
     labels:
       kompose.service.type: loadbalancer
 
-  cs-kafka-connect-ui:
-    image: landoop/kafka-connect-ui:0.9.2
-    ports:
-      - "8000:8000"
-    environment:
-      CONNECT_URL: cs-kafka-connect:8083
-
   cs-btcd:
     image: cybernode/bitcoin-btcd
     ports:
@@ -135,3 +128,10 @@ services:
     volumes:
       - /cyberdata:/cyberdata
 
+  cs-fast-data-dev:
+    ports:
+      - "3030:3030"
+    image: landoop/fast-data-dev:cp3.3.0
+    environment:
+       WEB_ONLY: 1
+       RUNTESTS: 0
