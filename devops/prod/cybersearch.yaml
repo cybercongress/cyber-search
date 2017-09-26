@@ -8,6 +8,26 @@ items:
       kompose.version: 1.1.0 (36652f6)
     creationTimestamp: null
     labels:
+      io.kompose.service: cs-bitcoin-process
+    name: cs-bitcoin-process
+  spec:
+    clusterIP: None
+    ports:
+    - name: headless
+      port: 55555
+      targetPort: 0
+    selector:
+      io.kompose.service: cs-bitcoin-process
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
       io.kompose.service: cs-elassandra
     name: cs-elassandra
   spec:
@@ -18,6 +38,9 @@ items:
     - name: "9200"
       port: 9200
       targetPort: 9200
+    - name: "9300"
+      port: 9300
+      targetPort: 9300
     - name: "7199"
       port: 7199
       targetPort: 7199
@@ -45,26 +68,6 @@ items:
       targetPort: 1099
     selector:
       io.kompose.service: cs-kafka
-  status:
-    loadBalancer: {}
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
-    creationTimestamp: null
-    labels:
-      io.kompose.service: cs-kafka-bitcoin
-    name: cs-kafka-bitcoin
-  spec:
-    clusterIP: None
-    ports:
-    - name: headless
-      port: 55555
-      targetPort: 0
-    selector:
-      io.kompose.service: cs-kafka-bitcoin
   status:
     loadBalancer: {}
 - apiVersion: v1
@@ -132,6 +135,25 @@ items:
       kompose.version: 1.1.0 (36652f6)
     creationTimestamp: null
     labels:
+      io.kompose.service: cs-search-api
+    name: cs-search-api
+  spec:
+    ports:
+    - name: "8085"
+      port: 8085
+      targetPort: 8085
+    selector:
+      io.kompose.service: cs-search-api
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
       io.kompose.service: cs-zoo
     name: cs-zoo
   spec:
@@ -143,6 +165,36 @@ items:
       io.kompose.service: cs-zoo
   status:
     loadBalancer: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-bitcoin-process
+    name: cs-bitcoin-process
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-bitcoin-process
+      spec:
+        containers:
+        - env:
+          - name: CASSANDRA_CONNECTION
+            value: cs-elassandra
+          - name: KAFKA_CONNECTION
+            value: cs-kafka:9092
+          image: cybernode/cs-bitcoin-processor:release-0.5.3
+          name: cs-bitcoin-process
+          resources: {}
+        restartPolicy: Always
+  status: {}
 - apiVersion: extensions/v1beta1
   kind: Deployment
   metadata:
@@ -174,6 +226,7 @@ items:
           ports:
           - containerPort: 9042
           - containerPort: 9200
+          - containerPort: 9300
           - containerPort: 7199
           resources: {}
           volumeMounts:
@@ -270,36 +323,6 @@ items:
       kompose.version: 1.1.0 (36652f6)
     creationTimestamp: null
     labels:
-      io.kompose.service: cs-kafka-bitcoin
-    name: cs-kafka-bitcoin
-  spec:
-    replicas: 1
-    strategy: {}
-    template:
-      metadata:
-        creationTimestamp: null
-        labels:
-          io.kompose.service: cs-kafka-bitcoin
-      spec:
-        containers:
-        - env:
-          - name: CASSANDRA_CONNECTION
-            value: cs-elassandra
-          - name: KAFKA_CONNECTION
-            value: cs-kafka:9092
-          image: cybernode/cs-bitcoin-processor:release-0.5.2
-          name: cs-kafka-bitcoin
-          resources: {}
-        restartPolicy: Always
-  status: {}
-- apiVersion: extensions/v1beta1
-  kind: Deployment
-  metadata:
-    annotations:
-      kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.1.0 (36652f6)
-    creationTimestamp: null
-    labels:
       io.kompose.service: cs-kafka-connect
     name: cs-kafka-connect
   spec:
@@ -357,7 +380,7 @@ items:
             value: org.apache.kafka.connect.json.JsonConverter
           - name: CONNECT_ZOOKEEPER_CONNECT
             value: cs-zoo:2181
-          image: cybernode/cn-kafka-connectors:release-0.5.2
+          image: cybernode/cn-kafka-connectors:release-0.5.3
           name: cs-kafka-connect
           ports:
           - containerPort: 8083
@@ -425,6 +448,40 @@ items:
           name: cs-kafka-manager
           ports:
           - containerPort: 9000
+          resources: {}
+        restartPolicy: Always
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.1.0 (36652f6)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-search-api
+    name: cs-search-api
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-search-api
+      spec:
+        containers:
+        - env:
+          - name: ELASTIC_CLUSTER_NAME
+            value: CYBERNODE
+          - name: ELASTIC_HOST_CONNECTION
+            value: cs-elassandra
+          - name: ELASTIC_PORT_CONNECTION
+            value: "9300"
+          image: cybernode/cs-search-api:release-0.5.3
+          name: cs-search-api
+          ports:
+          - containerPort: 8085
           resources: {}
         restartPolicy: Always
   status: {}
