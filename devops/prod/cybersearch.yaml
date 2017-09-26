@@ -268,7 +268,7 @@ items:
     - ReadWriteOnce
     resources:
       requests:
-        storage: 100Mi
+        storage: 500Gi
   status: {}
 - apiVersion: extensions/v1beta1
   kind: Deployment
@@ -357,8 +357,12 @@ items:
             value: "1099"
           - name: KAFKA_LOG4J_ROOT_LOGLEVEL
             value: ERROR
+          - name: KAFKA_MESSAGE_MAX_BYTES
+            value: "10485760"
           - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
             value: "1"
+          - name: KAFKA_REPLICA_FETCH_MAX_BYTES
+            value: "10485760"
           - name: KAFKA_ZOOKEEPER_CONNECT
             value: cs-zoo:2181
           image: confluentinc/cp-kafka:3.3.0
@@ -423,12 +427,18 @@ items:
             value: cybernode.config
           - name: CONNECT_CONSUMER_INTERCEPTOR_CLASSES
             value: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+          - name: CONNECT_CONSUMER_MAX_PARTITION_FETCH_BYTES
+            value: "10485760"
           - name: CONNECT_GROUP_ID
             value: cybernode
           - name: CONNECT_INTERNAL_KEY_CONVERTER
             value: org.apache.kafka.connect.json.JsonConverter
+          - name: CONNECT_INTERNAL_KEY_CONVERTER_SCHEMAS_ENABLE
+            value: "true"
           - name: CONNECT_INTERNAL_VALUE_CONVERTER
             value: org.apache.kafka.connect.json.JsonConverter
+          - name: CONNECT_INTERNAL_VALUE_CONVERTER_SCHEMAS_ENABLE
+            value: "true"
           - name: CONNECT_KEY_CONVERTER
             value: org.apache.kafka.connect.json.JsonConverter
           - name: CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE
@@ -441,6 +451,8 @@ items:
             value: cybernode.offsets
           - name: CONNECT_PRODUCER_INTERCEPTOR_CLASSES
             value: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+          - name: CONNECT_PRODUCER_MAX_REQUEST_SIZE
+            value: "10485760"
           - name: CONNECT_REST_ADVERTISED_HOST_NAME
             value: cs-kafka-connect
           - name: CONNECT_REST_ADVERTISED_PORT
@@ -453,6 +465,8 @@ items:
             value: cybernode.status
           - name: CONNECT_VALUE_CONVERTER
             value: org.apache.kafka.connect.json.JsonConverter
+          - name: CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE
+            value: "false"
           - name: CONNECT_ZOOKEEPER_CONNECT
             value: cs-zoo:2181
           image: cybernode/cn-kafka-connectors:release-0.5.3
