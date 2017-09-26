@@ -43,6 +43,7 @@ object BitcoinBlockSplitterApplication {
         val bitcoinBlockSerde = Serdes.serdeFrom<BitcoinBlock>(JsonSerializer<BitcoinBlock>(), JsonDeserializer(BitcoinBlock::class.java))
 
         val bitcoinItemsStream = builder.stream<Any, BtcdBlock>(null, btcdBlockSerde, IndexTopics.bitcoinSourceTopic)
+                .filter({ _, v -> v != null })
                 .flatMapValues { btcdBlock ->
                     val transactions = tryToHandleTransaction(btcdBlock, cache, cassandra, transactionConverter)
                     val blockAndTransactions = mutableListOf<BitcoinItem>(blockConverter.btcdBlockToDao(btcdBlock, transactions))
