@@ -209,9 +209,11 @@ items:
         - env:
           - name: CASSANDRA_CONNECTION
             value: cs-elassandra
+          - name: CS_LOG_LEVEL
+            value: DEBUG
           - name: KAFKA_CONNECTION
             value: cs-kafka:9092
-          image: cybernode/cs-bitcoin-processor:release-0.5.5
+          image: cybernode/cs-bitcoin-processor:release-0.5.6
           name: cs-bitcoin-process
           resources: {}
         restartPolicy: Always
@@ -443,6 +445,10 @@ items:
             value: org.apache.kafka.connect.json.JsonConverter
           - name: CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE
             value: "false"
+          - name: CONNECT_LOG4J_LOGGERS
+            value: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR,fund.cyber.node.connectors.source=INFO"
+          - name: CONNECT_LOG4J_ROOT_LEVEL
+            value: INFO
           - name: CONNECT_OFFSET_FLUSH_INTERVAL_MS
             value: "5000"
           - name: CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR
@@ -469,7 +475,7 @@ items:
             value: "false"
           - name: CONNECT_ZOOKEEPER_CONNECT
             value: cs-zoo:2181
-          image: cybernode/cn-kafka-connectors:release-0.5.5
+          image: cybernode/cn-kafka-connectors:release-0.5.6
           name: cs-kafka-connect
           ports:
           - containerPort: 8083
@@ -568,7 +574,7 @@ items:
             value: cs-elassandra
           - name: ELASTIC_PORT_CONNECTION
             value: "9300"
-          image: cybernode/cs-search-api:release-0.5.5
+          image: cybernode/cs-search-api:release-0.5.6
           name: cs-search-api
           ports:
           - containerPort: 8085
