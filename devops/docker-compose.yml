@@ -26,7 +26,6 @@ services:
     environment:
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_CLIENT_PORT: 2181
-      KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
     volumes:
       - /opt/cyberfund/search/zoo/data:/var/lib/zookeeper/data
       - /opt/cyberfund/search/zoo/log:/var/lib/zookeeper/log
@@ -41,9 +40,12 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_JMX_PORT: 1099
-      KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
+
       KAFKA_MESSAGE_MAX_BYTES: 10485760
       KAFKA_REPLICA_FETCH_MAX_BYTES: 10485760
+
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_LOG4J_ROOT_LOGLEVEL: WARN
     volumes:
       - /opt/cyberfund/search/kafka/data:/var/lib/kafka/data
 
@@ -66,7 +68,6 @@ services:
       CONNECT_REST_ADVERTISED_PORT: "8083"
       CONNECT_REST_PORT: 8083
 
-
       CONNECT_PLUGIN_PATH: /etc/kafka-connect/custom-plugins
 
       CONNECT_BOOTSTRAP_SERVERS: localhost:9092
@@ -81,8 +82,8 @@ services:
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_OFFSET_FLUSH_INTERVAL_MS: 5000
 
-      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.converters.ByteArrayConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.converters.ByteArrayConverter"
       CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
       CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
 
@@ -98,6 +99,9 @@ services:
 
       CONNECT_ACCESS_CONTROL_ALLOW_ORIGIN: '*'
       CONNECT_ACCESS_CONTROL_ALLOW_METHODS: 'GET,OPTIONS,HEAD,POST,PUT,DELETE'
+
+      CONNECT_LOG4J_ROOT_LEVEL: INFO
+      CONNECT_LOG4J_LOGGERS: org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR,fund.cyber.node.connectors.source=INFO
     volumes:
       - ../cyber-connectors/:/etc/kafka-connect/custom-plugins
 
@@ -110,8 +114,11 @@ services:
       KAFKA_REST_ZOOKEEPER_CONNECT: localhost:2181
       KAFKA_REST_LISTENERS: http://localhost:8082
       KAFKA_REST_HOST_NAME: localhost
+
       KAFKA_REST_ACCESS_CONTROL_ALLOW_ORIGIN: '*'
       KAFKA_REST_ACCESS_CONTROL_ALLOW_METHODS: 'GET,OPTIONS,HEAD,POST,PUT,DELETE'
+
+      KAFKA_REST_LOG4J_ROOT_LOGLEVEL: ERROR
 
 
 

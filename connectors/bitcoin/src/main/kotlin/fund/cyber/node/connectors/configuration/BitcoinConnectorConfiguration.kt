@@ -12,7 +12,7 @@ import org.apache.kafka.common.config.ConfigDef.Type.*
 
 const val BTCD_URL = "btdc.url"
 const val BATCH_SIZE = "batch.size"
-const val UPDATE_INTERVAL = "batch.size"
+const val UPDATE_INTERVAL = "update.interval"
 
 const val BATCH_SIZE_DEFAULT = 4
 const val UPDATE_INTERVAL_DEFAULT = 30L

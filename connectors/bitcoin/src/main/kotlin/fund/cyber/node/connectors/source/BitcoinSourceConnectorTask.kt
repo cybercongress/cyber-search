@@ -57,7 +57,7 @@ class BitcoinSourceConnectorTask : SourceTask() {
                 }
             }
 
-            log.debug("Looking for ${lastParsedBlockNumber + 1}-${lastParsedBlockNumber + rangeSize} blocks")
+            log.info("Looking for ${lastParsedBlockNumber + 1}-${lastParsedBlockNumber + rangeSize} blocks")
 
             val blocks = LongRange(lastParsedBlockNumber + 1, lastParsedBlockNumber + rangeSize)
                     .associateBy({ blockNumber -> blockNumber }, { blockNumber -> btcdClient.getBlockByNumber(blockNumber) })
@@ -72,12 +72,12 @@ class BitcoinSourceConnectorTask : SourceTask() {
                     .map { (blockNumber, rawBlock) ->
                         SourceRecord(
                                 sourcePartition, sourceOffset(blockNumber),
-                                IndexTopics.bitcoinSourceTopic, null, rawBlock
+                                IndexTopics.bitcoinSourceTopic, null, rawBlock.toByteArray()
                         )
                     }
 
             lastParsedBlockNumber += batchSize
-            log.debug("Obtained ${lastParsedBlockNumber + 1}-${lastParsedBlockNumber + rangeSize} blocks")
+            log.info("Obtained ${lastParsedBlockNumber + 1}-${lastParsedBlockNumber + rangeSize} blocks")
 
             return blocks
         } catch (e: Exception) {

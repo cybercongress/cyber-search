@@ -75,5 +75,5 @@ class BlockNumberResponse : Response<String>() {
 }
 
 class BlockResponse : Response<JsonNode>() {
-    fun getRawBlock(): JsonNode = result
+    fun getRawBlock(): String = result.toString()
 }

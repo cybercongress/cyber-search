@@ -23,8 +23,7 @@ class JsonDeserializer<T>(private val type: Class<T>) : Deserializer<T> {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     override fun deserialize(topic: String, data: ByteArray): T {
-        val block = String(data, UTF_8).replace("\\", "")
-        return objectMapper.readValue(block.substring(1, block.length - 1), type)
+        return objectMapper.readValue(data, type)
     }
 
     override fun configure(configs: MutableMap<String, *>, isKey: Boolean) {}
