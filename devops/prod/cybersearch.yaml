@@ -394,7 +394,7 @@ items:
     - ReadWriteOnce
     resources:
       requests:
-        storage: 100Mi
+        storage: 500Gi
   status: {}
 - apiVersion: extensions/v1beta1
   kind: Deployment

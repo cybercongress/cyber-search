@@ -98,8 +98,8 @@ services:
       CONNECT_ACCESS_CONTROL_ALLOW_ORIGIN: '*'
       CONNECT_ACCESS_CONTROL_ALLOW_METHODS: 'GET,OPTIONS,HEAD,POST,PUT,DELETE'
 
-      CONNECT_LOG4J_ROOT_LEVEL: INFO
-      CONNECT_LOG4J_LOGGERS: org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR,fund.cyber.node.connectors.source=INFO
+      CONNECT_LOG4J_ROOT_LEVEL: WARN
+      CONNECT_LOG4J_LOGGERS: org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR,fund.cyber.node.connectors.source=WARN
 
 
   cs-bitcoin-process:
