@@ -1,9 +1,9 @@
 package fund.cyber.node.connectors.client
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import fund.cyber.index.btcd.BtcdBlock
 import fund.cyber.node.connectors.configuration.BitcoinConnectorConfiguration
+import fund.cyber.node.connectors.configuration.jacksonJsonDeserializer
+import fund.cyber.node.connectors.configuration.jacksonJsonSerializer
 import fund.cyber.node.model.Request
 import org.apache.http.HttpResponse
 import org.apache.http.client.config.RequestConfig
@@ -18,8 +18,8 @@ import java.util.concurrent.Future
 
 class AsyncBtcdClient(private val configuration: BitcoinConnectorConfiguration) {
 
-    private val jsonSerializer = ObjectMapper()
-    private val jsonDeserializer = ObjectMapper()
+    private val jsonSerializer = jacksonJsonSerializer
+    private val jsonDeserializer = jacksonJsonDeserializer
 
 
     private val requestConfig = RequestConfig.custom()
@@ -75,5 +75,5 @@ class BlockNumberResponse : Response<String>() {
 }
 
 class BlockResponse : Response<JsonNode>() {
-    fun getRawBlock(): String = result.toString()
+    fun getRawBlock(): JsonNode = result
 }

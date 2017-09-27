@@ -1,14 +1,11 @@
 package fund.cyber.node.connectors.source
 
-import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import fund.cyber.index.IndexTopics
 import fund.cyber.node.common.readTextAndClose
 import fund.cyber.node.connectors.client.AsyncBtcdClient
 import fund.cyber.node.connectors.client.BlockResponse
-import fund.cyber.node.connectors.configuration.BitcoinConnectorConfiguration
-import fund.cyber.node.connectors.configuration.batch_size_default
+import fund.cyber.node.connectors.configuration.*
 import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.source.SourceTask
 import org.slf4j.LoggerFactory
@@ -18,40 +15,49 @@ class BitcoinSourceConnectorTask : SourceTask() {
 
     private val log = LoggerFactory.getLogger(BitcoinSourceConnectorTask::class.java)
 
+    private val jsonDeserializer: ObjectMapper = jacksonJsonDeserializer
+
     private lateinit var taskConfiguration: BitcoinConnectorConfiguration
     private lateinit var btcdClient: AsyncBtcdClient
-    private lateinit var jsonSerializer: ObjectMapper
-    private lateinit var jsonDeserializer: ObjectMapper
 
-    private var chunkSize: Long = 1
-    private var batchSize: Int = batch_size_default
-
-    private var lastNetworkBlockOnStartup: Long = 0
+    private var batchSize: Int = BATCH_SIZE_DEFAULT
+    private var updateInterval: Long = UPDATE_INTERVAL_DEFAULT
+    private var lastNetworkBlock: Long = 0
     private var lastParsedBlockNumber: Long = 0
 
 
     override fun start(properties: Map<String, String>) {
 
         taskConfiguration = BitcoinConnectorConfiguration(properties)
-
-        chunkSize = taskConfiguration.chunkSize
-        batchSize = taskConfiguration.batchSize
-
         btcdClient = AsyncBtcdClient(taskConfiguration)
-        jsonSerializer = ObjectMapper().registerKotlinModule().configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
-        jsonDeserializer = ObjectMapper().registerKotlinModule().configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+        batchSize = taskConfiguration.batchSize
+        updateInterval = taskConfiguration.updateInterval
 
         lastParsedBlockNumber = lastParsedBlockNumber()
-        lastNetworkBlockOnStartup = btcdClient.getLastBlockNumber()
+        lastNetworkBlock = btcdClient.getLastBlockNumber()
     }
 
 
+    /**
+     * Using async http client to obtains block. So we have to wait, while future client is done.
+     */
     override fun poll(): List<SourceRecord> {
 
         try {
-
-            val isBatchFetch = lastNetworkBlockOnStartup - lastParsedBlockNumber > 10
+            val isBatchFetch = lastNetworkBlock - lastParsedBlockNumber > 10
             val rangeSize = if (isBatchFetch) batchSize else 1
+
+            if (!isBatchFetch) {
+                lastNetworkBlock = btcdClient.getLastBlockNumber()
+                if (lastParsedBlockNumber == lastNetworkBlock) {
+                    log.debug("Up-to-date (block $lastParsedBlockNumber), sleeping ${updateInterval}sec")
+                    Thread.sleep(updateInterval * 1000)
+                    return emptyList()
+                }
+            }
+
+            log.debug("Looking for ${lastParsedBlockNumber + 1}-${lastParsedBlockNumber + rangeSize} blocks")
 
             val blocks = LongRange(lastParsedBlockNumber + 1, lastParsedBlockNumber + rangeSize)
                     .associateBy({ blockNumber -> blockNumber }, { blockNumber -> btcdClient.getBlockByNumber(blockNumber) })
@@ -59,22 +65,23 @@ class BitcoinSourceConnectorTask : SourceTask() {
                         while (!futureBlock.isDone) Thread.sleep(10)
                         futureBlock.get().entity
                     }
-                    .mapValues { (blockNumber, httpEntity) ->
-                        val rawResult = httpEntity.content.readTextAndClose()
+                    .mapValues { (blockNumber, httpResponse) ->
+                        val rawResult = httpResponse.content.readTextAndClose()
                         jsonDeserializer.readValue(rawResult, BlockResponse::class.java).getRawBlock()
                     }
                     .map { (blockNumber, rawBlock) ->
                         SourceRecord(
-                                sourcePartition, sourceOffset(blockNumber), IndexTopics.bitcoinSourceTopic,
-                                null, rawBlock
+                                sourcePartition, sourceOffset(blockNumber),
+                                IndexTopics.bitcoinSourceTopic, null, rawBlock
                         )
                     }
-                    .toList()
 
             lastParsedBlockNumber += batchSize
+            log.debug("Obtained ${lastParsedBlockNumber + 1}-${lastParsedBlockNumber + rangeSize} blocks")
+
             return blocks
         } catch (e: Exception) {
-            log.error("Unexpected error during polling ethereum chain", e)
+            log.error("Unexpected error during polling bitcoin chain", e)
             return emptyList()
         }
     }
@@ -85,7 +92,7 @@ class BitcoinSourceConnectorTask : SourceTask() {
     }
 
     private fun sourceOffset(blockNumber: Long) = mapOf("blockNumber" to blockNumber)
-    private val sourcePartition = mapOf("blockchain" to bitcoin)
+    private val sourcePartition = mapOf("blockchain" to BITCOIN_PARTITION)
 
     override fun version(): String = "1.0"
     override fun stop() {}

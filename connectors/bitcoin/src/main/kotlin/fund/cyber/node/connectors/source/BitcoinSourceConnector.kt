@@ -6,9 +6,6 @@ import org.apache.kafka.connect.connector.Task
 import org.apache.kafka.connect.source.SourceConnector
 
 
-
-val bitcoin = "bitcoin"
-
 class BitcoinSourceConnector : SourceConnector() {
 
     private lateinit var properties: Map<String, String>
