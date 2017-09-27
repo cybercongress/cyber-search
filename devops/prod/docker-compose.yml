@@ -1,6 +1,4 @@
-
-
-version: '3'
+version: '3.3'
 services:
 
   cs-elassandra:
@@ -30,7 +28,6 @@ services:
       - /opt/cyberfund/search/zoo/log:/var/lib/zookeeper/log
 
 
-
   cs-kafka:
     image: confluentinc/cp-kafka:3.3.0
     ports:
@@ -45,9 +42,9 @@ services:
       KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
       KAFKA_MESSAGE_MAX_BYTES: 10485760
       KAFKA_REPLICA_FETCH_MAX_BYTES: 10485760
+      KAFKA_LOG4J_ROOT_LOGLEVEL: WARN
     volumes:
       - /opt/cyberfund/search/kafka:/var/lib/kafka
-
 
 
   cs-kafka-manager:
@@ -100,12 +97,16 @@ services:
       CONNECT_ACCESS_CONTROL_ALLOW_ORIGIN: '*'
       CONNECT_ACCESS_CONTROL_ALLOW_METHODS: 'GET,OPTIONS,HEAD,POST,PUT,DELETE'
 
+      CONNECT_LOG4J_ROOT_LEVEL: INFO
+      CONNECT_LOG4J_LOGGERS: org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR,fund.cyber.node.connectors.source=INFO
+
 
   cs-bitcoin-process:
     image: cybernode/cs-bitcoin-processor:release-0.5.5
     environment:
       CASSANDRA_CONNECTION: cs-elassandra
       KAFKA_CONNECTION: cs-kafka:9092
+      CS_LOG_LEVEL: DEBUG
 
 
   cs-search-api:
@@ -119,12 +120,14 @@ services:
     labels:
       kompose.service.type: loadbalancer
 
+
   cs-kafka-connect-ui:
     image: landoop/kafka-connect-ui:0.9.2
     ports:
       - "8000:8000"
     environment:
       CONNECT_URL: cs-kafka-connect:8083
+
 
   cs-btcd:
     image: cybernode/bitcoin-btcd

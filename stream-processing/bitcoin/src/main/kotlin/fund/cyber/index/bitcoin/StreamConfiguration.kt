@@ -1,16 +1,42 @@
 package fund.cyber.index.bitcoin
 
+import com.datastax.driver.core.Cluster
+import fund.cyber.index.bitcoin.converter.BitcoinBlockConverter
+import fund.cyber.index.bitcoin.converter.BitcoinTransactionConverter
+import fund.cyber.index.btcd.BtcdBlock
 import fund.cyber.node.common.env
+import fund.cyber.node.kafka.JsonDeserializer
+import fund.cyber.node.kafka.JsonSerializer
+import fund.cyber.node.model.BitcoinBlock
+import fund.cyber.node.model.BitcoinTransaction
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.common.serialization.Serde
+import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsConfig
+import org.ehcache.Cache
+import org.ehcache.config.builders.CacheManagerBuilder
+import org.ehcache.xml.XmlConfiguration
 import java.util.*
 
 
+object ApplicationContext {
+
+    val streamsConfiguration = StreamConfiguration()
+    val cache = getTransactionCache()
+    val transactionConverter = BitcoinTransactionConverter(cache)
+    val blockConverter = BitcoinBlockConverter()
+
+    val cassandra = Cluster.builder()
+            .addContactPoint(streamsConfiguration.cassandraServers)
+            .build().init()
+}
+
+
 class StreamConfiguration(
-        val kafkaServers: String = env("KAFKA_CONNECTION", "localhost:9092"),
-        val cassandraServers: String = env("CASSANDRA_CONNECTION", "127.0.0.1"),
-        val applicationId: String = "cyber.index.bitcoin.block.splitter"
+        val cassandraServers: String = env("CASSANDRA_CONNECTION", "localhost"),
+        private val kafkaServers: String = env("KAFKA_CONNECTION", "localhost:9092"),
+        private val applicationId: String = "cyber.index.bitcoin.block.splitter"
 ) {
     fun streamProperties(): Properties {
         return Properties().apply {
@@ -19,8 +45,23 @@ class StreamConfiguration(
             put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
             put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 10485760)
             put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, 10485760)
-            put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10000)
+            put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 5000)
             put(StreamsConfig.STATE_DIR_CONFIG, "/opt/cyberfund/search/kafka-stream")
         }
     }
+}
+
+fun getTransactionCache(): Cache<String, BitcoinTransaction> {
+    val ehcacheSettingsUri = BitcoinBlockSplitterApplication::class.java.getResource("/ehcache.xml")
+    val cacheManager = CacheManagerBuilder.newCacheManager(XmlConfiguration(ehcacheSettingsUri))
+    cacheManager.init()
+    return cacheManager.getCache("transactions", String::class.java, BitcoinTransaction::class.java)
+}
+
+val btcdBlockSerde = defaultJsonSerde(BtcdBlock::class.java)
+val bitcoinTransactionSerde = defaultJsonSerde(BitcoinTransaction::class.java)
+val bitcoinBlockSerde = defaultJsonSerde(BitcoinBlock::class.java)
+
+private fun <T> defaultJsonSerde(type: Class<T>): Serde<T> {
+    return Serdes.serdeFrom(JsonSerializer(), JsonDeserializer(type))!!
 }
