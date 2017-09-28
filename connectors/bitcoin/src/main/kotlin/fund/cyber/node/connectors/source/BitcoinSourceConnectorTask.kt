@@ -17,6 +17,7 @@ class BitcoinSourceConnectorTask : SourceTask() {
     private val log = LoggerFactory.getLogger(BitcoinSourceConnectorTask::class.java)
 
     private val jsonDeserializer: ObjectMapper = jacksonJsonDeserializer
+    private val jsonSerializer: ObjectMapper = jacksonJsonSerializer
 
     private lateinit var taskConfiguration: BitcoinConnectorConfiguration
     private lateinit var btcdClient: AsyncBtcdClient
@@ -68,15 +69,15 @@ class BitcoinSourceConnectorTask : SourceTask() {
                     }
                     .mapValues { (blockNumber, httpResponse) ->
                         val rawResult = httpResponse.content.readTextAndClose()
+                        log.debug("$blockNumber rawResult :$rawResult")
                         jsonDeserializer.readValue(rawResult, BlockResponse::class.java).getRawBlock()
                     }
                     .map { (blockNumber, rawBlock) ->
 
-                        val valueByteArray = rawBlock.toByteArray()
+                        val valueByteArray = jsonSerializer.writeValueAsBytes(rawBlock)
 
-                        log.debug("$blockNumber block : ")
+                        log.debug("$blockNumber block : $rawBlock")
                         log.debug("${valueByteArray.size}")
-                        log.debug("${valueByteArray.last()}")
                         SourceRecord(
                                 sourcePartition, sourceOffset(blockNumber),
                                 IndexTopics.bitcoinSourceTopic, Schema.BYTES_SCHEMA, valueByteArray

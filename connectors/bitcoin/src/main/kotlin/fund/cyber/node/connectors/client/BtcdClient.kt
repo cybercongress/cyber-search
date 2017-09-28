@@ -1,6 +1,7 @@
 package fund.cyber.node.connectors.client
 
 import com.fasterxml.jackson.databind.JsonNode
+import fund.cyber.index.btcd.BtcdBlock
 import fund.cyber.node.connectors.configuration.BitcoinConnectorConfiguration
 import fund.cyber.node.connectors.configuration.jacksonJsonDeserializer
 import fund.cyber.node.connectors.configuration.jacksonJsonSerializer
@@ -74,6 +75,6 @@ class BlockNumberResponse : Response<String>() {
     fun getBlockNumber(): Long = result.toLong()
 }
 
-class BlockResponse : Response<JsonNode>() {
-    fun getRawBlock(): String = result.toString()
+class BlockResponse : Response<BtcdBlock>() {
+    fun getRawBlock(): BtcdBlock = result
 }
