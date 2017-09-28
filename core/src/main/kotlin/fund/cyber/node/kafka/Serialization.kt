@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serializer
-import java.nio.charset.StandardCharsets.UTF_8
+import org.slf4j.LoggerFactory
 
 class JsonSerializer<T> : Serializer<T> {
     private val objectMapper = ObjectMapper().registerKotlinModule()
@@ -22,7 +22,10 @@ class JsonDeserializer<T>(private val type: Class<T>) : Deserializer<T> {
     private val objectMapper = ObjectMapper().registerKotlinModule()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
+    private val log = LoggerFactory.getLogger(JsonDeserializer::class.java)
+
     override fun deserialize(topic: String, data: ByteArray): T {
+        log.debug("topic $topic data size : ${data.size}")
         return objectMapper.readValue(data, type)
     }
 

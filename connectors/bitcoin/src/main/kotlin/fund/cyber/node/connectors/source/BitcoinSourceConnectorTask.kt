@@ -6,6 +6,7 @@ import fund.cyber.node.common.readTextAndClose
 import fund.cyber.node.connectors.client.AsyncBtcdClient
 import fund.cyber.node.connectors.client.BlockResponse
 import fund.cyber.node.connectors.configuration.*
+import org.apache.kafka.connect.data.Schema
 import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.source.SourceTask
 import org.slf4j.LoggerFactory
@@ -70,9 +71,15 @@ class BitcoinSourceConnectorTask : SourceTask() {
                         jsonDeserializer.readValue(rawResult, BlockResponse::class.java).getRawBlock()
                     }
                     .map { (blockNumber, rawBlock) ->
+
+                        val valueByteArray = rawBlock.toByteArray()
+
+                        log.debug("$blockNumber block : ")
+                        log.debug("${valueByteArray.size}")
+                        log.debug("${valueByteArray.last()}")
                         SourceRecord(
                                 sourcePartition, sourceOffset(blockNumber),
-                                IndexTopics.bitcoinSourceTopic, null, rawBlock.toByteArray()
+                                IndexTopics.bitcoinSourceTopic, Schema.BYTES_SCHEMA, valueByteArray
                         )
                     }
 
