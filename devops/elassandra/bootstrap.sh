@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-curl -XPUT "http://localhost:9200/blockchains/" -d '{
+curl -XPUT "http://35.195.230.69:9200/blockchains/" -d '{
    "settings" : { "keyspace" : "blockchains" } },
 }'
 
-curl -XPUT "http://localhost:9200/blockchains/_mapping/bitcoin_tx" -d '{
+curl -XPUT "http://35.195.230.69:9200/blockchains/_mapping/bitcoin_tx" -d '{
     "bitcoin_tx" : {
       "properties": {
         "txid": {"type": "string", "index": "not_analyzed", "include_in_all": true, "cql_collection" : "singleton"},
@@ -18,7 +18,7 @@ curl -XPUT "http://localhost:9200/blockchains/_mapping/bitcoin_tx" -d '{
 }'
 
 
-curl -XPUT "http://localhost:9200/blockchains/_mapping/bitcoin_block" -d '{
+curl -XPUT "http://35.195.230.69:9200/blockchains/_mapping/bitcoin_block" -d '{
     "bitcoin_block" : {
       "properties": {
         "hash": {"type": "string", "index": "not_analyzed", "include_in_all": true, "cql_collection" : "singleton"},

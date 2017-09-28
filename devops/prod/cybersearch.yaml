@@ -125,6 +125,7 @@ items:
       targetPort: 8000
     selector:
       io.kompose.service: cs-kafka-connect-ui
+    type: LoadBalancer
   status:
     loadBalancer: {}
 - apiVersion: v1
@@ -144,44 +145,7 @@ items:
       targetPort: 9000
     selector:
       io.kompose.service: cs-kafka-manager
-  status:
-    loadBalancer: {}
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.2.0 (99f88ef)
-    creationTimestamp: null
-    labels:
-      io.kompose.service: cs-kafka-rest
-    name: cs-kafka-rest
-  spec:
-    ports:
-    - name: "8082"
-      port: 8082
-      targetPort: 8082
-    selector:
-      io.kompose.service: cs-kafka-rest
-  status:
-    loadBalancer: {}
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.2.0 (99f88ef)
-    creationTimestamp: null
-    labels:
-      io.kompose.service: cs-kafka-topics-ui
-    name: cs-kafka-topics-ui
-  spec:
-    ports:
-    - name: "9002"
-      port: 9002
-      targetPort: 8000
-    selector:
-      io.kompose.service: cs-kafka-topics-ui
+    type: LoadBalancer
   status:
     loadBalancer: {}
 - apiVersion: v1
@@ -248,10 +212,10 @@ items:
           - name: CASSANDRA_CONNECTION
             value: cs-elassandra
           - name: CS_LOG_LEVEL
-            value: DEBUG
+            value: WARN
           - name: KAFKA_CONNECTION
             value: cs-kafka:9092
-          image: cybernode/cs-bitcoin-processor:release-0.5.6
+          image: cybernode/cs-bitcoin-processor:release-0.5.8
           name: cs-bitcoin-process
           resources: {}
         restartPolicy: Always
@@ -282,7 +246,7 @@ items:
           - --rpcpass=cyber
           - --rpclisten=0.0.0.0:8334
           - --notls
-          image: cybernode/bitcoin-btcd
+          image: cybernode/bitcoin-btcd:temp
           name: cs-btcd
           ports:
           - containerPort: 8334
@@ -482,13 +446,13 @@ items:
           - name: CONNECT_INTERNAL_VALUE_CONVERTER_SCHEMAS_ENABLE
             value: "true"
           - name: CONNECT_KEY_CONVERTER
-            value: org.apache.kafka.connect.json.JsonConverter
+            value: org.apache.kafka.connect.converters.ByteArrayConverter
           - name: CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE
             value: "false"
           - name: CONNECT_LOG4J_LOGGERS
-            value: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR,fund.cyber.node.connectors.source=INFO"
+            value: org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR,fund.cyber.node.connectors.source=WARN
           - name: CONNECT_LOG4J_ROOT_LEVEL
-            value: INFO
+            value: WARN
           - name: CONNECT_OFFSET_FLUSH_INTERVAL_MS
             value: "5000"
           - name: CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR
@@ -510,12 +474,12 @@ items:
           - name: CONNECT_STATUS_STORAGE_TOPIC
             value: cybernode.status
           - name: CONNECT_VALUE_CONVERTER
-            value: org.apache.kafka.connect.json.JsonConverter
+            value: org.apache.kafka.connect.converters.ByteArrayConverter
           - name: CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE
             value: "false"
           - name: CONNECT_ZOOKEEPER_CONNECT
             value: cs-zoo:2181
-          image: cybernode/cn-kafka-connectors:release-0.5.6
+          image: cybernode/cn-kafka-connectors:release-0.5.8
           name: cs-kafka-connect
           ports:
           - containerPort: 8083
@@ -591,76 +555,6 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.2.0 (99f88ef)
-    creationTimestamp: null
-    labels:
-      io.kompose.service: cs-kafka-rest
-    name: cs-kafka-rest
-  spec:
-    replicas: 1
-    strategy: {}
-    template:
-      metadata:
-        creationTimestamp: null
-        labels:
-          io.kompose.service: cs-kafka-rest
-      spec:
-        containers:
-        - env:
-          - name: KAFKA_REST_ACCESS_CONTROL_ALLOW_METHODS
-            value: GET,POST,PUT,DELETE,OPTIONS
-          - name: KAFKA_REST_ACCESS_CONTROL_ALLOW_ORIGIN
-            value: '*'
-          - name: KAFKA_REST_HOST_NAME
-            value: cs-kafka-rest
-          - name: KAFKA_REST_LISTENERS
-            value: http://0.0.0.0:8082
-          - name: KAFKA_REST_ZOOKEEPER_CONNECT
-            value: cs-zoo:2181
-          image: confluentinc/cp-kafka-rest:3.3.0
-          name: cs-kafka-rest
-          ports:
-          - containerPort: 8082
-          resources: {}
-        restartPolicy: Always
-  status: {}
-- apiVersion: extensions/v1beta1
-  kind: Deployment
-  metadata:
-    annotations:
-      kompose.cmd: kompose convert -o cybersearch.yaml
-      kompose.version: 1.2.0 (99f88ef)
-    creationTimestamp: null
-    labels:
-      io.kompose.service: cs-kafka-topics-ui
-    name: cs-kafka-topics-ui
-  spec:
-    replicas: 1
-    strategy: {}
-    template:
-      metadata:
-        creationTimestamp: null
-        labels:
-          io.kompose.service: cs-kafka-topics-ui
-      spec:
-        containers:
-        - env:
-          - name: KAFKA_REST_PROXY_URL
-            value: cs-kafka-rest:8082
-          - name: PROXY
-            value: "true"
-          image: landoop/kafka-topics-ui:0.9.2
-          name: cs-kafka-topics-ui
-          ports:
-          - containerPort: 8000
-          resources: {}
-        restartPolicy: Always
-  status: {}
-- apiVersion: extensions/v1beta1
-  kind: Deployment
-  metadata:
-    annotations:
-      kompose.cmd: kompose convert -o cybersearch.yaml
       kompose.service.type: loadbalancer
       kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
@@ -684,7 +578,7 @@ items:
             value: cs-elassandra
           - name: ELASTIC_PORT_CONNECTION
             value: "9300"
-          image: cybernode/cs-search-api:release-0.5.6
+          image: cybernode/cs-search-api:release-0.5.8
           name: cs-search-api
           ports:
           - containerPort: 8085

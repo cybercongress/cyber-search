@@ -59,7 +59,7 @@ services:
 
 
   cs-kafka-connect:
-    image: cybernode/cn-kafka-connectors:release-0.5.6
+    image: cybernode/cn-kafka-connectors:release-0.5.8
     ports:
       - "8083:8083"
     environment:
@@ -80,8 +80,8 @@ services:
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_OFFSET_FLUSH_INTERVAL_MS: 5000
 
-      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.converters.ByteArrayConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.converters.ByteArrayConverter"
       CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
       CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
 
@@ -103,15 +103,15 @@ services:
 
 
   cs-bitcoin-process:
-    image: cybernode/cs-bitcoin-processor:release-0.5.6
+    image: cybernode/cs-bitcoin-processor:release-0.5.8
     environment:
       CASSANDRA_CONNECTION: cs-elassandra
       KAFKA_CONNECTION: cs-kafka:9092
-      CS_LOG_LEVEL: DEBUG
+      CS_LOG_LEVEL: WARN
 
 
   cs-search-api:
-    image: cybernode/cs-search-api:release-0.5.6
+    image: cybernode/cs-search-api:release-0.5.8
     ports:
       - "8085:8085"
     environment:
@@ -120,27 +120,6 @@ services:
       ELASTIC_CLUSTER_NAME: CYBERNODE
     labels:
       kompose.service.type: loadbalancer
-
-
-  cs-kafka-rest:
-    image: "confluentinc/cp-kafka-rest:3.3.0"
-    ports:
-      - "8082:8082"
-    environment:
-      KAFKA_REST_ZOOKEEPER_CONNECT: cs-zoo:2181
-      KAFKA_REST_HOST_NAME: "cs-kafka-rest"
-      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
-      KAFKA_REST_ACCESS_CONTROL_ALLOW_ORIGIN: "*"
-      KAFKA_REST_ACCESS_CONTROL_ALLOW_METHODS: "GET,POST,PUT,DELETE,OPTIONS"
-
-
-  cs-kafka-topics-ui:
-    image: landoop/kafka-topics-ui:0.9.2
-    environment:
-      KAFKA_REST_PROXY_URL: cs-kafka-rest:8082
-      PROXY: "true"
-    ports:
-      - "9002:8000"
 
 
   cs-kafka-connect-ui:
