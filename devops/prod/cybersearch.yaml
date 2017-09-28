@@ -120,8 +120,8 @@ items:
     name: cs-kafka-connect-ui
   spec:
     ports:
-    - name: "8000"
-      port: 8000
+    - name: "9001"
+      port: 9001
       targetPort: 8000
     selector:
       io.kompose.service: cs-kafka-connect-ui
@@ -144,6 +144,44 @@ items:
       targetPort: 9000
     selector:
       io.kompose.service: cs-kafka-manager
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.2.0 (99f88ef)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka-rest
+    name: cs-kafka-rest
+  spec:
+    ports:
+    - name: "8082"
+      port: 8082
+      targetPort: 8082
+    selector:
+      io.kompose.service: cs-kafka-rest
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.2.0 (99f88ef)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka-topics-ui
+    name: cs-kafka-topics-ui
+  spec:
+    ports:
+    - name: "9002"
+      port: 9002
+      targetPort: 8000
+    selector:
+      io.kompose.service: cs-kafka-topics-ui
   status:
     loadBalancer: {}
 - apiVersion: v1
@@ -327,7 +365,7 @@ items:
     - ReadWriteOnce
     resources:
       requests:
-        storage: 100Mi
+        storage: 500Gi
   status: {}
 - apiVersion: extensions/v1beta1
   kind: Deployment
@@ -355,10 +393,12 @@ items:
             value: PLAINTEXT://cs-kafka:9092
           - name: KAFKA_BROKER_ID
             value: "1"
+          - name: KAFKA_DELETE_TOPIC_ENABLE
+            value: "true"
           - name: KAFKA_JMX_PORT
             value: "1099"
           - name: KAFKA_LOG4J_ROOT_LOGLEVEL
-            value: ERROR
+            value: WARN
           - name: KAFKA_MESSAGE_MAX_BYTES
             value: "10485760"
           - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
@@ -543,6 +583,76 @@ items:
           name: cs-kafka-manager
           ports:
           - containerPort: 9000
+          resources: {}
+        restartPolicy: Always
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.2.0 (99f88ef)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka-rest
+    name: cs-kafka-rest
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-kafka-rest
+      spec:
+        containers:
+        - env:
+          - name: KAFKA_REST_ACCESS_CONTROL_ALLOW_METHODS
+            value: GET,POST,PUT,DELETE,OPTIONS
+          - name: KAFKA_REST_ACCESS_CONTROL_ALLOW_ORIGIN
+            value: '*'
+          - name: KAFKA_REST_HOST_NAME
+            value: cs-kafka-rest
+          - name: KAFKA_REST_LISTENERS
+            value: http://0.0.0.0:8082
+          - name: KAFKA_REST_ZOOKEEPER_CONNECT
+            value: cs-zoo:2181
+          image: confluentinc/cp-kafka-rest:3.3.0
+          name: cs-kafka-rest
+          ports:
+          - containerPort: 8082
+          resources: {}
+        restartPolicy: Always
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.2.0 (99f88ef)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-kafka-topics-ui
+    name: cs-kafka-topics-ui
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-kafka-topics-ui
+      spec:
+        containers:
+        - env:
+          - name: KAFKA_REST_PROXY_URL
+            value: cs-kafka-rest:8082
+          - name: PROXY
+            value: "true"
+          image: landoop/kafka-topics-ui:0.9.2
+          name: cs-kafka-topics-ui
+          ports:
+          - containerPort: 8000
           resources: {}
         restartPolicy: Always
   status: {}
