@@ -1,0 +1,22 @@
+
+
+CREATE KEYSPACE IF NOT EXISTS search
+    WITH REPLICATION = {'class' : 'NetworkTopologyStrategy','LOCAL_DEVELOPMENT' : 1};
+
+
+CREATE TYPE IF NOT EXISTS search.document_key (
+    id text,
+    type text,
+    index text
+);
+
+
+CREATE TABLE IF NOT EXISTS search.request_processing_stats (
+     raw_request text,
+     time timestamp,
+     time_m int PRIMARY KEY,
+     max_score float,
+     total_hits bigint,
+     search_time_ms bigint,
+     documents frozen<list<search.document_key>>
+);

@@ -3,32 +3,27 @@ package fund.cyber.search.handler
 import com.fasterxml.jackson.databind.ObjectMapper
 import fund.cyber.node.common.intValue
 import fund.cyber.node.common.stringValue
+import fund.cyber.node.model.DocumentKey
 import fund.cyber.node.model.ItemPreview
-import fund.cyber.search.configuration.SearchApiConfiguration
+import fund.cyber.node.model.SearchRequestProcessingStats
+import fund.cyber.search.configuration.SearchRequestProcessingStatsKafkaProducer
+import fund.cyber.search.configuration.SearchRequestProcessingStatsRecord
 import fund.cyber.search.context.AppContext
 import fund.cyber.search.model.SearchResponse
 import io.undertow.server.HttpHandler
 import io.undertow.server.HttpServerExchange
 import io.undertow.util.Headers
-import java.net.InetAddress
-import org.elasticsearch.common.transport.InetSocketTransportAddress
 import org.elasticsearch.client.transport.TransportClient
-import org.elasticsearch.common.settings.Settings
-import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.common.unit.Fuzziness
+import org.elasticsearch.index.query.QueryBuilders
+import java.time.Instant
 
 
 class SearchHandler(
         private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer,
-        configuration: SearchApiConfiguration = SearchApiConfiguration()
+        private val elasticClient: TransportClient = AppContext.elasticClient,
+        private val kafkaProducer: SearchRequestProcessingStatsKafkaProducer = AppContext.searchRequestProcessingStatsKafkaProducer
 ) : HttpHandler {
-
-    var settings = Settings.settingsBuilder().put("cluster.name", configuration.elasticClusterName).build()
-
-    var client = TransportClient.builder().settings(settings).build()
-            .addTransportAddress(InetSocketTransportAddress(
-                    InetAddress.getByName(configuration.elasticHost), configuration.elasticPort)
-            )
 
 
     override fun handleRequest(exchange: HttpServerExchange) {
@@ -45,12 +40,13 @@ class SearchHandler(
         val elasticQuery = QueryBuilders.matchQuery("_all", query)
                 .fuzziness(Fuzziness.fromEdits(2))
 
-        val elasticResponse = client.prepareSearch("blockchains")
+        val elasticResponse = elasticClient.prepareSearch("blockchains")
                 .setQuery(elasticQuery)
                 .setFrom(page * pageSize).setSize(pageSize).setExplain(true)
                 .execute()
                 .actionGet()
 
+        saveRequestProcessingStats(query, elasticResponse)
 
         val responseItems = elasticResponse.hits
                 .map { hit -> ItemPreview(type = hit.type, data = hit.sourceAsString()) }
@@ -63,5 +59,18 @@ class SearchHandler(
 
         exchange.responseHeaders.put(Headers.CONTENT_TYPE, "application/json")
         exchange.responseSender.send(rawResponse)
+    }
+
+
+    private fun saveRequestProcessingStats(query: String, elasticResponse: org.elasticsearch.action.search.SearchResponse) {
+
+        val stats = SearchRequestProcessingStats(
+                total_hits = elasticResponse.hits.totalHits, max_score = elasticResponse.hits.maxScore,
+                search_time_ms = elasticResponse.tookInMillis, time = Instant.now().toString(),
+                time_m = Instant.now().epochSecond / 60, raw_request = query,
+                documents = elasticResponse.hits.map { hit -> DocumentKey(hit.index, hit.type, hit.id) }
+        )
+
+        kafkaProducer.send(SearchRequestProcessingStatsRecord(stats))
     }
 }
