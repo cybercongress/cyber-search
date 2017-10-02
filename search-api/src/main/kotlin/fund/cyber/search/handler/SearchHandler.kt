@@ -13,6 +13,8 @@ import fund.cyber.search.model.SearchResponse
 import io.undertow.server.HttpHandler
 import io.undertow.server.HttpServerExchange
 import io.undertow.util.Headers
+import kotlinx.coroutines.experimental.CoroutineStart
+import kotlinx.coroutines.experimental.launch
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.unit.Fuzziness
 import org.elasticsearch.index.query.QueryBuilders
@@ -64,13 +66,16 @@ class SearchHandler(
 
     private fun saveRequestProcessingStats(query: String, elasticResponse: org.elasticsearch.action.search.SearchResponse) {
 
-        val stats = SearchRequestProcessingStats(
-                total_hits = elasticResponse.hits.totalHits, max_score = elasticResponse.hits.maxScore,
-                search_time_ms = elasticResponse.tookInMillis, time = Instant.now().toString(),
-                time_m = Instant.now().epochSecond / 60, raw_request = query,
-                documents = elasticResponse.hits.map { hit -> DocumentKey(hit.index, hit.type, hit.id) }
-        )
+        launch(AppContext.concurrentContext, CoroutineStart.DEFAULT) {
 
-        kafkaProducer.send(SearchRequestProcessingStatsRecord(stats))
+            val stats = SearchRequestProcessingStats(
+                    total_hits = elasticResponse.hits.totalHits, max_score = elasticResponse.hits.maxScore,
+                    search_time_ms = elasticResponse.tookInMillis, time = Instant.now().toString(),
+                    time_m = Instant.now().epochSecond / 60, raw_request = query,
+                    documents = elasticResponse.hits.map { hit -> DocumentKey(hit.index, hit.type, hit.id) }
+            )
+
+            kafkaProducer.send(SearchRequestProcessingStatsRecord(stats))
+        }
     }
 }

@@ -1,0 +1,16 @@
+connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
+connect.cassandra.key.space=search
+topics=search_request_processing_stats
+tasks.max=1
+connect.cassandra.kcql=INSERT INTO request_processing_stats SELECT * FROM search_request_processing_stats
+connect.cassandra.fetch.size=5000d
+connect.cassandra.max.retries=20
+connect.progress.enabled=false
+connect.cassandra.error.policy=retry
+connect.cassandra.contact.points=localhost
+connect.cassandra.port=9042
+connect.cassandra.threadpool.size=2
+name=cassandra-sink-search-api
+connect.cassandra.retry.interval=30000
+connect.progress.enabled=false
+connect.cassandra.consistency.level=LOCAL_ONE

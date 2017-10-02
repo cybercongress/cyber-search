@@ -30,4 +30,4 @@ curl -XPUT "http://localhost:9200/blockchains/_mapping/bitcoin_block" -d '{
     }
 }'
 
-curl -XGET "http://localhost:9200/blockchains/_search?pretty&q=0000000018920212d4d4dcddb6e24f37d23b35a0078d270227c83051bb350049"
+curl -XGET "http://localhost:9200/blockchains/_search?pretty&q=000000003fd0fa5f78eea07b6daf176bfab63fb28a56768e7bbce39f047a7c14"

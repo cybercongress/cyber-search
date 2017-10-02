@@ -16,7 +16,7 @@ data class Block(
 
 
 data class DocumentKey(
-        val index: String,
+        val catalog: String,
         val type: String,
         val id: String
 )

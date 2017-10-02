@@ -3,6 +3,7 @@ package fund.cyber.search.context
 import com.fasterxml.jackson.databind.ObjectMapper
 import fund.cyber.search.configuration.SearchApiConfiguration
 import fund.cyber.search.configuration.SearchRequestProcessingStatsKafkaProducer
+import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.common.transport.InetSocketTransportAddress
@@ -22,4 +23,6 @@ object AppContext {
             .addTransportAddress(InetSocketTransportAddress(
                     InetAddress.getByName(configuration.elasticHost), configuration.elasticPort)
             )!!
+
+    val concurrentContext = newFixedThreadPoolContext(4, "Coroutines Concurrent Pool")
 }
