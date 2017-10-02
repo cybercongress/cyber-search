@@ -1,4 +1,5 @@
 include "core"
+include "dao-service"
 include "search-api"
 include "connectors/model"
 include "connectors/ethereum"

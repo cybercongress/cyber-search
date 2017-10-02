@@ -1,6 +1,8 @@
 package fund.cyber.search.context
 
+import com.datastax.driver.core.Cluster
 import com.fasterxml.jackson.databind.ObjectMapper
+import fund.cyber.dao.bitcoin.BitcoinDaoService
 import fund.cyber.search.configuration.SearchApiConfiguration
 import fund.cyber.search.configuration.SearchRequestProcessingStatsKafkaProducer
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
@@ -10,6 +12,8 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress
 import java.net.InetAddress
 
 object AppContext {
+
+    val concurrentContext = newFixedThreadPoolContext(4, "Coroutines Concurrent Pool")
 
     val configuration = SearchApiConfiguration()
 
@@ -24,5 +28,7 @@ object AppContext {
                     InetAddress.getByName(configuration.elasticHost), configuration.elasticPort)
             )!!
 
-    val concurrentContext = newFixedThreadPoolContext(4, "Coroutines Concurrent Pool")
+    val cassandraClient = Cluster.builder().addContactPoint(configuration.cassandraHost).build().init()!!
+
+    val bitcoinDaoService = BitcoinDaoService(cassandraClient)
 }

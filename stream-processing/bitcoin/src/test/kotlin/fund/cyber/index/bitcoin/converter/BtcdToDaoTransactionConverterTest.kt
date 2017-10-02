@@ -24,7 +24,7 @@ val expectedDaoCoinbaseTransactionOut = BitcoinTransactionOut(
 )
 
 val expectedDaoCoinbaseTransaction = BitcoinTransaction(
-        txId = "8c14f0db3df150123e6f3dbbf30f8b955a8249b62ac1d1ff16284aefa3d06d87", size = 135,
+        txid = "8c14f0db3df150123e6f3dbbf30f8b955a8249b62ac1d1ff16284aefa3d06d87", size = 135,
         coinbase = "044c86041b020602", fee = "0", lock_time = 0,
         total_output = "0", total_input = "0", ins = emptyList(),
         block_number = 100000, outs = listOf(expectedDaoCoinbaseTransactionOut),
@@ -56,7 +56,7 @@ val expectedSecondTransactionOut = BitcoinTransactionOut(
 )
 
 val expectedRegularTransaction = BitcoinTransaction(
-        txId = "fff2525b8931402dd09222c50775608f75787bd2b87e56995a7bdd30f79702c4", size = 259,
+        txid = "fff2525b8931402dd09222c50775608f75787bd2b87e56995a7bdd30f79702c4", size = 259,
         fee = "0.10", lock_time = 0,
         total_output = "50.00", total_input = "50.1",
         ins = listOf(expectedFirstTransactionInput, expectedSecondTransactionInput),
@@ -102,7 +102,7 @@ class BtcdToDaoTransactionConverterTest {
 
         val daoInputTransactionById = listOf(
                 BitcoinTransaction(
-                        txId = "83a157f3fd88ac7907c05fc55e271dc4acdc5605d187d646604ca8c0e9382e03",
+                        txid = "83a157f3fd88ac7907c05fc55e271dc4acdc5605d187d646604ca8c0e9382e03",
                         outs = listOf(
                                 BitcoinTransactionOut(
                                         address = "2HWqMzw1jfpXb3xyuUZ4uWXY4tqL2cW47J", out = 0, amount = "50.1",
@@ -117,7 +117,7 @@ class BtcdToDaoTransactionConverterTest {
                         block_hash = "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506"
                 ),
                 expectedDaoCoinbaseTransaction
-        ).associateBy { tx -> tx.txId }
+        ).associateBy { tx -> tx.txid }
 
         val cache = cacheManager.getCache("transactions", String::class.java, BitcoinTransaction::class.java)
         cache.putAll(daoInputTransactionById)

@@ -36,13 +36,13 @@ class BitcoinTransactionConverter(private val transactionCache: Cache<String, Bi
         val totalOutput = outputs.sumByBigDecimal { out -> out.amount }
 
         val transaction = BitcoinTransaction(
-                txId = btcdTransaction.txid, block_number = btcdBlock.height, lock_time = btcdTransaction.locktime,
+                txid = btcdTransaction.txid, block_number = btcdBlock.height, lock_time = btcdTransaction.locktime,
                 ins = inputs, outs = outputs, total_input = totalInput.toString(), total_output = totalOutput.toString(),
                 fee = (totalInput - totalOutput).toString(), size = btcdTransaction.size,
                 block_time = Instant.ofEpochSecond(btcdBlock.time).toString(),
                 block_hash = btcdBlock.hash
         )
-        transactionCache.put(transaction.txId, transaction)
+        transactionCache.put(transaction.txid, transaction)
         return transaction
     }
 
@@ -58,14 +58,14 @@ class BitcoinTransactionConverter(private val transactionCache: Cache<String, Bi
         )
 
         val transaction = BitcoinTransaction(
-                txId = btcdTransaction.txid, block_number = btcdBlock.height, lock_time = btcdTransaction.locktime,
+                txid = btcdTransaction.txid, block_number = btcdBlock.height, lock_time = btcdTransaction.locktime,
                 coinbase = firstInput.coinbase, fee = "0", block_hash = btcdBlock.hash,
                 block_time = Instant.ofEpochSecond(btcdBlock.time).toString(),
                 ins = emptyList(), total_input = "0",
                 outs = listOf(output), total_output = "0", size = btcdTransaction.size
         )
 
-        transactionCache.put(transaction.txId, transaction)
+        transactionCache.put(transaction.txid, transaction)
         return transaction
     }
 

@@ -22,8 +22,8 @@ private val rawBlock = """
   "nonce"            : 123123,
   "bits"             : "234234234",
   "difficulty"       : 2.33,
-  "previousblockhash": "txId",
-  "nextblockhash"    : "txId",
+  "previousblockhash": "txid",
+  "nextblockhash"    : "txid",
   "rawtx"               : [
     {
       "hex"     : "01000000010000000000000000000000000000000000000000000000000000000000000000f...",
@@ -101,7 +101,7 @@ private val transaction = BtcdTransaction(
 private val block = BtcdBlock(
         hash = "blockhash", confirmations = 5, size = 5, height = 322, strippedsize = 10,
         merkleroot = "1qwefsadf", time = 35346574567, nonce = 123123, difficulty = BigDecimal("2.33"),
-        previousblockhash = "txId", nextblockhash = "txId", bits = "234234234", version = 1, weight = 322,
+        previousblockhash = "txid", nextblockhash = "txid", bits = "234234234", version = 1, weight = 322,
         rawtx = listOf(transaction)
 )
 

@@ -2,7 +2,7 @@ package fund.cyber.node.model
 
 import com.datastax.driver.mapping.annotations.Table
 import com.datastax.driver.mapping.annotations.UDT
-import java.math.BigDecimal
+import java.math.BigInteger
 
 
 interface BitcoinItem
@@ -12,7 +12,9 @@ interface BitcoinItem
 * Bitcoin block
 *
 */
-
+@Table(keyspace = "blockchains", name = "bitcoin_block",
+        readConsistency = "QUORUM", writeConsistency = "QUORUM",
+        caseSensitiveKeyspace = false, caseSensitiveTable = false)
 data class BitcoinBlock(
         val hash: String,
         val height: Long,
@@ -23,24 +25,32 @@ data class BitcoinBlock(
         val version: Int,
         val weight: Int,
         val bits: String,
-        val difficulty: BigDecimal,
-        val tx_number : Int,
+        val difficulty: BigInteger,
+        val tx_number: Int,
         val total_outputs_value: String,
         val txs: List<BitcoinBlockTransaction>
 ) : BitcoinItem
 
+@UDT(name = "bitcoin_block_tx")
 data class BitcoinBlockTransaction(
         val fee: String,
         val lock_time: Long,
         val hash: String,
         val ins: List<BitcoinBlockTransactionIO>,
         val outs: List<BitcoinBlockTransactionIO>
-)
+) {
+    //used by gson to create instance
+    constructor() : this("", 0, "", emptyList(), emptyList())
+}
 
+@UDT(name = "bitcoin_block_tx_io")
 data class BitcoinBlockTransactionIO(
         val address: String,
         val amount: String
-)
+) {
+    //used by gson to create instance
+    constructor() : this("", "")
+}
 
 
 /*
@@ -52,9 +62,9 @@ data class BitcoinBlockTransactionIO(
         readConsistency = "QUORUM", writeConsistency = "QUORUM",
         caseSensitiveKeyspace = false, caseSensitiveTable = false)
 data class BitcoinTransaction(
-        val txId: String,
+        val txid: String,
         val block_number: Long,
-        val block_hash : String,
+        val block_hash: String,
         val coinbase: String? = null,
         val lock_time: Long, //indicate earliest block when that transaction may be added to the block chain //todo make separate field with time
         val block_time: String,
@@ -69,6 +79,7 @@ data class BitcoinTransaction(
     fun getOutputByNumber(number: Int): BitcoinTransactionOut = outs.find { out -> out.out == number }!!
 }
 
+
 @UDT(name = "bitcoin_tx_in")
 data class BitcoinTransactionIn(
         val address: String,
@@ -81,6 +92,7 @@ data class BitcoinTransactionIn(
     //used by gson to create instance
     constructor() : this("", "0", "", "", 0)
 }
+
 
 @UDT(name = "bitcoin_tx_out")
 data class BitcoinTransactionOut(

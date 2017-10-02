@@ -132,9 +132,18 @@ project(":search-api") {
 
     dependencies {
         compile(project(":core"))
+        compile(project(":dao-service"))
         compile("io.undertow:undertow-core")
         compile("org.elasticsearch:elasticsearch")
     }
 
     mainClassName = "fund.cyber.search.SearchApiApplication"
+}
+
+project(":dao-service") {
+    dependencies {
+        compile(project(":core"))
+        compile("com.datastax.cassandra:cassandra-driver-core")
+        compile("com.datastax.cassandra:cassandra-driver-mapping")
+    }
 }

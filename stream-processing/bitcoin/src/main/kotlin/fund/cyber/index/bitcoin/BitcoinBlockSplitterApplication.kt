@@ -103,7 +103,7 @@ private fun loadInputTransactions(
 
     return resultSet.map { row ->
         BitcoinTransaction(
-                txId = row.getString("txId"), fee = row.getString("fee"), size = row.getInt("size"),
+                txid = row.getString("txid"), fee = row.getString("fee"), size = row.getInt("size"),
                 block_number = row.getLong("block_number"), lock_time = row.getLong("lock_time"),
                 total_output = row.getString("total_output"), total_input = row.getString("total_input"),
                 block_time = row.getTimestamp("block_time").toInstant().toString(),
@@ -111,5 +111,5 @@ private fun loadInputTransactions(
                 ins = row.getList("ins", BitcoinTransactionIn::class.java),
                 outs = row.getList("outs", BitcoinTransactionOut::class.java)
         )
-    }.associateBy { tx -> tx.txId }
+    }.associateBy { tx -> tx.txid }
 }
