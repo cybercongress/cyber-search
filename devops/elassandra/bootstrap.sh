@@ -66,26 +66,4 @@ curl -XPUT "http://localhost:9200/ethereum_block/_mapping/ethereum_block" -d '{
     }
 }'
 
-CREATE TABLE IF NOT EXISTS blockchains.ethereum_block (
-     number varint PRIMARY KEY,
-     hash text,
-     parent_hash text,
-     timestamp timestamp,
-     sha3_uncles text,
-     logs_bloom text,
-     transactions_root text,
-     state_root text,
-     receipts_root text,
-     miner text,
-     difficulty varint,
-     total_difficulty varint,
-     extra_data text,
-     size bigint,
-     gas_limit bigint,
-     gas_used bigint,
-     transactions FROZEN<list<ethereum_block_tx>>,
-     uncles FROZEN<list<text>>
-);
-
-
-curl -XGET "http://localhost:9200/blockchains/_search?pretty&q=000000003fd0fa5f78eea07b6daf176bfab63fb28a56768e7bbce39f047a7c14"
+curl -XGET "http://localhost:9200/_search?pretty&q=0x594ac155fe26c61b75295cdd95bf63c285f25708f5c895c673f40b21c0f8150c"
