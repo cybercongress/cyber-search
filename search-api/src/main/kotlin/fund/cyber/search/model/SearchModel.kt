@@ -1,10 +1,15 @@
 package fund.cyber.search.model
 
-import fund.cyber.node.model.ItemPreview
+import com.fasterxml.jackson.annotation.JsonRawValue
 
-class SearchResponseItem
 
-class SearchResponse(
+data class ItemPreview(
+        val type: String,
+        @JsonRawValue val data: String
+)
+
+
+data class SearchResponse(
 
         val query: String,
         val page: Int,

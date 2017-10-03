@@ -1,12 +1,5 @@
 package fund.cyber.node.model
 
-import com.fasterxml.jackson.annotation.JsonRawValue
-
-
-data class ItemPreview(
-        val type: String,
-        @JsonRawValue val data: String
-)
 
 data class DocumentKey(
         val catalog: String,

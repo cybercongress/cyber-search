@@ -1,48 +1,49 @@
-CREATE KEYSPACE IF NOT EXISTS blockchains
-    WITH REPLICATION = {'class' : 'NetworkTopologyStrategy','LOCAL_DEVELOPMENT' : 1};
-
-
-CREATE TABLE IF NOT EXISTS blockchains.eth_block (
-     hash text,
-     parentHash text,
-     height varint PRIMARY KEY,
-     timestamp timestamp,
-     nonce text,
-     receiptsRoot text,
-     stateRoot text,
-     transactionsRoot text,
-     logsBloom text,
-     gasUsed int,
-     gasLimit int,
-     size int,
-     difficulty int,
-     totalDifficulty int,
-     extraData text,
-     sha3Uncles text,
-     transactionsCount int,
-     miner text,
-     txs list<FROZEN <blockchains.ethereum_tx>>
+CREATE TYPE IF NOT EXISTS blockchains.ethereum_block_tx (
+    fee decimal,
+    amount decimal,
+    hash text,
+    from text,
+    to text,
 );
 
 
-CREATE TABLE IF NOT EXISTS blockchains.eth_tx (
+CREATE TABLE IF NOT EXISTS blockchains.ethereum_block (
+     number varint PRIMARY KEY,
+     hash text,
+     parent_hash text,
+     timestamp timestamp,
+     sha3_uncles text,
+     logs_bloom text,
+     transactions_root text,
+     state_root text,
+     receipts_root text,
+     miner text,
+     difficulty varint,
+     total_difficulty varint,
+     extra_data text,
+     size bigint,
+     gas_limit bigint,
+     gas_used bigint,
+     tx_number int,
+     transactions FROZEN<list<ethereum_block_tx>>,
+     uncles FROZEN<list<text>>
+);
+
+
+CREATE TABLE IF NOT EXISTS blockchains.ethereum_tx (
      hash text PRIMARY KEY,
-     nonce int,
-     blockHash text,
-     blockNumber int,
-     transactionIndex int,
+     nonce bigint,
+     block_hash text,
+     timestamp timestamp,
+     block_number bigint,
+     transaction_index bigint,
      from text,
      to text,
-     value int,
-     gas int,
-     gasPrice int,
+     value text,
+     gas_price decimal,
+     gas_limit bigint,
+     gas_used bigint,
+     fee text,
      input text,
-     v text,
-     standardV text,
-     r text,
-     raw text,
-     publicKey text,
-     networkId text,
-     creates text,
-     condition text,
+     creates text
 );
