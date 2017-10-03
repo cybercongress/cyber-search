@@ -2,13 +2,13 @@ CREATE TYPE IF NOT EXISTS blockchains.ethereum_block_tx (
     fee decimal,
     amount decimal,
     hash text,
-    from text,
-    to text,
+    "from" text,
+    "to" text,
 );
 
 
 CREATE TABLE IF NOT EXISTS blockchains.ethereum_block (
-     number varint PRIMARY KEY,
+     number bigint PRIMARY KEY,
      hash text,
      parent_hash text,
      timestamp timestamp,
@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS blockchains.ethereum_tx (
      timestamp timestamp,
      block_number bigint,
      transaction_index bigint,
-     from text,
-     to text,
+     "from" text,
+     "to" text,
      value text,
      gas_price decimal,
      gas_limit bigint,

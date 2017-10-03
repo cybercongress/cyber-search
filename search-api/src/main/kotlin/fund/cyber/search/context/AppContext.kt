@@ -3,6 +3,7 @@ package fund.cyber.search.context
 import com.datastax.driver.core.Cluster
 import com.fasterxml.jackson.databind.ObjectMapper
 import fund.cyber.dao.bitcoin.BitcoinDaoService
+import fund.cyber.dao.ethereum.EthereumDaoService
 import fund.cyber.search.configuration.SearchApiConfiguration
 import fund.cyber.search.configuration.SearchRequestProcessingStatsKafkaProducer
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
@@ -31,4 +32,5 @@ object AppContext {
     val cassandraClient = Cluster.builder().addContactPoint(configuration.cassandraHost).build().init()!!
 
     val bitcoinDaoService = BitcoinDaoService(cassandraClient)
+    val ethereumDaoService = EthereumDaoService(cassandraClient)
 }
