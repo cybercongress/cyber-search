@@ -1,5 +1,7 @@
 package fund.cyber.node.connectors.configuration
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect
+import com.fasterxml.jackson.annotation.PropertyAccessor
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
@@ -28,4 +30,7 @@ class EthereumConnectorConfiguration(
 }
 
 val jacksonJsonSerializer = ObjectMapper().registerKotlinModule()
+        .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
+        .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
+
 val jacksonJsonDeserializer = ObjectMapper().registerKotlinModule().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)!!

@@ -18,3 +18,6 @@ inline fun <T> Iterable<T>.sumByBigDecimal(selector: (T) -> String): BigDecimal 
     }
     return sum
 }
+
+inline fun String.hexToLong() : Long = java.lang.Long.decode(this)
+
