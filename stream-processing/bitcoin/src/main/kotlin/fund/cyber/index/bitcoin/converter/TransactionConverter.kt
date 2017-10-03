@@ -6,8 +6,10 @@ import fund.cyber.node.model.BitcoinTransaction
 import fund.cyber.node.model.BitcoinTransactionIn
 import fund.cyber.node.model.BitcoinTransactionOut
 import org.ehcache.Cache
+import org.slf4j.LoggerFactory
 import java.time.Instant
 
+val log = LoggerFactory.getLogger(BitcoinTransactionConverter::class.java)!!
 
 //todo remove top lvl function
 
@@ -81,6 +83,7 @@ class BitcoinTransactionConverter(private val transactionCache: Cache<String, Bi
     fun btcdTxInToDao(btcdTxIns: List<BtcdRegularTransactionInput>): List<BitcoinTransactionIn> {
 
         return btcdTxIns.map { (txid, vout, scriptSig) ->
+            log.debug("looking for $txid transaction and output $vout")
             val daoTxOut = transactionCache[txid].getOutputByNumber(vout)
             BitcoinTransactionIn(
                     address = daoTxOut.address, amount = daoTxOut.amount, asm = scriptSig.asm, tx_id = txid, tx_out = vout
