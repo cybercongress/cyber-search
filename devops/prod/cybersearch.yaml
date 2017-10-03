@@ -175,6 +175,25 @@ items:
   metadata:
     annotations:
       kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.2.0 (99f88ef)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-parity
+    name: cs-parity
+  spec:
+    ports:
+    - name: "8545"
+      port: 8545
+      targetPort: 8545
+    selector:
+      io.kompose.service: cs-parity
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
       kompose.service.type: loadbalancer
       kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
@@ -603,6 +622,62 @@ items:
           - containerPort: 9000
           resources: {}
         restartPolicy: Always
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.2.0 (99f88ef)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-parity
+    name: cs-parity
+  spec:
+    replicas: 1
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-parity
+      spec:
+        containers:
+        - args:
+          - --db-path
+          - /cyberdata
+          - --jsonrpc-hosts
+          - all
+          - --jsonrpc-interface
+          - all
+          image: parity/parity
+          name: cs-parity
+          ports:
+          - containerPort: 8545
+          resources: {}
+          volumeMounts:
+          - mountPath: /cyberdata
+            name: cs-parity-claim0
+        restartPolicy: Always
+        volumes:
+        - name: cs-parity-claim0
+          persistentVolumeClaim:
+            claimName: cs-parity-claim0
+  status: {}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-parity-claim0
+    name: cs-parity-claim0
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 500Gi
   status: {}
 - apiVersion: extensions/v1beta1
   kind: Deployment

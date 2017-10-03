@@ -149,3 +149,12 @@ services:
     command: "--rpcuser=cyber --rpcpass=cyber --rpclisten=0.0.0.0:8334 --notls"
     volumes:
       - /cyberdata:/cyberdata
+
+  cs-parity:
+    image: parity/parity
+    ports:
+      - "8545:8545"
+    command: "--db-path /cyberdata --jsonrpc-hosts all --jsonrpc-interface all"
+    volumes:
+      - /cyberdata:/cyberdata
+ 
