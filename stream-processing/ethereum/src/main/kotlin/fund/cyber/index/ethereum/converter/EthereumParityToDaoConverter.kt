@@ -1,5 +1,6 @@
 package fund.cyber.index.ethereum.converter
 
+import fund.cyber.node.common.hexToLong
 import fund.cyber.node.model.EthereumBlock
 import fund.cyber.node.model.EthereumBlockTransaction
 import fund.cyber.node.model.EthereumTransaction
@@ -7,7 +8,7 @@ import org.web3j.protocol.core.methods.response.EthBlock
 import java.math.BigDecimal
 import java.time.Instant
 
-class EthereumParityToDaoConverter() {
+class EthereumParityToDaoConverter {
 
     private val weiToEthRate = BigDecimal("1E-18")
 
@@ -19,14 +20,14 @@ class EthereumParityToDaoConverter() {
                     EthereumTransaction(
                             from = parityTx.from, to = parityTx.to, nonce = parityTx.nonce.toLong(),
                             value = (BigDecimal(parityTx.value) * weiToEthRate).toString(),
-                            timestamp = Instant.ofEpochSecond(parityBlock.timestampRaw.toLong(16)).toString(),
+                            timestamp = Instant.ofEpochSecond(parityBlock.timestampRaw.hexToLong()).toString(),
                             hash = parityTx.hash, block_hash = parityBlock.hash,
-                            block_number = parityBlock.numberRaw.toLong(16),
+                            block_number = parityBlock.numberRaw.hexToLong(),
                             creates = parityTx.creates, input = parityTx.input,
-                            transaction_index = parityTx.transactionIndexRaw.toLong(16),
-                            gas_limit = parityBlock.gasLimitRaw.toLong(16),
-                            gas_used = parityTx.transactionIndexRaw.toLong(16),
-                            gas_price =BigDecimal(parityTx.gasPrice) * weiToEthRate,
+                            transaction_index = parityTx.transactionIndexRaw.hexToLong(),
+                            gas_limit = parityBlock.gasLimitRaw.hexToLong(),
+                            gas_used = parityTx.transactionIndexRaw.hexToLong(),
+                            gas_price = BigDecimal(parityTx.gasPrice) * weiToEthRate,
                             fee = (BigDecimal(parityTx.gasPrice * parityTx.gas) * weiToEthRate).toString()
                     )
                 }
@@ -37,8 +38,11 @@ class EthereumParityToDaoConverter() {
         val blockTxes = parityBlock.transactions
                 .filterIsInstance<EthBlock.TransactionObject>()
                 .map { parityTx ->
+
+                    val to = if (parityTx.creates != null) parityTx.creates else parityTx.to
+
                     EthereumBlockTransaction(
-                            from = parityTx.from, to = parityTx.to, hash = parityTx.hash,
+                            from = parityTx.from, to = to, hash = parityTx.hash,
                             amount = BigDecimal(parityTx.value) * weiToEthRate,
                             fee = BigDecimal(parityTx.gasPrice * parityTx.gas) * weiToEthRate
                     )
@@ -46,11 +50,11 @@ class EthereumParityToDaoConverter() {
                 }
 
         return EthereumBlock(
-                hash = parityBlock.hash, parent_hash = parityBlock.parentHash, number = parityBlock.numberRaw.toLong(16),
-                miner = parityBlock.miner, difficulty = parityBlock.difficulty, size = parityBlock.sizeRaw.toLong(16),
+                hash = parityBlock.hash, parent_hash = parityBlock.parentHash, number = parityBlock.numberRaw.hexToLong(),
+                miner = parityBlock.miner, difficulty = parityBlock.difficulty, size = parityBlock.sizeRaw.hexToLong(),
                 extra_data = parityBlock.extraData, total_difficulty = parityBlock.totalDifficulty,
-                gas_limit = parityBlock.gasLimitRaw.toLong(16), gas_used = parityBlock.gasUsedRaw.toLong(16),
-                timestamp = Instant.ofEpochSecond(parityBlock.timestampRaw.toLong(16)).toString(),
+                gas_limit = parityBlock.gasLimitRaw.hexToLong(), gas_used = parityBlock.gasUsedRaw.hexToLong(),
+                timestamp = Instant.ofEpochSecond(parityBlock.timestampRaw.hexToLong()).toString(),
                 logs_bloom = parityBlock.logsBloom, transactions_root = parityBlock.transactionsRoot,
                 receipts_root = parityBlock.receiptsRoot, state_root = parityBlock.stateRoot,
                 sha3_uncles = parityBlock.sha3Uncles, uncles = parityBlock.uncles, transactions = blockTxes,
