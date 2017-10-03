@@ -1,9 +1,3 @@
-
-
-CREATE KEYSPACE IF NOT EXISTS search
-    WITH REPLICATION = {'class' : 'NetworkTopologyStrategy','LOCAL_DEVELOPMENT' : 1};
-
-
 CREATE TYPE IF NOT EXISTS search.document_key (
     id text,
     type text,

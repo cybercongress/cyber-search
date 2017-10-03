@@ -1,0 +1,14 @@
+apply plugin: "application"
+
+dependencies {
+    compile(project(":core"))
+    compile(project(":connectors/model"))
+    compile("org.jetbrains.kotlin:kotlin-stdlib-jre8")
+    compile("org.web3j:core")
+    compile("org.apache.kafka:kafka-streams")
+    compile("org.apache.kafka:kafka-clients")
+}
+
+mainClassName = "fund.cyber.index.ethereum.EthereumBlockSplitterApplication"
+applicationName = "ethereum-processor"
+

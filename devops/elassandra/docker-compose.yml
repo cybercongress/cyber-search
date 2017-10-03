@@ -19,11 +19,10 @@ services:
 
   elassandra:
     network_mode: host
-    image: strapdata/elassandra:2.4.5.5
+    image: strapdata/elassandra:2.4.5.6
     volumes:
       - /opt/cyberfund/search/elassandra:/var/lib/cassandra
       - /opt/cyberfund/search/elassandra/logs:/var/log/cassandra
-      - ./logback.xml:/opt/elassandra-2.4.5.5/conf/logback.xml
     environment:
        CASSANDRA_DC: LOCAL_DEVELOPMENT
        CASSANDRA_CLUSTER_NAME: CYBERNODE

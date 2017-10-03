@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import fund.cyber.node.common.intValue
 import fund.cyber.node.common.stringValue
 import fund.cyber.node.model.DocumentKey
-import fund.cyber.node.model.ItemPreview
 import fund.cyber.node.model.SearchRequestProcessingStats
 import fund.cyber.search.configuration.SearchRequestProcessingStatsKafkaProducer
 import fund.cyber.search.configuration.SearchRequestProcessingStatsRecord
 import fund.cyber.search.context.AppContext
+import fund.cyber.search.model.ItemPreview
 import fund.cyber.search.model.SearchResponse
 import io.undertow.server.HttpHandler
 import io.undertow.server.HttpServerExchange
@@ -42,7 +42,7 @@ class SearchHandler(
         val elasticQuery = QueryBuilders.matchQuery("_all", query)
                 .fuzziness(Fuzziness.fromEdits(2))
 
-        val elasticResponse = elasticClient.prepareSearch("blockchains")
+        val elasticResponse = elasticClient.prepareSearch("ethereum_tx", "ethereum_block", "bitcoin_tx", "bitcoin_block")
                 .setQuery(elasticQuery)
                 .setFrom(page * pageSize).setSize(pageSize).setExplain(true)
                 .execute()

@@ -7,3 +7,4 @@ include "connectors/bitcoin"
 
 include "stream-processing/common"
 include "stream-processing/bitcoin"
+include "stream-processing/ethereum"
