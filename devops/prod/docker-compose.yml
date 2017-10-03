@@ -56,10 +56,12 @@ services:
       ZK_HOSTS: "cs-zoo:2181"
       APPLICATION_SECRET: "random-secret"
     command: -Dpidfile.path=/dev/null
+    labels:
+      kompose.service.type: loadbalancer
 
 
   cs-kafka-connect:
-    image: cybernode/cn-kafka-connectors:release-0.5.8
+    image: cybernode/cn-kafka-connectors:release-0.6.0
     ports:
       - "8083:8083"
     environment:
@@ -103,21 +105,29 @@ services:
 
 
   cs-bitcoin-process:
-    image: cybernode/cs-bitcoin-processor:release-0.5.8
+    image: cybernode/cs-bitcoin-processor:release-0.6.0
     environment:
       CASSANDRA_CONNECTION: cs-elassandra
       KAFKA_CONNECTION: cs-kafka:9092
       CS_LOG_LEVEL: WARN
 
+  cs-ethereum-process:
+    image: cybernode/cs-ethereum-processor:release-0.6.0
+    environment:
+      KAFKA_CONNECTION: cs-kafka:9092
+      CS_LOG_LEVEL: WARN
+
 
   cs-search-api:
-    image: cybernode/cs-search-api:release-0.5.8
+    image: cybernode/cs-search-api:release-0.6.0
     ports:
-      - "8085:8085"
+      - "80:8085"
     environment:
       ELASTIC_HOST_CONNECTION: cs-elassandra
       ELASTIC_PORT_CONNECTION: 9300
       ELASTIC_CLUSTER_NAME: CYBERNODE
+      CASSANDRA_HOST_CONNECTION: cs-elassandra
+      KAFKA_CONNECTION: cs-kafka:9092
     labels:
       kompose.service.type: loadbalancer
 
@@ -128,10 +138,12 @@ services:
       - "9001:8000"
     environment:
       CONNECT_URL: cs-kafka-connect:8083
+    labels:
+      kompose.service.type: loadbalancer
 
 
   cs-btcd:
-    image: cybernode/bitcoin-btcd
+    image: cybernode/bitcoin-btcd:temp
     ports:
       - "8334:8334"
     command: "--rpcuser=cyber --rpcpass=cyber --rpclisten=0.0.0.0:8334 --notls"
