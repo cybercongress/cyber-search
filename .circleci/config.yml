@@ -73,6 +73,23 @@ jobs:
              docker push cybernode/cs-bitcoin-processor:latest
 
 
+  deploy_ethereum_processor_image:
+     <<: *default_container
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.05.0-ce
+       - run:
+           name: Build kafka-streams processor for ethereum
+           command: |
+             docker build -t build/cs-ethereum-processor -f ./devops/stream-processing/ethereum ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/cs-ethereum-processor cybernode/cs-ethereum-processor:$CIRCLE_TAG
+             docker push cybernode/cs-ethereum-processor:$CIRCLE_TAG
+             docker tag build/cs-ethereum-processor cybernode/cs-ethereum-processor:latest
+             docker push cybernode/cs-ethereum-processor:latest
+
+
   deploy_search_api_image:
      <<: *default_container
      steps:
@@ -104,6 +121,10 @@ workflows:
           requires:
             - build_project
       - deploy_bitcoin_processor_image:
+          <<: *release_filter
+          requires:
+            - build_project
+      - deploy_ethereum_processor_image:
           <<: *release_filter
           requires:
             - build_project
