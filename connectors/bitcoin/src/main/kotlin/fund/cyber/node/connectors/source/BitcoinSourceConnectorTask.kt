@@ -76,8 +76,6 @@ class BitcoinSourceConnectorTask : SourceTask() {
 
                         val valueByteArray = jsonSerializer.writeValueAsBytes(rawBlock)
 
-                        log.debug("$blockNumber block : $rawBlock")
-                        log.debug("${valueByteArray.size}")
                         SourceRecord(
                                 sourcePartition, sourceOffset(blockNumber),
                                 IndexTopics.bitcoinSourceTopic, Schema.BYTES_SCHEMA, valueByteArray

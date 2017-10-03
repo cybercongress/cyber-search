@@ -8,13 +8,6 @@ data class ItemPreview(
         @JsonRawValue val data: String
 )
 
-data class Block(
-        val chunk_id: String,
-        val number: String,
-        val rawBlock: String
-)
-
-
 data class DocumentKey(
         val catalog: String,
         val type: String,

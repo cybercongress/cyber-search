@@ -1,56 +1,6 @@
 CREATE KEYSPACE IF NOT EXISTS blockchains
     WITH REPLICATION = {'class' : 'NetworkTopologyStrategy','LOCAL_DEVELOPMENT' : 1};
 
-
-CREATE TABLE IF NOT EXISTS blockchains.ethereum (
-     hash text,
-     parentHash text,
-     height varint PRIMARY KEY,
-     timestamp timestamp,
-     nonce text,
-     receiptsRoot text,
-     stateRoot text,
-     transactionsRoot text,
-     logsBloom text,
-     gasUsed int,
-     gasLimit int,
-     size int,
-     difficulty int,
-     totalDifficulty int,
-     extraData text,
-     sha3Uncles text,
-     transactionsCount int,
-     miner text,
-
-     txs list<FROZEN <blockchains.ethereum_tx>>
-);
-
-CREATE TABLE IF NOT EXISTS blockchains.ethereum_tx (
-     hash text PRIMARY KEY,
-     nonce int,
-     blockHash text,
-     blockNumber int,
-     transactionIndex int,
-     from text,
-     to text,
-     value int,
-     gas int,
-     gasPrice int,
-     input text,
-     v text,
-     standardV text,
-     r text,
-     raw text,
-     publicKey text,
-     networkId text,
-     creates text,
-     condition text,
-);
-
-CREATE KEYSPACE IF NOT EXISTS blockchains
-    WITH REPLICATION = {'class' : 'NetworkTopologyStrategy','LOCAL_DEVELOPMENT' : 1};
-
-
 CREATE TYPE IF NOT EXISTS blockchains.bitcoin_block_tx_io (
     address text,
     amount text
@@ -114,17 +64,4 @@ CREATE TABLE IF NOT EXISTS blockchains.bitcoin_tx (
      total_output text,
      ins list<FROZEN <blockchains.bitcoin_tx_in>>,
      outs list<FROZEN <blockchains.bitcoin_tx_out>>
-);
-CREATE TABLE IF NOT EXISTS blockchains.ethereum_address (
-    address text PRIMARY KEY,
-    ethBalance text,
-    txs list<FROZEN <blockchains.ethereum_tx>>
-);
-
-CREATE TABLE IF NOT EXISTS blockchains.ethereum_contract (
-    address text PRIMARY KEY,
-    ethBalance text,
-    contractCode text,
-    contractCreator text,
-    txs list<FROZEN <blockchains.ethereum_tx>>
 );
