@@ -8,7 +8,6 @@ import org.apache.kafka.connect.source.SourceConnector
 
 
 val ethereum = "ethereum"
-val ethereumSourceTopic = "ethereum-source"
 
 class EthereumSourceConnector : SourceConnector() {
 

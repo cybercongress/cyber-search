@@ -1,5 +1,8 @@
 package fund.cyber.node.connectors.configuration
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.apache.kafka.common.config.AbstractConfig
 import org.apache.kafka.common.config.ConfigDef
 import org.apache.kafka.common.config.ConfigDef.Importance.HIGH
@@ -7,15 +10,13 @@ import org.apache.kafka.common.config.ConfigDef.Type.*
 
 
 val PARITY_URL = "parity.url"
-val CHUNK_SIZE = "chunk.size"
 val BATCH_SIZE = "batch.size"
 
-val batch_size_default = 32
+val BATCH_SIZE_DEFAULT = 32
 
 val ethereumConnectorConfiguration = ConfigDef()
         .define(PARITY_URL, STRING, "http://127.0.0.1:8545", HIGH, "Define parity url.")!!
-        .define(CHUNK_SIZE, LONG, 500, HIGH, "Define cassandra row key granularity.")!!
-        .define(BATCH_SIZE, INT, batch_size_default, HIGH, "Define number of concurrent requests to parity.")!!
+        .define(BATCH_SIZE, INT, BATCH_SIZE_DEFAULT, HIGH, "Define number of concurrent requests to parity.")!!
 
 
 class EthereumConnectorConfiguration(
@@ -23,6 +24,8 @@ class EthereumConnectorConfiguration(
 ) : AbstractConfig(ethereumConnectorConfiguration, properties, true) {
 
     val parityUrl = getString(PARITY_URL)!!
-    val chunkSize = getLong(CHUNK_SIZE)!!
     val batchSize = getInt(BATCH_SIZE)!!
 }
+
+val jacksonJsonSerializer = ObjectMapper().registerKotlinModule()
+val jacksonJsonDeserializer = ObjectMapper().registerKotlinModule().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)!!
