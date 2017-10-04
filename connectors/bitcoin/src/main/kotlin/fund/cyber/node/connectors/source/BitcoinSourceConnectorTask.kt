@@ -19,7 +19,7 @@ class BitcoinSourceConnectorTask : SourceTask() {
     private val jsonDeserializer: ObjectMapper = jacksonJsonDeserializer
     private val jsonSerializer: ObjectMapper = jacksonJsonSerializer
 
-    private lateinit var taskConfiguration: BitcoinConnectorConfiguration
+    private lateinit var config: BitcoinConnectorConfiguration
     private lateinit var btcdClient: AsyncBtcdClient
 
     private var batchSize: Int = BATCH_SIZE_DEFAULT
@@ -30,13 +30,13 @@ class BitcoinSourceConnectorTask : SourceTask() {
 
     override fun start(properties: Map<String, String>) {
 
-        taskConfiguration = BitcoinConnectorConfiguration(properties)
-        btcdClient = AsyncBtcdClient(taskConfiguration)
+        config = BitcoinConnectorConfiguration(properties)
+        btcdClient = AsyncBtcdClient(config)
 
-        batchSize = taskConfiguration.batchSize
-        updateInterval = taskConfiguration.updateInterval
+        batchSize = config.batchSize
+        updateInterval = config.updateInterval
 
-        lastParsedBlockNumber = lastParsedBlockNumber()
+        lastParsedBlockNumber = if (config.startBlock == START_BLOCK_DEFAULT) lastParsedBlockNumber() else config.startBlock
         lastNetworkBlock = btcdClient.getLastBlockNumber()
     }
 

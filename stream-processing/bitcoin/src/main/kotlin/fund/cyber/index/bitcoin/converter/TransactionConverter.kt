@@ -32,7 +32,7 @@ class BitcoinTransactionConverter(private val transactionCache: Cache<String, Bi
         }
 
         val inputs = btcdTxInToDao(btcdTransaction.regularInputs())
-        val outputs = btcdTransaction.vout.map { btcdTxOut -> btcdTxOutToDao(btcdTxOut) }
+        val outputs = btcdTransaction.vout.map(this::btcdTxOutToDao)
 
         val totalInput = inputs.sumByBigDecimal { input -> input.amount }
         val totalOutput = outputs.sumByBigDecimal { out -> out.amount }
@@ -52,19 +52,15 @@ class BitcoinTransactionConverter(private val transactionCache: Cache<String, Bi
     fun btcdCoinbaseTxToDao(btcdTransaction: BtcdTransaction, btcdBlock: BtcdBlock): BitcoinTransaction {
 
         val firstInput = btcdTransaction.vin.first() as CoinbaseTransactionInput
-        val firstOutput = btcdTransaction.vout.first()
 
-        val output = BitcoinTransactionOut(
-                address = firstOutput.scriptPubKey.addresses.first(), asm = firstOutput.scriptPubKey.asm,
-                amount = firstOutput.value, out = firstOutput.n, required_signatures = firstOutput.scriptPubKey.reqSigs
-        )
+        val outputs = btcdTransaction.vout.map(this::btcdTxOutToDao)
 
         val transaction = BitcoinTransaction(
                 txid = btcdTransaction.txid, block_number = btcdBlock.height, lock_time = btcdTransaction.locktime,
                 coinbase = firstInput.coinbase, fee = "0", block_hash = btcdBlock.hash,
                 block_time = Instant.ofEpochSecond(btcdBlock.time).toString(),
                 ins = emptyList(), total_input = "0",
-                outs = listOf(output), total_output = "0", size = btcdTransaction.size
+                outs = outputs, total_output = "0", size = btcdTransaction.size
         )
 
         transactionCache.put(transaction.txid, transaction)
@@ -91,7 +87,7 @@ class BitcoinTransactionConverter(private val transactionCache: Cache<String, Bi
         }
     }
 
-    fun btcdTxOutToDao(btcdTxOut: BtcdTransactionOutput): BitcoinTransactionOut {
+    private fun btcdTxOutToDao(btcdTxOut: BtcdTransactionOutput): BitcoinTransactionOut {
 
         return BitcoinTransactionOut(
                 address = btcdTxOut.scriptPubKey.addresses.joinToString(separator = ","),
