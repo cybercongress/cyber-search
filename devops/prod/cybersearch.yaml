@@ -63,8 +63,48 @@ items:
     - name: "7199"
       port: 7199
       targetPort: 7199
+    - name: "7000"
+      port: 7000
+      targetPort: 7000
+    - name: "7001"
+      port: 7001
+      targetPort: 7001
     selector:
       io.kompose.service: cs-elassandra
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.2.0 (99f88ef)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-elassandra2
+    name: cs-elassandra2
+  spec:
+    ports:
+    - name: "9042"
+      port: 9042
+      targetPort: 9042
+    - name: "9200"
+      port: 9200
+      targetPort: 9200
+    - name: "9300"
+      port: 9300
+      targetPort: 9300
+    - name: "7199"
+      port: 7199
+      targetPort: 7199
+    - name: "7000"
+      port: 7000
+      targetPort: 7000
+    - name: "7001"
+      port: 7001
+      targetPort: 7001
+    selector:
+      io.kompose.service: cs-elassandra2
   status:
     loadBalancer: {}
 - apiVersion: v1
@@ -256,7 +296,7 @@ items:
             value: WARN
           - name: KAFKA_CONNECTION
             value: cs-kafka:9092
-          image: cybernode/cs-bitcoin-processor:release-0.6.0
+          image: cybernode/cs-bitcoin-processor:release-0.6.2
           name: cs-bitcoin-process
           resources: {}
         restartPolicy: Always
@@ -337,10 +377,14 @@ items:
       spec:
         containers:
         - env:
+          - name: CASSANDRA_BROADCAST_ADDRESS
+            value: cs-elassandra
           - name: CASSANDRA_CLUSTER_NAME
             value: CYBERNODE
           - name: CASSANDRA_DC
             value: LOCAL_DEVELOPMENT
+          - name: JVM_OPTS
+            value: -Xmx32g -Xms32g
           image: strapdata/elassandra:2.4.5.5
           name: cs-elassandra
           ports:
@@ -348,7 +392,13 @@ items:
           - containerPort: 9200
           - containerPort: 9300
           - containerPort: 7199
-          resources: {}
+          - containerPort: 7000
+          - containerPort: 7001
+          resources:
+             limits:
+               memory: "32Gi"
+             requests:
+               memory: "32Gi"
           volumeMounts:
           - mountPath: /var/lib/cassandra
             name: cs-elassandra-claim0
@@ -380,6 +430,75 @@ items:
       kompose.version: 1.2.0 (99f88ef)
     creationTimestamp: null
     labels:
+      io.kompose.service: cs-elassandra2
+    name: cs-elassandra2
+  spec:
+    replicas: 1
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-elassandra2
+      spec:
+        containers:
+        - env:
+          - name: CASSANDRA_BROADCAST_ADDRESS
+            value: cs-elassandra2
+          - name: CASSANDRA_CLUSTER_NAME
+            value: CYBERNODE
+          - name: CASSANDRA_DC
+            value: LOCAL_DEVELOPMENT
+          - name: CASSANDRA_SEEDS
+            value: cs-elassandra
+          - name: JVM_OPTS
+            value: -Xmx32g -Xms32g
+          image: strapdata/elassandra:2.4.5.5
+          name: cs-elassandra2
+          ports:
+          - containerPort: 9042
+          - containerPort: 9200
+          - containerPort: 9300
+          - containerPort: 7199
+          - containerPort: 7000
+          - containerPort: 7001
+          resources:
+             limits:
+               memory: "32Gi"
+             requests:
+               memory: "32Gi"
+          volumeMounts:
+          - mountPath: /var/lib/cassandra
+            name: cs-elassandra2-claim0
+        restartPolicy: Always
+        volumes:
+        - name: cs-elassandra2-claim0
+          persistentVolumeClaim:
+            claimName: cs-elassandra2-claim0
+  status: {}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-elassandra2-claim0
+    name: cs-elassandra2-claim0
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1000Gi
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -o cybersearch.yaml
+      kompose.version: 1.2.0 (99f88ef)
+    creationTimestamp: null
+    labels:
       io.kompose.service: cs-ethereum-process
     name: cs-ethereum-process
   spec:
@@ -397,7 +516,7 @@ items:
             value: WARN
           - name: KAFKA_CONNECTION
             value: cs-kafka:9092
-          image: cybernode/cs-ethereum-processor:release-0.6.0
+          image: cybernode/cs-ethereum-processor:release-0.6.2
           name: cs-ethereum-process
           resources: {}
         restartPolicy: Always
@@ -550,7 +669,7 @@ items:
             value: "false"
           - name: CONNECT_ZOOKEEPER_CONNECT
             value: cs-zoo:2181
-          image: cybernode/cn-kafka-connectors:release-0.6.0
+          image: cybernode/cn-kafka-connectors:release-0.6.2
           name: cs-kafka-connect
           ports:
           - containerPort: 8083
@@ -651,7 +770,7 @@ items:
           - all
           - --jsonrpc-interface
           - all
-          image: parity/parity
+          image: parity/parity:stable
           name: cs-parity
           ports:
           - containerPort: 8545
@@ -711,7 +830,7 @@ items:
             value: "9300"
           - name: KAFKA_CONNECTION
             value: cs-kafka:9092
-          image: cybernode/cs-search-api:release-0.6.0
+          image: cybernode/cs-search-api:release-0.6.2
           name: cs-search-api
           ports:
           - containerPort: 8085
