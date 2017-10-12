@@ -65,5 +65,3 @@ curl -XPUT "http://localhost:9200/ethereum_block/_mapping/ethereum_block" -d '{
       }
     }
 }'
-
-curl -XGET "http://localhost:9200/_search?pretty&q=0x594ac155fe26c61b75295cdd95bf63c285f25708f5c895c673f40b21c0f8150c"
