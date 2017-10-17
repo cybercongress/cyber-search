@@ -9,13 +9,22 @@ import fund.cyber.node.model.*
 class BitcoinDaoService(private val cassandra: Cluster) {
 
 
+    fun getAddress(address: String): BitcoinAddress? {
+
+        val session = cassandra.connect("bitcoin")
+
+        val resultSet = session.execute("SELECT * FROM address WHERE address=$address")
+
+        return resultSet.map(this::bitcoinAddressMapping).firstOrNull()
+    }
+
     fun getBlockByNumber(number: Long): BitcoinBlock? {
 
-        val session = cassandra.connect("blockchains")
+        val session = cassandra.connect("bitcoin")
         val manager = MappingManager(session)
         val mapper = manager.mapper(BitcoinBlock::class.java)
 
-        val resultSet = session.execute("SELECT * FROM bitcoin_block WHERE height=$number")
+        val resultSet = session.execute("SELECT * FROM block WHERE height=$number")
 
         return resultSet.map(this::bitcoinBlockMapping).firstOrNull()
     }
@@ -23,11 +32,11 @@ class BitcoinDaoService(private val cassandra: Cluster) {
 
     fun getTxById(id: String): BitcoinTransaction? {
 
-        val session = cassandra.connect("blockchains")
+        val session = cassandra.connect("bitcoin")
         val manager = MappingManager(session)
         val mapper = manager.mapper(BitcoinTransaction::class.java)
 
-        val resultSet = session.execute("SELECT * FROM bitcoin_tx WHERE txid='$id'")
+        val resultSet = session.execute("SELECT * FROM tx WHERE txid='$id'")
 
         return resultSet.map(this::bitcoinTransactionMapping).firstOrNull()
     }
@@ -39,20 +48,25 @@ class BitcoinDaoService(private val cassandra: Cluster) {
 
         val txIds = ids.joinToString(separator = "','", postfix = "'", prefix = "'")
 
-        val session = cassandra.connect("blockchains")
+        val session = cassandra.connect("bitcoin")
         val manager = MappingManager(session)
         val mapper = manager.mapper(BitcoinTransaction::class.java)
 
-        val resultSet = session.execute("SELECT * FROM bitcoin_tx WHERE txid in ($txIds)")
+        return session.execute("SELECT * FROM tx WHERE txid in ($txIds)").map(this::bitcoinTransactionMapping)
+    }
 
-        return resultSet.map(this::bitcoinTransactionMapping)
+    private fun bitcoinAddressMapping(row: Row): BitcoinAddress {
+        return BitcoinAddress(
+                address = row.getString("address"), balance = row.getString("balance"),
+                tx_number = row.getInt("tx_number"), total_received = row.getString("total_received")
+        )
     }
 
 
     private fun bitcoinTransactionMapping(row: Row): BitcoinTransaction {
         return BitcoinTransaction(
                 txid = row.getString("txid"), fee = row.getString("fee"), size = row.getInt("size"),
-                block_number = row.getLong("block_number"), lock_time = row.getLong("lock_time"),
+                block_number = row.getLong("block_number"),
                 total_output = row.getString("total_output"), total_input = row.getString("total_input"),
                 block_time = row.getTimestamp("block_time").toInstant().toString(),
                 coinbase = row.getString("coinbase"), block_hash = row.getString("block_hash"),
