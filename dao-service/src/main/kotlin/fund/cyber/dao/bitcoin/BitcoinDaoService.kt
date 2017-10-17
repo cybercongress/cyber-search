@@ -4,9 +4,16 @@ import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Row
 import com.datastax.driver.mapping.MappingManager
 import fund.cyber.node.model.*
+import org.ehcache.Cache
+import org.slf4j.LoggerFactory
 
 
-class BitcoinDaoService(private val cassandra: Cluster) {
+val log = LoggerFactory.getLogger(BitcoinDaoService::class.java)!!
+
+class BitcoinDaoService(
+        private val cassandra: Cluster,
+        private val txCache: Cache<String, BitcoinTransaction>? = null
+) {
 
 
     fun getAddress(address: String): BitcoinAddress? {
@@ -17,6 +24,7 @@ class BitcoinDaoService(private val cassandra: Cluster) {
 
         return resultSet.map(this::bitcoinAddressMapping).firstOrNull()
     }
+
 
     fun getBlockByNumber(number: Long): BitcoinBlock? {
 
@@ -46,14 +54,40 @@ class BitcoinDaoService(private val cassandra: Cluster) {
 
         if (ids.isEmpty()) return emptyList()
 
-        val txIds = ids.joinToString(separator = "','", postfix = "'", prefix = "'")
+        if (txCache != null) {
+
+            val txs = mutableListOf<BitcoinTransaction>()
+            val idsWithoutCacheHit = mutableListOf<String>()
+
+            for (id in ids) {
+                val tx = txCache[id]
+                if (tx != null) txs.add(tx) else idsWithoutCacheHit.add(id)
+            }
+
+            log.debug("Total ids: ${ids.size}, Cache hits: ${idsWithoutCacheHit.size}")
+
+            txs.addAll(queryTxsByIds(idsWithoutCacheHit))
+            return txs
+        }
+
+        return queryTxsByIds(ids)
+    }
+
+
+    private fun queryTxsByIds(ids: List<String>): List<BitcoinTransaction> {
 
         val session = cassandra.connect("bitcoin")
-        val manager = MappingManager(session)
-        val mapper = manager.mapper(BitcoinTransaction::class.java)
+        val statement = session.prepare("SELECT * FROM tx WHERE txid = ?")
 
-        return session.execute("SELECT * FROM tx WHERE txid in ($txIds)").map(this::bitcoinTransactionMapping)
+        return ids.map { id -> session.executeAsync(statement.bind(id)) } // future<ResultSet>
+                .map { futureResultSet ->
+                    // cql row
+                    while (!futureResultSet.isDone) Thread.sleep(10)
+                    futureResultSet.get().one()
+                }
+                .map(this::bitcoinTransactionMapping)
     }
+
 
     private fun bitcoinAddressMapping(row: Row): BitcoinAddress {
         return BitcoinAddress(
@@ -74,6 +108,7 @@ class BitcoinDaoService(private val cassandra: Cluster) {
                 outs = row.getList("outs", BitcoinTransactionOut::class.java)
         )
     }
+
 
     private fun bitcoinBlockMapping(row: Row): BitcoinBlock {
         return BitcoinBlock(

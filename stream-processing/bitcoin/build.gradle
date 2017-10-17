@@ -2,6 +2,7 @@ apply plugin: "application"
 
 dependencies {
     compile(project(":core"))
+    compile(project(":dao-service"))
     compile(project(":connectors/model"))
     compile("org.jetbrains.kotlin:kotlin-stdlib-jre8")
     compile("org.apache.kafka:kafka-streams")

@@ -1,6 +1,7 @@
 package fund.cyber.index.bitcoin
 
 import com.datastax.driver.core.Cluster
+import fund.cyber.dao.bitcoin.BitcoinDaoService
 import fund.cyber.index.bitcoin.converter.BitcoinBlockConverter
 import fund.cyber.index.bitcoin.converter.BitcoinTransactionConverter
 import fund.cyber.index.btcd.BtcdBlock
@@ -20,16 +21,18 @@ import org.ehcache.xml.XmlConfiguration
 import java.util.*
 
 
-object ApplicationContext {
+object AppContext {
 
     val streamsConfiguration = StreamConfiguration()
-    val cache = getTransactionCache()
-    val transactionConverter = BitcoinTransactionConverter(cache)
+    val txCache = getTransactionCache()
+    val transactionConverter = BitcoinTransactionConverter()
     val blockConverter = BitcoinBlockConverter()
 
     val cassandra = Cluster.builder()
             .addContactPoint(streamsConfiguration.cassandraServers)
             .build().init()
+
+    val bitcoinDaoService = BitcoinDaoService(cassandra, txCache)
 }
 
 
