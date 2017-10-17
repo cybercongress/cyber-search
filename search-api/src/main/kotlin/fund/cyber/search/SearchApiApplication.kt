@@ -14,6 +14,7 @@ object SearchApiApplication {
                 .get("/search", SearchHandler())
                 .get("/bitcoin/block/{blockNumber}", BitcoinBlockHandler())
                 .get("/bitcoin/tx/{txId}", BitcoinTxHandler())
+                .get("/bitcoin/address/{address}", BitcoinAddressHandler())
                 .get("/ethereum/block/{blockNumber}", EthereumBlockHandler())
                 .get("/ethereum/tx/{txHash}", EthereumTxHandler())
 
