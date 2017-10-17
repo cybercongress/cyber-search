@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 
 curl -XPUT "http://localhost:9200/bitcoin_tx/" -d '{
-   "settings" : { "keyspace" : "blockchains" } },
+   "settings" : { "keyspace" : "bitcoin" } },
 }'
 
 curl -XPUT "http://localhost:9200/bitcoin_block/" -d '{
-   "settings" : { "keyspace" : "blockchains" } },
+   "settings" : { "keyspace" : "bitcoin" } },
+}'
+
+curl -XPUT "http://localhost:9200/bitcoin_address/" -d '{
+   "settings" : { "keyspace" : "bitcoin" } },
 }'
 
 curl -XPUT "http://localhost:9200/ethereum_tx/" -d '{
@@ -16,8 +20,8 @@ curl -XPUT "http://localhost:9200/ethereum_block/" -d '{
    "settings" : { "keyspace" : "blockchains" } },
 }'
 
-curl -XPUT "http://localhost:9200/bitcoin_tx/_mapping/bitcoin_tx" -d '{
-    "bitcoin_tx" : {
+curl -XPUT "http://localhost:9200/bitcoin_tx/_mapping/tx" -d '{
+    "tx" : {
       "properties": {
         "txid": {"type": "string", "index": "not_analyzed", "include_in_all": true, "cql_collection" : "singleton"},
         "block_hash": {"type": "string", "index": "not_analyzed", "include_in_all": true, "cql_collection" : "singleton"},
@@ -29,14 +33,25 @@ curl -XPUT "http://localhost:9200/bitcoin_tx/_mapping/bitcoin_tx" -d '{
     }
 }'
 
-curl -XPUT "http://localhost:9200/bitcoin_block/_mapping/bitcoin_block" -d '{
-    "bitcoin_block" : {
+curl -XPUT "http://localhost:9200/bitcoin_block/_mapping/block" -d '{
+    "block" : {
       "properties": {
         "hash": {"type": "string", "index": "not_analyzed", "include_in_all": true, "cql_collection" : "singleton"},
         "height": {"type": "long", "index": "no", "include_in_all": true, "cql_collection" : "singleton"},
         "time": {"type": "date", "index": "no", "include_in_all": false, "cql_collection" : "singleton"},
         "tx_number": {"type": "integer", "index": "no", "include_in_all": false, "cql_collection" : "singleton"},
         "total_outputs_value": {"type": "string", "index": "no", "include_in_all": false, "cql_collection" : "singleton"}
+      }
+    }
+}'
+
+curl -XPUT "http://localhost:9200/bitcoin_address/_mapping/address" -d '{
+    "address" : {
+      "properties": {
+        "address": {"type": "string", "index": "not_analyzed", "include_in_all": true, "cql_collection" : "singleton"},
+        "tx_number": {"type": "integer", "index": "no", "include_in_all": false, "cql_collection" : "singleton"},
+        "balance": {"type": "string", "index": "no", "include_in_all": false, "cql_collection" : "singleton"},
+        "total_received": {"type": "string", "index": "no", "include_in_all": false, "cql_collection" : "singleton"}
       }
     }
 }'
