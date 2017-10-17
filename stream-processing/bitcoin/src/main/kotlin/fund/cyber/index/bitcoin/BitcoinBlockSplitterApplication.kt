@@ -1,20 +1,21 @@
 package fund.cyber.index.bitcoin
 
-import com.datastax.driver.core.Cluster
+import fund.cyber.dao.bitcoin.BitcoinDaoService
 import fund.cyber.index.IndexTopics
+import fund.cyber.index.bitcoin.AppContext.cassandra
+import fund.cyber.index.bitcoin.AppContext.streamsConfiguration
+import fund.cyber.index.bitcoin.AppContext.transactionConverter
+import fund.cyber.index.bitcoin.converter.BitcoinBlockConverter
 import fund.cyber.index.btcd.BtcdBlock
 import fund.cyber.index.btcd.BtcdRegularTransactionInput
-import org.apache.kafka.streams.kstream.KStreamBuilder
+import fund.cyber.node.model.BitcoinBlock
+import fund.cyber.node.model.BitcoinItem
+import fund.cyber.node.model.BitcoinTransaction
 import org.apache.kafka.streams.KafkaStreams
-import org.slf4j.LoggerFactory
-import com.datastax.driver.mapping.MappingManager
-import fund.cyber.index.bitcoin.ApplicationContext.cassandra
-import fund.cyber.index.bitcoin.ApplicationContext.streamsConfiguration
-import fund.cyber.index.bitcoin.ApplicationContext.transactionConverter
-import fund.cyber.index.bitcoin.converter.BitcoinBlockConverter
-import fund.cyber.node.model.*
+import org.apache.kafka.streams.kstream.KStreamBuilder
 import org.apache.kafka.streams.kstream.Predicate
 import org.ehcache.Cache
+import org.slf4j.LoggerFactory
 
 val log = LoggerFactory.getLogger(BitcoinBlockSplitterApplication::class.java)!!
 
@@ -59,16 +60,18 @@ object BitcoinBlockSplitterApplication {
 
 
 private fun convertBtcdBlockToBitcoinItems(
-        btcdBlock: BtcdBlock, tryNumber: Int = 0, cache: Cache<String, BitcoinTransaction> = ApplicationContext.cache,
-        blockConverter: BitcoinBlockConverter = ApplicationContext.blockConverter): List<BitcoinItem> {
+        btcdBlock: BtcdBlock, tryNumber: Int = 0,
+        txCache: Cache<String, BitcoinTransaction> = AppContext.txCache,
+        blockConverter: BitcoinBlockConverter = AppContext.blockConverter): List<BitcoinItem> {
 
     return try {
 
-        val inputTransactions = loadInputTransactions(btcdBlock)
-        cache.putAll(inputTransactions)
+        val inputTransactions = getTransactionsInputs(btcdBlock)
 
-        val transactions = transactionConverter.btcdTransactionsToDao(btcdBlock)
+        val transactions = transactionConverter.btcdTransactionsToDao(btcdBlock, inputTransactions)
         val block = blockConverter.btcdBlockToDao(btcdBlock, transactions)
+
+        transactions.forEach { tx -> txCache.put(tx.txid, tx) }
 
         mutableListOf<BitcoinItem>().plus(block).plus(transactions)
     } catch (e: Exception) {
@@ -83,33 +86,14 @@ private fun convertBtcdBlockToBitcoinItems(
 }
 
 
-private fun loadInputTransactions(
-        btcdBlock: BtcdBlock, cassandra: Cluster = ApplicationContext.cassandra): Map<String, BitcoinTransaction> {
+private fun getTransactionsInputs(
+        btcdBlock: BtcdBlock,
+        bitcoinDaoService: BitcoinDaoService = AppContext.bitcoinDaoService): List<BitcoinTransaction> {
 
     val incomingNonCoinbaseTransactionsIds = btcdBlock.rawtx
             .flatMap { transaction -> transaction.vin }
             .filter { txInput -> txInput is BtcdRegularTransactionInput }
             .map { txInput -> (txInput as BtcdRegularTransactionInput).txid }
-            .joinToString(separator = "','", postfix = "'", prefix = "'")
 
-    //"''"
-    if (incomingNonCoinbaseTransactionsIds.length == 2) return emptyMap()
-
-    val session = cassandra.connect("blockchains")
-    val manager = MappingManager(session)
-    val mapper = manager.mapper(BitcoinTransaction::class.java)
-
-    val resultSet = session.execute("SELECT * FROM bitcoin_tx WHERE txid in ($incomingNonCoinbaseTransactionsIds)")
-
-    return resultSet.map { row ->
-        BitcoinTransaction(
-                txid = row.getString("txid"), fee = row.getString("fee"), size = row.getInt("size"),
-                block_number = row.getLong("block_number"), lock_time = row.getLong("lock_time"),
-                total_output = row.getString("total_output"), total_input = row.getString("total_input"),
-                block_time = row.getTimestamp("block_time").toInstant().toString(),
-                coinbase = row.getString("coinbase"), block_hash = btcdBlock.hash,
-                ins = row.getList("ins", BitcoinTransactionIn::class.java),
-                outs = row.getList("outs", BitcoinTransactionOut::class.java)
-        )
-    }.associateBy { tx -> tx.txid }
+    return bitcoinDaoService.getTxsByIds(incomingNonCoinbaseTransactionsIds)
 }
