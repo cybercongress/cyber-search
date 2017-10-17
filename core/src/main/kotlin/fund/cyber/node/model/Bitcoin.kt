@@ -12,7 +12,7 @@ interface BitcoinItem
 * Bitcoin block
 *
 */
-@Table(keyspace = "blockchains", name = "bitcoin_block",
+@Table(keyspace = "bitcoin", name = "block",
         readConsistency = "QUORUM", writeConsistency = "QUORUM",
         caseSensitiveKeyspace = false, caseSensitiveTable = false)
 data class BitcoinBlock(
@@ -31,20 +31,20 @@ data class BitcoinBlock(
         val txs: List<BitcoinBlockTransaction>
 ) : BitcoinItem
 
-@UDT(name = "bitcoin_block_tx")
+@UDT(name = "block_tx")
 data class BitcoinBlockTransaction(
         val fee: String,
         val lock_time: Long,
         val hash: String,
-        val ins: List<BitcoinBlockTransactionIO>,
-        val outs: List<BitcoinBlockTransactionIO>
+        val ins: List<BitcoinTransactionPreviewIO>,
+        val outs: List<BitcoinTransactionPreviewIO>
 ) {
     //used by gson to create instance
     constructor() : this("", 0, "", emptyList(), emptyList())
 }
 
-@UDT(name = "bitcoin_block_tx_io")
-data class BitcoinBlockTransactionIO(
+@UDT(name = "tx_preview_io")
+data class BitcoinTransactionPreviewIO(
         val address: String,
         val amount: String
 ) {
@@ -58,7 +58,7 @@ data class BitcoinBlockTransactionIO(
 * Bitcoin transaction
 *
 */
-@Table(keyspace = "blockchains", name = "bitcoin_tx",
+@Table(keyspace = "bitcoin", name = "tx",
         readConsistency = "QUORUM", writeConsistency = "QUORUM",
         caseSensitiveKeyspace = false, caseSensitiveTable = false)
 data class BitcoinTransaction(
@@ -66,7 +66,6 @@ data class BitcoinTransaction(
         val block_number: Long,
         val block_hash: String,
         val coinbase: String? = null,
-        val lock_time: Long, //indicate earliest block when that transaction may be added to the block chain //todo make separate field with time
         val block_time: String,
         val size: Int,
         val fee: String,
@@ -80,7 +79,7 @@ data class BitcoinTransaction(
 }
 
 
-@UDT(name = "bitcoin_tx_in")
+@UDT(name = "tx_in")
 data class BitcoinTransactionIn(
         val address: String,
         val amount: String,
@@ -94,7 +93,7 @@ data class BitcoinTransactionIn(
 }
 
 
-@UDT(name = "bitcoin_tx_out")
+@UDT(name = "tx_out")
 data class BitcoinTransactionOut(
         val address: String,
         val amount: String,
@@ -105,4 +104,31 @@ data class BitcoinTransactionOut(
 
     //used by gson to create instance
     constructor() : this("", "0", "", 0, 1)
+}
+
+
+@Table(keyspace = "bitcoin", name = "address",
+        readConsistency = "QUORUM", writeConsistency = "QUORUM",
+        caseSensitiveKeyspace = false, caseSensitiveTable = false)
+data class BitcoinAddress(
+        val address: String,
+        val balance: String,
+        val total_received: String,
+        val tx_number: Int
+)
+
+
+@Table(keyspace = "bitcoin", name = "tx_preview_by_address",
+        readConsistency = "QUORUM", writeConsistency = "QUORUM",
+        caseSensitiveKeyspace = false, caseSensitiveTable = false)
+data class BitcoinAddressTransaction(
+        val address: String,
+        val fee: String,
+        val block_time: String,
+        val hash: String,
+        val ins: List<BitcoinTransactionPreviewIO>,
+        val outs: List<BitcoinTransactionPreviewIO>
+) {
+    //used by gson to create instance
+    constructor() : this("", "", "", "", emptyList(), emptyList())
 }
