@@ -39,14 +39,14 @@ object AppContext {
     val txCache = cacheManager.getCache("transactions", String::class.java, BitcoinTransaction::class.java)
     val addressCache = cacheManager.getCache("addresses", String::class.java, BitcoinAddress::class.java)
 
-    val bitcoinDaoService = BitcoinDaoService(cassandra, txCache)
+    val bitcoinDaoService = BitcoinDaoService(cassandra, txCache, addressCache)
 }
 
 
 class StreamConfiguration(
         val cassandraServers: String = env("CASSANDRA_CONNECTION", "localhost"),
         private val kafkaServers: String = env("KAFKA_CONNECTION", "localhost:9092"),
-        private val applicationId: String = "cyber.index.bitcoin.block.splitter.1"
+        private val applicationId: String = "cyber.index.bitcoin.block.splitter.v1"
 ) {
     fun streamProperties(): Properties {
         return Properties().apply {
@@ -73,6 +73,7 @@ fun getCacheManager(): CacheManager {
 val btcdBlockSerde = defaultJsonSerde(BtcdBlock::class.java)
 val bitcoinTransactionSerde = defaultJsonSerde(BitcoinTransaction::class.java)
 val bitcoinBlockSerde = defaultJsonSerde(BitcoinBlock::class.java)
+val bitcoinAddressSerde = defaultJsonSerde(BitcoinAddress::class.java)
 val bitcoinAddressTransactionSerde = defaultJsonSerde(BitcoinAddressTransaction::class.java)
 
 private fun <T> defaultJsonSerde(type: Class<T>): Serde<T> {

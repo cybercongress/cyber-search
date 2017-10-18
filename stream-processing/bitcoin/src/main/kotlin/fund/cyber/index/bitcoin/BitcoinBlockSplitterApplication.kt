@@ -37,12 +37,14 @@ object BitcoinBlockSplitterApplication {
                 .branch(
                         Predicate { _, item -> item is BitcoinBlock },
                         Predicate { _, item -> item is BitcoinTransaction },
+                        Predicate { _, item -> item is BitcoinAddress },
                         Predicate { _, item -> item is BitcoinAddressTransaction }
                 )
 
         bitcoinItemsStream[0].mapValues { v -> v as BitcoinBlock }.to(null, bitcoinBlockSerde, "bitcoin_block")
         bitcoinItemsStream[1].mapValues { v -> v as BitcoinTransaction }.to(null, bitcoinTransactionSerde, "bitcoin_tx")
-        bitcoinItemsStream[2].mapValues { v -> v as BitcoinAddressTransaction }
+        bitcoinItemsStream[2].mapValues { v -> v as BitcoinAddress }.to(null, bitcoinAddressSerde, "bitcoin_address")
+        bitcoinItemsStream[3].mapValues { v -> v as BitcoinAddressTransaction }
                 .to(null, bitcoinAddressTransactionSerde, "bitcoin_address_tx")
 
         val streams = KafkaStreams(builder, streamsConfiguration.streamProperties())
@@ -56,6 +58,7 @@ object BitcoinBlockSplitterApplication {
         streams.start()
     }
 }
+
 
 
 private fun convertBtcdBlockToBitcoinItems(
