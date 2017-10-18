@@ -68,15 +68,15 @@ private fun convertBtcdBlockToBitcoinItems(
     return try {
 
         val inputTransactions = getTransactionsInputs(btcdBlock)
-        val existingAddressesUsedInBlock = getExistingAddressesUsedInBlock(btcdBlock)
-
         val transactions = transactionConverter.btcdTransactionsToDao(btcdBlock, inputTransactions)
         val block = blockConverter.btcdBlockToDao(btcdBlock, transactions)
+
+        val existingAddressesUsedInBlock = getExistingAddressesUsedInBlock(block)
         val updatedAddresses = addressConverter.updateAddressesSummary(transactions, existingAddressesUsedInBlock)
         val addressesTransactions = addressConverter.transactionsPreviewsForAddresses(transactions)
 
         transactions.forEach { tx -> txCache.put(tx.txid, tx) }
-        updatedAddresses.forEach { address -> addressCache.put(address.address, address) }
+        updatedAddresses.forEach { address -> addressCache.put(address.id, address) }
 
         mutableListOf<BitcoinItem>().plus(block).plus(transactions).plus(updatedAddresses).plus(addressesTransactions)
     } catch (e: Exception) {
@@ -91,10 +91,10 @@ private fun convertBtcdBlockToBitcoinItems(
 }
 
 private fun getExistingAddressesUsedInBlock(
-        btcdBlock: BtcdBlock,
-        bitcoinDaoService: BitcoinDaoService = AppContext.bitcoinDaoService): List<BitcoinAddress> {
+        block: BitcoinBlock, bitcoinDaoService: BitcoinDaoService = AppContext.bitcoinDaoService): List<BitcoinAddress> {
 
-    return emptyList()
+    val addressesIds = block.txs.flatMap { tx -> tx.allAddressesUsedInTransaction() }
+    return bitcoinDaoService.getAddressesWithLastTransactionBeforeGivenBlock(addressesIds, block.height)
 }
 
 
@@ -107,5 +107,5 @@ private fun getTransactionsInputs(
             .filter { txInput -> txInput is BtcdRegularTransactionInput }
             .map { txInput -> (txInput as BtcdRegularTransactionInput).txid }
 
-    return bitcoinDaoService.getTxsByIds(incomingNonCoinbaseTransactionsIds)
+    return bitcoinDaoService.getTxs(incomingNonCoinbaseTransactionsIds)
 }

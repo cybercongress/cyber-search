@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_address (
 
 
 CREATE TABLE IF NOT EXISTS bitcoin.address (
-    address text PRIMARY KEY,
+    id text PRIMARY KEY,
     balance text,
     total_received text,
     last_transaction_block bigint,
