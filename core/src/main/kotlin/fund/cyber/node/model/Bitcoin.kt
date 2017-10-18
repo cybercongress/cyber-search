@@ -74,7 +74,9 @@ data class BitcoinTransaction(
         val outs: List<BitcoinTransactionOut>
 ) : BitcoinItem {
 
-    fun getOutputByNumber(number: Int): BitcoinTransactionOut = outs.find { out -> out.out == number }!!
+    fun getOutputByNumber(number: Int) = outs.find { out -> out.out == number }!!
+
+    fun allAddressesUsedInTransaction() = ins.flatMap { input -> input.addresses } + outs.flatMap { output -> output.addresses }
 }
 
 
