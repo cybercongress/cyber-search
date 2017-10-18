@@ -6,6 +6,7 @@ import com.datastax.driver.mapping.MappingManager
 import fund.cyber.node.model.*
 import org.ehcache.Cache
 import org.slf4j.LoggerFactory
+import java.util.*
 
 
 val log = LoggerFactory.getLogger(BitcoinDaoService::class.java)!!
@@ -65,7 +66,7 @@ class BitcoinDaoService(
                 if (tx != null) txs.add(tx) else idsWithoutCacheHit.add(id)
             }
 
-            log.debug("Total ids: ${ids.size}, Cache hits: ${idsWithoutCacheHit.size}")
+            log.debug("Transactions - Total ids: ${ids.size}, Cache hits: ${idsWithoutCacheHit.size}")
 
             txs.addAll(queryTxsByIds(idsWithoutCacheHit))
             return txs
@@ -94,7 +95,7 @@ class BitcoinDaoService(
                         idsWithoutCacheHit.add(id)
                 }
 
-                log.debug("Total ids: ${ids.size}, Cache hits: ${idsWithoutCacheHit.size}")
+                log.debug("Address - Total ids: ${ids.size}, Cache hits: ${idsWithoutCacheHit.size}")
 
                 addresses.addAll(queryAddressesWithLastTransactionBeforeGivenBlock(idsWithoutCacheHit, blockNumber))
                 return addresses
@@ -105,7 +106,7 @@ class BitcoinDaoService(
     private fun queryAddressesWithLastTransactionBeforeGivenBlock(ids: List<String>, blockNumber: Long): List<BitcoinAddress> {
 
         val session = cassandra.connect("bitcoin")
-        val statement = session.prepare("SELECT * FROM address WHERE id=? AND last_transaction_block < $blockNumber")
+        val statement = session.prepare("SELECT * FROM address WHERE id=? AND last_transaction_block < $blockNumber ALLOW FILTERING")
 
         return ids.map { id -> session.executeAsync(statement.bind(id)) } // future<ResultSet>
                 .map { futureResultSet ->
@@ -113,6 +114,7 @@ class BitcoinDaoService(
                     while (!futureResultSet.isDone) Thread.sleep(10)
                     futureResultSet.get().one()
                 }
+                .filter(Objects::nonNull)
                 .map(this::bitcoinAddressMapping)
     }
 
@@ -120,6 +122,9 @@ class BitcoinDaoService(
     private fun queryTxsByIds(ids: List<String>): List<BitcoinTransaction> {
 
         val session = cassandra.connect("bitcoin")
+        val manager = MappingManager(session)
+        val mapper = manager.mapper(BitcoinTransaction::class.java)
+
         val statement = session.prepare("SELECT * FROM tx WHERE txid = ?")
 
         return ids.map { id -> session.executeAsync(statement.bind(id)) } // future<ResultSet>
@@ -128,6 +133,7 @@ class BitcoinDaoService(
                     while (!futureResultSet.isDone) Thread.sleep(10)
                     futureResultSet.get().one()
                 }
+                .filter(Objects::nonNull)
                 .map(this::bitcoinTransactionMapping)
     }
 
