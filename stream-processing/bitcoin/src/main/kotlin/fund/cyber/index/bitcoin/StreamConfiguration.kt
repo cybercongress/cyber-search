@@ -46,7 +46,9 @@ object AppContext {
 class StreamConfiguration(
         val cassandraServers: String = env("CASSANDRA_CONNECTION", "localhost"),
         private val kafkaServers: String = env("KAFKA_CONNECTION", "localhost:9092"),
-        private val applicationId: String = "cyber.index.bitcoin.block.splitter.v1"
+        private val applicationIdMinorVersion: String = env("APPLICATION_ID_SUFFIX", "0"),
+        private val stateStateCommitTime: Long = env("COMMIT_STATE_MS", 10),
+        private val applicationId: String = "cyber.index.bitcoin.block.splitter.v1.$applicationIdMinorVersion"
 ) {
     fun streamProperties(): Properties {
         return Properties().apply {
@@ -56,7 +58,7 @@ class StreamConfiguration(
             put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 25 * 1024 * 1024)
             put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 9 * 1000)
             put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, 10 * 1024 * 1024)
-            put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000)
+            put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, stateStateCommitTime)
             put(StreamsConfig.STATE_DIR_CONFIG, "/opt/cyberfund/search/kafka-stream")
         }
     }

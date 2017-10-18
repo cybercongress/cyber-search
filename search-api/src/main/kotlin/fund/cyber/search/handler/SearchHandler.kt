@@ -42,7 +42,8 @@ class SearchHandler(
         val elasticQuery = QueryBuilders.matchQuery("_all", query)
                 .fuzziness(Fuzziness.fromEdits(2))
 
-        val elasticResponse = elasticClient.prepareSearch("ethereum_tx", "ethereum_block", "bitcoin_tx", "bitcoin_block")
+        val elasticResponse = elasticClient.prepareSearch("ethereum_tx", "ethereum_block",
+                "bitcoin_tx", "bitcoin_block", "bitcoin_address")
                 .setQuery(elasticQuery)
                 .setFrom(page * pageSize).setSize(pageSize).setExplain(true)
                 .execute()

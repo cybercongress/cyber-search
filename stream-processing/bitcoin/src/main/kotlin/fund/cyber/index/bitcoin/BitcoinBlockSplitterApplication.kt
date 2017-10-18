@@ -51,11 +51,14 @@ object BitcoinBlockSplitterApplication {
 
         streams.setUncaughtExceptionHandler { _: Thread, throwable: Throwable ->
             log.error("Error during splitting bitcoin block ", throwable)
-            streams.close()
-            cassandra.close()
-            System.exit(1)
+            System.exit(0)
         }
         streams.start()
+
+        Runtime.getRuntime().addShutdownHook(Thread {
+            cassandra.close()
+            streams.close()
+        })
     }
 }
 
