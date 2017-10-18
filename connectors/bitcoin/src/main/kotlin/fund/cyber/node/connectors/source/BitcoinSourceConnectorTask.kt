@@ -87,7 +87,7 @@ class BitcoinSourceConnectorTask : SourceTask() {
 
             return blocks
         } catch (e: Exception) {
-            log.error("Unexpected error during polling bitcoin chain", e)
+            log.error("Unexpected error during polling bitcoin chain. Last parsed block $lastParsedBlockNumber", e)
             return emptyList()
         }
     }

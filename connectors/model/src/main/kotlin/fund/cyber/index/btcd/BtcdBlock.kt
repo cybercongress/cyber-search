@@ -72,7 +72,7 @@ data class BtcdRegularTransactionInput(
 
 data class PubKeyScript(
         val asm: String,
-        val hex: String,
+        val hex: String = "",
         val reqSigs: Int,
         val type: String,
         val addresses: List<String> = listOf("no address")
