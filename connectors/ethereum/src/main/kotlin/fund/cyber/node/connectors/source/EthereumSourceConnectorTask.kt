@@ -89,7 +89,8 @@ class EthereumSourceConnectorTask : SourceTask() {
 
             return blocks
         } catch (e: Exception) {
-            log.error("Unexpected error during polling ethereum chain", e)
+            e.printStackTrace()
+            log.error("Unexpected error during polling ethereum chain. Last parsed block $lastParsedBlockNumber", e)
             return emptyList()
         }
     }
