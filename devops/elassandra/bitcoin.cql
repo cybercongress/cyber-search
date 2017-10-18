@@ -1,12 +1,11 @@
 CREATE TYPE IF NOT EXISTS bitcoin.tx_preview_io (
-    address text,
+    addresses FROZEN<list<text>>,
     amount text
 );
 
 
 CREATE TYPE IF NOT EXISTS bitcoin.block_tx (
     fee text,
-    lock_time bigint,
     hash text,
     ins  FROZEN<list<bitcoin.tx_preview_io>>,
     outs FROZEN<list<bitcoin.tx_preview_io>>
@@ -26,12 +25,12 @@ CREATE TABLE IF NOT EXISTS bitcoin.block (
      tx_number int,
      total_outputs_value text,
      difficulty varint,
-     txs list<FROZEN <bitcoin.block_tx>>
+     txs FROZEN<list<bitcoin.block_tx>>
 );
 
 
 CREATE TYPE IF NOT EXISTS bitcoin.tx_out (
-    address text,
+    addresses FROZEN<list<text>>,
     amount text,
     asm text,
     out int,
@@ -40,7 +39,7 @@ CREATE TYPE IF NOT EXISTS bitcoin.tx_out (
 
 
 CREATE TYPE IF NOT EXISTS bitcoin.tx_in (
-    address text,
+    addresses FROZEN<list<text>>,
     amount text,
     asm text,
     tx_id text,
@@ -78,5 +77,6 @@ CREATE TABLE IF NOT EXISTS bitcoin.address (
     address text PRIMARY KEY,
     balance text,
     total_received text,
+    last_transaction_block bigint,
     tx_number int
 );

@@ -84,7 +84,7 @@ class BitcoinTransactionConverter {
             log.debug("looking for $txid transaction and output $vout")
             val daoTxOut = inputsByIds[txid]!!.getOutputByNumber(vout)
             BitcoinTransactionIn(
-                    address = daoTxOut.address, amount = daoTxOut.amount, asm = scriptSig.asm, tx_id = txid, tx_out = vout
+                    addresses = daoTxOut.addresses, amount = daoTxOut.amount, asm = scriptSig.asm, tx_id = txid, tx_out = vout
             )
         }
     }
@@ -92,7 +92,7 @@ class BitcoinTransactionConverter {
     private fun btcdTxOutToDao(btcdTxOut: BtcdTransactionOutput): BitcoinTransactionOut {
 
         return BitcoinTransactionOut(
-                address = btcdTxOut.scriptPubKey.addresses.joinToString(separator = ","),
+                addresses = btcdTxOut.scriptPubKey.addresses,
                 amount = btcdTxOut.value, out = btcdTxOut.n, asm = btcdTxOut.scriptPubKey.asm,
                 required_signatures = btcdTxOut.scriptPubKey.reqSigs
         )

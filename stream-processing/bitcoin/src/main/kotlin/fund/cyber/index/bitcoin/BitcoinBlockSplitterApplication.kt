@@ -5,12 +5,11 @@ import fund.cyber.index.IndexTopics
 import fund.cyber.index.bitcoin.AppContext.cassandra
 import fund.cyber.index.bitcoin.AppContext.streamsConfiguration
 import fund.cyber.index.bitcoin.AppContext.transactionConverter
+import fund.cyber.index.bitcoin.converter.BitcoinAddressConverter
 import fund.cyber.index.bitcoin.converter.BitcoinBlockConverter
 import fund.cyber.index.btcd.BtcdBlock
 import fund.cyber.index.btcd.BtcdRegularTransactionInput
-import fund.cyber.node.model.BitcoinBlock
-import fund.cyber.node.model.BitcoinItem
-import fund.cyber.node.model.BitcoinTransaction
+import fund.cyber.node.model.*
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.kstream.KStreamBuilder
 import org.apache.kafka.streams.kstream.Predicate
@@ -37,11 +36,14 @@ object BitcoinBlockSplitterApplication {
                 }
                 .branch(
                         Predicate { _, item -> item is BitcoinBlock },
-                        Predicate { _, item -> item is BitcoinTransaction }
+                        Predicate { _, item -> item is BitcoinTransaction },
+                        Predicate { _, item -> item is BitcoinAddressTransaction }
                 )
 
         bitcoinItemsStream[0].mapValues { v -> v as BitcoinBlock }.to(null, bitcoinBlockSerde, "bitcoin_block")
         bitcoinItemsStream[1].mapValues { v -> v as BitcoinTransaction }.to(null, bitcoinTransactionSerde, "bitcoin_tx")
+        bitcoinItemsStream[2].mapValues { v -> v as BitcoinAddressTransaction }
+                .to(null, bitcoinAddressTransactionSerde, "bitcoin_address_tx")
 
         val streams = KafkaStreams(builder, streamsConfiguration.streamProperties())
 
@@ -49,12 +51,9 @@ object BitcoinBlockSplitterApplication {
             log.error("Error during splitting bitcoin block ", throwable)
             streams.close()
             cassandra.close()
+            System.exit(1)
         }
         streams.start()
-        Runtime.getRuntime().addShutdownHook(Thread {
-            streams.close()
-            cassandra.close()
-        })
     }
 }
 
@@ -62,7 +61,9 @@ object BitcoinBlockSplitterApplication {
 private fun convertBtcdBlockToBitcoinItems(
         btcdBlock: BtcdBlock, tryNumber: Int = 0,
         txCache: Cache<String, BitcoinTransaction> = AppContext.txCache,
-        blockConverter: BitcoinBlockConverter = AppContext.blockConverter): List<BitcoinItem> {
+        addressCache: Cache<String, BitcoinAddress> = AppContext.addressCache,
+        blockConverter: BitcoinBlockConverter = AppContext.blockConverter,
+        addressConverter: BitcoinAddressConverter = AppContext.addressConverter): List<BitcoinItem> {
 
     return try {
 
@@ -70,10 +71,13 @@ private fun convertBtcdBlockToBitcoinItems(
 
         val transactions = transactionConverter.btcdTransactionsToDao(btcdBlock, inputTransactions)
         val block = blockConverter.btcdBlockToDao(btcdBlock, transactions)
+        val updatedAddresses = addressConverter.updateAddressesSummary(transactions)
+        val addressesTransactions = addressConverter.transactionsPreviewsForAddresses(transactions)
 
         transactions.forEach { tx -> txCache.put(tx.txid, tx) }
+        updatedAddresses.forEach { address -> addressCache.put(address.address, address) }
 
-        mutableListOf<BitcoinItem>().plus(block).plus(transactions)
+        mutableListOf<BitcoinItem>().plus(block).plus(transactions).plus(updatedAddresses).plus(addressesTransactions)
     } catch (e: Exception) {
         if (tryNumber > 100) {
             log.error("Error during processing block ${btcdBlock.height}", e)

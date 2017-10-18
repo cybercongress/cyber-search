@@ -34,22 +34,21 @@ data class BitcoinBlock(
 @UDT(name = "block_tx")
 data class BitcoinBlockTransaction(
         val fee: String,
-        val lock_time: Long,
         val hash: String,
         val ins: List<BitcoinTransactionPreviewIO>,
         val outs: List<BitcoinTransactionPreviewIO>
 ) {
     //used by gson to create instance
-    constructor() : this("", 0, "", emptyList(), emptyList())
+    constructor() : this("", "", emptyList(), emptyList())
 }
 
 @UDT(name = "tx_preview_io")
 data class BitcoinTransactionPreviewIO(
-        val address: String,
+        val addresses: List<String>,
         val amount: String
 ) {
     //used by gson to create instance
-    constructor() : this("", "")
+    constructor() : this(emptyList(), "")
 }
 
 
@@ -81,7 +80,7 @@ data class BitcoinTransaction(
 
 @UDT(name = "tx_in")
 data class BitcoinTransactionIn(
-        val address: String,
+        val addresses: List<String>,
         val amount: String,
         val asm: String,
         val tx_id: String,
@@ -89,13 +88,13 @@ data class BitcoinTransactionIn(
 ) {
 
     //used by gson to create instance
-    constructor() : this("", "0", "", "", 0)
+    constructor() : this(emptyList(), "0", "", "", 0)
 }
 
 
 @UDT(name = "tx_out")
 data class BitcoinTransactionOut(
-        val address: String,
+        val addresses: List<String>,
         val amount: String,
         val asm: String,
         val out: Int,
@@ -103,7 +102,7 @@ data class BitcoinTransactionOut(
 ) {
 
     //used by gson to create instance
-    constructor() : this("", "0", "", 0, 1)
+    constructor() : this(emptyList(), "0", "", 0, 1)
 }
 
 
@@ -114,8 +113,9 @@ data class BitcoinAddress(
         val address: String,
         val balance: String,
         val total_received: String,
+        val last_transaction_block: Long,
         val tx_number: Int
-)
+) : BitcoinItem
 
 
 @Table(keyspace = "bitcoin", name = "tx_preview_by_address",
@@ -128,7 +128,4 @@ data class BitcoinAddressTransaction(
         val hash: String,
         val ins: List<BitcoinTransactionPreviewIO>,
         val outs: List<BitcoinTransactionPreviewIO>
-) {
-    //used by gson to create instance
-    constructor() : this("", "", "", "", emptyList(), emptyList())
-}
+) : BitcoinItem
