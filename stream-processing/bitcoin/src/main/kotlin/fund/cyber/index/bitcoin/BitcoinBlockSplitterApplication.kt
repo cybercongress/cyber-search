@@ -68,10 +68,11 @@ private fun convertBtcdBlockToBitcoinItems(
     return try {
 
         val inputTransactions = getTransactionsInputs(btcdBlock)
+        val existingAddressesUsedInBlock = getExistingAddressesUsedInBlock(btcdBlock)
 
         val transactions = transactionConverter.btcdTransactionsToDao(btcdBlock, inputTransactions)
         val block = blockConverter.btcdBlockToDao(btcdBlock, transactions)
-        val updatedAddresses = addressConverter.updateAddressesSummary(transactions)
+        val updatedAddresses = addressConverter.updateAddressesSummary(transactions, existingAddressesUsedInBlock)
         val addressesTransactions = addressConverter.transactionsPreviewsForAddresses(transactions)
 
         transactions.forEach { tx -> txCache.put(tx.txid, tx) }
@@ -87,6 +88,13 @@ private fun convertBtcdBlockToBitcoinItems(
             convertBtcdBlockToBitcoinItems(btcdBlock, tryNumber + 1)
         }
     }
+}
+
+private fun getExistingAddressesUsedInBlock(
+        btcdBlock: BtcdBlock,
+        bitcoinDaoService: BitcoinDaoService = AppContext.bitcoinDaoService): List<BitcoinAddress> {
+
+    return emptyList()
 }
 
 
