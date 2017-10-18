@@ -12,15 +12,16 @@ val log = LoggerFactory.getLogger(BitcoinDaoService::class.java)!!
 
 class BitcoinDaoService(
         private val cassandra: Cluster,
-        private val txCache: Cache<String, BitcoinTransaction>? = null
+        private val txCache: Cache<String, BitcoinTransaction>? = null,
+        private val addressCache: Cache<String, BitcoinAddress>? = null
 ) {
 
 
-    fun getAddress(address: String): BitcoinAddress? {
+    fun getAddress(id: String): BitcoinAddress? {
 
         val session = cassandra.connect("bitcoin")
 
-        val resultSet = session.execute("SELECT * FROM address WHERE address=$address")
+        val resultSet = session.execute("SELECT * FROM address WHERE id=$id")
 
         return resultSet.map(this::bitcoinAddressMapping).firstOrNull()
     }
@@ -50,7 +51,7 @@ class BitcoinDaoService(
     }
 
 
-    fun getTxsByIds(ids: List<String>): List<BitcoinTransaction> {
+    fun getTxs(ids: List<String>): List<BitcoinTransaction> {
 
         if (ids.isEmpty()) return emptyList()
 
@@ -74,6 +75,48 @@ class BitcoinDaoService(
     }
 
 
+    fun getAddressesWithLastTransactionBeforeGivenBlock(ids: List<String>, blockNumber: Long): List<BitcoinAddress> {
+
+        if (ids.isEmpty()) return emptyList()
+
+        return when (addressCache) {
+            null -> queryAddressesWithLastTransactionBeforeGivenBlock(ids, blockNumber)
+            else -> {
+                val addresses = mutableListOf<BitcoinAddress>()
+                val idsWithoutCacheHit = mutableListOf<String>()
+
+                for (id in ids) {
+
+                    val address = addressCache[id]
+                    if (address != null && address.last_transaction_block < blockNumber)
+                        addresses.add(address)
+                    else
+                        idsWithoutCacheHit.add(id)
+                }
+
+                log.debug("Total ids: ${ids.size}, Cache hits: ${idsWithoutCacheHit.size}")
+
+                addresses.addAll(queryAddressesWithLastTransactionBeforeGivenBlock(idsWithoutCacheHit, blockNumber))
+                return addresses
+            }
+        }
+    }
+
+    private fun queryAddressesWithLastTransactionBeforeGivenBlock(ids: List<String>, blockNumber: Long): List<BitcoinAddress> {
+
+        val session = cassandra.connect("bitcoin")
+        val statement = session.prepare("SELECT * FROM address WHERE id=? AND last_transaction_block < $blockNumber")
+
+        return ids.map { id -> session.executeAsync(statement.bind(id)) } // future<ResultSet>
+                .map { futureResultSet ->
+                    // cql row
+                    while (!futureResultSet.isDone) Thread.sleep(10)
+                    futureResultSet.get().one()
+                }
+                .map(this::bitcoinAddressMapping)
+    }
+
+
     private fun queryTxsByIds(ids: List<String>): List<BitcoinTransaction> {
 
         val session = cassandra.connect("bitcoin")
@@ -91,7 +134,7 @@ class BitcoinDaoService(
 
     private fun bitcoinAddressMapping(row: Row): BitcoinAddress {
         return BitcoinAddress(
-                address = row.getString("address"), balance = row.getString("balance"),
+                id = row.getString("id"), balance = row.getString("balance"),
                 tx_number = row.getInt("tx_number"), total_received = row.getString("total_received"),
                 last_transaction_block = row.getLong("last_transaction_block")
         )

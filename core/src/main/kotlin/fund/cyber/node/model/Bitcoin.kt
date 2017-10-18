@@ -40,6 +40,8 @@ data class BitcoinBlockTransaction(
 ) {
     //used by gson to create instance
     constructor() : this("", "", emptyList(), emptyList())
+
+    fun allAddressesUsedInTransaction() = ins.flatMap { input -> input.addresses } + outs.flatMap { output -> output.addresses }
 }
 
 @UDT(name = "tx_preview_io")
@@ -112,7 +114,7 @@ data class BitcoinTransactionOut(
         readConsistency = "QUORUM", writeConsistency = "QUORUM",
         caseSensitiveKeyspace = false, caseSensitiveTable = false)
 data class BitcoinAddress(
-        val address: String,
+        val id: String,
         val balance: String,
         val total_received: String,
         val last_transaction_block: Long,
