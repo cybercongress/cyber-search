@@ -92,7 +92,8 @@ class BitcoinDaoService(
     private fun bitcoinAddressMapping(row: Row): BitcoinAddress {
         return BitcoinAddress(
                 address = row.getString("address"), balance = row.getString("balance"),
-                tx_number = row.getInt("tx_number"), total_received = row.getString("total_received")
+                tx_number = row.getInt("tx_number"), total_received = row.getString("total_received"),
+                last_transaction_block = row.getLong("last_transaction_block")
         )
     }
 

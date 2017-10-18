@@ -4,8 +4,8 @@ import fund.cyber.index.btcd.BtcdBlock
 import fund.cyber.node.common.sumByBigDecimal
 import fund.cyber.node.model.BitcoinBlock
 import fund.cyber.node.model.BitcoinBlockTransaction
-import fund.cyber.node.model.BitcoinBlockTransactionIO
 import fund.cyber.node.model.BitcoinTransaction
+import fund.cyber.node.model.BitcoinTransactionPreviewIO
 import java.time.Instant
 
 class BitcoinBlockConverter {
@@ -15,9 +15,13 @@ class BitcoinBlockConverter {
         val blockTransactionsPreview = transactions
                 .map { tx ->
                     BitcoinBlockTransaction(
-                            fee = tx.fee, hash = tx.txid, lock_time = tx.lock_time,
-                            ins = tx.ins.map { input -> BitcoinBlockTransactionIO(address = input.address, amount = input.amount) },
-                            outs = tx.outs.map { out -> BitcoinBlockTransactionIO(address = out.address, amount = out.amount) }
+                            fee = tx.fee, hash = tx.txid,
+                            ins = tx.ins.map { input ->
+                                BitcoinTransactionPreviewIO(addresses = input.addresses, amount = input.amount)
+                            },
+                            outs = tx.outs.map { out ->
+                                BitcoinTransactionPreviewIO(addresses = out.addresses, amount = out.amount)
+                            }
                     )
                 }
 
@@ -33,5 +37,4 @@ class BitcoinBlockConverter {
                 tx_number = blockTransactionsPreview.size, total_outputs_value = totalOutputsValue.toString()
         )
     }
-
 }
