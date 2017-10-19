@@ -8,7 +8,7 @@ import fund.cyber.node.model.BitcoinTransactionOut
 import org.slf4j.LoggerFactory
 import java.time.Instant
 
-val log = LoggerFactory.getLogger(BitcoinTransactionConverter::class.java)!!
+private val log = LoggerFactory.getLogger(BitcoinTransactionConverter::class.java)!!
 
 
 class BitcoinTransactionConverter {
@@ -81,7 +81,7 @@ class BitcoinTransactionConverter {
                       inputsByIds: Map<String, BitcoinTransaction>): List<BitcoinTransactionIn> {
 
         return btcdTxIns.map { (txid, vout, scriptSig) ->
-            log.debug("looking for $txid transaction and output $vout")
+            log.trace("looking for $txid transaction and output $vout")
             val daoTxOut = inputsByIds[txid]!!.getOutputByNumber(vout)
             BitcoinTransactionIn(
                     addresses = daoTxOut.addresses, amount = daoTxOut.amount, asm = scriptSig.asm, tx_id = txid, tx_out = vout

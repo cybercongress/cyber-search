@@ -66,7 +66,7 @@ class BitcoinDaoService(
                 if (tx != null) txs.add(tx) else idsWithoutCacheHit.add(id)
             }
 
-            log.debug("Transactions - Total ids: ${ids.size}, Cache hits: ${idsWithoutCacheHit.size}")
+            log.debug("Transactions - Total ids: ${ids.size}, Cache hits: ${txs.size}")
 
             txs.addAll(queryTxsByIds(idsWithoutCacheHit))
             return txs
@@ -95,7 +95,7 @@ class BitcoinDaoService(
                         idsWithoutCacheHit.add(id)
                 }
 
-                log.debug("Address - Total ids: ${ids.size}, Cache hits: ${idsWithoutCacheHit.size}")
+                log.debug("Address - Total ids: ${ids.size}, Cache hits: ${addresses.size}")
 
                 addresses.addAll(queryAddressesWithLastTransactionBeforeGivenBlock(idsWithoutCacheHit, blockNumber))
                 return addresses

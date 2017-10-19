@@ -290,13 +290,15 @@ items:
       spec:
         containers:
         - env:
+          - name: APPLICATION_ID_SUFFIX
+            value: b
           - name: CASSANDRA_CONNECTION
             value: cs-elassandra
           - name: CS_LOG_LEVEL
             value: WARN
           - name: KAFKA_CONNECTION
             value: cs-kafka:9092
-          image: cybernode/cs-bitcoin-processor:release-0.6.2
+          image: cybernode/cs-bitcoin-processor:release-0.7.2
           name: cs-bitcoin-process
           resources: {}
         restartPolicy: Always
@@ -383,9 +385,9 @@ items:
             value: CYBERNODE
           - name: CASSANDRA_DC
             value: LOCAL_DEVELOPMENT
-          - name: JVM_OPTS
-            value: -Xmx32g -Xms32g
-          image: strapdata/elassandra:2.4.5.5
+          - name: CASSANDRA_SEEDS
+            value: cs-elassandra2
+          image: strapdata/elassandra:2.4.5.6
           name: cs-elassandra
           ports:
           - containerPort: 9042
@@ -395,8 +397,6 @@ items:
           - containerPort: 7000
           - containerPort: 7001
           resources:
-             limits:
-               memory: "32Gi"
              requests:
                memory: "32Gi"
           volumeMounts:
@@ -450,11 +450,7 @@ items:
             value: CYBERNODE
           - name: CASSANDRA_DC
             value: LOCAL_DEVELOPMENT
-          - name: CASSANDRA_SEEDS
-            value: cs-elassandra
-          - name: JVM_OPTS
-            value: -Xmx32g -Xms32g
-          image: strapdata/elassandra:2.4.5.5
+          image: strapdata/elassandra:2.4.5.6
           name: cs-elassandra2
           ports:
           - containerPort: 9042
@@ -464,8 +460,6 @@ items:
           - containerPort: 7000
           - containerPort: 7001
           resources:
-             limits:
-               memory: "32Gi"
              requests:
                memory: "32Gi"
           volumeMounts:
@@ -516,7 +510,7 @@ items:
             value: WARN
           - name: KAFKA_CONNECTION
             value: cs-kafka:9092
-          image: cybernode/cs-ethereum-processor:release-0.6.2
+          image: cybernode/cs-ethereum-processor:release-0.7.2
           name: cs-ethereum-process
           resources: {}
         restartPolicy: Always
@@ -669,7 +663,7 @@ items:
             value: "false"
           - name: CONNECT_ZOOKEEPER_CONNECT
             value: cs-zoo:2181
-          image: cybernode/cn-kafka-connectors:release-0.6.2
+          image: cybernode/cn-kafka-connectors:release-0.7.2
           name: cs-kafka-connect
           ports:
           - containerPort: 8083
@@ -830,7 +824,7 @@ items:
             value: "9300"
           - name: KAFKA_CONNECTION
             value: cs-kafka:9092
-          image: cybernode/cs-search-api:release-0.6.2
+          image: cybernode/cs-search-api:release-0.7.2
           name: cs-search-api
           ports:
           - containerPort: 8085

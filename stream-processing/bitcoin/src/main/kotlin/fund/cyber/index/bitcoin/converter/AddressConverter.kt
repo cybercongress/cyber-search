@@ -1,8 +1,10 @@
 package fund.cyber.index.bitcoin.converter
 
 import fund.cyber.node.model.*
+import org.slf4j.LoggerFactory
 import java.math.BigDecimal
 
+private val log = LoggerFactory.getLogger(BitcoinAddressConverter::class.java)!!
 
 class BitcoinAddressConverter {
 
@@ -17,6 +19,7 @@ class BitcoinAddressConverter {
 
                     tx.ins.flatMap { input ->
                         input.addresses.map { addressId ->
+                            log.trace("looking for address: $addressId")
                             updateAddressByTransactionInput(tx.block_number, addressLookUp[addressId]!!, input)
                                     .apply { addressLookUp.put(addressId, this) }
                         }

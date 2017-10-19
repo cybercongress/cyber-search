@@ -52,7 +52,7 @@ class SearchHandler(
         saveRequestProcessingStats(query, elasticResponse)
 
         val responseItems = elasticResponse.hits
-                .map { hit -> ItemPreview(type = hit.type, data = hit.sourceAsString()) }
+                .map { hit -> ItemPreview(type = hit.index, data = hit.sourceAsString()) }
 
         val response = SearchResponse(
                 query = query, page = page, pageSize = pageSize,
