@@ -34,6 +34,9 @@ object AppContext {
     val cassandra = Cluster.builder()
             .addContactPoint(streamsConfiguration.cassandraServers)
             .build().init()
+            .apply {
+                configuration.poolingOptions.maxQueueSize = 10 * 1024
+            }
 
     private val cacheManager = getCacheManager()
     val txCache = cacheManager.getCache("transactions", String::class.java, BitcoinTransaction::class.java)
