@@ -1,6 +1,7 @@
 package fund.cyber.index.ethereum
 
 import fund.cyber.index.IndexTopics.ethereumSourceTopic
+import fund.cyber.index.ethereum.ApplicationContext.cassandra
 import fund.cyber.index.ethereum.ApplicationContext.streamsConfiguration
 import fund.cyber.index.ethereum.converter.EthereumParityToDaoConverter
 import fund.cyber.node.model.EthereumBlock
@@ -51,10 +52,12 @@ object EthereumBlockSplitterApplication {
 
         streams.setUncaughtExceptionHandler { _: Thread, throwable: Throwable ->
             log.error("Error during splitting ethereum block ", throwable)
-            streams.close()
+            System.exit(0)
         }
         streams.start()
+
         Runtime.getRuntime().addShutdownHook(Thread {
+            cassandra.close()
             streams.close()
         })
     }
