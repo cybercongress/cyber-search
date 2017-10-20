@@ -7,6 +7,7 @@ dependencies {
     compile("org.web3j:core")
     compile("org.apache.kafka:kafka-streams")
     compile("org.apache.kafka:kafka-clients")
+    compile("org.ehcache:ehcache")
 }
 
 mainClassName = "fund.cyber.index.ethereum.EthereumBlockSplitterApplication"

@@ -32,16 +32,14 @@ object BitcoinBlockSplitterApplication {
                     if (v == null) log.debug("Found null item")
                     v != null
                 })
+                .filter({ _, btcdBlock ->
+                    if (lastProcessedBlockNumber >= btcdBlock.height) log.debug("Skipping ${btcdBlock.height} block")
+                    lastProcessedBlockNumber < btcdBlock.height
+                })
                 .flatMapValues { btcdBlock ->
-
-                    if (lastProcessedBlockNumber < btcdBlock.height) {
-                        log.debug("Processing ${btcdBlock.height} block")
-                        lastProcessedBlockNumber = btcdBlock.height
-                        convertBtcdBlockToBitcoinItems(btcdBlock)
-                    } else {
-                        log.debug("Skipping ${btcdBlock.height} block")
-                        emptyList()
-                    }
+                    log.debug("Processing ${btcdBlock.height} block")
+                    lastProcessedBlockNumber = btcdBlock.height
+                    convertBtcdBlockToBitcoinItems(btcdBlock)
                 }
                 .branch(
                         Predicate { _, item -> item is BitcoinBlock },

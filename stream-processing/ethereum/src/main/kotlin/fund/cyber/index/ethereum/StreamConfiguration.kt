@@ -11,6 +11,9 @@ import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsConfig
+import org.ehcache.CacheManager
+import org.ehcache.config.builders.CacheManagerBuilder
+import org.ehcache.xml.XmlConfiguration
 import org.web3j.protocol.core.methods.response.EthBlock
 import java.util.*
 
@@ -22,16 +25,19 @@ object ApplicationContext {
 
 class StreamConfiguration(
         private val kafkaServers: String = env("KAFKA_CONNECTION", "localhost:9092"),
-        private val applicationId: String = "cyber.index.ethereum.block.splitter"
+        private val stateStateCommitTime: Long = env("COMMIT_STATE_MS", 10),
+        private val applicationIdMinorVersion: String = env("APPLICATION_ID_SUFFIX", "0"),
+        private val applicationId: String = "cyber.index.ethereum.block.splitter.v1.$applicationIdMinorVersion"
 ) {
     fun streamProperties(): Properties {
         return Properties().apply {
             put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId)
             put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServers)
             put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
-            put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 10485760)
-            put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, 10485760)
-            put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 5000)
+            put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 25 * 1024 * 1024)
+            put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 9 * 1000)
+            put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, 10 * 1024 * 1024)
+            put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, stateStateCommitTime)
             put(StreamsConfig.STATE_DIR_CONFIG, "/opt/cyberfund/search/kafka-stream")
         }
     }
@@ -43,4 +49,11 @@ val ethereumBlockSerde = defaultJsonSerde(EthereumBlock::class.java)
 
 private fun <T> defaultJsonSerde(type: Class<T>): Serde<T> {
     return Serdes.serdeFrom(JsonSerializer(), JsonDeserializer(type))!!
+}
+
+fun getCacheManager(): CacheManager {
+    val ehcacheSettingsUri = EthereumBlockSplitterApplication::class.java.getResource("/ehcache.xml")
+    val cacheManager = CacheManagerBuilder.newCacheManager(XmlConfiguration(ehcacheSettingsUri))
+    cacheManager.init()
+    return cacheManager
 }
