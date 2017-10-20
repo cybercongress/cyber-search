@@ -11,11 +11,14 @@ import org.apache.kafka.streams.kstream.KStreamBuilder
 import org.apache.kafka.streams.kstream.Predicate
 import org.slf4j.LoggerFactory
 import org.web3j.protocol.core.methods.response.EthBlock
+import java.math.BigInteger
 
 
 val log = LoggerFactory.getLogger(EthereumBlockSplitterApplication::class.java)!!
 
 object EthereumBlockSplitterApplication {
+
+    var lastProcessedBlockNumber = BigInteger("-1")
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -27,8 +30,13 @@ object EthereumBlockSplitterApplication {
                     if (v == null) log.debug("Found null item")
                     v != null
                 })
+                .filter({ _, parityBlock ->
+                    if (lastProcessedBlockNumber >= parityBlock.number) log.debug("Skipping ${parityBlock.numberRaw} block")
+                    lastProcessedBlockNumber < parityBlock.number
+                })
                 .flatMapValues { parityBlock ->
                     log.debug("Processing ${parityBlock.number} block")
+                    lastProcessedBlockNumber = parityBlock.number
                     processBlock(parityBlock)
                 }
                 .branch(
