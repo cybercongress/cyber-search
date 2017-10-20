@@ -3,9 +3,7 @@ package fund.cyber.node.connectors.source
 import com.fasterxml.jackson.databind.ObjectMapper
 import fund.cyber.index.IndexTopics
 import fund.cyber.node.common.plus
-import fund.cyber.node.connectors.configuration.BATCH_SIZE_DEFAULT
-import fund.cyber.node.connectors.configuration.EthereumConnectorConfiguration
-import fund.cyber.node.connectors.configuration.jacksonJsonSerializer
+import fund.cyber.node.connectors.configuration.*
 import org.apache.kafka.connect.data.Schema
 import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.source.SourceTask
@@ -24,7 +22,7 @@ class EthereumSourceConnectorTask : SourceTask() {
 
     private val jsonSerializer: ObjectMapper = jacksonJsonSerializer
 
-    private lateinit var taskConfiguration: EthereumConnectorConfiguration
+    private lateinit var config: EthereumConnectorConfiguration
     private lateinit var parityClient: Web3j
 
     private var batchSize: Int = BATCH_SIZE_DEFAULT
@@ -37,12 +35,12 @@ class EthereumSourceConnectorTask : SourceTask() {
 
         val executorService = Executors.newScheduledThreadPool(batchSize)
 
-        taskConfiguration = EthereumConnectorConfiguration(properties)
-        parityClient = Web3j.build(HttpService(taskConfiguration.parityUrl), 15 * 1000, executorService)
+        config = EthereumConnectorConfiguration(properties)
+        parityClient = Web3j.build(HttpService(config.parityUrl), 15 * 1000, executorService)
 
-        batchSize = taskConfiguration.batchSize
+        batchSize = config.batchSize
 
-        lastParsedBlockNumber = lastParsedBlockNumber()
+        lastParsedBlockNumber = if (config.startBlockRaw == START_BLOCK_DEFAULT) lastParsedBlockNumber() else config.startBlock
         lastNetworkBlock = parityClient.ethBlockNumber().send().blockNumber
     }
 
@@ -63,7 +61,7 @@ class EthereumSourceConnectorTask : SourceTask() {
                 }
             }
 
-            log.info("Looking for ${lastParsedBlockNumber + 1}-${lastParsedBlockNumber + rangeEnd} blocks")
+            log.debug("Looking for ${lastParsedBlockNumber + 1}-${lastParsedBlockNumber + rangeEnd} blocks")
 
             val blocks = IntRange(1, rangeEnd)
                     .map { increment -> lastParsedBlockNumber + increment }
@@ -85,7 +83,7 @@ class EthereumSourceConnectorTask : SourceTask() {
                     }
 
             lastParsedBlockNumber += batchSize
-            log.info("Obtained ${lastParsedBlockNumber + 1}-${lastParsedBlockNumber + rangeEnd} blocks")
+            log.debug("Obtained ${lastParsedBlockNumber + 1}-${lastParsedBlockNumber + rangeEnd} blocks")
 
             return blocks
         } catch (e: Exception) {
@@ -103,7 +101,7 @@ class EthereumSourceConnectorTask : SourceTask() {
 
     private fun blockParameter(blockNumber: BigInteger) = DefaultBlockParameter.valueOf(blockNumber)!!
     private fun sourceOffset(blockNumber: BigInteger) = mapOf("blockNumber" to blockNumber.toString())
-    private val sourcePartition = mapOf("blockchain" to ethereum)
+    private val sourcePartition = mapOf("blockchain" to ETHEREUM_PARTITION)
 
     override fun version(): String = "1.0"
     override fun stop() {}

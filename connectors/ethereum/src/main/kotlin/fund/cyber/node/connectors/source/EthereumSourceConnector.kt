@@ -7,8 +7,6 @@ import org.apache.kafka.connect.source.SourceConnector
 
 
 
-val ethereum = "ethereum"
-
 class EthereumSourceConnector : SourceConnector() {
 
     private lateinit var properties: Map<String, String>

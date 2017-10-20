@@ -9,16 +9,22 @@ import org.apache.kafka.common.config.AbstractConfig
 import org.apache.kafka.common.config.ConfigDef
 import org.apache.kafka.common.config.ConfigDef.Importance.HIGH
 import org.apache.kafka.common.config.ConfigDef.Type.*
+import java.math.BigInteger
 
 
 val PARITY_URL = "parity.url"
 val BATCH_SIZE = "batch.size"
+const val START_BLOCK = "start.block"
 
-val BATCH_SIZE_DEFAULT = 32
+const val BATCH_SIZE_DEFAULT = 32
+const val START_BLOCK_DEFAULT = "-1"
+
+const val ETHEREUM_PARTITION = "ethereum"
 
 val ethereumConnectorConfiguration = ConfigDef()
         .define(PARITY_URL, STRING, "http://127.0.0.1:8545", HIGH, "Define parity url.")!!
         .define(BATCH_SIZE, INT, BATCH_SIZE_DEFAULT, HIGH, "Define number of concurrent requests to parity.")!!
+        .define(START_BLOCK, STRING, START_BLOCK_DEFAULT, ConfigDef.Importance.LOW, "Define start block.")!!
 
 
 class EthereumConnectorConfiguration(
@@ -27,6 +33,8 @@ class EthereumConnectorConfiguration(
 
     val parityUrl = getString(PARITY_URL)!!
     val batchSize = getInt(BATCH_SIZE)!!
+    val startBlock = BigInteger(getString(START_BLOCK)!!)
+    val startBlockRaw = getString(START_BLOCK)!!
 }
 
 val jacksonJsonSerializer = ObjectMapper().registerKotlinModule()
