@@ -20,6 +20,8 @@ val log = LoggerFactory.getLogger(BitcoinBlockSplitterApplication::class.java)!!
 
 object BitcoinBlockSplitterApplication {
 
+    var lastProcessedBlockNumber = -1L
+
     @JvmStatic
     fun main(args: Array<String>) {
 
@@ -31,8 +33,15 @@ object BitcoinBlockSplitterApplication {
                     v != null
                 })
                 .flatMapValues { btcdBlock ->
-                    log.debug("Processing ${btcdBlock.height} block")
-                    convertBtcdBlockToBitcoinItems(btcdBlock)
+
+                    if (lastProcessedBlockNumber < btcdBlock.height) {
+                        log.debug("Processing ${btcdBlock.height} block")
+                        lastProcessedBlockNumber = btcdBlock.height
+                        convertBtcdBlockToBitcoinItems(btcdBlock)
+                    } else {
+                        log.debug("Skipping ${btcdBlock.height} block")
+                        emptyList()
+                    }
                 }
                 .branch(
                         Predicate { _, item -> item is BitcoinBlock },
@@ -61,7 +70,6 @@ object BitcoinBlockSplitterApplication {
         })
     }
 }
-
 
 
 private fun convertBtcdBlockToBitcoinItems(

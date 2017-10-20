@@ -28,7 +28,7 @@ class BitcoinDaoService(
 
     fun getAddress(id: String): BitcoinAddress? {
 
-        val resultSet = session.execute("SELECT * FROM address WHERE id=$id")
+        val resultSet = session.execute("SELECT * FROM address WHERE id='$id'")
         return resultSet.map(this::bitcoinAddressMapping).firstOrNull()
     }
 
