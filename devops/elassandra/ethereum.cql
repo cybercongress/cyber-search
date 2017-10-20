@@ -1,4 +1,4 @@
-CREATE TYPE IF NOT EXISTS blockchains.ethereum_block_tx (
+CREATE TYPE IF NOT EXISTS ethereum.block_tx (
     fee decimal,
     amount decimal,
     hash text,
@@ -7,7 +7,7 @@ CREATE TYPE IF NOT EXISTS blockchains.ethereum_block_tx (
 );
 
 
-CREATE TABLE IF NOT EXISTS blockchains.ethereum_block (
+CREATE TABLE IF NOT EXISTS ethereum.block (
      number bigint PRIMARY KEY,
      hash text,
      parent_hash text,
@@ -25,12 +25,12 @@ CREATE TABLE IF NOT EXISTS blockchains.ethereum_block (
      gas_limit bigint,
      gas_used bigint,
      tx_number int,
-     transactions FROZEN<list<ethereum_block_tx>>,
+     transactions FROZEN<list<ethereum.block_tx>>,
      uncles FROZEN<list<text>>
 );
 
 
-CREATE TABLE IF NOT EXISTS blockchains.ethereum_tx (
+CREATE TABLE IF NOT EXISTS ethereum.tx (
      hash text PRIMARY KEY,
      nonce bigint,
      block_hash text,
@@ -46,4 +46,23 @@ CREATE TABLE IF NOT EXISTS blockchains.ethereum_tx (
      fee text,
      input text,
      creates text
+);
+
+CREATE TABLE IF NOT EXISTS ethereum.tx_preview_by_address (
+    address text,
+    fee text,
+    block_time timestamp,
+    hash text,
+    "from" text,
+    "to" text,
+    value text,
+    PRIMARY KEY (address,block_time,hash)
+);
+
+CREATE TABLE IF NOT EXISTS ethereum.address (
+    id text PRIMARY KEY,
+    balance text,
+    total_received text,
+    last_transaction_block bigint,
+    tx_number int
 );
