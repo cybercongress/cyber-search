@@ -89,6 +89,7 @@ curl -XPUT "http://localhost:9200/ethereum_address/_mapping/address" -d '{
     "address" : {
       "properties": {
         "id": {"type": "string", "index": "not_analyzed", "include_in_all": true, "cql_collection" : "singleton"},
+        "is_contract_address": {"type": "boolean", "index": "not_analyzed", "include_in_all": false, "cql_collection" : "singleton"},
         "tx_number": {"type": "integer", "index": "no", "include_in_all": false, "cql_collection" : "singleton"},
         "balance": {"type": "string", "index": "no", "include_in_all": false, "cql_collection" : "singleton"},
         "total_received": {"type": "string", "index": "no", "include_in_all": false, "cql_collection" : "singleton"}
