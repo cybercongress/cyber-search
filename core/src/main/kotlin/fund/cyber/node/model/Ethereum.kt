@@ -8,7 +8,7 @@ import java.math.BigInteger
 
 interface EthereumItem
 
-@Table(keyspace = "blockchains", name = "ethereum_tx",
+@Table(keyspace = "ethereum", name = "tx",
         readConsistency = "QUORUM", writeConsistency = "QUORUM",
         caseSensitiveKeyspace = false, caseSensitiveTable = false)
 data class EthereumTransaction(
@@ -30,7 +30,7 @@ data class EthereumTransaction(
 ) : EthereumItem
 
 
-@Table(keyspace = "blockchains", name = "ethereum_block",
+@Table(keyspace = "ethereum", name = "block",
         readConsistency = "QUORUM", writeConsistency = "QUORUM",
         caseSensitiveKeyspace = false, caseSensitiveTable = false)
 data class EthereumBlock(
@@ -55,7 +55,7 @@ data class EthereumBlock(
         val uncles: List<String>
 ) : EthereumItem
 
-@UDT(name = "ethereum_block_tx")
+@UDT(name = "ethereum.block_tx")
 data class EthereumBlockTransaction(
         val fee: BigDecimal,
         val amount: BigDecimal,
@@ -66,3 +66,28 @@ data class EthereumBlockTransaction(
     //used by gson to create instance
     constructor() : this(BigDecimal.ZERO, BigDecimal.ZERO, "", "", "")
 }
+
+@Table(keyspace = "ethereum", name = "address",
+        readConsistency = "QUORUM", writeConsistency = "QUORUM",
+        caseSensitiveKeyspace = false, caseSensitiveTable = false)
+data class EthereumAddress(
+        val id: String,
+        val balance: String,
+        val total_received: String,
+        val last_transaction_block: Long,
+        val tx_number: Int
+) : EthereumItem
+
+
+@Table(keyspace = "ethereum", name = "tx_preview_by_address",
+        readConsistency = "QUORUM", writeConsistency = "QUORUM",
+        caseSensitiveKeyspace = false, caseSensitiveTable = false)
+data class EthereumAddressTransaction(
+        val address: String,
+        val fee: String,
+        val block_time: String,
+        val hash: String,
+        val from: String,
+        val to: String,
+        val value: String
+) : EthereumItem
