@@ -53,7 +53,11 @@ data class EthereumBlock(
         val transactions: List<EthereumBlockTransaction>,
         val tx_number: Int,
         val uncles: List<String>
-) : EthereumItem
+) : EthereumItem {
+
+    fun addressesUsedInBlock() = transactions.flatMap { tx -> tx.addressesUsedInTransaction() }
+}
+
 
 @UDT(name = "ethereum.block_tx")
 data class EthereumBlockTransaction(
@@ -65,7 +69,10 @@ data class EthereumBlockTransaction(
 ) {
     //used by gson to create instance
     constructor() : this(BigDecimal.ZERO, BigDecimal.ZERO, "", "", "")
+
+    fun addressesUsedInTransaction() = listOf(from, to)
 }
+
 
 @Table(keyspace = "ethereum", name = "address",
         readConsistency = "QUORUM", writeConsistency = "QUORUM",

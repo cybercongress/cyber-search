@@ -2,11 +2,13 @@ package fund.cyber.index.ethereum
 
 import com.datastax.driver.core.Cluster
 import fund.cyber.dao.ethereum.EthereumDaoService
+import fund.cyber.index.ethereum.converter.EthereumAddressConverter
 import fund.cyber.index.ethereum.converter.EthereumParityToDaoConverter
 import fund.cyber.node.common.env
 import fund.cyber.node.kafka.JsonDeserializer
 import fund.cyber.node.kafka.JsonSerializer
 import fund.cyber.node.model.EthereumAddress
+import fund.cyber.node.model.EthereumAddressTransaction
 import fund.cyber.node.model.EthereumBlock
 import fund.cyber.node.model.EthereumTransaction
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -24,6 +26,7 @@ object ApplicationContext {
 
     val streamsConfiguration = StreamConfiguration()
     val parityToDaoConverter = EthereumParityToDaoConverter()
+    val addressConverter = EthereumAddressConverter()
 
     val cassandra = Cluster.builder()
             .addContactPoint(streamsConfiguration.cassandraServers)
@@ -62,6 +65,8 @@ class StreamConfiguration(
 val parityBlockSerde = defaultJsonSerde(EthBlock.Block::class.java)
 val ethereumTxSerde = defaultJsonSerde(EthereumTransaction::class.java)
 val ethereumBlockSerde = defaultJsonSerde(EthereumBlock::class.java)
+val ethereumAddressSerde = defaultJsonSerde(EthereumAddress::class.java)
+val ethereumAddressTransactionSerde = defaultJsonSerde(EthereumAddressTransaction::class.java)
 
 private fun <T> defaultJsonSerde(type: Class<T>): Serde<T> {
     return Serdes.serdeFrom(JsonSerializer(), JsonDeserializer(type))!!
