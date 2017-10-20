@@ -24,11 +24,13 @@ class EthereumDaoService(cassandra: Cluster,
         manager.mapper(EthereumAddressTransaction::class.java)
     }
 
+
     fun getAddress(id: String): EthereumAddress? {
 
         val resultSet = session.execute("SELECT * FROM address WHERE id='$id'")
         return resultSet.map(this::ethereumAddressMapping).firstOrNull()
     }
+
 
     fun getBlockByNumber(number: Long): EthereumBlock? {
 
@@ -42,6 +44,7 @@ class EthereumDaoService(cassandra: Cluster,
         val resultSet = session.execute("SELECT * FROM ethereum_tx WHERE hash='$hash'")
         return resultSet.map(this::ethereumTransactionMapping).firstOrNull()
     }
+
 
     fun getAddressesWithLastTransactionBeforeGivenBlock(ids: List<String>, blockNumber: Long): List<EthereumAddress> {
 
@@ -70,9 +73,13 @@ class EthereumDaoService(cassandra: Cluster,
         }
     }
 
-    private fun queryAddressesWithLastTransactionBeforeGivenBlock(ids: List<String>, blockNumber: Long): List<EthereumAddress> {
 
-        val statement = session.prepare("SELECT * FROM address WHERE id=? AND last_transaction_block < $blockNumber ALLOW FILTERING")
+    private fun queryAddressesWithLastTransactionBeforeGivenBlock(
+            ids: List<String>, blockNumber: Long): List<EthereumAddress> {
+
+        val statement = session.prepare(
+                "SELECT * FROM address WHERE id=? AND last_transaction_block < $blockNumber ALLOW FILTERING"
+        )
 
         return ids.map { id -> session.executeAsync(statement.bind(id)) } // future<ResultSet>
                 .map { futureResultSet ->
@@ -84,13 +91,16 @@ class EthereumDaoService(cassandra: Cluster,
                 .map(this::ethereumAddressMapping)
     }
 
+
     private fun ethereumAddressMapping(row: Row): EthereumAddress {
         return EthereumAddress(
                 id = row.getString("id"), balance = row.getString("balance"),
-                tx_number = row.getInt("tx_number"), total_received = row.getString("total_received"),
+                is_contract_address = row.getBool("is_contract_address"), tx_number = row.getInt("tx_number"),
+                total_received = row.getString("total_received"),
                 last_transaction_block = row.getLong("last_transaction_block")
         )
     }
+
 
     private fun ethereumTransactionMapping(row: Row): EthereumTransaction {
         return EthereumTransaction(
@@ -104,6 +114,7 @@ class EthereumDaoService(cassandra: Cluster,
                 creates = row.getString("creates"), fee = row.getString("fee")
         )
     }
+
 
     private fun ethereumBlockMapping(row: Row): EthereumBlock {
         return EthereumBlock(

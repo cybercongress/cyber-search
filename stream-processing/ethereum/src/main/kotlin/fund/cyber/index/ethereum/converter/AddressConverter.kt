@@ -32,7 +32,8 @@ class EthereumAddressConverter {
             log.trace("first address transaction: $addressId")
             return EthereumAddress(
                     id = addressId, last_transaction_block = blockNumber, tx_number = 1,
-                    balance = tx.amount.toString(), total_received = tx.amount.toString()
+                    balance = tx.amount.toString(), total_received = tx.amount.toString(),
+                    is_contract_address = tx.creates_contract
             )
         }
         return updateAddressByTransaction(blockNumber, address, tx)
@@ -54,7 +55,7 @@ class EthereumAddressConverter {
 
         return EthereumAddress(
                 id = address.id, last_transaction_block = blockNumber, tx_number = address.tx_number + 1,
-                balance = balance.toString(), total_received = totalReceived
+                balance = balance.toString(), total_received = totalReceived, is_contract_address = address.is_contract_address
         )
     }
 

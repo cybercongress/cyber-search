@@ -65,10 +65,11 @@ data class EthereumBlockTransaction(
         val amount: BigDecimal,
         val hash: String,
         val from: String,
-        val to: String
+        val to: String,
+        val creates_contract: Boolean
 ) {
     //used by gson to create instance
-    constructor() : this(BigDecimal.ZERO, BigDecimal.ZERO, "", "", "")
+    constructor() : this(BigDecimal.ZERO, BigDecimal.ZERO, "", "", "", false)
 
     fun addressesUsedInTransaction() = listOf(from, to)
 }
@@ -80,6 +81,7 @@ data class EthereumBlockTransaction(
 data class EthereumAddress(
         val id: String,
         val balance: String,
+        val is_contract_address: Boolean,
         val total_received: String,
         val last_transaction_block: Long,
         val tx_number: Int

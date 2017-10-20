@@ -44,7 +44,8 @@ class EthereumParityToDaoConverter {
                     EthereumBlockTransaction(
                             from = parityTx.from, to = to, hash = parityTx.hash,
                             amount = BigDecimal(parityTx.value) * weiToEthRate,
-                            fee = BigDecimal(parityTx.gasPrice * parityTx.gas) * weiToEthRate
+                            fee = BigDecimal(parityTx.gasPrice * parityTx.gas) * weiToEthRate,
+                            creates_contract = parityTx.creates != null
                     )
 
                 }
