@@ -2,35 +2,94 @@ package fund.cyber.dao.ethereum
 
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Row
+import com.datastax.driver.core.Session
 import com.datastax.driver.mapping.MappingManager
-import fund.cyber.node.model.EthereumBlock
-import fund.cyber.node.model.EthereumBlockTransaction
-import fund.cyber.node.model.EthereumTransaction
+import fund.cyber.node.model.*
+import org.ehcache.Cache
+import org.slf4j.LoggerFactory
+import java.util.*
 
-class EthereumDaoService(private val cassandra: Cluster) {
 
+private val log = LoggerFactory.getLogger(EthereumDaoService::class.java)!!
+
+class EthereumDaoService(cassandra: Cluster,
+                         private val addressCache: Cache<String, EthereumAddress>? = null
+) {
+
+    private val session: Session = cassandra.connect("bitcoin").apply {
+        val manager = MappingManager(this)
+        manager.mapper(EthereumBlock::class.java)
+        manager.mapper(EthereumTransaction::class.java)
+        manager.mapper(EthereumAddress::class.java)
+        manager.mapper(EthereumAddressTransaction::class.java)
+    }
+
+    fun getAddress(id: String): EthereumAddress? {
+
+        val resultSet = session.execute("SELECT * FROM address WHERE id='$id'")
+        return resultSet.map(this::ethereumAddressMapping).firstOrNull()
+    }
 
     fun getBlockByNumber(number: Long): EthereumBlock? {
 
-        val session = cassandra.connect("blockchains")
-        val manager = MappingManager(session)
-        val mapper = manager.mapper(EthereumBlock::class.java)
-
         val resultSet = session.execute("SELECT * FROM ethereum_block WHERE number=$number")
-
         return resultSet.map(this::ethereumBlockMapping).firstOrNull()
     }
 
 
     fun getTxByHash(hash: String): EthereumTransaction? {
 
-        val session = cassandra.connect("blockchains")
-        val manager = MappingManager(session)
-        val mapper = manager.mapper(EthereumTransaction::class.java)
-
         val resultSet = session.execute("SELECT * FROM ethereum_tx WHERE hash='$hash'")
-
         return resultSet.map(this::ethereumTransactionMapping).firstOrNull()
+    }
+
+    fun getAddressesWithLastTransactionBeforeGivenBlock(ids: List<String>, blockNumber: Long): List<EthereumAddress> {
+
+        if (ids.isEmpty()) return emptyList()
+
+        return when (addressCache) {
+            null -> queryAddressesWithLastTransactionBeforeGivenBlock(ids, blockNumber)
+            else -> {
+                val addresses = mutableListOf<EthereumAddress>()
+                val idsWithoutCacheHit = mutableListOf<String>()
+
+                for (id in ids) {
+
+                    val address = addressCache[id]
+                    if (address != null && address.last_transaction_block < blockNumber)
+                        addresses.add(address)
+                    else
+                        idsWithoutCacheHit.add(id)
+                }
+
+                log.debug("Address - Total ids: ${ids.size}, Cache hits: ${addresses.size}")
+
+                addresses.addAll(queryAddressesWithLastTransactionBeforeGivenBlock(idsWithoutCacheHit, blockNumber))
+                return addresses
+            }
+        }
+    }
+
+    private fun queryAddressesWithLastTransactionBeforeGivenBlock(ids: List<String>, blockNumber: Long): List<EthereumAddress> {
+
+        val statement = session.prepare("SELECT * FROM address WHERE id=? AND last_transaction_block < $blockNumber ALLOW FILTERING")
+
+        return ids.map { id -> session.executeAsync(statement.bind(id)) } // future<ResultSet>
+                .map { futureResultSet ->
+                    // cql row
+                    while (!futureResultSet.isDone) Thread.sleep(10)
+                    futureResultSet.get().one()
+                }
+                .filter(Objects::nonNull)
+                .map(this::ethereumAddressMapping)
+    }
+
+    private fun ethereumAddressMapping(row: Row): EthereumAddress {
+        return EthereumAddress(
+                id = row.getString("id"), balance = row.getString("balance"),
+                tx_number = row.getInt("tx_number"), total_received = row.getString("total_received"),
+                last_transaction_block = row.getLong("last_transaction_block")
+        )
     }
 
     private fun ethereumTransactionMapping(row: Row): EthereumTransaction {

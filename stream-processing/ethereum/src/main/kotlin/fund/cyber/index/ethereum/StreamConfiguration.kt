@@ -1,9 +1,12 @@
 package fund.cyber.index.ethereum
 
+import com.datastax.driver.core.Cluster
+import fund.cyber.dao.ethereum.EthereumDaoService
 import fund.cyber.index.ethereum.converter.EthereumParityToDaoConverter
 import fund.cyber.node.common.env
 import fund.cyber.node.kafka.JsonDeserializer
 import fund.cyber.node.kafka.JsonSerializer
+import fund.cyber.node.model.EthereumAddress
 import fund.cyber.node.model.EthereumBlock
 import fund.cyber.node.model.EthereumTransaction
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -21,9 +24,22 @@ object ApplicationContext {
 
     val streamsConfiguration = StreamConfiguration()
     val parityToDaoConverter = EthereumParityToDaoConverter()
+
+    val cassandra = Cluster.builder()
+            .addContactPoint(streamsConfiguration.cassandraServers)
+            .build().init()
+            .apply {
+                configuration.poolingOptions.maxQueueSize = 10 * 1024
+            }
+
+    private val cacheManager = getCacheManager()
+    val addressCache = cacheManager.getCache("addresses", String::class.java, EthereumAddress::class.java)
+
+    val ethereumDaoService = EthereumDaoService(cassandra, addressCache)
 }
 
 class StreamConfiguration(
+        val cassandraServers: String = env("CASSANDRA_CONNECTION", "localhost"),
         private val kafkaServers: String = env("KAFKA_CONNECTION", "localhost:9092"),
         private val stateStateCommitTime: Long = env("COMMIT_STATE_MS", 10),
         private val applicationIdMinorVersion: String = env("APPLICATION_ID_SUFFIX", "0"),

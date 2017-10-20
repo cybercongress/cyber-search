@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 
-val log = LoggerFactory.getLogger(BitcoinDaoService::class.java)!!
+private val log = LoggerFactory.getLogger(BitcoinDaoService::class.java)!!
 
 class BitcoinDaoService(
         cassandra: Cluster,
