@@ -20,7 +20,7 @@ val log = LoggerFactory.getLogger(EthereumBlockSplitterApplication::class.java)!
 
 object EthereumBlockSplitterApplication {
 
-    var lastProcessedBlockNumber = BigInteger("-1")
+    var lastProcessedBlockNumber = BigInteger(ApplicationContext.streamsConfiguration.processLastBlock.toString())
 
     @JvmStatic
     fun main(args: Array<String>) {

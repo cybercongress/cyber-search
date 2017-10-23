@@ -20,7 +20,7 @@ val log = LoggerFactory.getLogger(BitcoinBlockSplitterApplication::class.java)!!
 
 object BitcoinBlockSplitterApplication {
 
-    var lastProcessedBlockNumber = -1L
+    var lastProcessedBlockNumber = AppContext.streamsConfiguration.processLastBlock
 
     @JvmStatic
     fun main(args: Array<String>) {
