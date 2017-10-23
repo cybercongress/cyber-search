@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS ethereum.tx_preview_by_address (
 CREATE TABLE IF NOT EXISTS ethereum.address (
     id text PRIMARY KEY,
     balance text,
-    is_contract_address boolean,
+    contract_address boolean,
     total_received text,
     last_transaction_block bigint,
     tx_number int

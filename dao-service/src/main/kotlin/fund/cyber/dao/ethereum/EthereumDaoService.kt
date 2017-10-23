@@ -95,7 +95,7 @@ class EthereumDaoService(cassandra: Cluster,
     private fun ethereumAddressMapping(row: Row): EthereumAddress {
         return EthereumAddress(
                 id = row.getString("id"), balance = row.getString("balance"),
-                is_contract_address = row.getBool("is_contract_address"), tx_number = row.getInt("tx_number"),
+                contract_address = row.getBool("contract_address"), tx_number = row.getInt("tx_number"),
                 total_received = row.getString("total_received"),
                 last_transaction_block = row.getLong("last_transaction_block")
         )
