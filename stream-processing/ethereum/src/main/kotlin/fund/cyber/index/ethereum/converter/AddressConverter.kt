@@ -37,7 +37,7 @@ class EthereumAddressConverter {
         val txReward = BigDecimal(newBlock.tx_fees)
         val finalReward = blockReward + uncleReward + txReward
 
-        val txNumber = (address?.tx_number ?: 0) + 1
+        val txNumber = address?.tx_number ?: 0
         val balance = BigDecimal(address?.balance ?: "0") + finalReward
         val totalReceived = BigDecimal(address?.total_received ?: "0") + finalReward
 

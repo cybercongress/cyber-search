@@ -33,7 +33,7 @@ object EthereumBlockSplitterApplication {
                     v != null
                 })
                 .filter({ _, parityBlock ->
-                    if (lastProcessedBlockNumber >= parityBlock.number) log.debug("Skipping ${parityBlock.numberRaw} block")
+                    if (lastProcessedBlockNumber >= parityBlock.number) log.debug("Skipping ${parityBlock.number} block")
                     lastProcessedBlockNumber < parityBlock.number
                 })
                 .flatMapValues { parityBlock ->
