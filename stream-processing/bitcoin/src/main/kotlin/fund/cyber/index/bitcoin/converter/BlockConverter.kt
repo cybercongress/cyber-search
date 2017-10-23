@@ -1,7 +1,7 @@
 package fund.cyber.index.bitcoin.converter
 
 import fund.cyber.index.btcd.BtcdBlock
-import fund.cyber.node.common.sumByBigDecimal
+import fund.cyber.node.common.sumByBigDecimalString
 import fund.cyber.node.model.BitcoinBlock
 import fund.cyber.node.model.BitcoinBlockTransaction
 import fund.cyber.node.model.BitcoinTransaction
@@ -27,7 +27,7 @@ class BitcoinBlockConverter {
 
         val totalOutputsValue = blockTransactionsPreview
                 .flatMap { tx -> tx.outs }
-                .sumByBigDecimal { out -> out.amount }
+                .sumByBigDecimalString { out -> out.amount }
 
         return BitcoinBlock(
                 hash = btcdBlock.hash, size = btcdBlock.size, version = btcdBlock.version, bits = btcdBlock.bits,

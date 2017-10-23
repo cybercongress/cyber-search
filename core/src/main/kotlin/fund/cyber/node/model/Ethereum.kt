@@ -52,10 +52,12 @@ data class EthereumBlock(
         val gas_used: Long,                //parsed from hex
         val transactions: List<EthereumBlockTransaction>,
         val tx_number: Int,
-        val uncles: List<String>
+        val uncles: List<String>,
+        val block_reward: String,
+        val tx_fees: String
 ) : EthereumItem {
 
-    fun addressesUsedInBlock() = transactions.flatMap { tx -> tx.addressesUsedInTransaction() }
+    fun addressesUsedInBlock() = transactions.flatMap { tx -> tx.addressesUsedInTransaction() }.plus(miner)
 }
 
 
@@ -100,3 +102,8 @@ data class EthereumAddressTransaction(
         val to: String,
         val value: String
 ) : EthereumItem
+
+
+fun getBlockReward(number: Long): BigDecimal {
+    return if (number < 4370000) BigDecimal("5") else BigDecimal("3")
+}

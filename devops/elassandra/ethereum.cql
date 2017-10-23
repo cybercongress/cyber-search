@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS ethereum.block (
      gas_limit bigint,
      gas_used bigint,
      tx_number int,
+     tx_fees text,
+     block_reward text,
      transactions FROZEN<list<ethereum.block_tx>>,
      uncles FROZEN<list<text>>
 );

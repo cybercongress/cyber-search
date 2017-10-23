@@ -1,7 +1,7 @@
 package fund.cyber.index.bitcoin.converter
 
 import fund.cyber.index.btcd.*
-import fund.cyber.node.common.sumByBigDecimal
+import fund.cyber.node.common.sumByBigDecimalString
 import fund.cyber.node.model.BitcoinTransaction
 import fund.cyber.node.model.BitcoinTransactionIn
 import fund.cyber.node.model.BitcoinTransactionOut
@@ -40,8 +40,8 @@ class BitcoinTransactionConverter {
         val ins = btcdTxInToDao(btcdTransaction.regularInputs(), inputsByIds)
         val outputs = btcdTransaction.vout.map(this::btcdTxOutToDao)
 
-        val totalInput = ins.sumByBigDecimal { input -> input.amount }
-        val totalOutput = outputs.sumByBigDecimal { out -> out.amount }
+        val totalInput = ins.sumByBigDecimalString { input -> input.amount }
+        val totalOutput = outputs.sumByBigDecimalString { out -> out.amount }
 
         return BitcoinTransaction(
                 txid = btcdTransaction.txid, block_number = btcdBlock.height,

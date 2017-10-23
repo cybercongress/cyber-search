@@ -11,10 +11,21 @@ inline operator fun BigInteger.plus(increment: Int): BigInteger = this.add(BigIn
 /**
  * Returns the sum of all values produced by [selector] function applied to each element in the collection.
  */
-inline fun <T> Iterable<T>.sumByBigDecimal(selector: (T) -> String): BigDecimal {
+inline fun <T> Iterable<T>.sumByBigDecimalString(selector: (T) -> String): BigDecimal {
     var sum: BigDecimal = BigDecimal.ZERO
     for (element in this) {
         sum += BigDecimal(selector(element))
+    }
+    return sum
+}
+
+/**
+ * Returns the sum of all values produced by [selector] function applied to each element in the collection.
+ */
+inline fun <T> Iterable<T>.sumByBigDecimal(selector: (T) -> BigDecimal): BigDecimal {
+    var sum: BigDecimal = BigDecimal.ZERO
+    for (element in this) {
+        sum += selector(element)
     }
     return sum
 }

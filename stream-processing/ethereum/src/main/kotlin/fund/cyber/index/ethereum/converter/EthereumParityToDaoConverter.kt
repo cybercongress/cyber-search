@@ -1,9 +1,11 @@
 package fund.cyber.index.ethereum.converter
 
 import fund.cyber.node.common.hexToLong
+import fund.cyber.node.common.sumByBigDecimal
 import fund.cyber.node.model.EthereumBlock
 import fund.cyber.node.model.EthereumBlockTransaction
 import fund.cyber.node.model.EthereumTransaction
+import fund.cyber.node.model.getBlockReward
 import org.web3j.protocol.core.methods.response.EthBlock
 import java.math.BigDecimal
 import java.time.Instant
@@ -33,6 +35,7 @@ class EthereumParityToDaoConverter {
                 }
     }
 
+
     fun parityBlockToDao(parityBlock: EthBlock.Block): EthereumBlock {
 
         val blockTxes = parityBlock.transactions
@@ -50,8 +53,11 @@ class EthereumParityToDaoConverter {
 
                 }
 
+        val blockTxFees = blockTxes.sumByBigDecimal { tx -> tx.fee }.toString()
+        val number = parityBlock.numberRaw.hexToLong()
+
         return EthereumBlock(
-                hash = parityBlock.hash, parent_hash = parityBlock.parentHash, number = parityBlock.numberRaw.hexToLong(),
+                hash = parityBlock.hash, parent_hash = parityBlock.parentHash, number = number,
                 miner = parityBlock.miner, difficulty = parityBlock.difficulty, size = parityBlock.sizeRaw.hexToLong(),
                 extra_data = parityBlock.extraData, total_difficulty = parityBlock.totalDifficulty,
                 gas_limit = parityBlock.gasLimitRaw.hexToLong(), gas_used = parityBlock.gasUsedRaw.hexToLong(),
@@ -59,7 +65,7 @@ class EthereumParityToDaoConverter {
                 logs_bloom = parityBlock.logsBloom, transactions_root = parityBlock.transactionsRoot,
                 receipts_root = parityBlock.receiptsRoot, state_root = parityBlock.stateRoot,
                 sha3_uncles = parityBlock.sha3Uncles, uncles = parityBlock.uncles, transactions = blockTxes,
-                tx_number = blockTxes.size
+                tx_number = blockTxes.size, tx_fees = blockTxFees, block_reward = getBlockReward(number).toString()
         )
     }
 }
