@@ -51,6 +51,7 @@ class StreamConfiguration(
     fun streamProperties(): Properties {
         return Properties().apply {
             put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId)
+            put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId)
             put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServers)
             put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
             put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 25 * 1024 * 1024)
@@ -58,6 +59,8 @@ class StreamConfiguration(
             put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, 10 * 1024 * 1024)
             put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, stateStateCommitTime)
             put(StreamsConfig.STATE_DIR_CONFIG, "/opt/cyberfund/search/kafka-stream")
+            put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, 60 * 1000)
+            put(ConsumerConfig.RETRY_BACKOFF_MS_CONFIG, 100L)
         }
     }
 }
