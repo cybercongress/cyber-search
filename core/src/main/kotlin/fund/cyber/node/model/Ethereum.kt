@@ -61,7 +61,7 @@ data class EthereumBlock(
 }
 
 
-@UDT(name = "ethereum.block_tx")
+@UDT(keyspace = "ethereum", name = "block_tx")
 data class EthereumBlockTransaction(
         val fee: BigDecimal,
         val amount: BigDecimal,

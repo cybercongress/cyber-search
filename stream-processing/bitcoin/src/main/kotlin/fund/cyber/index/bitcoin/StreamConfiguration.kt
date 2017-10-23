@@ -47,7 +47,7 @@ class StreamConfiguration(
         val cassandraServers: String = env("CASSANDRA_CONNECTION", "localhost"),
         private val kafkaServers: String = env("KAFKA_CONNECTION", "localhost:9092"),
         private val applicationIdMinorVersion: String = env("APPLICATION_ID_SUFFIX", "0"),
-        val processLastBlock: Long = env("PROCESS_LAST_BLOCK", -1L),
+        val processLastBlock: Long = env("PROCESS_LAST_BLOCK", -1),
         private val stateStateCommitTime: Long = env("COMMIT_STATE_MS", 10),
         private val applicationId: String = "cyber.index.bitcoin.block.splitter.v1.$applicationIdMinorVersion"
 ) {
