@@ -16,7 +16,7 @@ class EthereumDaoService(cassandra: Cluster,
                          private val addressCache: Cache<String, EthereumAddress>? = null
 ) {
 
-    private val session: Session = cassandra.connect("bitcoin").apply {
+    private val session: Session = cassandra.connect("ethereum").apply {
         val manager = MappingManager(this)
         manager.mapper(EthereumBlock::class.java)
         manager.mapper(EthereumTransaction::class.java)
@@ -34,14 +34,14 @@ class EthereumDaoService(cassandra: Cluster,
 
     fun getBlockByNumber(number: Long): EthereumBlock? {
 
-        val resultSet = session.execute("SELECT * FROM ethereum_block WHERE number=$number")
+        val resultSet = session.execute("SELECT * FROM block WHERE number=$number")
         return resultSet.map(this::ethereumBlockMapping).firstOrNull()
     }
 
 
     fun getTxByHash(hash: String): EthereumTransaction? {
 
-        val resultSet = session.execute("SELECT * FROM ethereum_tx WHERE hash='$hash'")
+        val resultSet = session.execute("SELECT * FROM tx WHERE hash='$hash'")
         return resultSet.map(this::ethereumTransactionMapping).firstOrNull()
     }
 
