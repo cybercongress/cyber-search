@@ -62,10 +62,11 @@ class StreamConfiguration(
             put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, 10 * 1024 * 1024)
             put(ProducerConfig.BATCH_SIZE_CONFIG, 10 * 1024)
             put(ProducerConfig.BUFFER_MEMORY_CONFIG, 10 * 1024 * 1024)
+            put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 60 * 1000)
+            put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000L)
             put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, stateStateCommitTime)
             put(StreamsConfig.STATE_DIR_CONFIG, "/opt/cyberfund/search/kafka-stream")
-            put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, 60 * 1000)
-            put(ConsumerConfig.RETRY_BACKOFF_MS_CONFIG, 100L)
+
         }
     }
 }
