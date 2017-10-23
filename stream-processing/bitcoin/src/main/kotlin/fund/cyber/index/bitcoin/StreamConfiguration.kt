@@ -9,10 +9,7 @@ import fund.cyber.index.btcd.BtcdBlock
 import fund.cyber.node.common.env
 import fund.cyber.node.kafka.JsonDeserializer
 import fund.cyber.node.kafka.JsonSerializer
-import fund.cyber.node.model.BitcoinAddress
-import fund.cyber.node.model.BitcoinAddressTransaction
-import fund.cyber.node.model.BitcoinBlock
-import fund.cyber.node.model.BitcoinTransaction
+import fund.cyber.node.model.*
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.Serde
@@ -57,12 +54,17 @@ class StreamConfiguration(
         return Properties().apply {
             put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId)
             put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServers)
+            put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE)
             put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
             put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 25 * 1024 * 1024)
             put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 9 * 1000)
             put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, 10 * 1024 * 1024)
+            put(ProducerConfig.BATCH_SIZE_CONFIG, 10 * 1024)
+            put(ProducerConfig.BUFFER_MEMORY_CONFIG, 10 * 1024 * 1024)
             put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, stateStateCommitTime)
             put(StreamsConfig.STATE_DIR_CONFIG, "/opt/cyberfund/search/kafka-stream")
+            put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, 60 * 1000)
+            put(ConsumerConfig.RETRY_BACKOFF_MS_CONFIG, 100L)
         }
     }
 }
