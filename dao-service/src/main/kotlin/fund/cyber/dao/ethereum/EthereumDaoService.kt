@@ -118,7 +118,7 @@ class EthereumDaoService(cassandra: Cluster,
 
     private fun ethereumBlockMapping(row: Row): EthereumBlock {
         return EthereumBlock(
-                number = row.getLong("number"), hash = row.getString("hash"),
+                number = row.getLong("number"), hash = row.getString("hash"), block_reward = row.getString("block_reward"),
                 size = row.getLong("size"), parent_hash = row.getString("parent_hash"),
                 timestamp = row.getTimestamp("timestamp").toInstant().toString(),
                 sha3_uncles = row.getString("sha3_uncles"), logs_bloom = row.getString("logs_bloom"),
@@ -127,7 +127,7 @@ class EthereumDaoService(cassandra: Cluster,
                 difficulty = row.getVarint("difficulty"), total_difficulty = row.getVarint("total_difficulty"),
                 extra_data = row.getString("extra_data"), uncles = row.getList("uncles", String::class.java),
                 gas_used = row.getLong("gas_used"), gas_limit = row.getLong("gas_limit"),
-                tx_number = row.getInt("tx_number"),
+                tx_number = row.getInt("tx_number"), tx_fees = row.getString("tx_fees"),
                 transactions = row.getList("transactions", EthereumBlockTransaction::class.java)
         )
     }

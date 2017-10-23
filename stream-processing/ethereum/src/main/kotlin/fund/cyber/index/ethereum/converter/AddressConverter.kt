@@ -13,15 +13,39 @@ class EthereumAddressConverter {
             newBlock: EthereumBlock,
             existingAddressesUsedInBlock: List<EthereumAddress>): List<EthereumAddress> {
 
-        val addressLookUp = existingAddressesUsedInBlock.associateBy { address -> address.id }.toMutableMap()
+        val addressLookUp = existingAddressesUsedInBlock
+                .associateBy { address -> address.id }.toMutableMap()
 
-        return newBlock.transactions
+        val updatedAddresses = newBlock.transactions
                 .flatMap { tx ->
                     listOf(
                             updateAddressByTransaction(newBlock.number, addressLookUp[tx.from]!!, tx),
                             updateAddressByInputTransaction(newBlock.number, addressLookUp[tx.to], tx.to, tx)
                     ).apply { this.forEach { address -> addressLookUp.put(address.id, address) } }
                 }
+
+        val updatedMiner = updateAdressesByMiner(newBlock, addressLookUp[newBlock.miner])
+        addressLookUp.put(updatedMiner.id, updatedMiner)
+
+        return updatedAddresses.plus(updatedMiner)
+    }
+
+    fun updateAdressesByMiner(newBlock: EthereumBlock, address: EthereumAddress?): EthereumAddress {
+
+        val blockReward = getBlockReward(newBlock.number)
+        val uncleReward = BigDecimal(newBlock.uncles.size) / BigDecimal("32")
+        val txReward = BigDecimal(newBlock.tx_fees)
+        val finalReward = blockReward + uncleReward + txReward
+
+        val txNumber = (address?.tx_number ?: 0) + 1
+        val balance = BigDecimal(address?.balance ?: "0") + finalReward
+        val totalReceived = BigDecimal(address?.total_received ?: "0") + finalReward
+
+        return EthereumAddress(
+                id = newBlock.miner, last_transaction_block = newBlock.number, tx_number = txNumber,
+                balance = balance.toString(), total_received = totalReceived.toString(),
+                is_contract_address = address?.is_contract_address ?: false
+        )
     }
 
 
