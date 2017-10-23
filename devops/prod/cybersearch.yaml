@@ -291,14 +291,16 @@ items:
         containers:
         - env:
           - name: APPLICATION_ID_SUFFIX
-            value: b
+            value: a
           - name: CASSANDRA_CONNECTION
             value: cs-elassandra
           - name: CS_LOG_LEVEL
-            value: WARN
+            value: DEBUG
           - name: KAFKA_CONNECTION
             value: cs-kafka:9092
-          image: cybernode/cs-bitcoin-processor:release-0.7.2
+          - name: PROCESS_LAST_BLOCK
+            value: "132999"
+          image: cybernode/cs-bitcoin-processor:release-0.7.6
           name: cs-bitcoin-process
           resources: {}
         restartPolicy: Always
@@ -506,11 +508,17 @@ items:
       spec:
         containers:
         - env:
+          - name: APPLICATION_ID_SUFFIX
+            value: a
+          - name: CASSANDRA_CONNECTION
+            value: cs-elassandra
           - name: CS_LOG_LEVEL
-            value: WARN
+            value: DEBUG
           - name: KAFKA_CONNECTION
             value: cs-kafka:9092
-          image: cybernode/cs-ethereum-processor:release-0.7.2
+          - name: PROCESS_LAST_BLOCK
+            value: "-1"
+          image: cybernode/cs-ethereum-processor:release-0.7.6
           name: cs-ethereum-process
           resources: {}
         restartPolicy: Always
@@ -663,7 +671,7 @@ items:
             value: "false"
           - name: CONNECT_ZOOKEEPER_CONNECT
             value: cs-zoo:2181
-          image: cybernode/cn-kafka-connectors:release-0.7.2
+          image: cybernode/cn-kafka-connectors:release-0.7.6
           name: cs-kafka-connect
           ports:
           - containerPort: 8083
@@ -824,7 +832,7 @@ items:
             value: "9300"
           - name: KAFKA_CONNECTION
             value: cs-kafka:9092
-          image: cybernode/cs-search-api:release-0.7.2
+          image: cybernode/cs-search-api:release-0.7.6
           name: cs-search-api
           ports:
           - containerPort: 8085

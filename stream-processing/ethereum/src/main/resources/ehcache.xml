@@ -5,7 +5,7 @@
 
     <cache alias="addresses">
         <key-type>java.lang.String</key-type>
-        <value-type>fund.cyber.node.model.BitcoinAddress</value-type>
+        <value-type>fund.cyber.node.model.EthereumAddress</value-type>
         <resources>
             <heap unit="entries">20000000</heap>
         </resources>
