@@ -83,7 +83,7 @@ data class EthereumBlockTransaction(
 data class EthereumAddress(
         val id: String,
         val balance: String,
-        val is_contract_address: Boolean,
+        val contract_address: Boolean,
         val total_received: String,
         val last_transaction_block: Long,
         val tx_number: Int

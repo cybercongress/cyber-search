@@ -44,7 +44,7 @@ class EthereumAddressConverter {
         return EthereumAddress(
                 id = newBlock.miner, last_transaction_block = newBlock.number, tx_number = txNumber,
                 balance = balance.toString(), total_received = totalReceived.toString(),
-                is_contract_address = address?.is_contract_address ?: false
+                contract_address = address?.contract_address ?: false
         )
     }
 
@@ -57,7 +57,7 @@ class EthereumAddressConverter {
             return EthereumAddress(
                     id = addressId, last_transaction_block = blockNumber, tx_number = 1,
                     balance = tx.amount.toString(), total_received = tx.amount.toString(),
-                    is_contract_address = tx.creates_contract
+                    contract_address = tx.creates_contract
             )
         }
         return updateAddressByTransaction(blockNumber, address, tx)
@@ -79,7 +79,7 @@ class EthereumAddressConverter {
 
         return EthereumAddress(
                 id = address.id, last_transaction_block = blockNumber, tx_number = address.tx_number + 1,
-                balance = balance.toString(), total_received = totalReceived, is_contract_address = address.is_contract_address
+                balance = balance.toString(), total_received = totalReceived, contract_address = address.contract_address
         )
     }
 
