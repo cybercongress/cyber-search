@@ -153,3 +153,24 @@ project(":dao-service") {
         compile("com.datastax.cassandra:cassandra-driver-mapping")
     }
 }
+
+project(":pumps") {
+    dependencies {
+        compile("org.jetbrains.kotlin:kotlin-stdlib-jre8")
+        compile("org.jetbrains.kotlin:kotlin-reflect")
+        compile("org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19.3")
+
+        compile("com.datastax.cassandra:cassandra-driver-core")
+        compile("com.datastax.cassandra:cassandra-driver-mapping")
+
+        compile("com.fasterxml.jackson.core:jackson-databind")
+        compile("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+        compile 'org.web3j:core:3.0.2'
+
+        compile "io.reactivex:rxkotlin:2.1.0"
+
+        compile("com.fasterxml.jackson.core:jackson-databind")
+        compile("com.fasterxml.jackson.module:jackson-module-kotlin")
+    }
+}
