@@ -1,7 +1,6 @@
 package fund.cyber.index.ethereum
 
 import fund.cyber.dao.ethereum.EthereumDaoService
-import fund.cyber.index.IndexTopics.ethereumSourceTopic
 import fund.cyber.index.ethereum.ApplicationContext.cassandra
 import fund.cyber.index.ethereum.ApplicationContext.streamsConfiguration
 import fund.cyber.index.ethereum.converter.EthereumAddressConverter
@@ -27,7 +26,7 @@ object EthereumBlockSplitterApplication {
 
         val builder = KStreamBuilder()
 
-        val ethereumItemsStream = builder.stream<Any, EthBlock.Block>(null, parityBlockSerde, ethereumSourceTopic)
+        val ethereumItemsStream = builder.stream<Any, EthBlock.Block>(null, parityBlockSerde, "source")
                 .filter({ _, v ->
                     if (v == null) log.debug("Found null item")
                     v != null

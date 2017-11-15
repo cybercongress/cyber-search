@@ -3,7 +3,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 project.tasks.assemble.dependsOn project.tasks.shadowJar
 
 dependencies {
-    compile project(':core')
+    compile project(':common')
     compile project(':connectors/model')
     compile 'org.web3j:core'
     compile 'org.apache.kafka:kafka-clients'

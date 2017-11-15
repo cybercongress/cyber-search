@@ -1,7 +1,6 @@
 package fund.cyber.node.connectors.source
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import fund.cyber.index.IndexTopics
 import fund.cyber.node.common.plus
 import fund.cyber.node.connectors.configuration.*
 import org.apache.kafka.connect.data.Schema
@@ -78,7 +77,7 @@ class EthereumSourceConnectorTask : SourceTask() {
 
                         SourceRecord(
                                 sourcePartition, sourceOffset(block.number),
-                                IndexTopics.ethereumSourceTopic, Schema.BYTES_SCHEMA, valueByteArray
+                                "not matter, will be deleted", Schema.BYTES_SCHEMA, valueByteArray
                         )
                     }
 

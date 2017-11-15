@@ -5,7 +5,6 @@ import fund.cyber.dao.bitcoin.BitcoinDaoService
 import fund.cyber.index.bitcoin.converter.BitcoinAddressConverter
 import fund.cyber.index.bitcoin.converter.BitcoinBlockConverter
 import fund.cyber.index.bitcoin.converter.BitcoinTransactionConverter
-import fund.cyber.index.btcd.BtcdBlock
 import fund.cyber.node.common.env
 import fund.cyber.node.kafka.JsonDeserializer
 import fund.cyber.node.kafka.JsonSerializer

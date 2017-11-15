@@ -1,11 +1,7 @@
 package fund.cyber.index.bitcoin.converter
 
-import fund.cyber.index.btcd.BtcdBlock
 import fund.cyber.node.common.sumByBigDecimalString
-import fund.cyber.node.model.BitcoinBlock
-import fund.cyber.node.model.BitcoinBlockTransaction
-import fund.cyber.node.model.BitcoinTransaction
-import fund.cyber.node.model.BitcoinTransactionPreviewIO
+import fund.cyber.node.model.*
 import java.time.Instant
 
 class BitcoinBlockConverter {

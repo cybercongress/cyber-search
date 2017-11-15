@@ -2,12 +2,13 @@
 buildscript {
     ext {
         kotlinVersion = "1.1.51"
-        kotlinCoroutinesVersion = "0.18"
+        kotlinCoroutinesVersion = "0.19.3"
         jacksonVersion = "2.8.9"
         undertowVersion = "1.4.20.Final"
         kafkaVersion = "0.11.0.1"
         cassandraConfluentVersion = "3.3.0"
         web3jVersion = "2.3.0"
+        rxkotlinVersion = "2.1.0"
         apacheHttpClientVersion = "4.1.3"
         ehcacheVersion = "3.4.0"
         elasticVersion = "2.4.6"
@@ -100,6 +101,7 @@ subprojects {
             dependency("com.datastax.cassandra:cassandra-driver-mapping:$cassandraConfluentVersion")
 
             dependency("org.web3j:core:$web3jVersion")
+            dependency("io.reactivex.rxjava2:rxkotlin:$rxkotlinVersion")
         }
     }
 
@@ -113,7 +115,7 @@ subprojects {
 }
 
 
-project(":core") {
+project(":common") {
     dependencies {
         compile("org.slf4j:slf4j-api")
         compile("ch.qos.logback:logback-classic")
@@ -136,7 +138,7 @@ project(":search-api") {
     apply plugin: "application"
 
     dependencies {
-        compile(project(":core"))
+        compile(project(":common"))
         compile(project(":dao-service"))
         compile("io.undertow:undertow-core")
         compile("org.elasticsearch:elasticsearch")
@@ -147,30 +149,15 @@ project(":search-api") {
 
 project(":dao-service") {
     dependencies {
-        compile(project(":core"))
+        compile(project(":common"))
         compile("org.ehcache:ehcache")
-        compile("com.datastax.cassandra:cassandra-driver-core")
-        compile("com.datastax.cassandra:cassandra-driver-mapping")
     }
 }
 
 project(":pumps") {
     dependencies {
-        compile("org.jetbrains.kotlin:kotlin-stdlib-jre8")
-        compile("org.jetbrains.kotlin:kotlin-reflect")
-        compile("org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19.3")
-
-        compile("com.datastax.cassandra:cassandra-driver-core")
-        compile("com.datastax.cassandra:cassandra-driver-mapping")
-
-        compile("com.fasterxml.jackson.core:jackson-databind")
-        compile("com.fasterxml.jackson.module:jackson-module-kotlin")
-
-        compile 'org.web3j:core:3.0.2'
-
-        compile "io.reactivex:rxkotlin:2.1.0"
-
-        compile("com.fasterxml.jackson.core:jackson-databind")
-        compile("com.fasterxml.jackson.module:jackson-module-kotlin")
+        compile(project(":common"))
+        compile("org.web3j:core")
+        compile("io.reactivex.rxjava2:rxkotlin")
     }
 }

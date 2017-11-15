@@ -1,7 +1,6 @@
 package fund.cyber.node.connectors.source
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import fund.cyber.index.IndexTopics
 import fund.cyber.node.common.readTextAndClose
 import fund.cyber.node.connectors.client.AsyncBtcdClient
 import fund.cyber.node.connectors.client.BlockResponse
@@ -78,7 +77,7 @@ class BitcoinSourceConnectorTask : SourceTask() {
 
                         SourceRecord(
                                 sourcePartition, sourceOffset(blockNumber),
-                                IndexTopics.bitcoinSourceTopic, Schema.BYTES_SCHEMA, valueByteArray
+                                "not matter, will be deleted", Schema.BYTES_SCHEMA, valueByteArray
                         )
                     }
 

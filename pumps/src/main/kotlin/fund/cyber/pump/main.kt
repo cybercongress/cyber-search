@@ -11,7 +11,7 @@ val blockchains: Array<BlockchainInterface> = arrayOf(EthereumClassic())
 
 val storages: Array<StorageInterface> = arrayOf(CassandraStorage())
 
-fun main(args: Array<String>) = runBlocking<Unit> {
+fun main(args: Array<String>) = runBlocking {
 
     val loop = launch {
         storages.forEach { storage ->
@@ -24,7 +24,7 @@ fun main(args: Array<String>) = runBlocking<Unit> {
             blockchain.blocks.subscribe { block ->
 
                 storages.forEach { storage ->
-                    storage.store(block)
+                    val action = storage.store(block)
                 }
 
             }
