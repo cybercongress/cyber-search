@@ -1,4 +1,4 @@
-package fund.cyber.index.btcd
+package fund.cyber.node.model
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -10,7 +10,6 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.math.BigDecimal
 
 sealed class BtcdBitcoinElement
-
 
 data class BtcdBlock(
         val hash: String,
@@ -47,7 +46,6 @@ data class BtcdTransaction(
                     .map { input -> input as BtcdRegularTransactionInput }
 }
 
-
 data class BtcdTransactionOutput(
         val value: String,
         val n: Int,
@@ -55,7 +53,6 @@ data class BtcdTransactionOutput(
 )
 
 sealed class TransactionInput
-
 data class CoinbaseTransactionInput(
         val coinbase: String,
         val sequence: Long,

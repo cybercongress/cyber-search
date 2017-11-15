@@ -4,10 +4,10 @@ package fund.cyber.index.bitcoin.converter
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import fund.cyber.index.btcd.BtcdBlock
 import fund.cyber.node.model.BitcoinTransaction
 import fund.cyber.node.model.BitcoinTransactionIn
 import fund.cyber.node.model.BitcoinTransactionOut
+import fund.cyber.node.model.BtcdBlock
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

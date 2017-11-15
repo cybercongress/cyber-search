@@ -1,14 +1,11 @@
 package fund.cyber.index.bitcoin
 
 import fund.cyber.dao.bitcoin.BitcoinDaoService
-import fund.cyber.index.IndexTopics
 import fund.cyber.index.bitcoin.AppContext.cassandra
 import fund.cyber.index.bitcoin.AppContext.streamsConfiguration
 import fund.cyber.index.bitcoin.AppContext.transactionConverter
 import fund.cyber.index.bitcoin.converter.BitcoinAddressConverter
 import fund.cyber.index.bitcoin.converter.BitcoinBlockConverter
-import fund.cyber.index.btcd.BtcdBlock
-import fund.cyber.index.btcd.BtcdRegularTransactionInput
 import fund.cyber.node.model.*
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.kstream.KStreamBuilder
@@ -27,7 +24,7 @@ object BitcoinBlockSplitterApplication {
 
         val builder = KStreamBuilder()
 
-        val bitcoinItemsStream = builder.stream<Any, BtcdBlock>(null, btcdBlockSerde, IndexTopics.bitcoinSourceTopic)
+        val bitcoinItemsStream = builder.stream<Any, BtcdBlock>(null, btcdBlockSerde," source")
                 .filter({ _, v ->
                     if (v == null) log.debug("Found null item")
                     v != null

@@ -1,10 +1,7 @@
 package fund.cyber.index.bitcoin.converter
 
-import fund.cyber.index.btcd.*
 import fund.cyber.node.common.sumByBigDecimalString
-import fund.cyber.node.model.BitcoinTransaction
-import fund.cyber.node.model.BitcoinTransactionIn
-import fund.cyber.node.model.BitcoinTransactionOut
+import fund.cyber.node.model.*
 import org.slf4j.LoggerFactory
 import java.time.Instant
 
