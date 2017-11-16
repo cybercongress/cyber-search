@@ -1,32 +1,24 @@
 package fund.cyber.pump
 
 import com.datastax.driver.core.Cluster
-import fund.cyber.node.common.env
+import fund.cyber.node.common.*
 import java.util.*
 
 
 object AppContext {
 
-    val streamsConfiguration = StreamConfiguration()
+    val pumpsConfiguration = PumpsConfiguration()
 
     val cassandra = Cluster.builder()
-            .addContactPoint(streamsConfiguration.cassandraServers)
+            .addContactPoints(*pumpsConfiguration.cassandraServers.toTypedArray())
+            .withPort(pumpsConfiguration.cassandraPort)
+            .withMaxSchemaAgreementWaitSeconds(30)
             .build().init()
-            .apply {
-                configuration.poolingOptions.maxQueueSize = 10 * 1024
-            }
 }
 
 
-class StreamConfiguration(
-        val cassandraServers: String = env("CASSANDRA_CONNECTION", "localhost"),
-        private val applicationIdMinorVersion: String = env("APPLICATION_ID_SUFFIX", "0"),
-        val processLastBlock: Long = env("PROCESS_LAST_BLOCK", -1),
-        private val applicationId: String = "cyber.index.bitcoin.block.splitter.v1.$applicationIdMinorVersion"
-) {
-    fun streamProperties(): Properties {
-        return Properties()
-    }
-}
-
-
+class PumpsConfiguration(
+        val cassandraServers: List<String> = env(CASSANDRA_HOSTS, CASSANDRA_HOSTS_DEFAULT).split(","),
+        val cassandraPort: Int = env(CASSANDRA_PORT, CASSANDRA_PORT_DEFAULT),
+        val processLastBlock: Long = env("CS_LAST_PROCESSED_BLOCK", -1)
+)
