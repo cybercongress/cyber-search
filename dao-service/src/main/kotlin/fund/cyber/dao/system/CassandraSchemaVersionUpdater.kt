@@ -4,7 +4,7 @@ import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Session
 import fund.cyber.node.model.SchemaVersion
 import org.slf4j.LoggerFactory
-import java.time.Instant
+import java.util.*
 
 class CassandraSchemaVersionUpdater(
         private val cassandra: Cluster,
@@ -34,7 +34,7 @@ class CassandraSchemaVersionUpdater(
 
                         val schemeMigrationRecord = SchemaVersion(
                                 application_id = applicationId, version = migration.version,
-                                apply_time = Instant.now().toString(), migration_hash = migration.hashCode()
+                                apply_time = Date(), migration_hash = migration.hashCode()
                         )
                         systemDaoService.schemaVersionMapper.save(schemeMigrationRecord)
                         log.info("Succeeded '$applicationId' application migration to '${migration.version}' version")
