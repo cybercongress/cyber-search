@@ -162,6 +162,5 @@ project(":pumps") {
         compile project(":dao-service")
         compile("org.web3j:core")
         compile("io.reactivex.rxjava2:rxkotlin")
-        compile("com.datastax.cassandra:cassandra-driver-extras:3.1.4")
     }
 }

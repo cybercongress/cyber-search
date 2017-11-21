@@ -8,9 +8,7 @@ import java.math.BigInteger
 
 interface EthereumItem
 
-@Table(name = "tx",
-        readConsistency = "QUORUM", writeConsistency = "QUORUM",
-        caseSensitiveKeyspace = false, caseSensitiveTable = false)
+@Table(name = "tx", readConsistency = "QUORUM", writeConsistency = "QUORUM")
 data class EthereumTransaction(
         val hash: String,
         val nonce: Long,           //parsed from hex
@@ -30,9 +28,7 @@ data class EthereumTransaction(
 ) : EthereumItem
 
 
-@Table(name = "block", keyspace = "ethereum_classic",
-        readConsistency = "QUORUM", writeConsistency = "QUORUM",
-        caseSensitiveKeyspace = false, caseSensitiveTable = false)
+@Table(name = "block", readConsistency = "QUORUM", writeConsistency = "QUORUM")
 data class EthereumBlock(
         val hash: String,
         val parent_hash: String,
@@ -58,7 +54,7 @@ data class EthereumBlock(
 ) : EthereumItem
 
 
-@UDT(name = "block_tx", keyspace = "ethereum_classic")
+@UDT(name = "block_tx")
 data class EthereumBlockTransaction(
         var fee: BigDecimal,
         var amount: BigDecimal,
@@ -74,9 +70,7 @@ data class EthereumBlockTransaction(
 }
 
 
-@Table(name = "address",
-        readConsistency = "QUORUM", writeConsistency = "QUORUM",
-        caseSensitiveKeyspace = false, caseSensitiveTable = false)
+@Table(name = "address", readConsistency = "QUORUM", writeConsistency = "QUORUM")
 data class EthereumAddress(
         val id: String,
         val balance: String,
@@ -87,9 +81,7 @@ data class EthereumAddress(
 ) : EthereumItem
 
 
-@Table(name = "tx_preview_by_address",
-        readConsistency = "QUORUM", writeConsistency = "QUORUM",
-        caseSensitiveKeyspace = false, caseSensitiveTable = false)
+@Table(name = "tx_preview_by_address", readConsistency = "QUORUM", writeConsistency = "QUORUM")
 data class EthereumAddressTransaction(
         val address: String,
         val fee: String,
