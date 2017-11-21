@@ -19,7 +19,7 @@ services:
 
   elassandra:
     network_mode: host
-    image: strapdata/elassandra:5.5.0.6
+    image: strapdata/elassandra:5.5.0.7
     volumes:
       - /opt/cyberfund/search/elassandra:/var/lib/cassandra
       - /opt/cyberfund/search/elassandra/logs:/var/log/cassandra

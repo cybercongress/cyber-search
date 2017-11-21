@@ -5,14 +5,13 @@
     "tx": {
       "properties": {
         "txid": {
-          "type": "string",
-          "index": "not_analyzed",
+          "type": "keyword",
           "include_in_all": true,
           "cql_collection": "singleton"
         },
         "block_hash": {
-          "type": "string",
-          "index": "not_analyzed",
+          "type": "keyword",
+          "index": "no",
           "include_in_all": true,
           "cql_collection": "singleton"
         },
@@ -29,13 +28,13 @@
           "cql_collection": "singleton"
         },
         "fee": {
-          "type": "string",
+          "type": "keyword",
           "index": "no",
           "include_in_all": false,
           "cql_collection": "singleton"
         },
         "total_output": {
-          "type": "string",
+          "type": "keyword",
           "index": "no",
           "include_in_all": false,
           "cql_collection": "singleton"

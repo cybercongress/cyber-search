@@ -1,7 +1,7 @@
 package fund.cyber.node.connectors.source
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import fund.cyber.node.common.readTextAndClose
+import fund.cyber.node.common.readString
 import fund.cyber.node.connectors.client.AsyncBtcdClient
 import fund.cyber.node.connectors.client.BlockResponse
 import fund.cyber.node.connectors.configuration.*
@@ -67,7 +67,7 @@ class BitcoinSourceConnectorTask : SourceTask() {
                         futureBlock.get().entity
                     }
                     .mapValues { (blockNumber, httpResponse) ->
-                        val rawResult = httpResponse.content.readTextAndClose()
+                        val rawResult = httpResponse.content.readString()
                         log.debug("$blockNumber rawResult :$rawResult")
                         jsonDeserializer.readValue(rawResult, BlockResponse::class.java).getRawBlock()
                     }
