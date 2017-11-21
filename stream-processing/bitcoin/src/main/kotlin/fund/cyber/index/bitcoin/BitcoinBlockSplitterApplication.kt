@@ -24,7 +24,7 @@ object BitcoinBlockSplitterApplication {
 
         val builder = KStreamBuilder()
 
-        val bitcoinItemsStream = builder.stream<Any, BtcdBlock>(null, btcdBlockSerde," source")
+        val bitcoinItemsStream = builder.stream<Any, BtcdBlock>(null, btcdBlockSerde, " source")
                 .filter({ _, v ->
                     if (v == null) log.debug("Found null item")
                     v != null
@@ -101,9 +101,10 @@ private fun convertBtcdBlockToBitcoinItems(
 
 private fun getExistingAddressesUsedInBlock(
         block: BitcoinBlock, bitcoinDaoService: BitcoinDaoService = AppContext.bitcoinDaoService): List<BitcoinAddress> {
-
+/*
     val addressesIds = block.txs.flatMap { tx -> tx.allAddressesUsedInTransaction() }
-    return bitcoinDaoService.getAddressesWithLastTransactionBeforeGivenBlock(addressesIds, block.height)
+    return bitcoinDaoService.getAddressesWithLastTransactionBeforeGivenBlock(addressesIds, block.height)*/
+    return emptyList()
 }
 
 

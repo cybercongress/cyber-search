@@ -1,40 +1,28 @@
 {
   "method": "PUT",
-  "url": "/bitcoin_tx/_mapping/tx",
+  "url": "/bitcoin_address/_mapping/address",
   "data": {
-    "tx": {
+    "address": {
       "properties": {
-        "txid": {
+        "id": {
           "type": "keyword",
           "index": "no",
           "include_in_all": true,
           "cql_collection": "singleton"
         },
-        "block_hash": {
-          "type": "keyword",
-          "index": "no",
-          "include_in_all": true,
-          "cql_collection": "singleton"
-        },
-        "block_number": {
-          "type": "long",
+        "tx_number": {
+          "type": "integer",
           "index": "no",
           "include_in_all": false,
           "cql_collection": "singleton"
         },
-        "block_time": {
-          "type": "date",
-          "index": "no",
-          "include_in_all": false,
-          "cql_collection": "singleton"
-        },
-        "fee": {
+        "balance": {
           "type": "keyword",
           "index": "no",
           "include_in_all": false,
           "cql_collection": "singleton"
         },
-        "total_output": {
+        "total_received": {
           "type": "keyword",
           "index": "no",
           "include_in_all": false,
