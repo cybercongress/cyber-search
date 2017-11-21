@@ -1,9 +1,9 @@
 package fund.cyber.pump
 
 import fund.cyber.dao.migration.ElassandraSchemaMigrationEngine
-import fund.cyber.pump.bitcoin.BitcoinMigrations
 import fund.cyber.pump.cassandra.CassandraStorage
 import fund.cyber.pump.ethereum_classic.EthereumClassic
+import fund.cyber.pump.ethereum_classic.EthereumClassicMigrations
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 
@@ -18,7 +18,7 @@ fun main(args: Array<String>) = runBlocking {
             cassandra = AppContext.cassandra, httpClient = AppContext.httpClient,
             elasticHost = AppContext.pumpsConfiguration.cassandraServers.first(),
             elasticPort = AppContext.pumpsConfiguration.elasticHttpPort,
-            systemDaoService = AppContext.systemDaoService, migrations = BitcoinMigrations.migrations
+            systemDaoService = AppContext.systemDaoService, migrations = EthereumClassicMigrations.migrations
     ).executeSchemaUpdate()
 
     val loop = launch {
