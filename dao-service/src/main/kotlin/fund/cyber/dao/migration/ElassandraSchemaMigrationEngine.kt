@@ -3,7 +3,9 @@ package fund.cyber.dao.migration
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Session
 import fund.cyber.dao.system.SystemDaoService
+import fund.cyber.node.common.readString
 import fund.cyber.node.model.SchemaVersion
+import org.apache.http.HttpStatus
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.RequestBuilder
 import org.slf4j.LoggerFactory
@@ -55,10 +57,15 @@ class ElassandraSchemaMigrationEngine(
                 migration.getStatements().forEach { statement -> session.execute(statement) }
             }
             is ElasticHttpMigration -> {
+
                 val requestWithRelativeUri = migration.getRequest()
                 val fullUri = elasticBaseUri.resolve(requestWithRelativeUri.uri)
                 val request = RequestBuilder.copy(requestWithRelativeUri).setUri(fullUri).build()
-                httpClient.execute(request)
+                val response = httpClient.execute(request)
+
+                if(response.statusLine.statusCode != HttpStatus.SC_OK) {
+                    throw RuntimeException(response.entity.content.readString())
+                }
             }
         }
 
