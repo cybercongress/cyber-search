@@ -1,12 +1,12 @@
 package fund.cyber.pump
 
-import fund.cyber.dao.system.CassandraSchemaVersionUpdater
-import fund.cyber.dao.system.CqlFileBasedMigration
-import kotlinx.coroutines.experimental.*
+import fund.cyber.dao.migration.CqlFileBasedMigration
+import fund.cyber.dao.migration.ElassandraSchemaMigrationEngine
+import fund.cyber.dao.migration.ElasticHttpMigration
+import fund.cyber.pump.cassandra.CassandraStorage
+import fund.cyber.pump.ethereum_classic.EthereumClassic
+import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
-
-import fund.cyber.pump.ethereum_classic.*
-import fund.cyber.pump.cassandra.*
 
 
 val blockchains: Array<BlockchainInterface> = arrayOf(EthereumClassic())
@@ -15,13 +15,18 @@ val storages: Array<StorageInterface> = arrayOf(CassandraStorage())
 
 fun main(args: Array<String>) = runBlocking {
 
-    val migrations = listOf(
-            CqlFileBasedMigration("pump.bitcoin", 0, "/migrations/bitcoin/0__initial.cql"),
-            CqlFileBasedMigration("pump.ethereum", 0, "/migrations/ethereum/0__initial.cql")
+
+    val bitcoinMigrations = listOf(
+            CqlFileBasedMigration(0, "pump.bitcoin", "/migrations/bitcoin/0_initial.cql"),
+            ElasticHttpMigration(1, "pump.bitcoin", "/migrations/bitcoin/1_create-tx-index.json"),
+            ElasticHttpMigration(2, "pump.bitcoin", "/migrations/bitcoin/2_create-tx-type.json")
     )
 
-    CassandraSchemaVersionUpdater(
-            cassandra = AppContext.cassandra, systemDaoService = AppContext.systemDaoService, migrations = migrations
+    ElassandraSchemaMigrationEngine(
+            cassandra = AppContext.cassandra, httpClient = AppContext.httpClient,
+            elasticHost = AppContext.pumpsConfiguration.cassandraServers.first(),
+            elasticPort = AppContext.pumpsConfiguration.elasticHttpPort,
+            systemDaoService = AppContext.systemDaoService, migrations = bitcoinMigrations
     ).executeSchemaUpdate()
 
     val loop = launch {
