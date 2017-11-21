@@ -8,7 +8,7 @@ import java.math.BigInteger
 
 interface EthereumItem
 
-@Table(keyspace = "ethereum", name = "tx",
+@Table(name = "tx",
         readConsistency = "QUORUM", writeConsistency = "QUORUM",
         caseSensitiveKeyspace = false, caseSensitiveTable = false)
 data class EthereumTransaction(
@@ -30,7 +30,7 @@ data class EthereumTransaction(
 ) : EthereumItem
 
 
-@Table(keyspace = "ethereum", name = "block",
+@Table(name = "block", keyspace = "ethereum_classic",
         readConsistency = "QUORUM", writeConsistency = "QUORUM",
         caseSensitiveKeyspace = false, caseSensitiveTable = false)
 data class EthereumBlock(
@@ -50,25 +50,22 @@ data class EthereumBlock(
         val size: Long,                     //parsed from hex
         val gas_limit: Long,                //parsed from hex
         val gas_used: Long,                //parsed from hex
-        val transactions: List<EthereumBlockTransaction>,
+//        val transactions: List<String>,
         val tx_number: Int,
         val uncles: List<String>,
         val block_reward: String,
         val tx_fees: String
-) : EthereumItem {
-
-    fun addressesUsedInBlock() = transactions.flatMap { tx -> tx.addressesUsedInTransaction() }.plus(miner)
-}
+) : EthereumItem
 
 
-@UDT(keyspace = "ethereum", name = "block_tx")
+@UDT(name = "block_tx", keyspace = "ethereum_classic")
 data class EthereumBlockTransaction(
-        val fee: BigDecimal,
-        val amount: BigDecimal,
-        val hash: String,
-        val from: String,
-        val to: String,
-        val creates_contract: Boolean
+        var fee: BigDecimal,
+        var amount: BigDecimal,
+        var hash: String,
+        var from: String,
+        var to: String,
+        var creates_contract: Boolean
 ) {
     //used by gson to create instance
     constructor() : this(BigDecimal.ZERO, BigDecimal.ZERO, "", "", "", false)
@@ -77,7 +74,7 @@ data class EthereumBlockTransaction(
 }
 
 
-@Table(keyspace = "ethereum", name = "address",
+@Table(name = "address",
         readConsistency = "QUORUM", writeConsistency = "QUORUM",
         caseSensitiveKeyspace = false, caseSensitiveTable = false)
 data class EthereumAddress(
@@ -90,7 +87,7 @@ data class EthereumAddress(
 ) : EthereumItem
 
 
-@Table(keyspace = "ethereum", name = "tx_preview_by_address",
+@Table(name = "tx_preview_by_address",
         readConsistency = "QUORUM", writeConsistency = "QUORUM",
         caseSensitiveKeyspace = false, caseSensitiveTable = false)
 data class EthereumAddressTransaction(

@@ -4,5 +4,5 @@ interface StorageInterface {
 
     fun initFor(blockchain: BlockchainInterface)
 
-    fun store(block: Block)
+    fun <T>actionFor(block: T): StoreAction
 }
