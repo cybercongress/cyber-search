@@ -3,9 +3,7 @@ package fund.cyber.node.model
 import com.datastax.driver.mapping.annotations.Table
 import java.util.*
 
-@Table(keyspace = "cyber_system", name = "schema_version",
-        readConsistency = "QUORUM", writeConsistency = "QUORUM",
-        caseSensitiveKeyspace = false, caseSensitiveTable = false)
+@Table(keyspace = "cyber_system", name = "schema_version", readConsistency = "QUORUM", writeConsistency = "QUORUM")
 data class SchemaVersion(
         val application_id: String,
         val version: Int,
