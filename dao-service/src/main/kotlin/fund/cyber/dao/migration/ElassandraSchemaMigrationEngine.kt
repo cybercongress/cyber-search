@@ -8,6 +8,7 @@ import fund.cyber.node.model.SchemaVersion
 import org.apache.http.HttpStatus
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.RequestBuilder
+import org.apache.http.client.utils.HttpClientUtils
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.util.*
@@ -63,9 +64,14 @@ class ElassandraSchemaMigrationEngine(
                 val request = RequestBuilder.copy(requestWithRelativeUri).setUri(fullUri).build()
                 val response = httpClient.execute(request)
 
-                if(response.statusLine.statusCode != HttpStatus.SC_OK) {
-                    throw RuntimeException(response.entity.content.readString())
+                try {
+                    if (response.statusLine.statusCode != HttpStatus.SC_OK) {
+                        throw RuntimeException(response.entity.content.readString())
+                    }
+                } finally {
+                    HttpClientUtils.closeQuietly(response)
                 }
+
             }
         }
 

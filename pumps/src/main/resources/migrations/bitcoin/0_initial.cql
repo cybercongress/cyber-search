@@ -7,6 +7,7 @@ CREATE TYPE IF NOT EXISTS bitcoin.tx_preview_io (
 CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_address (
     address text,
     fee text,
+    block_number bigint,
     block_time timestamp,
     hash text,
     ins FROZEN < list < bitcoin.tx_preview_io > >,
