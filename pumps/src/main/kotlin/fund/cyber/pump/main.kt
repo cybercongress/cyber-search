@@ -21,7 +21,7 @@ fun main(args: Array<String>) = runBlocking {
             systemDaoService = AppContext.systemDaoService, migrations = EthereumMigrations.migrations
     ).executeSchemaUpdate()
 
-    val loop = launch {
+//    val loop = launch {
         storages.forEach { storage ->
             blockchains.forEach { blockchain ->
                 storage.initFor(blockchain)
@@ -32,12 +32,14 @@ fun main(args: Array<String>) = runBlocking {
             blockchain.blocks.subscribe { block ->
 
                 storages.forEach { storage ->
-                    val action = storage.store(block)
+                    val action = storage.actionFor(block)
+
+                    action.store()
                 }
 
             }
         }
 
-    }
-    loop.join()
+//    }
+//    loop.join()
 }

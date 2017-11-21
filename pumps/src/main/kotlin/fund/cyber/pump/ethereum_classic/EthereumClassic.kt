@@ -8,6 +8,10 @@ import rx.Observable
 import java.math.BigInteger
 import java.util.concurrent.Executors
 
+val PARITY_URL = "http://127.0.0.1:8545"
+
+const val BATCH_SIZE_DEFAULT: Long = 32
+
 class EthereumClassic: BlockchainInterface {
 
     private var batchSize: BigInteger = BigInteger.valueOf(BATCH_SIZE_DEFAULT)
@@ -18,10 +22,7 @@ class EthereumClassic: BlockchainInterface {
         get() {
             val executorService = Executors.newScheduledThreadPool(batchSize.toInt())
 
-//        config = EthereumConnectorConfiguration(properties)
             val parityClient = Web3j.build(HttpService(PARITY_URL), 15 * 1000, executorService)
-
-//        batchSize = BATCH_SIZE_DEFAULT//config.batchSize
 
             lastParsedBlockNumber = this.lastParsedBlockNumber()
             lastNetworkBlock = parityClient.ethBlockNumber().send().blockNumber
@@ -31,7 +32,7 @@ class EthereumClassic: BlockchainInterface {
         }
 
     private fun lastParsedBlockNumber(): BigInteger {
-        val blockNumber = BigInteger.ZERO//context.offsetStorageReader()?.offset(sourcePartition)?.get("blockNumber") ?: return BigInteger.ZERO
-        return blockNumber
+//        val blockNumber = context.offsetStorageReader()?.offset(sourcePartition)?.get("blockNumber") ?: return BigInteger.ZERO
+        return BigInteger.ZERO
     }
 }

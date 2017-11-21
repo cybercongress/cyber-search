@@ -127,8 +127,7 @@ class EthereumDaoService(cassandra: Cluster,
                 difficulty = row.getVarint("difficulty"), total_difficulty = row.getVarint("total_difficulty"),
                 extra_data = row.getString("extra_data"), uncles = row.getList("uncles", String::class.java),
                 gas_used = row.getLong("gas_used"), gas_limit = row.getLong("gas_limit"),
-                tx_number = row.getInt("tx_number"), tx_fees = row.getString("tx_fees"),
-                transactions = row.getList("transactions", EthereumBlockTransaction::class.java)
+                tx_number = row.getInt("tx_number"), tx_fees = row.getString("tx_fees")
         )
     }
 }
