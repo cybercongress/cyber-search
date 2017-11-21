@@ -1,15 +1,60 @@
+
 CREATE TYPE IF NOT EXISTS bitcoin.tx_preview_io (
-    addresses FROZEN<list<text>>,
+    addresses FROZEN < list < text > >,
     amount text
 );
 
+CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_address (
+    address text,
+    fee text,
+    block_time timestamp,
+    hash text,
+    ins FROZEN < list < bitcoin.tx_preview_io > >,
+    outs FROZEN < list < bitcoin.tx_preview_io > >,
+    PRIMARY KEY ( address, block_time, hash )
+) WITH CLUSTERING ORDER BY ( block_time DESC );
 
-CREATE TYPE IF NOT EXISTS bitcoin.block_tx (
+CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_block (
+    block_number bigint,
     fee text,
     hash text,
-    ins  FROZEN<list<bitcoin.tx_preview_io>>,
-    outs FROZEN<list<bitcoin.tx_preview_io>>
+    ins FROZEN < list < bitcoin.tx_preview_io > >,
+    outs FROZEN < list < bitcoin.tx_preview_io > >,
+    PRIMARY KEY ( block_number, hash )
 );
+
+
+
+CREATE TYPE IF NOT EXISTS bitcoin.tx_out (
+    addresses FROZEN < list < text > >,
+    amount text,
+    asm text,
+    out int,
+    required_signatures int
+);
+
+CREATE TYPE IF NOT EXISTS bitcoin.tx_in (
+    addresses FROZEN < list < text > >,
+    amount text,
+    asm text,
+    tx_id text,
+    tx_out int
+);
+
+CREATE TABLE IF NOT EXISTS bitcoin.tx (
+     txid text PRIMARY KEY,
+     block_number bigint,
+     block_hash text,
+     block_time timestamp,
+     size int,
+     coinbase text,
+     fee text,
+     total_input text,
+     total_output text,
+     ins FROZEN < list < bitcoin.tx_in > >,
+     outs FROZEN < list < bitcoin.tx_out > >
+);
+
 
 
 CREATE TABLE IF NOT EXISTS bitcoin.block (
@@ -24,53 +69,9 @@ CREATE TABLE IF NOT EXISTS bitcoin.block (
      bits text,
      tx_number int,
      total_outputs_value text,
-     difficulty varint,
-     txs FROZEN<list<bitcoin.block_tx>>
+     difficulty varint
 );
 
-
-CREATE TYPE IF NOT EXISTS bitcoin.tx_out (
-    addresses FROZEN<list<text>>,
-    amount text,
-    asm text,
-    out int,
-    required_signatures int
-);
-
-
-CREATE TYPE IF NOT EXISTS bitcoin.tx_in (
-    addresses FROZEN<list<text>>,
-    amount text,
-    asm text,
-    tx_id text,
-    tx_out int
-);
-
-
-CREATE TABLE IF NOT EXISTS bitcoin.tx (
-     txid text PRIMARY KEY,
-     block_number bigint,
-     block_hash text,
-     block_time timestamp,
-     size int,
-     coinbase text,
-     fee text,
-     total_input text,
-     total_output text,
-     ins FROZEN<list<bitcoin.tx_in>>,
-     outs FROZEN<list<bitcoin.tx_out>>
-);
-
-
-CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_address (
-    address text,
-    fee text,
-    block_time timestamp,
-    hash text,
-    ins FROZEN<list<bitcoin.tx_preview_io>>,
-    outs FROZEN<list<bitcoin.tx_preview_io>>,
-    PRIMARY KEY (address,block_time,hash)
-);
 
 
 CREATE TABLE IF NOT EXISTS bitcoin.address (

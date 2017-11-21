@@ -156,8 +156,7 @@ class BitcoinDaoService(
                 time = row.getTimestamp("time").toInstant().toString(), nonce = row.getLong("nonce"),
                 merkleroot = row.getString("merkleroot"), version = row.getInt("version"),
                 weight = row.getInt("weight"), bits = row.getString("bits"), tx_number = row.getInt("tx_number"),
-                total_outputs_value = row.getString("total_outputs_value"), difficulty = row.getVarint("difficulty"),
-                txs = row.getList("txs", BitcoinBlockTransaction::class.java)
+                total_outputs_value = row.getString("total_outputs_value"), difficulty = row.getVarint("difficulty")
         )
     }
 }

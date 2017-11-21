@@ -1,7 +1,3 @@
-CREATE KEYSPACE IF NOT EXISTS ethereum_classic
-WITH REPLICATION = {'class': 'SimpleStrategy',
-'replication_factor': 1};
-
 CREATE TYPE IF NOT exists ethereum_classic.block_tx (
     fee decimal,
     amount decimal,
@@ -32,7 +28,8 @@ CREATE TABLE IF NOT exists ethereum_classic.block (
     tx_number int,
     tx_fees text,
     block_reward text,
-    transactions FROZEN < list < ethereum_classic.block_tx > >,
+    tx_hashes list < text >,
+    transactions < list < ethereum_classic.block_tx > >,
     uncles FROZEN < list < text > >
 );
 

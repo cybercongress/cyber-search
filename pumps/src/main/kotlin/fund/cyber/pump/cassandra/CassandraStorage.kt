@@ -19,9 +19,6 @@ class CassandraStorage: StorageInterface {
             is EthereumClassic -> this.domain = CassandraEthereumClassicDomain()
         }
 
-        domain?.createTables()?.split(";")?.filter { query -> query.length > 1}?.map{query -> query + ";"}?.forEach { query ->
-            this.connector.session?.execute(query)
-        }
     }
 
     override fun store(block: Block) {
