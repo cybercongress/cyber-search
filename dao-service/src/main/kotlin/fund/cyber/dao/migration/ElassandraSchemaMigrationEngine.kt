@@ -19,19 +19,19 @@ class ElassandraSchemaMigrationEngine(
         private val cassandra: Cluster,
         private val httpClient: HttpClient,
         private val systemDaoService: SystemDaoService,
-        private val migrations: List<Migration>
+        private val defaultMigrations: List<Migration> = emptyList()
 ) {
 
     private val elasticBaseUri = URI.create("http://$elasticHost:$elasticPort")
     private val log = LoggerFactory.getLogger(ElassandraSchemaMigrationEngine::class.java)
 
 
-    fun executeSchemaUpdate() {
+    fun executeSchemaUpdate(migrations: List<Migration>) {
 
         log.info("Executing elassandra schema update")
         val session: Session = cassandra.connect()
 
-        migrations.groupBy { m -> m.applicationId }.forEach { applicationId, applicationMigrations ->
+        defaultMigrations.plus(migrations).groupBy { m -> m.applicationId }.forEach { applicationId, applicationMigrations ->
 
             val lastMigrationVersion = systemDaoService.getLastMigration(applicationId)?.version ?: -1
 
