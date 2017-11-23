@@ -1,6 +1,8 @@
 CREATE KEYSPACE IF NOT EXISTS search
     WITH REPLICATION = {'class' : 'NetworkTopologyStrategy','DEVELOPMENT' : 1};
 
+
+
 CREATE KEYSPACE IF NOT EXISTS bitcoin
     WITH REPLICATION = {'class' : 'NetworkTopologyStrategy','DEVELOPMENT' : 1};
 
@@ -13,8 +15,15 @@ CREATE KEYSPACE IF NOT EXISTS ethereum
 CREATE KEYSPACE IF NOT EXISTS ethereum_classic
     WITH REPLICATION = {'class' : 'NetworkTopologyStrategy','DEVELOPMENT' : 1};
 
+
+
 CREATE KEYSPACE IF NOT EXISTS cyber_system
     WITH REPLICATION = {'class' : 'NetworkTopologyStrategy','DEVELOPMENT' : 1};
+
+CREATE KEYSPACE IF NOT EXISTS pump
+    WITH REPLICATION = {'class' : 'NetworkTopologyStrategy','DEVELOPMENT' : 1};
+
+
 
 CREATE TABLE IF NOT EXISTS cyber_system.schema_version (
        application_id text,
