@@ -42,7 +42,7 @@ class EthereumParityToDaoConverter {
                 .filterIsInstance<EthBlock.TransactionObject>()
                 .map { parityTx ->
 
-                    val to = if (parityTx.creates != null) parityTx.creates else parityTx.to
+                    val to = parityTx.creates ?: parityTx.to!!
 
                     EthereumBlockTransaction(
                             from = parityTx.from, to = to, hash = parityTx.hash,
@@ -53,6 +53,7 @@ class EthereumParityToDaoConverter {
 
                 }
 
+        //todo calculated without converting
         val blockTxFees = blockTxes.sumByBigDecimal { tx -> tx.fee }.toString()
         val number = parityBlock.numberRaw.hexToLong()
 
@@ -64,7 +65,7 @@ class EthereumParityToDaoConverter {
                 timestamp = Instant.ofEpochSecond(parityBlock.timestampRaw.hexToLong()).toString(),
                 logs_bloom = parityBlock.logsBloom, transactions_root = parityBlock.transactionsRoot,
                 receipts_root = parityBlock.receiptsRoot, state_root = parityBlock.stateRoot,
-                sha3_uncles = parityBlock.sha3Uncles, uncles = parityBlock.uncles, transactions = blockTxes,
+                sha3_uncles = parityBlock.sha3Uncles, uncles = parityBlock.uncles,
                 tx_number = blockTxes.size, tx_fees = blockTxFees, block_reward = getBlockReward(number).toString()
         )
     }

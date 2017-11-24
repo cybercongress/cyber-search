@@ -80,8 +80,8 @@ object EthereumBlockSplitterApplication {
             val block = converter.parityBlockToDao(parityBlock)
 
             val existingAddressesUsedInBlock = getExistingAddressesUsedInBlock(block)
-            val updatedAddresses = addressConverter.updateAddressesSummary(block, existingAddressesUsedInBlock)
-            val addressesTransactions = addressConverter.transactionsPreviewsForAddresses(block)
+            val updatedAddresses = addressConverter.updateAddressesSummary(block, transactions, existingAddressesUsedInBlock)
+            val addressesTransactions = addressConverter.transactionsPreviewsForAddresses(block, transactions)
 
             updatedAddresses.forEach { address -> addressCache.put(address.id, address) }
 
@@ -102,6 +102,7 @@ object EthereumBlockSplitterApplication {
             block: EthereumBlock,
             ethereumDaoService: EthereumDaoService = ApplicationContext.ethereumDaoService): List<EthereumAddress> {
 
-        return ethereumDaoService.getAddressesWithLastTransactionBeforeGivenBlock(block.addressesUsedInBlock(), block.number)
+        //return ethereumDaoService.getAddressesWithLastTransactionBeforeGivenBlock(block.addressesUsedInBlock(), block.number)
+        return emptyList()
     }
 }

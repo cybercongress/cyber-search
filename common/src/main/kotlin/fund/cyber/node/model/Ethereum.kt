@@ -25,7 +25,10 @@ data class EthereumTransaction(
         val timestamp: String,     //calculated
         val input: String,
         val creates: String?       //creates contract hash
-) : EthereumItem
+) : EthereumItem {
+
+    fun addressesUsedInTransaction() = listOf(from, to).filterNotNull()
+}
 
 
 @Table(name = "block", readConsistency = "QUORUM", writeConsistency = "QUORUM")
@@ -46,7 +49,6 @@ data class EthereumBlock(
         val size: Long,                     //parsed from hex
         val gas_limit: Long,                //parsed from hex
         val gas_used: Long,                //parsed from hex
-//        val transactions: List<String>,
         val tx_number: Int,
         val uncles: List<String>,
         val block_reward: String,
