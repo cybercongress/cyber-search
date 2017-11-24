@@ -10,7 +10,6 @@ import fund.cyber.pump.StoreAction
 import fund.cyber.pump.ethereum_classic.EthereumClassicCassandraAction
 import fund.cyber.pump.model.EthereumBlock
 import fund.cyber.node.model.EthereumBlock as ModelEthereumBlock
-import fund.cyber.pump.model.TimestampAsStringCodec
 
 class CassandraStorage: StorageInterface {
 
@@ -24,7 +23,7 @@ class CassandraStorage: StorageInterface {
             }
         }
         this.connector.connect("127.0.0.1",  9042, keyspace)
-        this.connector.session?.cluster?.configuration?.codecRegistry?.register(TimestampAsStringCodec())
+       // this.connector.session?.cluster?.configuration?.codecRegistry?.register(TimestampAsStringCodec())
     }
 
     override fun <T>actionFor(block: T): StoreAction {

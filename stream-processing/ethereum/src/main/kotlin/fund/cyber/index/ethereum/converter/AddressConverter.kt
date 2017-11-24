@@ -10,17 +10,17 @@ class EthereumAddressConverter {
 
 
     fun updateAddressesSummary(
-            newBlock: EthereumBlock,
+            newBlock: EthereumBlock, transactions: List<EthereumTransaction>,
             existingAddressesUsedInBlock: List<EthereumAddress>): List<EthereumAddress> {
 
         val addressLookUp = existingAddressesUsedInBlock
                 .associateBy { address -> address.id }.toMutableMap()
 
-        val updatedAddresses = newBlock.transactions
+        val updatedAddresses = transactions
                 .flatMap { tx ->
                     listOf(
                             updateAddressByTransaction(newBlock.number, addressLookUp[tx.from]!!, tx),
-                            updateAddressByInputTransaction(newBlock.number, addressLookUp[tx.to], tx.to, tx)
+                            updateAddressByInputTransaction(newBlock.number, addressLookUp[tx.to], tx.creates ?: tx.to!!, tx)
                     ).apply { this.forEach { address -> addressLookUp.put(address.id, address) } }
                 }
 
@@ -50,14 +50,13 @@ class EthereumAddressConverter {
 
 
     fun updateAddressByInputTransaction(blockNumber: Long, address: EthereumAddress?,
-                                        addressId: String, tx: EthereumBlockTransaction): EthereumAddress {
+                                        addressId: String, tx: EthereumTransaction): EthereumAddress {
 
         if (address == null) {
             log.trace("first address transaction: $addressId")
             return EthereumAddress(
                     id = addressId, last_transaction_block = blockNumber, tx_number = 1,
-                    balance = tx.amount.toString(), total_received = tx.amount.toString(),
-                    contract_address = tx.creates_contract
+                    balance = tx.value, total_received = tx.value, contract_address = tx.creates != null
             )
         }
         return updateAddressByTransaction(blockNumber, address, tx)
@@ -65,17 +64,17 @@ class EthereumAddressConverter {
 
 
     fun updateAddressByTransaction(
-            blockNumber: Long, address: EthereumAddress, tx: EthereumBlockTransaction): EthereumAddress {
+            blockNumber: Long, address: EthereumAddress, tx: EthereumTransaction): EthereumAddress {
 
         val isOutgoingTransaction = tx.from == address.id
 
         val balance =
-                if (isOutgoingTransaction) BigDecimal(address.balance) - tx.amount
-                else BigDecimal(address.balance) + tx.amount
+                if (isOutgoingTransaction) BigDecimal(address.balance) - BigDecimal(tx.value)
+                else BigDecimal(address.balance) + BigDecimal(tx.value)
 
         val totalReceived =
                 if (isOutgoingTransaction) address.total_received
-                else (BigDecimal(address.total_received) + tx.amount).toString()
+                else (BigDecimal(address.total_received) + BigDecimal(tx.value)).toString()
 
         return EthereumAddress(
                 id = address.id, last_transaction_block = blockNumber, tx_number = address.tx_number + 1,
@@ -117,14 +116,14 @@ class EthereumAddressConverter {
     }
 
 
-    fun transactionsPreviewsForAddresses(newBlock: EthereumBlock): List<EthereumAddressTransaction> {
+    fun transactionsPreviewsForAddresses(newBlock: EthereumBlock, transactions: List<EthereumTransaction>): List<EthereumAddressTransaction> {
 
-        return newBlock.transactions
+        return transactions
                 .flatMap { tx ->
                     tx.addressesUsedInTransaction().map { addressId ->
                         EthereumAddressTransaction(
-                                address = addressId, fee = tx.fee.toString(), block_time = newBlock.timestamp,
-                                hash = tx.hash, value = tx.amount.toString(), from = tx.from, to = tx.to
+                                address = addressId, fee = tx.fee, block_time = newBlock.timestamp,
+                                hash = tx.hash, value = tx.value, from = tx.from, to = tx.creates ?: tx.to!!
                         )
                     }
                 }
