@@ -1,4 +1,4 @@
-package fund.cyber.pump.applicationId
+package fund.cyber.pump.ethereum
 
 import Chains.ETHEREUM
 import fund.cyber.dao.migration.CqlFileBasedMigration
