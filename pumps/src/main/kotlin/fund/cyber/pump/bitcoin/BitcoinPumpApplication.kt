@@ -34,7 +34,7 @@ fun main(args: Array<String>) {
             }
 }
 
-fun downloadNextBlockFunction(btcdClient: BtcdClient) = BiFunction { blockNumber: Long, subscriber: Emitter<BtcdBlock> ->
+fun downloadNextBlockFunction(btcdClient: BitcoinJsonRpcClient) = BiFunction { blockNumber: Long, subscriber: Emitter<BtcdBlock> ->
     try {
         log.info("Pulling block $blockNumber")
         val block = btcdClient.getBlockByNumber(blockNumber)

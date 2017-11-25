@@ -1,6 +1,6 @@
-package fund.cyber.pump.applicationId
+package fund.cyber.pump.ethereum_classic
 
-import Chains.ETHEREUM_CLASSIC
+import fund.cyber.node.common.Chains.*
 import fund.cyber.dao.migration.CqlFileBasedMigration
 import fund.cyber.dao.migration.ElasticHttpMigration
 import fund.cyber.pump.PumpsMigrations

@@ -1,8 +1,8 @@
 package fund.cyber.pump.bitcoin
 
-import Chains.BITCOIN
 import fund.cyber.dao.migration.CqlFileBasedMigration
 import fund.cyber.dao.migration.ElasticHttpMigration
+import fund.cyber.node.common.Chains.*
 import fund.cyber.pump.PumpsMigrations.pumpsApplicationIdPrefix
 
 

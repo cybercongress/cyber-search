@@ -1,6 +1,6 @@
 package fund.cyber.pump.ethereum
 
-import Chains.ETHEREUM
+import fund.cyber.node.common.Chains.*
 import fund.cyber.dao.migration.CqlFileBasedMigration
 import fund.cyber.dao.migration.ElasticHttpMigration
 import fund.cyber.pump.PumpsMigrations

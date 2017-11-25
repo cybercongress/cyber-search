@@ -1,3 +1,4 @@
+package fund.cyber.node.common
 
 enum class Chains {
     BITCOIN,
