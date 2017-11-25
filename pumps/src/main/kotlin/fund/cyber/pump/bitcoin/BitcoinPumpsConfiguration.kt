@@ -11,7 +11,7 @@ object BitcoinPumpConfiguration {
 
 object BitcoinPumpContext {
 
-    val btcdClient: BtcdClient = BtcdClient(
+    val btcdClient: BitcoinJsonRpcClient = BitcoinJsonRpcClient(
             PumpsContext.jacksonJsonSerializer, PumpsContext.jacksonJsonDeserializer,
             PumpsContext.httpClient, BitcoinPumpConfiguration.btcdUrl
     )

@@ -29,8 +29,8 @@ object PumpsContext {
 
     val httpClient = HttpClients.createDefault()!!
 
-    val systemDaoService = SystemDaoService(cassandra)
-    val pumpDaoService = PumpsDaoService(cassandra)
+    val systemDaoService by lazy { SystemDaoService(cassandra) }
+    val pumpDaoService by lazy { PumpsDaoService(cassandra) }
 
     val schemaMigrationEngine = ElassandraSchemaMigrationEngine(
             cassandra = cassandra, httpClient = httpClient, systemDaoService = systemDaoService,
@@ -55,7 +55,7 @@ object PumpsConfiguration {
     val cassandraPort: Int = env(CASSANDRA_PORT, CASSANDRA_PORT_DEFAULT)
     val elasticHttpPort: Int = env(ELASTIC_HTTP_PORT, ELASTIC_HTTP_PORT_DEFAULT)
 
-    val chainsToPump: List<String> = env("CS_CHAINS_TO_PUMP", "").split(",")
+    val chainsToPump: List<Chains> = env("CS_CHAINS_TO_PUMP", "").split(",").map(Chains::valueOf)
     val startBlock: Long = env("CS_START_BLOCK", CS_START_BLOCK_DEFAULT)
     val emitsEvents: Boolean = env("CS_EMITS_EVENTS", false)
 }
