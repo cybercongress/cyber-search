@@ -1,4 +1,4 @@
-@file:Suppress("MemberVisibilityCanPrivate")
+@file:Suppress("MemberVisibilityCanPrivate", "unused")
 
 package fund.cyber.pump
 
@@ -13,13 +13,13 @@ import fund.cyber.node.common.*
 import org.apache.http.impl.client.HttpClients
 import org.slf4j.LoggerFactory
 
-private val log = LoggerFactory.getLogger(PumpContext::class.java)!!
+private val log = LoggerFactory.getLogger(PumpsContext::class.java)!!
 
-open class PumpContext<out C : PumpConfiguration>(val configuration: C) {
+object PumpsContext {
 
     val cassandra = Cluster.builder()
-            .addContactPoints(*configuration.cassandraServers.toTypedArray())
-            .withPort(configuration.cassandraPort)
+            .addContactPoints(*PumpsConfiguration.cassandraServers.toTypedArray())
+            .withPort(PumpsConfiguration.cassandraPort)
             .withMaxSchemaAgreementWaitSeconds(30)
             .build().init()!!
 
@@ -34,7 +34,7 @@ open class PumpContext<out C : PumpConfiguration>(val configuration: C) {
 
     val schemaMigrationEngine = ElassandraSchemaMigrationEngine(
             cassandra = cassandra, httpClient = httpClient, systemDaoService = systemDaoService,
-            elasticHost = configuration.cassandraServers.first(), elasticPort = configuration.elasticHttpPort,
+            elasticHost = PumpsConfiguration.cassandraServers.first(), elasticPort = PumpsConfiguration.elasticHttpPort,
             defaultMigrations = PumpsMigrations.migrations
     )
 
@@ -49,11 +49,13 @@ open class PumpContext<out C : PumpConfiguration>(val configuration: C) {
 
 const val CS_START_BLOCK_DEFAULT = -1L
 
-open class PumpConfiguration {
+object PumpsConfiguration {
 
     val cassandraServers: List<String> = env(CASSANDRA_HOSTS, CASSANDRA_HOSTS_DEFAULT).split(",")
     val cassandraPort: Int = env(CASSANDRA_PORT, CASSANDRA_PORT_DEFAULT)
     val elasticHttpPort: Int = env(ELASTIC_HTTP_PORT, ELASTIC_HTTP_PORT_DEFAULT)
+
+    val chainsToPump: List<String> = env("CS_CHAINS_TO_PUMP", "").split(",")
     val startBlock: Long = env("CS_START_BLOCK", CS_START_BLOCK_DEFAULT)
     val emitsEvents: Boolean = env("CS_EMITS_EVENTS", false)
 }

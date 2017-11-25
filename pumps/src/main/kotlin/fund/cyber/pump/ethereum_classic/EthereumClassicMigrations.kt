@@ -1,20 +1,23 @@
-package fund.cyber.pump.ethereum_classic
+package fund.cyber.pump.applicationId
 
+import Chains.ETHEREUM_CLASSIC
 import fund.cyber.dao.migration.CqlFileBasedMigration
 import fund.cyber.dao.migration.ElasticHttpMigration
-import fund.cyber.pump.PumpsApplications.ETHEREUM_CLASSIC
+import fund.cyber.pump.PumpsMigrations
 
 
 object EthereumClassicMigrations {
 
+    val applicationId = PumpsMigrations.pumpsApplicationIdPrefix + ETHEREUM_CLASSIC
+
 
     val migrations = listOf(
-            CqlFileBasedMigration(0, ETHEREUM_CLASSIC, "/migrations/ethereum_classic/0_initial.cql"),
-            ElasticHttpMigration(1, ETHEREUM_CLASSIC, "/migrations/ethereum_classic/1_create-tx-index.json"),
-            ElasticHttpMigration(2, ETHEREUM_CLASSIC, "/migrations/ethereum_classic/2_create-tx-type.json"),
-            ElasticHttpMigration(3, ETHEREUM_CLASSIC, "/migrations/ethereum_classic/3_create-block-index.json"),
-            ElasticHttpMigration(4, ETHEREUM_CLASSIC, "/migrations/ethereum_classic/4_create-block-type.json"),
-            ElasticHttpMigration(5, ETHEREUM_CLASSIC, "/migrations/ethereum_classic/5_create-address-index.json"),
-            ElasticHttpMigration(6, ETHEREUM_CLASSIC, "/migrations/ethereum_classic/6_create-address-type.json")
+            CqlFileBasedMigration(0, applicationId, "/migrations/applicationId/0_initial.cql"),
+            ElasticHttpMigration(1, applicationId, "/migrations/applicationId/1_create-tx-index.json"),
+            ElasticHttpMigration(2, applicationId, "/migrations/applicationId/2_create-tx-type.json"),
+            ElasticHttpMigration(3, applicationId, "/migrations/applicationId/3_create-block-index.json"),
+            ElasticHttpMigration(4, applicationId, "/migrations/applicationId/4_create-block-type.json"),
+            ElasticHttpMigration(5, applicationId, "/migrations/applicationId/5_create-address-index.json"),
+            ElasticHttpMigration(6, applicationId, "/migrations/applicationId/6_create-address-type.json")
     )
 }
