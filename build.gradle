@@ -100,6 +100,7 @@ subprojects {
 
             dependency("com.datastax.cassandra:cassandra-driver-core:$cassandraConfluentVersion")
             dependency("com.datastax.cassandra:cassandra-driver-mapping:$cassandraConfluentVersion")
+            dependency("com.datastax.cassandra:cassandra-driver-extras:$cassandraConfluentVersion")
 
             dependency("org.web3j:core:$web3jVersion")
             dependency("io.reactivex.rxjava2:rxkotlin:$rxkotlinVersion")
@@ -131,6 +132,7 @@ project(":common") {
         compile("org.apache.kafka:kafka-clients")
         compile("com.datastax.cassandra:cassandra-driver-core")
         compile("com.datastax.cassandra:cassandra-driver-mapping")
+        compile("com.datastax.cassandra:cassandra-driver-extras")
 
     }
 }
