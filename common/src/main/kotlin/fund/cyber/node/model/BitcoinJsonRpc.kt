@@ -9,9 +9,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.math.BigDecimal
 
-sealed class BtcdBitcoinElement
+sealed class JsonRpcBitcoinElement
 
-data class BtcdBlock(
+data class JsonRpcBitcoinBlock(
         val hash: String,
         val confirmations: Int,
         val strippedsize: Int,
@@ -20,46 +20,49 @@ data class BtcdBlock(
         val weight: Int,
         val version: Int,
         val merkleroot: String,
-        val rawtx: List<BtcdTransaction>,
+        val rawtx: List<JsonRpcBitcoinTransaction> = emptyList(),
+        val tx: List<String> = emptyList(),
         val time: Long,
         val nonce: Long,
         val bits: String,
         val difficulty: BigDecimal,
-        val previousblockhash: String,
+        val previousblockhash: String?,
         val nextblockhash: String
-) : BtcdBitcoinElement()
+) : JsonRpcBitcoinElement()
 
-data class BtcdTransaction(
+data class JsonRpcBitcoinTransaction(
         val txid: String,
         val hex: String,
         val version: Int,
         val size: Int,
         val locktime: Long,
-        val vout: List<BtcdTransactionOutput>,
+        val vout: List<JsonRpcBitcoinTransactionOutput>,
 
         @JsonDeserialize(using = TransactionInputDeserializer::class)
         val vin: List<TransactionInput>
-) : BtcdBitcoinElement() {
+) : JsonRpcBitcoinElement() {
 
-    fun regularInputs(): List<BtcdRegularTransactionInput> =
-            vin.filter { input -> input is BtcdRegularTransactionInput }
-                    .map { input -> input as BtcdRegularTransactionInput }
+    fun regularInputs(): List<RegularTransactionInput> =
+            vin.filter { input -> input is RegularTransactionInput }
+                    .map { input -> input as RegularTransactionInput }
 }
 
-data class BtcdTransactionOutput(
+data class JsonRpcBitcoinTransactionOutput(
         val value: String,
         val n: Int,
         val scriptPubKey: PubKeyScript
 )
 
 sealed class TransactionInput
+
+
 data class CoinbaseTransactionInput(
         val coinbase: String,
         val sequence: Long,
         val txinwitness: String = ""
 ) : TransactionInput()
 
-data class BtcdRegularTransactionInput(
+data class RegularTransactionInput(
         val txid: String,
         val vout: Int,
         val scriptSig: SignatureScript,
@@ -80,7 +83,7 @@ data class SignatureScript(
         val hex: String
 )
 
-class TransactionInputDeserializer : JsonDeserializer<List<TransactionInput>>() {
+private class TransactionInputDeserializer : JsonDeserializer<List<TransactionInput>>() {
 
     private val objectMapper = ObjectMapper().registerKotlinModule()
 
@@ -97,7 +100,7 @@ class TransactionInputDeserializer : JsonDeserializer<List<TransactionInput>>() 
                     if (tx["coinbase"] != null) {
                         objectMapper.treeToValue(tx, CoinbaseTransactionInput::class.java)
                     } else {
-                        objectMapper.treeToValue(tx, BtcdRegularTransactionInput::class.java)
+                        objectMapper.treeToValue(tx, RegularTransactionInput::class.java)
                     }
                 }
     }

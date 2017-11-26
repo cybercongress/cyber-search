@@ -5,6 +5,7 @@ import fund.cyber.dao.bitcoin.BitcoinDaoService
 import fund.cyber.index.bitcoin.converter.BitcoinAddressConverter
 import fund.cyber.index.bitcoin.converter.BitcoinBlockConverter
 import fund.cyber.index.bitcoin.converter.BitcoinTransactionConverter
+import fund.cyber.node.common.Chains.BITCOIN
 import fund.cyber.node.common.env
 import fund.cyber.node.kafka.JsonDeserializer
 import fund.cyber.node.kafka.JsonSerializer
@@ -38,7 +39,7 @@ object AppContext {
     val txCache = cacheManager.getCache("transactions", String::class.java, BitcoinTransaction::class.java)
     val addressCache = cacheManager.getCache("addresses", String::class.java, BitcoinAddress::class.java)
 
-    val bitcoinDaoService = BitcoinDaoService(cassandra, txCache, addressCache)
+    val bitcoinDaoService = BitcoinDaoService(cassandra, BITCOIN, txCache, addressCache)
 }
 
 
@@ -75,7 +76,7 @@ fun getCacheManager(): CacheManager {
 }
 
 
-val btcdBlockSerde = defaultJsonSerde(BtcdBlock::class.java)
+val btcdBlockSerde = defaultJsonSerde(JsonRpcBitcoinBlock::class.java)
 val bitcoinTransactionSerde = defaultJsonSerde(BitcoinTransaction::class.java)
 val bitcoinBlockSerde = defaultJsonSerde(BitcoinBlock::class.java)
 val bitcoinAddressSerde = defaultJsonSerde(BitcoinAddress::class.java)

@@ -13,4 +13,5 @@ class TxMempool(
 
     fun isTxIndexed(hash: String) = indexedTxesHashes.contains(hash)
     fun txAddedToIndex(hash: String) = indexedTxesHashes.add(hash)
+    fun txesAddedToIndex(hashes: List<String>) = indexedTxesHashes.addAll(hashes)
 }

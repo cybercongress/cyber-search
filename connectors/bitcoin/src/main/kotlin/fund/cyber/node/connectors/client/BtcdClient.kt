@@ -3,7 +3,7 @@ package fund.cyber.node.connectors.client
 import fund.cyber.node.connectors.configuration.BitcoinConnectorConfiguration
 import fund.cyber.node.connectors.configuration.jacksonJsonDeserializer
 import fund.cyber.node.connectors.configuration.jacksonJsonSerializer
-import fund.cyber.node.model.BtcdBlock
+import fund.cyber.node.model.JsonRpcBitcoinBlock
 import fund.cyber.node.model.Request
 import org.apache.http.HttpResponse
 import org.apache.http.client.config.RequestConfig
@@ -74,6 +74,6 @@ class BlockNumberResponse : Response<String>() {
     fun getBlockNumber(): Long = result.toLong()
 }
 
-class BlockResponse : Response<BtcdBlock>() {
-    fun getRawBlock(): BtcdBlock = result
+class BlockResponse : Response<JsonRpcBitcoinBlock>() {
+    fun getRawBlock(): JsonRpcBitcoinBlock = result
 }

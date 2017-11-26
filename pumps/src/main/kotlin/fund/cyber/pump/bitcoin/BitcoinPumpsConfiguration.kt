@@ -6,7 +6,7 @@ import fund.cyber.pump.PumpsContext
 
 
 object BitcoinPumpConfiguration {
-    val btcdUrl: String = env("BTCD_URL", "http://cyber:cyber@127.0.0.1:8334")
+    val btcdUrl: String = env("BTCD_URL", "http://bitcoin:password@127.0.0.1:8334")
 }
 
 
