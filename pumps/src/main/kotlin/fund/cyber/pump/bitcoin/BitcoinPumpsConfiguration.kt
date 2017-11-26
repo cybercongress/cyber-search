@@ -1,5 +1,6 @@
 package fund.cyber.pump.bitcoin
 
+import fund.cyber.dao.bitcoin.BitcoinDaoService
 import fund.cyber.node.common.env
 import fund.cyber.pump.PumpsContext
 
@@ -15,4 +16,7 @@ object BitcoinPumpContext {
             PumpsContext.jacksonJsonSerializer, PumpsContext.jacksonJsonDeserializer,
             PumpsContext.httpClient, BitcoinPumpConfiguration.btcdUrl
     )
+
+    val bitcoinDaoService = BitcoinDaoService(PumpsContext.cassandra)
+
 }

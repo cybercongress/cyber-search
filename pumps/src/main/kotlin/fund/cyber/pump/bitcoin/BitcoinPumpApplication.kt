@@ -2,6 +2,7 @@ package fund.cyber.pump.bitcoin
 
 import fund.cyber.node.model.BtcdBlock
 import fund.cyber.pump.PumpsContext
+import fund.cyber.pump.common.TxMempool
 import getStartBlockNumber
 import io.reactivex.Emitter
 import io.reactivex.Flowable
@@ -20,6 +21,8 @@ fun main(args: Array<String>) {
     val startBlockNumber = getStartBlockNumber(BitcoinMigrations.applicationId, PumpsContext.pumpDaoService)
     log.info("Bitcoin application started from block $startBlockNumber")
 
+    initializeMempoolPumping()
+
 
     val startBlock: Callable<Long> = Callable { 0L }
 
@@ -33,6 +36,33 @@ fun main(args: Array<String>) {
                 log.info(btcdBlock.toString())
             }
 }
+
+
+fun initializeMempoolPumping() {
+
+    val mempoolTxesHashes = BitcoinPumpContext.bitcoinDaoService.getMempoolTxesHashes()
+    val mempool = TxMempool(mempoolTxesHashes)
+
+    Thread().run {
+        while (true) {
+            Thread.sleep(5000)
+            println("Pooling mempool ${System.currentTimeMillis()}")
+
+            val currentNetworkPool = BitcoinPumpContext.btcdClient.getTxMempool()
+            println("Current mempool size ${currentNetworkPool.size}")
+
+            val newTxesHashes = currentNetworkPool.filterNot(mempool::isTxIndexed)
+            println("${newTxesHashes.size} new txes")
+            newTxesHashes.forEach { hash ->
+                mempool.txAddedToIndex(hash)
+                println(hash)
+            }
+            println("Pooling mempool finished ${System.currentTimeMillis()}")
+            Thread.sleep(10000)
+        }
+    }
+}
+
 
 fun downloadNextBlockFunction(btcdClient: BitcoinJsonRpcClient) = BiFunction { blockNumber: Long, subscriber: Emitter<BtcdBlock> ->
     try {
