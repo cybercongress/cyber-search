@@ -1,6 +1,6 @@
 package fund.cyber.pump.bitcoin
 
-import fund.cyber.node.model.BtcdBlock
+import fund.cyber.node.model.JsonRpcBitcoinBlock
 import fund.cyber.pump.PumpsContext
 import fund.cyber.pump.common.TxMempool
 import getStartBlockNumber
@@ -21,12 +21,11 @@ fun main(args: Array<String>) {
     val startBlockNumber = getStartBlockNumber(BitcoinMigrations.applicationId, PumpsContext.pumpDaoService)
     log.info("Bitcoin application started from block $startBlockNumber")
 
-    initializeMempoolPumping()
 
 
     val startBlock: Callable<Long> = Callable { 0L }
 
-    Flowable.generate<BtcdBlock, Long>(startBlock, downloadNextBlockFunction(BitcoinPumpContext.btcdClient))
+    Flowable.generate<JsonRpcBitcoinBlock, Long>(startBlock, downloadNextBlockFunction2(BitcoinPumpContext.btcdClient))
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.computation())
             .unsubscribeOn(Schedulers.trampoline())
@@ -35,6 +34,8 @@ fun main(args: Array<String>) {
                 Thread.sleep(200)
                 log.info(btcdBlock.toString())
             }
+
+    initializeMempoolPumping()
 }
 
 
@@ -43,28 +44,43 @@ fun initializeMempoolPumping() {
     val mempoolTxesHashes = BitcoinPumpContext.bitcoinDaoService.getMempoolTxesHashes()
     val mempool = TxMempool(mempoolTxesHashes)
 
+
     Thread().run {
         while (true) {
-            Thread.sleep(5000)
             println("Pooling mempool ${System.currentTimeMillis()}")
 
             val currentNetworkPool = BitcoinPumpContext.btcdClient.getTxMempool()
             println("Current mempool size ${currentNetworkPool.size}")
 
             val newTxesHashes = currentNetworkPool.filterNot(mempool::isTxIndexed)
+            mempool.txesAddedToIndex(newTxesHashes)
             println("${newTxesHashes.size} new txes")
-            newTxesHashes.forEach { hash ->
-                mempool.txAddedToIndex(hash)
-                println(hash)
-            }
+
+            val txes = BitcoinPumpContext.btcdClient.getTxes(newTxesHashes)
+            txes.forEach(::println)
+
             println("Pooling mempool finished ${System.currentTimeMillis()}")
-            Thread.sleep(10000)
         }
     }
 }
 
+fun downloadNextBlockFunction2(btcdClient: BitcoinJsonRpcClient) = BiFunction { blockNumber: Long, subscriber: Emitter<JsonRpcBitcoinBlock> ->
+    try {
+        log.info("Pulling block $blockNumber")
+        val blockHash = btcdClient.getBlockHash(blockNumber)!!
+        val block = btcdClient.getBlockByHash(blockHash)
+        if (block != null) {
+            subscriber.onNext(block)
+            blockNumber + 1
+        } else blockNumber
+    } catch (e: Exception) {
+        log.error("error during download block $blockNumber", e)
+        blockNumber
+    }
+}
 
-fun downloadNextBlockFunction(btcdClient: BitcoinJsonRpcClient) = BiFunction { blockNumber: Long, subscriber: Emitter<BtcdBlock> ->
+
+fun downloadNextBlockFunction(btcdClient: BitcoinJsonRpcClient) = BiFunction { blockNumber: Long, subscriber: Emitter<JsonRpcBitcoinBlock> ->
     try {
         log.info("Pulling block $blockNumber")
         val block = btcdClient.getBlockByNumber(blockNumber)
@@ -73,6 +89,7 @@ fun downloadNextBlockFunction(btcdClient: BitcoinJsonRpcClient) = BiFunction { b
             blockNumber + 1
         } else blockNumber
     } catch (e: Exception) {
+        log.error("error during download block $blockNumber", e)
         blockNumber
     }
 }

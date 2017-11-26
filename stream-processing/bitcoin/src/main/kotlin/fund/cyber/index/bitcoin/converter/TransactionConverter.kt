@@ -10,58 +10,58 @@ private val log = LoggerFactory.getLogger(BitcoinTransactionConverter::class.jav
 
 class BitcoinTransactionConverter {
 
-    fun btcdTransactionsToDao(btcdBlock: BtcdBlock, inputs: List<BitcoinTransaction>): List<BitcoinTransaction> {
+    fun btcdTransactionsToDao(jsonRpcBlock: JsonRpcBitcoinBlock, inputs: List<BitcoinTransaction>): List<BitcoinTransaction> {
 
         val inputsByIds = inputs.associateBy { tx -> tx.txid }.toMutableMap()
 
-        return btcdBlock.rawtx
+        return jsonRpcBlock.rawtx
                 .map { btcdTransaction ->
                     //input tx can be from same block
-                    val daoTx = btcdTransactionToDao(btcdTransaction, inputsByIds, btcdBlock)
+                    val daoTx = btcdTransactionToDao(btcdTransaction, inputsByIds, jsonRpcBlock)
                     inputsByIds.put(daoTx.txid, daoTx)
                     daoTx
                 }
     }
 
 
-    fun btcdTransactionToDao(btcdTransaction: BtcdTransaction,
-                             inputsByIds: Map<String, BitcoinTransaction>, btcdBlock: BtcdBlock): BitcoinTransaction {
+    fun btcdTransactionToDao(jsonRpcTransaction: JsonRpcBitcoinTransaction,
+                             inputsByIds: Map<String, BitcoinTransaction>, jsonRpcBlock: JsonRpcBitcoinBlock): BitcoinTransaction {
 
-        val firstInput = btcdTransaction.vin.first()
+        val firstInput = jsonRpcTransaction.vin.first()
 
         // coinbase case
         if (firstInput is CoinbaseTransactionInput) {
-            return btcdCoinbaseTxToDao(btcdTransaction, btcdBlock)
+            return btcdCoinbaseTxToDao(jsonRpcTransaction, jsonRpcBlock)
         }
 
-        val ins = btcdTxInToDao(btcdTransaction.regularInputs(), inputsByIds)
-        val outputs = btcdTransaction.vout.map(this::btcdTxOutToDao)
+        val ins = btcdTxInToDao(jsonRpcTransaction.regularInputs(), inputsByIds)
+        val outputs = jsonRpcTransaction.vout.map(this::btcdTxOutToDao)
 
         val totalInput = ins.sumByBigDecimalString { input -> input.amount }
         val totalOutput = outputs.sumByBigDecimalString { out -> out.amount }
 
         return BitcoinTransaction(
-                txid = btcdTransaction.txid, block_number = btcdBlock.height,
+                txid = jsonRpcTransaction.txid, block_number = jsonRpcBlock.height,
                 ins = ins, outs = outputs, total_input = totalInput.toString(), total_output = totalOutput.toString(),
-                fee = (totalInput - totalOutput).toString(), size = btcdTransaction.size,
-                block_time = Instant.ofEpochSecond(btcdBlock.time).toString(),
-                block_hash = btcdBlock.hash
+                fee = (totalInput - totalOutput).toString(), size = jsonRpcTransaction.size,
+                block_time = Instant.ofEpochSecond(jsonRpcBlock.time).toString(),
+                block_hash = jsonRpcBlock.hash
         )
     }
 
 
-    fun btcdCoinbaseTxToDao(btcdTransaction: BtcdTransaction, btcdBlock: BtcdBlock): BitcoinTransaction {
+    fun btcdCoinbaseTxToDao(jsonRpcTransaction: JsonRpcBitcoinTransaction, jsonRpcBlock: JsonRpcBitcoinBlock): BitcoinTransaction {
 
-        val firstInput = btcdTransaction.vin.first() as CoinbaseTransactionInput
+        val firstInput = jsonRpcTransaction.vin.first() as CoinbaseTransactionInput
 
-        val outputs = btcdTransaction.vout.map(this::btcdTxOutToDao)
+        val outputs = jsonRpcTransaction.vout.map(this::btcdTxOutToDao)
 
         return BitcoinTransaction(
-                txid = btcdTransaction.txid, block_number = btcdBlock.height,
-                coinbase = firstInput.coinbase, fee = "0", block_hash = btcdBlock.hash,
-                block_time = Instant.ofEpochSecond(btcdBlock.time).toString(),
+                txid = jsonRpcTransaction.txid, block_number = jsonRpcBlock.height,
+                coinbase = firstInput.coinbase, fee = "0", block_hash = jsonRpcBlock.hash,
+                block_time = Instant.ofEpochSecond(jsonRpcBlock.time).toString(),
                 ins = emptyList(), total_input = "0",
-                outs = outputs, total_output = "0", size = btcdTransaction.size
+                outs = outputs, total_output = "0", size = jsonRpcTransaction.size
         )
     }
 
@@ -72,12 +72,12 @@ class BitcoinTransactionConverter {
      * Dao input contains info about address and amount. So to fulfill missing fields, we should use earlier transactions
      *   outputs defined by txid and n.
      *
-     * @param btcdTxIns current transaction inputs
+     * @param txIns current transaction inputs
      */
-    fun btcdTxInToDao(btcdTxIns: List<BtcdRegularTransactionInput>,
+    fun btcdTxInToDao(txIns: List<RegularTransactionInput>,
                       inputsByIds: Map<String, BitcoinTransaction>): List<BitcoinTransactionIn> {
 
-        return btcdTxIns.map { (txid, vout, scriptSig) ->
+        return txIns.map { (txid, vout, scriptSig) ->
             log.trace("looking for $txid transaction and output $vout")
             val daoTxOut = inputsByIds[txid]!!.getOutputByNumber(vout)
             BitcoinTransactionIn(
@@ -86,12 +86,12 @@ class BitcoinTransactionConverter {
         }
     }
 
-    private fun btcdTxOutToDao(btcdTxOut: BtcdTransactionOutput): BitcoinTransactionOut {
+    private fun btcdTxOutToDao(jsonRpcTxOut: JsonRpcBitcoinTransactionOutput): BitcoinTransactionOut {
 
         return BitcoinTransactionOut(
-                addresses = btcdTxOut.scriptPubKey.addresses,
-                amount = btcdTxOut.value, out = btcdTxOut.n, asm = btcdTxOut.scriptPubKey.asm,
-                required_signatures = btcdTxOut.scriptPubKey.reqSigs
+                addresses = jsonRpcTxOut.scriptPubKey.addresses,
+                amount = jsonRpcTxOut.value, out = jsonRpcTxOut.n, asm = jsonRpcTxOut.scriptPubKey.asm,
+                required_signatures = jsonRpcTxOut.scriptPubKey.reqSigs
         )
     }
 }

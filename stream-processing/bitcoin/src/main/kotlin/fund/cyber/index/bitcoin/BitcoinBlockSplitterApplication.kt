@@ -24,7 +24,7 @@ object BitcoinBlockSplitterApplication {
 
         val builder = KStreamBuilder()
 
-        val bitcoinItemsStream = builder.stream<Any, BtcdBlock>(null, btcdBlockSerde, " source")
+        val bitcoinItemsStream = builder.stream<Any, JsonRpcBitcoinBlock>(null, btcdBlockSerde, " source")
                 .filter({ _, v ->
                     if (v == null) log.debug("Found null item")
                     v != null
@@ -68,7 +68,7 @@ object BitcoinBlockSplitterApplication {
 
 
 private fun convertBtcdBlockToBitcoinItems(
-        btcdBlock: BtcdBlock, tryNumber: Int = 0,
+        jsonRpcBlock: JsonRpcBitcoinBlock, tryNumber: Int = 0,
         txCache: Cache<String, BitcoinTransaction> = AppContext.txCache,
         addressCache: Cache<String, BitcoinAddress> = AppContext.addressCache,
         blockConverter: BitcoinBlockConverter = AppContext.blockConverter,
@@ -76,9 +76,9 @@ private fun convertBtcdBlockToBitcoinItems(
 
     return try {
 
-        val inputTransactions = getTransactionsInputs(btcdBlock)
-        val transactions = transactionConverter.btcdTransactionsToDao(btcdBlock, inputTransactions)
-        val block = blockConverter.btcdBlockToDao(btcdBlock, transactions)
+        val inputTransactions = getTransactionsInputs(jsonRpcBlock)
+        val transactions = transactionConverter.btcdTransactionsToDao(jsonRpcBlock, inputTransactions)
+        val block = blockConverter.btcdBlockToDao(jsonRpcBlock, transactions)
 
         val existingAddressesUsedInBlock = getExistingAddressesUsedInBlock(block)
         val updatedAddresses = addressConverter.updateAddressesSummary(transactions, existingAddressesUsedInBlock)
@@ -90,11 +90,11 @@ private fun convertBtcdBlockToBitcoinItems(
         mutableListOf<BitcoinItem>().plus(block).plus(transactions).plus(updatedAddresses).plus(addressesTransactions)
     } catch (e: Exception) {
         if (tryNumber > 100) {
-            log.error("Error during processing block ${btcdBlock.height}", e)
+            log.error("Error during processing block ${jsonRpcBlock.height}", e)
             throw RuntimeException(e)
         } else {
             Thread.sleep(1000)
-            convertBtcdBlockToBitcoinItems(btcdBlock, tryNumber + 1)
+            convertBtcdBlockToBitcoinItems(jsonRpcBlock, tryNumber + 1)
         }
     }
 }
@@ -109,13 +109,13 @@ private fun getExistingAddressesUsedInBlock(
 
 
 private fun getTransactionsInputs(
-        btcdBlock: BtcdBlock,
+        jsonRpcBlock: JsonRpcBitcoinBlock,
         bitcoinDaoService: BitcoinDaoService = AppContext.bitcoinDaoService): List<BitcoinTransaction> {
 
-    val incomingNonCoinbaseTransactionsIds = btcdBlock.rawtx
+    val incomingNonCoinbaseTransactionsIds = jsonRpcBlock.rawtx
             .flatMap { transaction -> transaction.vin }
-            .filter { txInput -> txInput is BtcdRegularTransactionInput }
-            .map { txInput -> (txInput as BtcdRegularTransactionInput).txid }
+            .filter { txInput -> txInput is RegularTransactionInput }
+            .map { txInput -> (txInput as RegularTransactionInput).txid }
 
     return bitcoinDaoService.getTxs(incomingNonCoinbaseTransactionsIds)
 }

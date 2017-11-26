@@ -7,7 +7,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import fund.cyber.node.model.BitcoinTransaction
 import fund.cyber.node.model.BitcoinTransactionIn
 import fund.cyber.node.model.BitcoinTransactionOut
-import fund.cyber.node.model.BtcdBlock
+import fund.cyber.node.model.JsonRpcBitcoinBlock
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -70,7 +70,7 @@ class BtcdToDaoTransactionConverterTest {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     val btcdBlockResourceLocation = javaClass.getResource("/converter/bitcoin/raw_block.json")
-    val btcdBlock = deserializer.readValue(btcdBlockResourceLocation, BtcdBlock::class.java)
+    val btcdBlock = deserializer.readValue(btcdBlockResourceLocation, JsonRpcBitcoinBlock::class.java)
 
     @Test
     @DisplayName("Should convert coinbase transaction")
@@ -78,7 +78,7 @@ class BtcdToDaoTransactionConverterTest {
 
 
         val daoCoinbaseTransaction = BitcoinTransactionConverter().btcdTransactionToDao(
-                btcdBlock = btcdBlock, btcdTransaction = btcdBlock.rawtx.first(), inputsByIds = emptyMap()
+                jsonRpcBlock = btcdBlock, jsonRpcTransaction = btcdBlock.rawtx.first(), inputsByIds = emptyMap()
         )
 
         Assertions.assertEquals(expectedDaoCoinbaseTransaction, daoCoinbaseTransaction)
@@ -109,7 +109,7 @@ class BtcdToDaoTransactionConverterTest {
         ).associateBy { tx -> tx.txid }
 
         val regularTransaction = BitcoinTransactionConverter().btcdTransactionToDao(
-                btcdBlock = btcdBlock, btcdTransaction = btcdBlock.rawtx[1], inputsByIds = daoInputTransactionById
+                jsonRpcBlock = btcdBlock, jsonRpcTransaction = btcdBlock.rawtx[1], inputsByIds = daoInputTransactionById
         )
 
         Assertions.assertEquals(expectedRegularTransaction, regularTransaction)
