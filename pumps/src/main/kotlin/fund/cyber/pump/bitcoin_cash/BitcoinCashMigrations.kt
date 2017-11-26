@@ -2,13 +2,13 @@ package fund.cyber.pump.bitcoin_cash
 
 import fund.cyber.dao.migration.CqlFileBasedMigration
 import fund.cyber.dao.migration.ElasticHttpMigration
-import fund.cyber.node.common.Chains.*
-import fund.cyber.pump.PumpsMigrations.pumpsApplicationIdPrefix
+import fund.cyber.node.common.Chain.*
+import fund.cyber.pump.chainApplicationId
 
 
 object BitcoinCashMigrations {
 
-    val applicationId = pumpsApplicationIdPrefix + BITCOIN_CASH
+    private val applicationId = chainApplicationId(BITCOIN_CASH)
 
     val migrations = listOf(
             CqlFileBasedMigration(0, applicationId, "/migrations/bitcoin_cash/0_initial.cql"),

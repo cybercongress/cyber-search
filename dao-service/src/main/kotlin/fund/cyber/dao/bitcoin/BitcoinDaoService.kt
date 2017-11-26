@@ -4,7 +4,7 @@ import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Row
 import com.datastax.driver.core.Session
 import com.datastax.driver.mapping.MappingManager
-import fund.cyber.node.common.Chains
+import fund.cyber.node.common.Chain
 import fund.cyber.node.model.*
 import org.ehcache.Cache
 import org.slf4j.LoggerFactory
@@ -15,7 +15,7 @@ private val log = LoggerFactory.getLogger(BitcoinDaoService::class.java)!!
 
 class BitcoinDaoService(
         cassandra: Cluster,
-        chain: Chains = Chains.BITCOIN,
+        chain: Chain = Chain.BITCOIN,
         private val txCache: Cache<String, BitcoinTransaction>? = null,
         private val addressCache: Cache<String, BitcoinAddress>? = null
 ) {

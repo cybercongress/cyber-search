@@ -1,14 +1,14 @@
 package fund.cyber.pump.ethereum_classic
 
-import fund.cyber.node.common.Chains.*
+import fund.cyber.node.common.Chain.*
 import fund.cyber.dao.migration.CqlFileBasedMigration
 import fund.cyber.dao.migration.ElasticHttpMigration
-import fund.cyber.pump.PumpsMigrations
+import fund.cyber.pump.chainApplicationId
 
 
 object EthereumClassicMigrations {
 
-    val applicationId = PumpsMigrations.pumpsApplicationIdPrefix + ETHEREUM_CLASSIC
+    private val applicationId = chainApplicationId(ETHEREUM_CLASSIC)
 
 
     val migrations = listOf(
