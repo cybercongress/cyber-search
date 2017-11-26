@@ -4,6 +4,7 @@ import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Row
 import com.datastax.driver.core.Session
 import com.datastax.driver.mapping.MappingManager
+import fund.cyber.node.common.Chains
 import fund.cyber.node.model.*
 import org.ehcache.Cache
 import org.slf4j.LoggerFactory
@@ -14,37 +15,39 @@ private val log = LoggerFactory.getLogger(BitcoinDaoService::class.java)!!
 
 class BitcoinDaoService(
         cassandra: Cluster,
+        chain: Chains = Chains.BITCOIN,
         private val txCache: Cache<String, BitcoinTransaction>? = null,
         private val addressCache: Cache<String, BitcoinAddress>? = null
 ) {
 
-    private val session: Session = cassandra.connect("bitcoin").apply {
-        val manager = MappingManager(this)
-        manager.mapper(BitcoinBlock::class.java)
-        manager.mapper(BitcoinTransaction::class.java)
-        manager.mapper(BitcoinAddress::class.java)
-        manager.mapper(BitcoinAddressTransaction::class.java)
-    }
+    private val session: Session = cassandra.connect(chain.name)
+    private val mappingManager = MappingManager(session)
 
-    fun getAddress(id: String): BitcoinAddress? {
-
-        val resultSet = session.execute("SELECT * FROM address WHERE id='$id'")
-        return resultSet.map(this::bitcoinAddressMapping).firstOrNull()
-    }
+    val blockStore = mappingManager.mapper(BitcoinBlock::class.java)!!
+    val blockTxStore = mappingManager.mapper(BitcoinBlockTransaction::class.java)!!
+    val txStore = mappingManager.mapper(BitcoinTransaction::class.java)!!
+    val addressStore = mappingManager.mapper(BitcoinAddress::class.java)!!
+    val addressTxtore = mappingManager.mapper(BitcoinAddressTransaction::class.java)!!
 
 
-    fun getBlockByNumber(number: Long): BitcoinBlock? {
-
-        val resultSet = session.execute("SELECT * FROM block WHERE height=$number")
-        return resultSet.map(this::bitcoinBlockMapping).firstOrNull()
-    }
+    fun getMempoolTxesHashes(): List<String> = session
+            .execute("SELECT hash FROM tx_preview_by_block WHERE block_number=$TX_MEMORY_POOL_BLOCK_NUMBER")
+            .map { row -> row.getString("hash") }
 
 
-    fun getTxById(id: String): BitcoinTransaction? {
+    fun getAddress(id: String): BitcoinAddress? = session
+            .execute("SELECT * FROM address WHERE id='$id'")
+            .map(this::bitcoinAddressMapping).firstOrNull()
 
-        val resultSet = session.execute("SELECT * FROM tx WHERE txid='$id'")
-        return resultSet.map(this::bitcoinTransactionMapping).firstOrNull()
-    }
+
+    fun getBlockByNumber(number: Long): BitcoinBlock? = session
+            .execute("SELECT * FROM block WHERE height=$number")
+            .map(this::bitcoinBlockMapping).firstOrNull()
+
+
+    fun getTxById(id: String): BitcoinTransaction? = session
+            .execute("SELECT * FROM tx WHERE txid='$id'")
+            .map(this::bitcoinTransactionMapping).firstOrNull()
 
 
     fun getTxs(ids: List<String>): List<BitcoinTransaction> {

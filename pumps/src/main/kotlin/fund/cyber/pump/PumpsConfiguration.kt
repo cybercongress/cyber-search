@@ -55,7 +55,7 @@ object PumpsConfiguration {
     val cassandraPort: Int = env(CASSANDRA_PORT, CASSANDRA_PORT_DEFAULT)
     val elasticHttpPort: Int = env(ELASTIC_HTTP_PORT, ELASTIC_HTTP_PORT_DEFAULT)
 
-    val chainsToPump: List<Chains> = env("CS_CHAINS_TO_PUMP", "").split(",").map(Chains::valueOf)
+    val chainsToPump: List<Chains> = env("CS_CHAINS_TO_PUMP", "BITCOIN").split(",").map(Chains::valueOf)
     val startBlock: Long = env("CS_START_BLOCK", CS_START_BLOCK_DEFAULT)
     val emitsEvents: Boolean = env("CS_EMITS_EVENTS", false)
 }
