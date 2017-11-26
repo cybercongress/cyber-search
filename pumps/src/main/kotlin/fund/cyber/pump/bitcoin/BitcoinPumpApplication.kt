@@ -2,6 +2,7 @@ package fund.cyber.pump.bitcoin
 
 import fund.cyber.node.model.JsonRpcBitcoinBlock
 import fund.cyber.pump.PumpsContext
+import fund.cyber.pump.bitcoin_cash.BitcoinCashMigrations
 import fund.cyber.pump.common.TxMempool
 import getStartBlockNumber
 import io.reactivex.Emitter
@@ -17,7 +18,7 @@ private val log = LoggerFactory.getLogger(BitcoinPumpContext::class.java)!!
 fun main(args: Array<String>) {
 
 
-    PumpsContext.schemaMigrationEngine.executeSchemaUpdate(BitcoinMigrations.migrations)
+    PumpsContext.schemaMigrationEngine.executeSchemaUpdate(BitcoinCashMigrations.migrations)
     val startBlockNumber = getStartBlockNumber(BitcoinMigrations.applicationId, PumpsContext.pumpDaoService)
     log.info("Bitcoin application started from block $startBlockNumber")
 
