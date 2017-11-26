@@ -1,13 +1,13 @@
 package fund.cyber.pump.ethereum
 
-import fund.cyber.node.common.Chains.*
+import fund.cyber.node.common.Chain.*
 import fund.cyber.dao.migration.CqlFileBasedMigration
 import fund.cyber.dao.migration.ElasticHttpMigration
-import fund.cyber.pump.PumpsMigrations
+import fund.cyber.pump.chainApplicationId
 
 object EthereumMigrations {
 
-    val applicationId = PumpsMigrations.pumpsApplicationIdPrefix + ETHEREUM
+    private val applicationId = chainApplicationId(ETHEREUM)
 
     val migrations = listOf(
             CqlFileBasedMigration(0, applicationId, "/migrations/applicationId/0_initial.cql"),

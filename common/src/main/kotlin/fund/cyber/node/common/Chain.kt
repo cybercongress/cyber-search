@@ -1,6 +1,6 @@
 package fund.cyber.node.common
 
-enum class Chains {
+enum class Chain {
     BITCOIN,
     BITCOIN_CASH,
     ETHEREUM,

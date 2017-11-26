@@ -2,7 +2,10 @@ package fund.cyber.pump
 
 interface StorageInterface {
 
-    fun initFor(blockchain: BlockchainInterface)
+    fun initialize(blockchainInterfaces: List<BlockchainInterface<*>>)
+}
 
-    fun <T>actionFor(block: T): StoreAction
+interface StorageAction {
+    fun store()
+    fun remove()
 }
