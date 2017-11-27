@@ -12,6 +12,9 @@ import fund.cyber.dao.pump.PumpsDaoService
 import fund.cyber.dao.system.SystemDaoService
 import fund.cyber.node.common.*
 import org.apache.http.impl.client.HttpClients
+import org.ehcache.CacheManager
+import org.ehcache.config.builders.CacheManagerBuilder
+import org.ehcache.xml.XmlConfiguration
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger(PumpsContext::class.java)!!
@@ -33,6 +36,8 @@ object PumpsContext {
 
     val httpClient = HttpClients.createDefault()!!
 
+    val cacheManager by lazy { getCacheManager() }
+
     val systemDaoService by lazy { SystemDaoService(cassandra) }
     val pumpDaoService by lazy { PumpsDaoService(cassandra) }
 
@@ -48,6 +53,14 @@ object PumpsContext {
         httpClient.close()
         log.info("Application context is closed")
     }
+}
+
+
+fun getCacheManager(): CacheManager {
+    val ehcacheSettingsUri = PumpsContext::class.java.getResource("/ehcache.xml")
+    val cacheManager = CacheManagerBuilder.newCacheManager(XmlConfiguration(ehcacheSettingsUri))
+    cacheManager.init()
+    return cacheManager
 }
 
 

@@ -14,7 +14,6 @@ import fund.cyber.node.model.EthereumBlock as ModelEthereumBlock
 class CassandraStorage : StorageInterface {
 
     override fun initialize(blockchainInterfaces: List<BlockchainInterface<*>>) {
-
         val migrations = blockchainInterfaces.flatMap(::getBlockchainInterfaceMigrations)
         PumpsContext.schemaMigrationEngine.executeSchemaUpdate(migrations)
     }

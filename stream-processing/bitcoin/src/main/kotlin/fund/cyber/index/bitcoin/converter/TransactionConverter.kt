@@ -16,8 +16,8 @@ class BitcoinTransactionConverter {
 
         return jsonRpcBlock.rawtx
                 .map { btcdTransaction ->
-                    //input tx can be from same block
                     val daoTx = btcdTransactionToDao(btcdTransaction, inputsByIds, jsonRpcBlock)
+                    //input tx can be from same block
                     inputsByIds.put(daoTx.txid, daoTx)
                     daoTx
                 }

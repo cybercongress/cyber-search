@@ -1,6 +1,7 @@
 package fund.cyber.node.model
 
 import com.datastax.driver.mapping.annotations.Table
+import com.datastax.driver.mapping.annotations.Transient
 import com.datastax.driver.mapping.annotations.UDT
 import java.math.BigInteger
 
@@ -56,7 +57,8 @@ data class BitcoinBlock(
         val bits: String,
         val difficulty: BigInteger,
         val tx_number: Int,
-        val total_outputs_value: String
+        val total_outputs_value: String,
+        @Transient val transactionPreviews: List<BitcoinBlockTransaction> = emptyList()
 ) : BitcoinItem
 
 
