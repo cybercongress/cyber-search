@@ -21,6 +21,6 @@ class BitcoinCassandraSaveAction(
         bitcoinDaoService.blockStore.save(block)
 
         //save tx
-        blockBundle.transactions.map(bitcoinDaoService.txStore::saveAsync).awaitAll()
+        blockBundle.transactions.map(bitcoinDaoService::saveAsyncTx).awaitAll()
     }
 }

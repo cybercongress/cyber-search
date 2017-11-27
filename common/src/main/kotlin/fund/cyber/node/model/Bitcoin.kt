@@ -68,7 +68,7 @@ data class BitcoinBlock(
 * Bitcoin transaction
 *
 */
-@Table(keyspace = "bitcoin", name = "tx", readConsistency = "QUORUM", writeConsistency = "QUORUM")
+@Table(name = "tx", readConsistency = "QUORUM", writeConsistency = "QUORUM")
 data class BitcoinTransaction(
         val txid: String,
         val block_number: Long,
@@ -117,7 +117,7 @@ data class BitcoinTransactionOut(
 }
 
 
-@Table(keyspace = "bitcoin", name = "address", readConsistency = "QUORUM", writeConsistency = "QUORUM")
+@Table(name = "address", readConsistency = "QUORUM", writeConsistency = "QUORUM")
 data class BitcoinAddress(
         val id: String,
         val balance: String,

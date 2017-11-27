@@ -32,7 +32,10 @@ fun downloadNextBlockFunction(client: BitcoinJsonRpcClient = BitcoinCashPumpCont
 
                 if (blockHash != null) {
                     val block = client.getBlockByHash(blockHash)!!
-                    subscriber.onNext(block)
+
+                    //special case first coinbase transaction
+                    val transactions = if (blockNumber != 0L) client.getTxes(block.tx) else emptyList()
+                    subscriber.onNext(block.copy(rawtx = transactions))
                     return@BiFunction blockNumber + 1
                 }
             } catch (e: Exception) {
