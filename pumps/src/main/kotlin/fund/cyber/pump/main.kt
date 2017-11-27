@@ -32,23 +32,13 @@ fun main(args: Array<String>) {
                 .observeOn(Schedulers.computation())
                 .unsubscribeOn(Schedulers.trampoline())
                 .doAfterTerminate(PumpsContext::closeContext)
-                .subscribe { block ->
+                .subscribe { blockBundle ->
                     Thread.sleep(200)
-                    log.info(block.toString())
+                    log.info(blockBundle.toString())
                 }
-
-        /*blockchain.blocks.subscribe { block ->
-
-            storages.forEach { storage ->
-                val action = storage.actionFor(block)
-
-                action.store()
-            }
-
-        }*/
     }
 
-    if(blockchainsInterfaces.isEmpty()) {
+    if (blockchainsInterfaces.isEmpty()) {
         PumpsContext.closeContext()
     }
 }

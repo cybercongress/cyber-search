@@ -1,7 +1,10 @@
 package fund.cyber.pump.bitcoin
 
 import fund.cyber.node.common.Chain.BITCOIN
+import fund.cyber.node.model.BitcoinBlock
+import fund.cyber.node.model.BitcoinTransaction
 import fund.cyber.node.model.JsonRpcBitcoinBlock
+import fund.cyber.pump.BlockBundle
 import fund.cyber.pump.BlockchainInterface
 import io.reactivex.Emitter
 import io.reactivex.Flowable
@@ -12,12 +15,21 @@ import java.util.concurrent.Callable
 private val log = LoggerFactory.getLogger(BitcoinBlockchainInterface::class.java)!!
 
 
-class BitcoinBlockchainInterface : BlockchainInterface<JsonRpcBitcoinBlock> {
+class BitcoinBlockBundle(
+        override val hash: String,
+        override val parentHash: String,
+        override val number: Long,
+        val block: BitcoinBlock,
+        val transactions: List<BitcoinTransaction>
+) : BlockBundle
+
+class BitcoinBlockchainInterface : BlockchainInterface<BitcoinBlockBundle> {
 
     override val chain = BITCOIN
 
     override fun subscribeBlocks(startBlockNumber: Long) =
-            Flowable.generate<JsonRpcBitcoinBlock, Long>(Callable { 0L }, downloadNextBlockFunction())!!
+            Flowable.generate<JsonRpcBitcoinBlock, Long>(Callable { 0L }, downloadNextBlockFunction())
+                    .map(BitcoinPumpContext.jsonRpcToDaoBitcoinEntitiesConverter::convertToBundle)!!
 }
 
 

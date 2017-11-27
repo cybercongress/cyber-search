@@ -3,7 +3,7 @@ package fund.cyber.pump
 import fund.cyber.node.common.Chain
 import io.reactivex.Flowable
 
-interface BlockchainInterface<T: BlockBundle> {
+interface BlockchainInterface<T : BlockBundle> {
     val chain: Chain
     fun subscribeBlocks(startBlockNumber: Long): Flowable<T>
 }

@@ -156,6 +156,11 @@ project(":dao-service") {
         compile(project(":common"))
         compile("org.ehcache:ehcache")
         compile("org.apache.httpcomponents:httpasyncclient")
+
+        //dependencies for jaxb
+        compile 'javax.xml.bind:jaxb-api:2.3.0'
+        compile 'org.glassfish.jaxb:jaxb-runtime:2.3.0'
+        compile 'javax.activation:activation:1.1.1'
     }
 }
 

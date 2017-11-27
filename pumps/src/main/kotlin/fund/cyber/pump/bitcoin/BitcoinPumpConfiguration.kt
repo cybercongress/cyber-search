@@ -25,6 +25,10 @@ object BitcoinPumpContext {
 
     val bitcoinDaoService = BitcoinDaoService(PumpsContext.cassandra, Chain.BITCOIN, txCache)
 
-    val jsonRpcToDaoBitcoinTransactionConverter = JsonRpcToDaoBitcoinTransactionConverter()
-    val jsonRpcToDaoBitcoinBlockConverter = JsonRpcToDaoBitcoinBlockConverter()
+    private val jsonRpcToDaoBitcoinTransactionConverter = JsonRpcToDaoBitcoinTransactionConverter()
+    private val jsonRpcToDaoBitcoinBlockConverter = JsonRpcToDaoBitcoinBlockConverter()
+
+    val jsonRpcToDaoBitcoinEntitiesConverter = JsonRpcBlockToBitcoinBundleConverter(
+            bitcoinDaoService, jsonRpcToDaoBitcoinTransactionConverter, jsonRpcToDaoBitcoinBlockConverter
+    )
 }
