@@ -21,11 +21,11 @@ class CassandraStorage : StorageInterface {
     }
 
 
-    override fun constructAction(blockBundle: BlockBundle): StorageAction? {
+    override fun constructAction(blockBundle: BlockBundle): StorageAction {
         return when (blockBundle.chain) {
             BITCOIN -> BitcoinCassandraSaveAction(blockBundle as BitcoinBlockBundle, BitcoinPumpContext.bitcoinDaoService)
             BITCOIN_CASH -> BitcoinCassandraSaveAction(blockBundle as BitcoinBlockBundle, BitcoinCashPumpContext.bitcoinDaoService)
-            else -> null
+            else -> StorageAction.empty
         }
     }
 }
