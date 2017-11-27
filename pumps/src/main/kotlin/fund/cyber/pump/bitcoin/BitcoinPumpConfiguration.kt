@@ -1,7 +1,7 @@
 package fund.cyber.pump.bitcoin
 
 import fund.cyber.dao.bitcoin.BitcoinDaoService
-import fund.cyber.node.common.Chain
+import fund.cyber.node.common.Chain.BITCOIN
 import fund.cyber.node.common.env
 import fund.cyber.node.model.BitcoinTransaction
 import fund.cyber.pump.PumpsContext
@@ -23,12 +23,12 @@ object BitcoinPumpContext {
             PumpsContext.httpClient, BitcoinPumpConfiguration.btcdUrl
     )
 
-    val bitcoinDaoService = BitcoinDaoService(PumpsContext.cassandra, Chain.BITCOIN, txCache)
+    val bitcoinDaoService = BitcoinDaoService(PumpsContext.cassandra, BITCOIN, txCache)
 
     private val jsonRpcToDaoBitcoinTransactionConverter = JsonRpcToDaoBitcoinTransactionConverter()
     private val jsonRpcToDaoBitcoinBlockConverter = JsonRpcToDaoBitcoinBlockConverter()
 
     val jsonRpcToDaoBitcoinEntitiesConverter = JsonRpcBlockToBitcoinBundleConverter(
-            bitcoinDaoService, jsonRpcToDaoBitcoinTransactionConverter, jsonRpcToDaoBitcoinBlockConverter
+            BITCOIN, bitcoinDaoService, jsonRpcToDaoBitcoinTransactionConverter, jsonRpcToDaoBitcoinBlockConverter
     )
 }

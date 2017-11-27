@@ -2,6 +2,7 @@ package fund.cyber.pump.bitcoin_cash
 
 import fund.cyber.dao.bitcoin.BitcoinDaoService
 import fund.cyber.node.common.Chain
+import fund.cyber.node.common.Chain.BITCOIN_CASH
 import fund.cyber.node.common.env
 import fund.cyber.node.model.BitcoinTransaction
 import fund.cyber.pump.PumpsContext
@@ -32,6 +33,6 @@ object BitcoinCashPumpContext {
     private val jsonRpcToDaoBitcoinBlockConverter = JsonRpcToDaoBitcoinBlockConverter()
 
     val jsonRpcToDaoBitcoinEntitiesConverter = JsonRpcBlockToBitcoinBundleConverter(
-            bitcoinDaoService, jsonRpcToDaoBitcoinTransactionConverter, jsonRpcToDaoBitcoinBlockConverter
+            BITCOIN_CASH, bitcoinDaoService, jsonRpcToDaoBitcoinTransactionConverter, jsonRpcToDaoBitcoinBlockConverter
     )
 }

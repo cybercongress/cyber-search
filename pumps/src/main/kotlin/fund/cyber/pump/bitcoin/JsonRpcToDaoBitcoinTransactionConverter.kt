@@ -72,7 +72,7 @@ class JsonRpcToDaoBitcoinTransactionConverter {
                 txid = jsonRpcTransaction.txid, block_number = jsonRpcBlock.height,
                 ins = ins, outs = outputs, total_input = totalInput.toString(), total_output = totalOutput.toString(),
                 fee = (totalInput - totalOutput).toString(), size = jsonRpcTransaction.size,
-                block_time = Instant.ofEpochSecond(jsonRpcBlock.time).toString(),
+                block_time = Instant.ofEpochSecond(jsonRpcBlock.time),
                 block_hash = jsonRpcBlock.hash
         )
     }
@@ -93,7 +93,7 @@ class JsonRpcToDaoBitcoinTransactionConverter {
         return BitcoinTransaction(
                 txid = jsonRpcTransaction.txid, block_number = jsonRpcBlock.height,
                 coinbase = firstInput.coinbase, fee = "0", block_hash = jsonRpcBlock.hash,
-                block_time = Instant.ofEpochSecond(jsonRpcBlock.time).toString(),
+                block_time = Instant.ofEpochSecond(jsonRpcBlock.time),
                 ins = emptyList(), total_input = "0",
                 outs = outputs, total_output = "0", size = jsonRpcTransaction.size
         )

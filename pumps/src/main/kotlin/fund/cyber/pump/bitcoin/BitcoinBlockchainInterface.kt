@@ -1,5 +1,6 @@
 package fund.cyber.pump.bitcoin
 
+import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.BITCOIN
 import fund.cyber.node.model.BitcoinBlock
 import fund.cyber.node.model.BitcoinTransaction
@@ -19,6 +20,7 @@ class BitcoinBlockBundle(
         override val hash: String,
         override val parentHash: String,
         override val number: Long,
+        override val chain: Chain,
         val block: BitcoinBlock,
         val transactions: List<BitcoinTransaction>
 ) : BlockBundle

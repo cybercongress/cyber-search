@@ -1,12 +1,14 @@
 package fund.cyber.pump.bitcoin
 
 import fund.cyber.dao.bitcoin.BitcoinDaoService
+import fund.cyber.node.common.Chain
 import fund.cyber.node.model.BitcoinTransaction
 import fund.cyber.node.model.JsonRpcBitcoinBlock
 import fund.cyber.node.model.RegularTransactionInput
 
 
 class JsonRpcBlockToBitcoinBundleConverter(
+        private val chain: Chain,
         private val bitcoinDaoService: BitcoinDaoService,
         private val transactionConverter: JsonRpcToDaoBitcoinTransactionConverter,
         private val blockConverter: JsonRpcToDaoBitcoinBlockConverter
@@ -20,7 +22,8 @@ class JsonRpcBlockToBitcoinBundleConverter(
 
         return BitcoinBlockBundle(
                 hash = jsonRpcBlock.hash, parentHash = jsonRpcBlock.previousblockhash ?: "-1",
-                number = jsonRpcBlock.height, block = block, transactions = transactions
+                number = jsonRpcBlock.height, block = block, transactions = transactions,
+                chain = chain
         )
     }
 
