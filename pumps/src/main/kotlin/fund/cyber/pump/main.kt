@@ -3,9 +3,11 @@ package fund.cyber.pump
 import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.BITCOIN
 import fund.cyber.node.common.Chain.BITCOIN_CASH
+import fund.cyber.node.common.StackCache
 import fund.cyber.pump.bitcoin.BitcoinBlockchainInterface
 import fund.cyber.pump.bitcoin_cash.BitcoinCashBlockchainInterface
 import fund.cyber.pump.cassandra.CassandraStorage
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
 
@@ -22,26 +24,56 @@ fun main(args: Array<String>) {
         storage.initialize(blockchainsInterfaces)
     }
 
-    blockchainsInterfaces.forEach { blockchain ->
+    blockchainsInterfaces.forEach { blockchainInterface ->
+        storages.forEach { storage ->
+            val history: StackCache< Pair<BlockBundle, StorageAction> > = StackCache(20)
+            var exDisposable: Disposable? = null
 
-        val startBlockNumber = getStartBlockNumber(blockchain)
-        log.info("${blockchain.chain} pump application started from block $startBlockNumber")
-
-        blockchain.subscribeBlocks(startBlockNumber)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.computation())
-                .unsubscribeOn(Schedulers.trampoline())
-                .doAfterTerminate(PumpsContext::closeContext)
-                .subscribe { blockBundle ->
-                    storages.forEach { storage ->
-                        storage.constructAction(blockBundle)?.store()
-                    }
+            fun act(number: Long, exHash: String) {
+                exDisposable?.dispose()
+                exDisposable = initFlowable(blockchainInterface, storage, number, exHash, history) { number, exHash ->
+                    act(number, exHash)
                 }
+            }
+
+            act(getStartBlockNumber(blockchainInterface), "")
+        }
     }
 
-    if (blockchainsInterfaces.isEmpty()) {
+    if(blockchainsInterfaces.isEmpty()) {
         PumpsContext.closeContext()
     }
+}
+
+fun initFlowable(blockhain: BlockchainInterface<*>,
+                 storage: StorageInterface,
+                 number: Long,
+                 startExHash: String,
+                 history: StackCache< Pair<BlockBundle, StorageAction> >,
+                 needToContinueWith: (number: Long, exHash: String)->Unit
+): Disposable {
+    var exHash: String = startExHash
+
+    return blockhain.subscribeBlocks(number)
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
+            .unsubscribeOn(Schedulers.trampoline())
+            .doAfterTerminate(PumpsContext::closeContext)
+            .subscribe { blockBundle ->
+                if (exHash == blockBundle.parentHash || blockBundle.number == 0L) {
+                    val action = storage.constructAction(blockBundle)
+                    history.push(Pair(blockBundle, action))
+                    exHash = blockBundle.hash
+                    action.store()
+                } else {
+                    val pair = history.pop()
+                    val hAction = pair?.second
+                    val hBlock = pair?.first
+                    exHash = hBlock?.parentHash ?: ""
+                    hAction?.remove()
+                    needToContinueWith(blockBundle.number - 1, exHash)
+                }
+            }
 }
 
 
