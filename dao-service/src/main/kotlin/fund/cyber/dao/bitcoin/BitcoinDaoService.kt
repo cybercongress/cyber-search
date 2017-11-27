@@ -4,6 +4,7 @@ import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Row
 import com.datastax.driver.core.Session
 import com.datastax.driver.mapping.MappingManager
+import com.google.common.util.concurrent.ListenableFuture
 import fund.cyber.node.common.Chain
 import fund.cyber.node.model.*
 import org.ehcache.Cache
@@ -28,6 +29,12 @@ class BitcoinDaoService(
     val txStore = mappingManager.mapper(BitcoinTransaction::class.java)!!
     val addressStore = mappingManager.mapper(BitcoinAddress::class.java)!!
     val addressTxtore = mappingManager.mapper(BitcoinAddressTransaction::class.java)!!
+
+
+    fun saveAsyncTx(tx: BitcoinTransaction): ListenableFuture<Void> {
+        txCache?.put(tx.txid, tx)
+        return txStore.saveAsync(tx)
+    }
 
 
     fun getMempoolTxesHashes(): List<String> = session

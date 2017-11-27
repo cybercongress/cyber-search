@@ -64,6 +64,7 @@ fun initFlowable(blockhain: BlockchainInterface<*>,
                     val action = storage.constructAction(blockBundle)
                     history.push(Pair(blockBundle, action))
                     exHash = blockBundle.hash
+                    log.debug("Storing ${blockBundle.number} block")
                     action.store()
                 } else {
                     val pair = history.pop()
