@@ -3,6 +3,7 @@
 package fund.cyber.pump
 
 import com.datastax.driver.core.Cluster
+import com.datastax.driver.extras.codecs.jdk8.InstantCodec
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -26,6 +27,7 @@ object PumpsContext {
             .withPort(PumpsConfiguration.cassandraPort)
             .withMaxSchemaAgreementWaitSeconds(30)
             .build().init()!!
+            .apply { configuration.codecRegistry.register(InstantCodec.instance) }
 
     val jacksonJsonSerializer = ObjectMapper().registerKotlinModule().apply {
         this.setSerializationInclusion(JsonInclude.Include.NON_EMPTY)

@@ -145,7 +145,7 @@ class BitcoinDaoService(
                 txid = row.getString("txid"), fee = row.getString("fee"), size = row.getInt("size"),
                 block_number = row.getLong("block_number"),
                 total_output = row.getString("total_output"), total_input = row.getString("total_input"),
-                block_time = row.getTimestamp("block_time").toInstant().toString(),
+                block_time = row.getTimestamp("block_time").toInstant(),
                 coinbase = row.getString("coinbase"), block_hash = row.getString("block_hash"),
                 ins = row.getList("ins", BitcoinTransactionIn::class.java),
                 outs = row.getList("outs", BitcoinTransactionOut::class.java)
@@ -156,7 +156,7 @@ class BitcoinDaoService(
     private fun bitcoinBlockMapping(row: Row): BitcoinBlock {
         return BitcoinBlock(
                 height = row.getLong("height"), hash = row.getString("hash"), size = row.getInt("size"),
-                time = row.getTimestamp("time").toInstant().toString(), nonce = row.getLong("nonce"),
+                time = row.getTimestamp("time").toInstant(), nonce = row.getLong("nonce"),
                 merkleroot = row.getString("merkleroot"), version = row.getInt("version"),
                 weight = row.getInt("weight"), bits = row.getString("bits"), tx_number = row.getInt("tx_number"),
                 total_outputs_value = row.getString("total_outputs_value"), difficulty = row.getVarint("difficulty")

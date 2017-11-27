@@ -9,6 +9,7 @@ interface BlockchainInterface<T : BlockBundle> {
 }
 
 interface BlockBundle {
+    val chain: Chain
     val hash: String
     val parentHash: String
     val number: Long

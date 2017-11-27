@@ -4,6 +4,7 @@ import com.datastax.driver.mapping.annotations.Table
 import com.datastax.driver.mapping.annotations.Transient
 import com.datastax.driver.mapping.annotations.UDT
 import java.math.BigInteger
+import java.time.Instant
 
 
 interface BitcoinItem
@@ -22,7 +23,7 @@ data class BitcoinTransactionPreviewIO(
 data class BitcoinAddressTransaction(
         val address: String,
         val fee: String,
-        val block_time: String,
+        val block_time: Instant,
         val hash: String,
         val ins: List<BitcoinTransactionPreviewIO>,
         val outs: List<BitcoinTransactionPreviewIO>
@@ -48,7 +49,7 @@ data class BitcoinBlockTransaction(
 data class BitcoinBlock(
         val hash: String,
         val height: Long,
-        val time: String,
+        val time: Instant,
         val nonce: Long,
         val merkleroot: String,
         val size: Int,
@@ -73,7 +74,7 @@ data class BitcoinTransaction(
         val block_number: Long,
         val block_hash: String,
         val coinbase: String? = null,
-        val block_time: String,
+        val block_time: Instant,
         val size: Int,
         val fee: String,
         val total_input: String,

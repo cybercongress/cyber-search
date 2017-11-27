@@ -26,7 +26,7 @@ val expectedDaoCoinbaseTransaction = BitcoinTransaction(
         coinbase = "044c86041b020602", fee = "0",
         total_output = "0", total_input = "0", ins = emptyList(),
         block_number = 100000, outs = listOf(expectedDaoCoinbaseTransactionOut),
-        block_time = Instant.ofEpochSecond(1293623863).toString(),
+        block_time = Instant.ofEpochSecond(1293623863),
         block_hash = "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506"
 )
 
@@ -58,7 +58,7 @@ val expectedRegularTransaction = BitcoinTransaction(
         fee = "0.10", total_output = "50.00", total_input = "50.1",
         ins = listOf(expectedFirstTransactionInput, expectedSecondTransactionInput),
         outs = listOf(expectedFirstTransactionOut, expectedSecondTransactionOut),
-        block_number = 100000, block_time = Instant.ofEpochSecond(1293623863).toString(),
+        block_number = 100000, block_time = Instant.ofEpochSecond(1293623863),
         block_hash = "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506"
 )
 
@@ -101,7 +101,7 @@ class BtcdToDaoTransactionConverterTest {
                                         addresses = listOf("1HWqMzw1jfpXb3xyuUZ4uWXY4tqL2cW47J"), out = 1, amount = "0.1",
                                         asm = "041b0e8c2567c12536aa13357b79a073dc4444", required_signatures = 1
                                 )
-                        ), ins = emptyList(), block_time = "", block_number = 10, fee = "0",
+                        ), ins = emptyList(), block_time = Instant.now(), block_number = 10, fee = "0",
                         total_input = "0", total_output = "0", size = 3,
                         block_hash = "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506"
                 ),

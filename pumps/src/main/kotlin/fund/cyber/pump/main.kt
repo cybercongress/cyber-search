@@ -33,8 +33,9 @@ fun main(args: Array<String>) {
                 .unsubscribeOn(Schedulers.trampoline())
                 .doAfterTerminate(PumpsContext::closeContext)
                 .subscribe { blockBundle ->
-                    Thread.sleep(200)
-                    log.info(blockBundle.toString())
+                    storages.forEach { storage ->
+                        storage.constructAction(blockBundle)?.store()
+                    }
                 }
     }
 
