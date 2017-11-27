@@ -25,19 +25,17 @@ fun main(args: Array<String>) {
     }
 
     blockchainsInterfaces.forEach { blockchainInterface ->
-        storages.forEach { storage ->
-            val history: StackCache< Pair<BlockBundle, StorageAction> > = StackCache(20)
+            val history: StackCache< Pair<BlockBundle, List<StorageAction>>> = StackCache(20)
             var exDisposable: Disposable? = null
 
             fun act(number: Long, exHash: String) {
                 exDisposable?.dispose()
-                exDisposable = initFlowable(blockchainInterface, storage, number, exHash, history) { number, exHash ->
+                exDisposable = initFlowable(blockchainInterface, storages, number, exHash, history) { number, exHash ->
                     act(number, exHash)
                 }
             }
 
             act(getStartBlockNumber(blockchainInterface), "")
-        }
     }
 
     if(blockchainsInterfaces.isEmpty()) {
@@ -46,10 +44,10 @@ fun main(args: Array<String>) {
 }
 
 fun initFlowable(blockhain: BlockchainInterface<*>,
-                 storage: StorageInterface,
+                 storages: List<StorageInterface>,
                  number: Long,
                  startExHash: String,
-                 history: StackCache< Pair<BlockBundle, StorageAction> >,
+                 history: StackCache< Pair<BlockBundle, List<StorageAction>>>,
                  needToContinueWith: (number: Long, exHash: String)->Unit
 ): Disposable {
     var exHash: String = startExHash
@@ -61,17 +59,17 @@ fun initFlowable(blockhain: BlockchainInterface<*>,
             .doAfterTerminate(PumpsContext::closeContext)
             .subscribe { blockBundle ->
                 if (exHash == blockBundle.parentHash || blockBundle.number == 0L) {
-                    val action = storage.constructAction(blockBundle)
-                    history.push(Pair(blockBundle, action))
+                    val actions = storages.map { it.constructAction(blockBundle) }
+                    history.push(Pair(blockBundle, actions))
                     exHash = blockBundle.hash
                     log.debug("Storing ${blockBundle.number} block")
-                    action.store()
+                    actions.forEach{ it.store() }
                 } else {
                     val pair = history.pop()
                     val hAction = pair?.second
                     val hBlock = pair?.first
                     exHash = hBlock?.parentHash ?: ""
-                    hAction?.remove()
+                    hAction?.forEach { it.remove() }
                     needToContinueWith(blockBundle.number - 1, exHash)
                 }
             }
