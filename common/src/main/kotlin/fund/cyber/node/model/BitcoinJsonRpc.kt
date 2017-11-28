@@ -42,6 +42,8 @@ data class JsonRpcBitcoinTransaction(
         val vin: List<TransactionInput>
 ) : JsonRpcBitcoinElement() {
 
+    fun getOutputByNumber(number: Int) = vout.find { out -> out.n == number }!!
+
     fun regularInputs(): List<RegularTransactionInput> =
             vin.filter { input -> input is RegularTransactionInput }
                     .map { input -> input as RegularTransactionInput }
