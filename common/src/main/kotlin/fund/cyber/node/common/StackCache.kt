@@ -6,24 +6,25 @@ package fund.cyber.node.common
  * @author Ioda Mikhail
  */
 class StackCache<T>(
-        private val maxSize: Int
+        maxSize: Int
 ) {
-    private val _elements = arrayOfNulls<Any>(maxSize) as Array<T>
+    private val max = maxSize + 1
+    private val _elements = arrayOfNulls<Any>(max) as Array<T>
     private var first = 0
     private var last = 0
 
     fun push(element: T) {
         _elements[first++] = element
-        if (first == maxSize) first = 0
-        if (first == last) ++last
+        if (first == max) first = 0
+        if (first == last) last = (last + 1) % max
     }
 
     fun pop(): T? {
         return if (first == last) {
             null
         } else {
-            if (first > 0)
-                first = maxSize
+            if (first == 0)
+                first = max
             _elements[--first]
         }
     }
