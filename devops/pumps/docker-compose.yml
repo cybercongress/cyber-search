@@ -1,0 +1,47 @@
+---
+
+# Image settings https://github.com/docker-library/docs/tree/master/cassandra
+
+# CASSANDRA_SEEDS -> specify ~3 seed nodes for dc.
+# They are used by gossip for bootstrapping new nodes joining a cluster.
+
+# Ports:
+#    7199: cassandra JMX
+#    1099  kafka jmx
+#    9042: CQL
+#    9200: ElasticSearch HTTP
+#    2181: zookeper
+#    9092: kafka
+
+version: '3.3'
+services:
+
+
+
+    cs-elassandra:
+      network_mode: host
+      image: strapdata/elassandra:5.5.0.7
+      deploy:
+        restart_policy:
+          condition: on-failure
+          delay: 30s
+      volumes:
+        - /cyberdata/cyber-search/elassandra/lib:/var/lib/cassandra
+        - /cyberdata/cyber-search/elassandra/log:/var/log/cassandra
+      environment:
+         CASSANDRA_DC: DEVELOPMENT
+         CASSANDRA_CLUSTER_NAME: CYBER_SEARCH
+
+
+
+    cs-chain-pumps:
+      network_mode: host
+      image: cybernode/cs-chain-pumps:release-v0.8.1
+      deploy:
+        restart_policy:
+          condition: on-failure
+          delay: 30s
+      environment:
+         CS_CHAINS_TO_PUMP: BITCOIN, BITCOIN_CASH
+         CASSANDRA_HOSTS: cs-elassandra
+         CS_LOG_LEVEL: DEBUG
