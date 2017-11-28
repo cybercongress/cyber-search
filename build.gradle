@@ -165,10 +165,14 @@ project(":dao-service") {
 }
 
 project(":pumps") {
+    apply plugin: "application"
+
     dependencies {
         compile project(":common")
         compile project(":dao-service")
         compile("org.web3j:core")
         compile("io.reactivex.rxjava2:rxkotlin")
     }
+
+    mainClassName = "fund.cyber.pump.PumpsApplication"
 }

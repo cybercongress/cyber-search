@@ -56,40 +56,6 @@ jobs:
              docker push cybernode/cn-kafka-connectors:latest
 
 
-  deploy_bitcoin_processor_image:
-     <<: *default_container
-     steps:
-       - checkout
-       - setup_remote_docker:
-           version: 17.05.0-ce
-       - run:
-           name: Build kafka-streams processor for bitcoin
-           command: |
-             docker build -t build/cs-bitcoin-processor -f ./devops/stream-processing/bitcoin ./
-             docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker tag build/cs-bitcoin-processor cybernode/cs-bitcoin-processor:$CIRCLE_TAG
-             docker push cybernode/cs-bitcoin-processor:$CIRCLE_TAG
-             docker tag build/cs-bitcoin-processor cybernode/cs-bitcoin-processor:latest
-             docker push cybernode/cs-bitcoin-processor:latest
-
-
-  deploy_ethereum_processor_image:
-     <<: *default_container
-     steps:
-       - checkout
-       - setup_remote_docker:
-           version: 17.05.0-ce
-       - run:
-           name: Build kafka-streams processor for ethereum
-           command: |
-             docker build -t build/cs-ethereum-processor -f ./devops/stream-processing/ethereum ./
-             docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker tag build/cs-ethereum-processor cybernode/cs-ethereum-processor:$CIRCLE_TAG
-             docker push cybernode/cs-ethereum-processor:$CIRCLE_TAG
-             docker tag build/cs-ethereum-processor cybernode/cs-ethereum-processor:latest
-             docker push cybernode/cs-ethereum-processor:latest
-
-
   deploy_search_api_image:
      <<: *default_container
      steps:
@@ -106,6 +72,22 @@ jobs:
              docker tag build/cs-search-api cybernode/cs-search-api:latest
              docker push cybernode/cs-search-api:latest
 
+  deploy_pumps_image:
+     <<: *default_container
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.05.0-ce
+       - run:
+           name: Build cyber search api image
+           command: |
+             docker build -t build/cs-chain-pumps -f ./devops/pumps/pumps ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/cs-chain-pumps cybernode/cs-chain-pumps:$CIRCLE_TAG
+             docker push cybernode/cs-chain-pumps:$CIRCLE_TAG
+             docker tag build/cs-chain-pumps cybernode/cs-chain-pumps:latest
+             docker push cybernode/cs-chain-pumps:latest
+
 
 workflows:
   version: 2
@@ -120,15 +102,11 @@ workflows:
           <<: *release_filter
           requires:
             - build_project
-      - deploy_bitcoin_processor_image:
-          <<: *release_filter
-          requires:
-            - build_project
-      - deploy_ethereum_processor_image:
-          <<: *release_filter
-          requires:
-            - build_project
       - deploy_search_api_image:
           <<: *release_filter
           requires:
             - build_project
+      - deploy_pumps_image:
+          <<: *release_filter
+          requires:
+            - build_project            

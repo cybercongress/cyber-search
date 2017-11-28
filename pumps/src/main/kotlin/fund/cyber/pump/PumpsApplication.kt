@@ -16,25 +16,29 @@ import java.util.*
 private val log = LoggerFactory.getLogger(PumpsContext::class.java)!!
 
 
-fun main(args: Array<String>) {
+object PumpsApplication {
 
-    val blockchainsInterfaces = PumpsConfiguration.chainsToPump.mapNotNull(::initializeBlockchainInterface)
-    val storages: List<StorageInterface> = listOf(CassandraStorage())
+    @JvmStatic
+    fun main(args: Array<String>) {
 
-    storages.forEach { storage ->
-        storage.initialize(blockchainsInterfaces)
-    }
+        val blockchainsInterfaces = PumpsConfiguration.chainsToPump.mapNotNull(::initializeBlockchainInterface)
+        val storages: List<StorageInterface> = listOf(CassandraStorage())
 
-    blockchainsInterfaces.forEach { blockchainInterface ->
+        storages.forEach { storage ->
+            storage.initialize(blockchainsInterfaces)
+        }
 
-        val startBlockNumber = getCommittedBlockNumber(blockchainInterface)
-        val history: StackCache<List<StorageAction>> = StackCache(20)
+        blockchainsInterfaces.forEach { blockchainInterface ->
 
-        initBlockBundleStream(blockchainInterface, storages, startBlockNumber, history)
-    }
+            val startBlockNumber = getCommittedBlockNumber(blockchainInterface)
+            val history: StackCache<List<StorageAction>> = StackCache(20)
 
-    if (blockchainsInterfaces.isEmpty()) {
-        PumpsContext.closeContext()
+            initBlockBundleStream(blockchainInterface, storages, startBlockNumber, history)
+        }
+
+        if (blockchainsInterfaces.isEmpty()) {
+            PumpsContext.closeContext()
+        }
     }
 }
 
