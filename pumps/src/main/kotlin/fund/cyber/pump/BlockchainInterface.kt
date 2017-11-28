@@ -14,3 +14,5 @@ interface BlockBundle {
     val parentHash: String
     val number: Long
 }
+
+class ChainReindexationException : RuntimeException()

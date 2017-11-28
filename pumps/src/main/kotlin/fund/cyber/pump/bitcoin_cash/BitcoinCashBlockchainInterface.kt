@@ -19,7 +19,7 @@ class BitcoinCashBlockchainInterface : BlockchainInterface<BitcoinBlockBundle> {
     override val chain = BITCOIN_CASH
 
     override fun subscribeBlocks(startBlockNumber: Long) =
-            Flowable.generate<JsonRpcBitcoinBlock, Long>(Callable { 0L }, downloadNextBlockFunction())
+            Flowable.generate<JsonRpcBitcoinBlock, Long>(Callable { startBlockNumber }, downloadNextBlockFunction())
                     .map(BitcoinCashPumpContext.jsonRpcToDaoBitcoinEntitiesConverter::convertToBundle)!!
 }
 
