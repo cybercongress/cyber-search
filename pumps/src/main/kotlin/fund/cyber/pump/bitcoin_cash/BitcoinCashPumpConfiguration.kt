@@ -5,6 +5,7 @@ import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.BITCOIN_CASH
 import fund.cyber.node.common.env
 import fund.cyber.node.model.BitcoinTransaction
+import fund.cyber.node.model.JsonRpcBitcoinTransaction
 import fund.cyber.pump.PumpsContext
 import fund.cyber.pump.bitcoin.*
 
@@ -17,8 +18,7 @@ object BitcoinCashPumpConfiguration {
 object BitcoinCashPumpContext {
 
     val txCache = PumpsContext.cacheManager
-            .getCache("bitcoin_cash.transactions", String::class.java, BitcoinTransaction::class.java)
-
+            .getCache("bitcoin_cash.transactions", String::class.java, JsonRpcBitcoinTransaction::class.java)
 
 
     val bitcoinJsonRpcClient: BitcoinJsonRpcClient = BitcoinJsonRpcClient(
@@ -27,12 +27,13 @@ object BitcoinCashPumpContext {
     )
 
 
-    val bitcoinDaoService = BitcoinDaoService(PumpsContext.cassandra, BITCOIN_CASH, txCache)
+    val bitcoinDaoService = BitcoinDaoService(PumpsContext.cassandra, BITCOIN_CASH)
 
     private val jsonRpcToDaoBitcoinTransactionConverter = JsonRpcToDaoBitcoinTransactionConverter()
     private val jsonRpcToDaoBitcoinBlockConverter = JsonRpcToDaoBitcoinBlockConverter()
 
     val jsonRpcToDaoBitcoinEntitiesConverter = JsonRpcBlockToBitcoinBundleConverter(
-            BITCOIN_CASH, bitcoinDaoService, jsonRpcToDaoBitcoinTransactionConverter, jsonRpcToDaoBitcoinBlockConverter
+            BITCOIN_CASH, bitcoinJsonRpcClient, txCache,
+            jsonRpcToDaoBitcoinTransactionConverter, jsonRpcToDaoBitcoinBlockConverter
     )
 }

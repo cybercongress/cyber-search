@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 
-private val log = LoggerFactory.getLogger(PumpsContext::class.java)!!
+private val log = LoggerFactory.getLogger(PumpsApplication::class.java)!!
 
 
 object PumpsApplication {
