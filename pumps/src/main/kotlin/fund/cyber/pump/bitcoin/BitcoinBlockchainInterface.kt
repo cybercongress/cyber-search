@@ -12,6 +12,7 @@ import io.reactivex.Flowable
 import io.reactivex.functions.BiFunction
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Callable
+import java.util.concurrent.atomic.AtomicLong
 
 private val log = LoggerFactory.getLogger(BitcoinBlockchainInterface::class.java)!!
 
@@ -27,25 +28,47 @@ class BitcoinBlockBundle(
 
 class BitcoinBlockchainInterface : BlockchainInterface<BitcoinBlockBundle> {
 
+    private val downloadNextBlockFunction = DownloadNextBlockFunction(BitcoinPumpContext.bitcoinJsonRpcClient)
     override val chain = BITCOIN
 
     override fun subscribeBlocks(startBlockNumber: Long) =
-            Flowable.generate<JsonRpcBitcoinBlock, Long>(Callable { startBlockNumber }, downloadNextBlockFunction())
+            Flowable.generate<List<JsonRpcBitcoinBlock>, Long>(Callable { startBlockNumber }, downloadNextBlockFunction)
+                    .flatMapIterable { items -> items }
                     .map(BitcoinPumpContext.jsonRpcToDaoBitcoinEntitiesConverter::convertToBundle)!!
 }
 
 
-fun downloadNextBlockFunction(btcdClient: BitcoinJsonRpcClient = BitcoinPumpContext.bitcoinJsonRpcClient) =
-        BiFunction { blockNumber: Long, subscriber: Emitter<JsonRpcBitcoinBlock> ->
-            try {
-                log.debug("Pulling block $blockNumber")
-                val block = btcdClient.getBlockByNumber(blockNumber)
-                if (block != null) {
-                    subscriber.onNext(block)
-                    return@BiFunction blockNumber + 1
+class DownloadNextBlockFunction(
+        private val client: BitcoinJsonRpcClient
+) : BiFunction<Long, Emitter<List<JsonRpcBitcoinBlock>>, Long> {
+
+    private var lastNetworkBlock: AtomicLong = AtomicLong(client.getLastBlockNumber())
+
+
+    override fun apply(blockNumber: Long, subscriber: Emitter<List<JsonRpcBitcoinBlock>>): Long {
+        try {
+
+            val isBatchFetch = lastNetworkBlock.get() - blockNumber > 5
+            val downloadCount = if (isBatchFetch) 4 else 1
+
+            if (!isBatchFetch) {
+                val lastBlockNumber = client.getLastBlockNumber()
+                lastNetworkBlock.set(lastBlockNumber)
+                if (blockNumber == lastBlockNumber) {
+                    log.debug("Up-to-date block $blockNumber")
+                    return blockNumber
                 }
-            } catch (e: Exception) {
-                log.error("error during download block $blockNumber", e)
             }
-            return@BiFunction blockNumber
+
+            log.debug("Looking for $blockNumber-${blockNumber + downloadCount - 1} blocks")
+
+            val blockNumbers = (blockNumber until blockNumber + downloadCount).toList()
+            subscriber.onNext(client.getBlocksByNumber(blockNumbers))
+            return blockNumber + downloadCount
+
+        } catch (e: Exception) {
+            log.error("error during download block $blockNumber", e)
         }
+        return blockNumber
+    }
+}
