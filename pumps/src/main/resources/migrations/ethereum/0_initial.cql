@@ -55,8 +55,8 @@ CREATE TABLE IF NOT exists ethereum.tx_preview_by_address (
 
 CREATE TABLE IF NOT exists ethereum.tx_preview_by_block (
     block_number bigint,
-    fee decimal,
-    amount decimal,
+    fee text,
+    value text,
     hash text,
     "from" text,
     "to" text,
