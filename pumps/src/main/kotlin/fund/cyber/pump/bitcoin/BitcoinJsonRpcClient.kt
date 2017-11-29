@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import fund.cyber.node.model.JsonRpcBitcoinBlock
 import fund.cyber.node.model.JsonRpcBitcoinTransaction
 import fund.cyber.node.model.Request
+import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ByteArrayEntity
@@ -38,11 +40,6 @@ class BitcoinJsonRpcClient(
         return executeRequest(request, StringResponse::class.java)
     }
 
-    fun getBlockByNumber(number: Long): JsonRpcBitcoinBlock? {
-        val request = Request(method = "getblockbynumber", params = listOf(number, true, true))
-        return executeRequest(request, BlockResponse::class.java)
-    }
-
     fun getBlockByHash(hash: String): JsonRpcBitcoinBlock? {
         val request = Request(method = "getblock", params = listOf(hash, true))
         return executeRequest(request, BlockResponse::class.java)
@@ -51,6 +48,23 @@ class BitcoinJsonRpcClient(
     fun getLastBlockNumber(): Long {
         val request = Request(method = "getblockcount", params = emptyList())
         return executeRequest(request, LongResponse::class.java)
+    }
+
+    fun getBlockByNumber(number: Long): Observable<JsonRpcBitcoinBlock> {
+        return Observable.just(number)
+                .map { blockNumber -> getBlockHash(blockNumber)!! }
+                .map { hash -> getBlockByHash(hash)!! }
+                .map { block ->
+                    val transactions = if (block.height != 0L) getTxes(block.tx) else emptyList()
+                    block.copy(rawtx = transactions)
+                }.observeOn(Schedulers.io())
+    }
+
+    fun getBlocksByNumber(blockNumbers: List<Long>): List<JsonRpcBitcoinBlock> {
+        return Observable.fromIterable(blockNumbers)
+                .flatMap { blockNumber -> getBlockByNumber(blockNumber) }
+                .doOnError { error -> println(error) }
+                .toSortedList().blockingGet()
     }
 
 
