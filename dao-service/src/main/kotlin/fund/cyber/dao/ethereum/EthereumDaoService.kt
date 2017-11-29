@@ -12,11 +12,11 @@ import java.util.*
 
 private val log = LoggerFactory.getLogger(EthereumDaoService::class.java)!!
 
-class EthereumDaoService(cassandra: Cluster,
+class EthereumDaoService(cassandra: Cluster, keyspace: String = "ethereum",
                          private val addressCache: Cache<String, EthereumAddress>? = null
 ) {
 
-    private val session: Session = cassandra.connect("ethereum").apply {
+    private val session: Session = cassandra.connect(keyspace).apply {
         val manager = MappingManager(this)
         manager.mapper(EthereumBlock::class.java)
         manager.mapper(EthereumTransaction::class.java)
