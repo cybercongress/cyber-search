@@ -4,6 +4,7 @@ import com.datastax.driver.mapping.annotations.Table
 import com.datastax.driver.mapping.annotations.UDT
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.time.Instant
 
 
 interface EthereumItem
@@ -22,7 +23,7 @@ data class EthereumTransaction(
         val gas_limit: Long,       //parsed from hex
         val gas_used: Long,        //parsed from hex
         val fee: String,           //decimal //calculated
-        val timestamp: String,     //calculated
+        val timestamp: Instant,     //calculated
         val input: String,
         val creates: String?       //creates contract hash
 ) : EthereumItem {
@@ -36,7 +37,7 @@ data class EthereumBlock(
         val hash: String,
         val parent_hash: String,
         val number: Long,                   //parsed from hex
-        val timestamp: String,
+        val timestamp: Instant,
         val sha3_uncles: String,
         val logs_bloom: String,
         val transactions_root: String,
@@ -55,20 +56,28 @@ data class EthereumBlock(
         val tx_fees: String
 ) : EthereumItem
 
-
-@UDT(name = "block_tx")
-data class EthereumBlockTransaction(
-        var fee: BigDecimal,
-        var amount: BigDecimal,
-        var hash: String,
-        var from: String,
-        var to: String,
-        var creates_contract: Boolean
-) {
-    //used by gson to create instance
-    constructor() : this(BigDecimal.ZERO, BigDecimal.ZERO, "", "", "", false)
-
-    fun addressesUsedInTransaction() = listOf(from, to)
+@Table(name = "tx_preview_by_block",
+        readConsistency = "QUORUM", writeConsistency = "QUORUM",
+        caseSensitiveKeyspace = false, caseSensitiveTable = false)
+data class EthereumTxPreviewByBlock (
+        val block_number: Long,
+        val fee: String,
+        val value: String,
+        val hash: String,
+        val from: String,
+        val to: String,
+        val creates_contract: Boolean
+) : EthereumItem {
+    constructor(tx: EthereumTransaction) :
+            this(
+                    block_number = tx.block_number ?: 0,
+                    fee = tx.fee,
+                    value = tx.value,
+                    hash = tx.hash,
+                    from = tx.from,
+                    to = tx.to ?: "",
+                    creates_contract = tx.creates != null
+            )
 }
 
 
@@ -87,7 +96,7 @@ data class EthereumAddress(
 data class EthereumAddressTransaction(
         val address: String,
         val fee: String,
-        val block_time: String,
+        val block_time: Instant,
         val hash: String,
         val from: String,
         val to: String,

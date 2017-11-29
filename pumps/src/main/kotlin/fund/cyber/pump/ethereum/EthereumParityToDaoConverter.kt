@@ -1,4 +1,4 @@
-package fund.cyber.index.ethereum.converter
+package fund.cyber.pump.ethereum
 
 import fund.cyber.node.common.hexToLong
 import fund.cyber.node.common.sumByBigDecimal
@@ -59,3 +59,4 @@ class EthereumParityToDaoConverter {
         )
     }
 }
+

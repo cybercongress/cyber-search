@@ -1,13 +1,14 @@
 package fund.cyber.pump
 
 import fund.cyber.node.common.Chain
-import fund.cyber.node.common.Chain.BITCOIN
-import fund.cyber.node.common.Chain.BITCOIN_CASH
+import fund.cyber.node.common.Chain.*
 import fund.cyber.node.common.StackCache
+import fund.cyber.node.common.env
 import fund.cyber.node.model.IndexingProgress
 import fund.cyber.pump.bitcoin.BitcoinBlockchainInterface
 import fund.cyber.pump.bitcoin_cash.BitcoinCashBlockchainInterface
 import fund.cyber.pump.cassandra.CassandraStorage
+import fund.cyber.pump.ethereum.EthereumBlockhainInterface
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -55,7 +56,7 @@ fun initBlockBundleStream(
             .scan { current, next ->
                 if (current.hash != next.parentHash) {
                     log.info("${current.chain} chain reorganisation occupied for `${current.number}` block")
-                    //history.pop()?.forEach(StorageAction::remove) bug in pop
+                    history.pop()?.forEach(StorageAction::remove)
                     initBlockBundleStream(blockchainInterface, storages, current.number - 1, history)
                     throw ChainReindexationException()
                 }
@@ -106,6 +107,8 @@ private fun initializeBlockchainInterface(chain: Chain): BlockchainInterface<*>?
     return when (chain) {
         BITCOIN -> BitcoinBlockchainInterface()
         BITCOIN_CASH -> BitcoinCashBlockchainInterface()
+        ETHEREUM -> EthereumBlockhainInterface(env("ETHEREUM", "http://cyber:cyber@127.0.0.1:8545"), ETHEREUM)
+        ETHEREUM_CLASSIC -> EthereumBlockhainInterface(env("ETHEREUM_CLASSIC", "http://cyber:cyber@127.0.0.1:18545"), ETHEREUM_CLASSIC)
         else -> null
     }
 }
