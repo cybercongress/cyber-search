@@ -33,6 +33,7 @@ object PumpsApplication {
             val startBlockNumber = getCommittedBlockNumber(blockchainInterface)
             val history: StackCache<List<StorageAction>> = StackCache(20)
 
+            log.info("${blockchainInterface.chain} chain pump is started from `${startBlockNumber + 1}` block")
             initBlockBundleStream(blockchainInterface, storages, startBlockNumber, history)
         }
 
@@ -49,7 +50,7 @@ fun initBlockBundleStream(
 
     blockchainInterface.subscribeBlocks(startBlockNumber)
             .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.computation())
+            .observeOn(Schedulers.io())
             .map { bundle -> bundle } // make generics happy
             .scan { current, next ->
                 if (current.hash != next.parentHash) {

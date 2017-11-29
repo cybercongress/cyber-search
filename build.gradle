@@ -133,7 +133,8 @@ project(":common") {
         compile("com.datastax.cassandra:cassandra-driver-core")
         compile("com.datastax.cassandra:cassandra-driver-mapping")
         compile("com.datastax.cassandra:cassandra-driver-extras")
-
+        
+        compile("org.apache.httpcomponents:httpasyncclient")
     }
 }
 
@@ -155,7 +156,6 @@ project(":dao-service") {
     dependencies {
         compile(project(":common"))
         compile("org.ehcache:ehcache")
-        compile("org.apache.httpcomponents:httpasyncclient")
 
         //dependencies for jaxb
         compile 'javax.xml.bind:jaxb-api:2.3.0'
