@@ -1,14 +1,14 @@
 /* Gradle plugins part */
 buildscript {
     ext {
-        kotlinVersion = "1.1.61"
+        kotlinVersion = "1.2.0"
         kotlinCoroutinesVersion = "0.19.3"
-        jacksonVersion = "2.8.9"
+        jacksonVersion = "2.9.2"
         undertowVersion = "1.4.20.Final"
         kafkaVersion = "0.11.0.1"
-        cassandraConfluentVersion = "3.3.0"
+        cassandraVersion = "3.3.2"
         web3jVersion = "2.3.0"
-        rxkotlinVersion = "2.1.0"
+        rxkotlinVersion = "2.2.0"
         apacheHttpClientVersion = "4.1.3"
         ehcacheVersion = "3.4.0"
         elasticVersion = "2.4.6"
@@ -18,8 +18,8 @@ buildscript {
         shadowPluginVersion = "2.0.1"
 
         // tests
-        junitVersion = "5.0.0"
-        junitPlatformVersion = "1.0.0"
+        junitVersion = "5.0.2"
+        junitPlatformVersion = "1.0.2"
         mockitoVersion = "2.1.0"
         mockitoKotlinVersion = "0.7.0"
 
@@ -98,9 +98,9 @@ subprojects {
                 exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
             }
 
-            dependency("com.datastax.cassandra:cassandra-driver-core:$cassandraConfluentVersion")
-            dependency("com.datastax.cassandra:cassandra-driver-mapping:$cassandraConfluentVersion")
-            dependency("com.datastax.cassandra:cassandra-driver-extras:$cassandraConfluentVersion")
+            dependency("com.datastax.cassandra:cassandra-driver-core:$cassandraVersion")
+            dependency("com.datastax.cassandra:cassandra-driver-mapping:$cassandraVersion")
+            dependency("com.datastax.cassandra:cassandra-driver-extras:$cassandraVersion")
 
             dependency("org.web3j:core:$web3jVersion")
             dependency("io.reactivex.rxjava2:rxkotlin:$rxkotlinVersion")
