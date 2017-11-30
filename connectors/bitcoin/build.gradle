@@ -4,7 +4,7 @@ project.tasks.assemble.dependsOn project.tasks.shadowJar
 
 dependencies {
     compile project(':common')
-    compile project(':connectors/model')
+    compile project(':connectors:model')
     compile 'org.web3j:core'
     compile 'org.apache.httpcomponents:httpasyncclient'
     compileOnly 'org.apache.kafka:connect-api'

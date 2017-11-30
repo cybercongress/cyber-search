@@ -3,7 +3,7 @@ apply plugin: "application"
 dependencies {
     compile(project(":common"))
     compile(project(":dao-service"))
-    compile(project(":connectors/model"))
+    compile(project(":connectors:model"))
     compile("org.jetbrains.kotlin:kotlin-stdlib-jre8")
     compile("org.web3j:core")
     compile("org.apache.kafka:kafka-streams")
