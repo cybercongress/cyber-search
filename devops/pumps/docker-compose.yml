@@ -47,7 +47,7 @@ services:
       image: cybernode/cs-chain-pumps:release-v1.0.0.M1
       restart: on-failure
       environment:
-         CS_CHAINS_TO_PUMP: ETHEREUM, ETHEREUM_CLASSIC
+         CS_CHAINS_TO_PUMP: ETHEREUM3, ETHEREUM_CLASSIC
          CASSANDRA_HOSTS: localhost
 #         BITCOIND_URL: http://cyber:cyber@cs-bitcoind:8332
 #         ABC_URL: http://bitcoin:password@cs-abc:18332
@@ -57,9 +57,10 @@ services:
 
 
     cs-search-api:
-      network_mode: host
       image: cybernode/cs-search-api:release-v1.0.0.M1
       restart: on-failure
       environment:
          CASSANDRA_HOSTS: localhost
          CS_LOG_LEVEL: DEBUG
+      ports:
+        - "18085:8085"
