@@ -16,15 +16,10 @@
 version: '3.3'
 services:
 
-
-
     cs-elassandra:
       network_mode: host
-      image: strapdata/elassandra:5.5.0.7
-      deploy:
-        restart_policy:
-          condition: on-failure
-          delay: 30s
+      image: strapdata/elassandra:5.5.0.8
+      restart: on-failure
       volumes:
         - /cyberdata/cyber-search/elassandra/lib:/var/lib/cassandra
         - /cyberdata/cyber-search/elassandra/log:/var/log/cassandra
@@ -32,16 +27,23 @@ services:
          CASSANDRA_DC: DEVELOPMENT
          CASSANDRA_CLUSTER_NAME: CYBER_SEARCH
 
-
-
     cs-chain-pumps:
       network_mode: host
-      image: cybernode/cs-chain-pumps:release-v0.8.1
-      deploy:
-        restart_policy:
-          condition: on-failure
-          delay: 30s
+      image: cybernode/cs-chain-pumps:release-v1.0.0.M1
+      restart: on-failure
       environment:
-         CS_CHAINS_TO_PUMP: BITCOIN, BITCOIN_CASH
-         CASSANDRA_HOSTS: cs-elassandra
+         CS_CHAINS_TO_PUMP: BITCOIN, BITCOIN_CASH, ETHEREUM, ETHEREUM_CLASSIC
+         CASSANDRA_HOSTS: localhost
+#         BITCOIND_URL: http://cyber:cyber@cs-bitcoind:8332
+#         ABC_URL: http://bitcoin:password@cs-abc:18332
+#         ETHEREUM: http://cyber:cyber@cs-parity-eth:8545
+#         ETHEREUM_CLASSIC: http://cyber:cyber@cs-parity-etc:18545
+         CS_LOG_LEVEL: DEBUG
+
+    cs-search-api:
+      network_mode: host
+      image: cybernode/cs-search-api:release-v1.0.0.M1
+      restart: on-failure
+      environment:
+         CASSANDRA_HOSTS: localhost
          CS_LOG_LEVEL: DEBUG
