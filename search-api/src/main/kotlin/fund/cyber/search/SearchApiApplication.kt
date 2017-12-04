@@ -19,7 +19,7 @@ object SearchApiApplication {
                 .get("/ethereum/tx/{txHash}", EthereumTxHandler())
 
         Undertow.builder()
-                .addHttpListener(8085, "0.0.0.0")
+                .addHttpListener(10300, "0.0.0.0")
                 .setHandler(httpHandler)
                 .build().start()
     }
