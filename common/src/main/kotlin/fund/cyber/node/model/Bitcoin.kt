@@ -7,7 +7,7 @@ import java.math.BigInteger
 import java.time.Instant
 
 
-interface BitcoinItem
+sealed class BitcoinItem : CyberSearchItem()
 
 @UDT(name = "tx_preview_io")
 data class BitcoinTransactionPreviewIO(
@@ -27,7 +27,7 @@ data class BitcoinAddressTransaction(
         val hash: String,
         val ins: List<BitcoinTransactionPreviewIO>,
         val outs: List<BitcoinTransactionPreviewIO>
-) : BitcoinItem
+) : BitcoinItem()
 
 
 @Table(name = "tx_preview_by_block", readConsistency = "QUORUM", writeConsistency = "QUORUM")
@@ -37,7 +37,7 @@ data class BitcoinBlockTransaction(
         val fee: String,
         val ins: List<BitcoinTransactionPreviewIO>,
         val outs: List<BitcoinTransactionPreviewIO>
-) : BitcoinItem
+) : BitcoinItem()
 
 
 /*
@@ -60,7 +60,7 @@ data class BitcoinBlock(
         val tx_number: Int,
         val total_outputs_value: String,
         @Transient val transactionPreviews: List<BitcoinBlockTransaction> = emptyList()
-) : BitcoinItem
+) : BitcoinItem()
 
 
 /*
@@ -81,7 +81,7 @@ data class BitcoinTransaction(
         val total_output: String,
         val ins: List<BitcoinTransactionIn>,
         val outs: List<BitcoinTransactionOut>
-) : BitcoinItem {
+) : BitcoinItem() {
 
     fun getOutputByNumber(number: Int) = outs.find { out -> out.out == number }!!
 
@@ -124,4 +124,4 @@ data class BitcoinAddress(
         val total_received: String,
         val last_transaction_block: Long,
         val tx_number: Int
-) : BitcoinItem
+) : BitcoinItem()
