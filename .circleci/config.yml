@@ -88,6 +88,22 @@ jobs:
              docker tag build/cs-chain-pumps cybernode/cs-chain-pumps:latest
              docker push cybernode/cs-chain-pumps:latest
 
+  deploy_search_api_docs_image:
+     <<: *default_container
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.05.0-ce
+       - run:
+           name: Build cyber search api docs image
+           command: |
+             docker build -t build/cs-search-api-docs -f ./devops/api/api-docs ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/cs-search-api-docs cybernode/cs-search-api-docs:$CIRCLE_TAG
+             docker push cybernode/cs-search-api-docs:$CIRCLE_TAG
+             docker tag build/cs-search-api-docs cybernode/cs-search-api-docs:latest
+             docker push cybernode/cs-search-api-docs:latest
+
 
 workflows:
   version: 2

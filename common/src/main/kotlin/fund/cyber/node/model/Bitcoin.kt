@@ -32,9 +32,9 @@ data class BitcoinAddressTransaction(
 
 @Table(name = "tx_preview_by_block", readConsistency = "QUORUM", writeConsistency = "QUORUM")
 data class BitcoinBlockTransaction(
+        val hash: String,
         val block_number: Long,
         val fee: String,
-        val hash: String,
         val ins: List<BitcoinTransactionPreviewIO>,
         val outs: List<BitcoinTransactionPreviewIO>
 ) : BitcoinItem

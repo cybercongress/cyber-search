@@ -23,7 +23,7 @@ object BitcoinPumpContext {
             PumpsContext.httpClient, BitcoinPumpConfiguration.btcdUrl
     )
 
-    val bitcoinDaoService = BitcoinDaoService(PumpsContext.cassandra, BITCOIN)
+    val bitcoinDaoService by lazy { BitcoinDaoService(PumpsContext.cassandra, BITCOIN) }
 
     private val jsonRpcToDaoBitcoinTransactionConverter = JsonRpcToDaoBitcoinTransactionConverter()
     private val jsonRpcToDaoBitcoinBlockConverter = JsonRpcToDaoBitcoinBlockConverter()

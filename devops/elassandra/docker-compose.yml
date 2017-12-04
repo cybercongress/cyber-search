@@ -14,15 +14,18 @@
 #    9200: ElasticSearch HTTP
 #    9300: ElasticSearch transport
 
-version: '3.4'
+version: '3.3'
 services:
 
   elassandra:
-    network_mode: host
-    image: strapdata/elassandra:5.5.0.6
+    image: strapdata/elassandra:5.5.0.8
     volumes:
       - /opt/cyberfund/search/elassandra:/var/lib/cassandra
       - /opt/cyberfund/search/elassandra/logs:/var/log/cassandra
     environment:
        CASSANDRA_DC: DEVELOPMENT
        CASSANDRA_CLUSTER_NAME: CYBER_SEARCH
+    ports:
+      - "9042:9042"
+      - "9200:9200"
+      - "9300:9300"
