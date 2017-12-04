@@ -3,7 +3,7 @@ package fund.cyber.dao.migration
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Session
 import fund.cyber.dao.system.SystemDaoService
-import fund.cyber.node.common.readString
+import fund.cyber.node.common.readAsString
 import fund.cyber.node.model.SchemaVersion
 import org.apache.http.HttpStatus
 import org.apache.http.client.HttpClient
@@ -66,7 +66,7 @@ class ElassandraSchemaMigrationEngine(
 
                 try {
                     if (response.statusLine.statusCode != HttpStatus.SC_OK) {
-                        throw RuntimeException(response.entity.content.readString())
+                        throw RuntimeException(response.entity.content.readAsString())
                     }
                 } finally {
                     HttpClientUtils.closeQuietly(response)

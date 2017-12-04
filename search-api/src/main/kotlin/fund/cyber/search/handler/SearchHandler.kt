@@ -5,9 +5,9 @@ import fund.cyber.node.common.intValue
 import fund.cyber.node.common.stringValue
 import fund.cyber.node.model.DocumentKey
 import fund.cyber.node.model.SearchRequestProcessingStats
+import fund.cyber.search.configuration.AppContext
 import fund.cyber.search.configuration.SearchRequestProcessingStatsKafkaProducer
 import fund.cyber.search.configuration.SearchRequestProcessingStatsRecord
-import fund.cyber.search.context.AppContext
 import fund.cyber.search.model.ItemPreview
 import fund.cyber.search.model.SearchResponse
 import io.undertow.server.HttpHandler
@@ -40,19 +40,19 @@ class SearchHandler(
         }
 
         val elasticQuery = QueryBuilders.matchQuery("_all", query)
-                .fuzziness(Fuzziness.fromEdits(2))
+                .fuzziness(Fuzziness.AUTO)
 
-        val elasticResponse = elasticClient.prepareSearch("ethereum_tx", "ethereum_block",
-                "bitcoin_tx", "bitcoin_block", "bitcoin_address")
+        val elasticResponse = elasticClient.prepareSearch(
+                "ethereum_tx", "ethereum_block", "ethereum_classic_block", "ethereum_classic_tx", "bitcoin_tx",
+                "bitcoin_block", "bitcoin_cash_block", "bitcoin_cash_block", "bitcoin_cash_tx", "bitcoin_address")
                 .setQuery(elasticQuery)
                 .setFrom(page * pageSize).setSize(pageSize).setExplain(true)
-                .execute()
-                .actionGet()
+                .get()
 
         saveRequestProcessingStats(query, elasticResponse)
 
         val responseItems = elasticResponse.hits
-                .map { hit -> ItemPreview(type = hit.index, data = hit.sourceAsString()) }
+                .map { hit -> ItemPreview(type = hit.index, data = hit.sourceAsString) }
 
         val response = SearchResponse(
                 query = query, page = page, pageSize = pageSize,

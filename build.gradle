@@ -11,7 +11,7 @@ buildscript {
         rxkotlinVersion = "2.2.0"
         apacheHttpClientVersion = "4.1.3"
         ehcacheVersion = "3.4.0"
-        elasticVersion = "2.4.6"
+        elasticVersion = "5.5.3"
 
         // plugins
         dependencyPluginVersion = "1.0.3.RELEASE"
@@ -31,7 +31,7 @@ buildscript {
     repositories {
         jcenter()
         mavenCentral()
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-dev/'}
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-dev/' }
     }
 
     dependencies {
@@ -94,9 +94,7 @@ subprojects {
             dependency("com.nhaarman:mockito-kotlin:$mockitoKotlinVersion")
 
             dependency("org.ehcache:ehcache:$ehcacheVersion")
-            dependency("org.elasticsearch:elasticsearch:$elasticVersion") {
-                exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
-            }
+            dependency("org.elasticsearch.client:transport:$elasticVersion")
 
             dependency("com.datastax.cassandra:cassandra-driver-core:$cassandraVersion")
             dependency("com.datastax.cassandra:cassandra-driver-mapping:$cassandraVersion")
@@ -133,7 +131,7 @@ project(":common") {
         compile("com.datastax.cassandra:cassandra-driver-core")
         compile("com.datastax.cassandra:cassandra-driver-mapping")
         compile("com.datastax.cassandra:cassandra-driver-extras")
-        
+
         compile("org.apache.httpcomponents:httpasyncclient")
     }
 }
@@ -143,10 +141,10 @@ project(":search-api") {
     apply plugin: "application"
 
     dependencies {
-        compile(project(":common"))
-        compile(project(":dao-service"))
+        compile project(":common")
+        compile project(":dao-service")
         compile("io.undertow:undertow-core")
-        compile("org.elasticsearch:elasticsearch")
+        compile("org.elasticsearch.client:transport")
     }
 
     mainClassName = "fund.cyber.search.SearchApiApplication"

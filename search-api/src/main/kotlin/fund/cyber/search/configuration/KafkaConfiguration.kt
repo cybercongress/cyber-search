@@ -13,16 +13,14 @@ class SearchRequestProcessingStatsRecord(
 ) : ProducerRecord<String, SearchRequestProcessingStats>("search_request_processing_stats", stats)
 
 
-class SearchRequestProcessingStatsKafkaProducer(
-        configuration: SearchApiConfiguration
-) : KafkaProducer<String, SearchRequestProcessingStats>(
-        searchRequestProcessingStatsKafkaProducerProperties(configuration),
+class SearchRequestProcessingStatsKafkaProducer : KafkaProducer<String, SearchRequestProcessingStats>(
+        searchRequestProcessingStatsKafkaProducerProperties(),
         StringSerializer(), JsonSerializer()
 )
 
-private fun searchRequestProcessingStatsKafkaProducerProperties(configuration: SearchApiConfiguration): Properties {
+private fun searchRequestProcessingStatsKafkaProducerProperties(): Properties {
     return Properties().apply {
-        put("bootstrap.servers", configuration.kafkaBrokers)
+        put("bootstrap.servers", SearchApiConfiguration.kafkaBrokers)
         put("group.id", "search.api")
     }
 }

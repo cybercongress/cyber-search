@@ -3,7 +3,7 @@ package fund.cyber.search.handler
 import com.fasterxml.jackson.databind.ObjectMapper
 import fund.cyber.dao.bitcoin.BitcoinDaoService
 import fund.cyber.node.common.stringValue
-import fund.cyber.search.context.AppContext
+import fund.cyber.search.configuration.AppContext
 import io.undertow.server.HttpHandler
 import io.undertow.server.HttpServerExchange
 import io.undertow.util.Headers

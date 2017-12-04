@@ -1,13 +1,14 @@
 package fund.cyber.pump.bitcoin_cash
 
 import fund.cyber.dao.bitcoin.BitcoinDaoService
-import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.BITCOIN_CASH
 import fund.cyber.node.common.env
-import fund.cyber.node.model.BitcoinTransaction
 import fund.cyber.node.model.JsonRpcBitcoinTransaction
 import fund.cyber.pump.PumpsContext
-import fund.cyber.pump.bitcoin.*
+import fund.cyber.pump.bitcoin.BitcoinJsonRpcClient
+import fund.cyber.pump.bitcoin.JsonRpcBlockToBitcoinBundleConverter
+import fund.cyber.pump.bitcoin.JsonRpcToDaoBitcoinBlockConverter
+import fund.cyber.pump.bitcoin.JsonRpcToDaoBitcoinTransactionConverter
 
 
 object BitcoinCashPumpConfiguration {
@@ -27,7 +28,7 @@ object BitcoinCashPumpContext {
     )
 
 
-    val bitcoinDaoService = BitcoinDaoService(PumpsContext.cassandra, BITCOIN_CASH)
+    val bitcoinDaoService by lazy { BitcoinDaoService(PumpsContext.cassandra, BITCOIN_CASH) }
 
     private val jsonRpcToDaoBitcoinTransactionConverter = JsonRpcToDaoBitcoinTransactionConverter()
     private val jsonRpcToDaoBitcoinBlockConverter = JsonRpcToDaoBitcoinBlockConverter()

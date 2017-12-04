@@ -1,0 +1,361 @@
+openapi: 3.0.0
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/cybernode/Cyber.Search/1.0.7
+  - url: 'http://search.cyber.fund/api'
+info:
+  description: Empty description
+  version: 1.0.7
+  title: Cyber.Search API
+tags:
+  - name: search
+    description: Search operations
+  - name: bitcoin
+    description: Access to Bitcoin chain entites
+paths:
+
+  /search:
+    get:
+      tags:
+        - search
+      summary: Multichain search
+      description: ''
+      operationId: search
+      parameters:
+        - name: query
+          in: query
+          description: Search query
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Result set page number (starts from 0)
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 0
+        - name: pageSize
+          in: query
+          description: Size of the page
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 10
+      responses:
+        '200':
+          description: 'Successful search'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          description: 'Invalid query, page or pageSize parameters supplied'
+
+
+  '/bitcoin/block/{blockNumber}':
+    get:
+      tags:
+        - bitcoin
+      summary: Find bitcoin block by number
+      description: Returns a block
+      operationId: getBlockByNumber
+      parameters:
+        - name: blockNumber
+          in: path
+          description: Number of the block
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: resentTransactionsCount
+          in: query
+          description: 'How many resent transactions to load (max value for all transactions)'
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: 'Block found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BitcoinBlock'
+        '400':
+          description: 'Invalid block number or transactions count parameters'
+        '404':
+          description: 'Block not found'
+
+
+  '/bitcoin/block/{blockNumber}/transactions':
+    get:
+      tags:
+        - bitcoin
+      summary: 'Download block transactions'
+      description: Returns a block transactions
+      operationId: getBlockByNumber
+      parameters:
+        - name: blockNumber
+          in: path
+          description: Number of the block
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: resentTransactionsCount
+          in: query
+          description: 'How many resent transactions to load (max value for all transactions)'
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: 'Block found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BitcoinBlock'
+        '400':
+          description: 'Invalid block number or transactions count parameters'
+        '404':
+          description: 'Block not found'
+
+
+  '/bitcoin/address/{address}/transactions':
+    get:
+      tags:
+        - bitcoin
+      summary: 'Download address resent transactions'
+      description: 'Return address resent transactions'
+      operationId: getAddressResentTransacton
+      parameters:
+        - name: address
+          in: path
+          description: 'Given address'
+          required: true
+          schema:
+            type: string
+        - name: resentTransactionsCount
+          in: query
+          description: 'How many resent transactions to load (max value for all rest transactions)'
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+            default: 20
+      responses:
+        '200':
+          description: 'Block found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BitcoinBlock'
+        '400':
+          description: 'Invalid block number or transactions count parameters'
+        '404':
+          description: 'Block not found'
+
+
+components:
+  schemas:
+
+    ItemPreview:
+      type: object
+      properties:
+        type:
+          type: string
+        data:
+          type: object
+          anyOf:
+            - $ref: "#/components/schemas/BitcoinBlockPreview"
+
+    SearchResponse:
+      type: object
+      properties:
+        query:
+          type: string
+        page:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalHits:
+          type: integer
+          format: int64
+        searchTime:
+          type: integer
+          format: int64
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ItemPreview"
+
+    BitcoinBlockPreview:
+      type: object
+      properties:
+        hash:
+          type: string
+        height:
+          type: integer
+          format: int64
+        time:
+          type: string
+          format: date-time
+        tx_number:
+          type: integer
+          format: int32
+        total_outputs_value:
+          type: string
+
+    BitcoinBlock:
+      allOf:
+        - $ref: '#/components/schemas/BitcoinBlockPreview'
+        - type: object
+          properties:
+            hash:
+              type: string
+            height:
+              type: integer
+              format: int64
+            time:
+              type: string
+              format: date-time
+            nonce:
+              type: integer
+              format: int64
+            merkleroot:
+              type: string
+            size:
+              type: integer
+              format: int32
+            version:
+              type: integer
+              format: int32
+            weight:
+              type: integer
+              format: int32
+            bits:
+              type: string
+            difficulty:
+              type: number
+            tx_number:
+              type: integer
+              format: int32
+            total_outputs_value:
+              type: string
+            transactionPreviews:
+              type: array
+              items:
+                $ref: "#/components/schemas/BitcoinBlockTransaction"
+
+    BitcoinBlockTransaction:
+      type: object
+      properties:
+        hash:
+          type: string
+        block_number:
+          type: integer
+          format: int64
+        fee:
+          type: string
+        ins:
+          type: array
+          items:
+            $ref: "#/components/schemas/BitcoinTransactionPreviewIO"
+        outs:
+          type: array
+          items:
+            $ref: "#/components/schemas/BitcoinTransactionPreviewIO"
+
+    BitcoinTransactionPreviewIO:
+       type: object
+       properties:
+         addresses:
+          type: array
+          items:
+            type: string
+         amount:
+           type: string
+
+
+    BitcoinTransactionPreview:
+      type: object
+      properties:
+        txid:
+          type: string
+        block_hash:
+          type: string
+        block_number:
+          type: integer
+          format: int64
+        block_time:
+          type: string
+          format: date-time
+        fee:
+          type: string
+        total_output:
+          type: string
+
+    BitcoinTransaction:
+      allOf:
+        - $ref: '#/components/schemas/BitcoinTransactionPreview'
+        - type: object
+          properties:
+            coinbase:
+              type: string
+            size:
+              type: integer
+              format: int32
+            total_input:
+              type: string
+            merkleroot:
+              type: string
+            size:
+              type: integer
+              format: int32
+
+    BitcoinTransactionIn:
+       type: object
+       properties:
+         addresses:
+          type: array
+          items:
+            type: string
+         amount:
+           type: string
+         asm:
+           type: string
+         tx_id:
+           type: string
+         tx_out:
+           type: integer
+           format: int32
+
+    BitcoinTransactionOut:
+       type: object
+       properties:
+         addresses:
+          type: array
+          items:
+            type: string
+         amount:
+           type: string
+         asm:
+           type: string
+         tx_id:
+           type: string
+         tx_out:
+           type: integer
+           format: int32

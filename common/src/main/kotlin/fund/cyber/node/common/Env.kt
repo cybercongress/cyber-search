@@ -25,7 +25,8 @@ const val ELASTIC_CLUSTER_NAME_DEFAULT = "CYBER_SEARCH"
 inline fun <reified T : Any> env(name: String, default: T): T =
         when (T::class) {
             String::class -> (System.getenv(name) ?: default) as T
-            Int::class, Int::class.javaPrimitiveType -> (System.getenv(name)?.toIntOrNull() ?: default) as T
-            Boolean::class, Boolean::class.javaPrimitiveType -> (System.getenv(name).toBoolean()) as T
+            Boolean::class -> (System.getenv(name)?.toBoolean() ?: default) as T
+            Int::class -> (System.getenv(name)?.toIntOrNull() ?: default) as T
+            Long::class -> (System.getenv(name)?.toLongOrNull() ?: default) as T
             else -> default
         }
