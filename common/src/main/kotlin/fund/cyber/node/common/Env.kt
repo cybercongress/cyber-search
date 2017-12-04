@@ -21,6 +21,9 @@ const val ELASTIC_TRANSPORT_PORT_DEFAULT = 9300
 const val ELASTIC_CLUSTER_NAME = "ELASTIC_CLUSTER_NAME"
 const val ELASTIC_CLUSTER_NAME_DEFAULT = "CYBER_SEARCH"
 
+const val CORS_ALLOWED_ORIGINS = "CORS_ALLOWED_ORIGINS"
+const val CORS_ALLOWED_ORIGINS_DEFAULT = "search.cyber.fund"
+
 
 inline fun <reified T : Any> env(name: String, default: T): T =
         when (T::class) {

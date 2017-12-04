@@ -17,7 +17,6 @@ version: '3.3'
 services:
 
     cs-elassandra:
-      network_mode: host
       image: strapdata/elassandra:5.5.0.8
       restart: on-failure
       volumes:
@@ -26,11 +25,15 @@ services:
       environment:
          CASSANDRA_DC: DEVELOPMENT
          CASSANDRA_CLUSTER_NAME: CYBER_SEARCH
+      ports:
+        - "9042:9042"
+        - "9200:9200"
+        - "9300:9300"
 
 
     cs-chain-pumps-btc:
       network_mode: host
-      image: cybernode/cs-chain-pumps:release-v1.0.0.M2
+      image: cybernode/cs-chain-pumps:release-v1.0.0.M3
       restart: on-failure
       environment:
          CS_CHAINS_TO_PUMP: BITCOIN, BITCOIN_CASH
@@ -44,7 +47,7 @@ services:
 
     cs-chain-pumps-eth:
       network_mode: host
-      image: cybernode/cs-chain-pumps:release-v1.0.0.M2
+      image: cybernode/cs-chain-pumps:release-v1.0.0.M3
       restart: on-failure
       environment:
          CS_CHAINS_TO_PUMP: ETHEREUM, ETHEREUM_CLASSIC
@@ -58,8 +61,9 @@ services:
 
     cs-search-api:
       network_mode: host
-      image: cybernode/cs-search-api:release-v1.0.0.M2
+      image: cybernode/cs-search-api:release-v1.0.0.M3
       restart: on-failure
       environment:
          CASSANDRA_HOSTS: localhost
          CS_LOG_LEVEL: DEBUG
+         CORS_ALLOWED_ORIGINS: "*"
