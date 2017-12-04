@@ -56,4 +56,6 @@ object SearchApiConfiguration {
     val elasticClusterName: String = env(ELASTIC_CLUSTER_NAME, ELASTIC_CLUSTER_NAME_DEFAULT)
 
     val kafkaBrokers: String = env(KAFKA_BROKERS, KAFKA_BROKERS_DEFAULT)
+
+    val allowedCORS: String = env(CORS_ALLOWED_ORIGINS, CORS_ALLOWED_ORIGINS_DEFAULT)
 }
