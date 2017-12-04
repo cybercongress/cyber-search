@@ -21,6 +21,10 @@ interface FlowableBlockchain : Blockchain {
     fun subscribeBlocks(startBlockNumber: Long): Flowable<out BlockBundle>
 }
 
+interface Migratory {
+    val migrations: List<Migration>
+}
+
 interface BlockBundle {
     val chain: Chain
     val hash: String

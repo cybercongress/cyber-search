@@ -9,8 +9,6 @@ import fund.cyber.pump.bitcoin.BitcoinMigrations
 import fund.cyber.pump.bitcoin.BitcoinPumpContext
 import fund.cyber.pump.bitcoin_cash.BitcoinCashMigrations
 import fund.cyber.pump.bitcoin_cash.BitcoinCashPumpContext
-import fund.cyber.pump.ethereum.EthereumMigrations
-import fund.cyber.pump.ethereum_classic.EthereumClassicMigrations
 import fund.cyber.node.model.EthereumBlock as ModelEthereumBlock
 
 
@@ -37,11 +35,13 @@ class CassandraStorage: StorageInterface {
 
 
 private fun getBlockchainInterfaceMigrations(blockchain: Blockchain): List<Migration> {
+    if (blockchain is Migratory) {
+        return blockchain.migrations
+    }
+
     return when (blockchain.chain) {
         BITCOIN -> BitcoinMigrations.migrations
         BITCOIN_CASH -> BitcoinCashMigrations.migrations
-        ETHEREUM -> EthereumMigrations.migrations
-        ETHEREUM_CLASSIC -> EthereumClassicMigrations.migrations
         else -> emptyList()
     }
 }
