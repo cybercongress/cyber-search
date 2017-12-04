@@ -12,3 +12,5 @@ data class SchemaVersion(
 ) {
     constructor() : this("", 0, 0, Date())
 }
+
+abstract class CyberSearchItem

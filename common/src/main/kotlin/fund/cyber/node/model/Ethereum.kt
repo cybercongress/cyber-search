@@ -7,7 +7,7 @@ import java.math.BigInteger
 import java.time.Instant
 
 
-interface EthereumItem
+sealed class EthereumItem : CyberSearchItem()
 
 @Table(name = "tx", readConsistency = "QUORUM", writeConsistency = "QUORUM")
 data class EthereumTransaction(
@@ -26,7 +26,7 @@ data class EthereumTransaction(
         val timestamp: Instant,     //calculated
         val input: String,
         val creates: String?       //creates contract hash
-) : EthereumItem {
+) : EthereumItem() {
 
     fun addressesUsedInTransaction() = listOf(from, to).filterNotNull()
 }
@@ -54,7 +54,7 @@ data class EthereumBlock(
         val uncles: List<String>,
         val block_reward: String,
         val tx_fees: String
-) : EthereumItem
+) : EthereumItem()
 
 @Table(name = "tx_preview_by_block",
         readConsistency = "QUORUM", writeConsistency = "QUORUM",
@@ -67,7 +67,7 @@ data class EthereumTxPreviewByBlock (
         val from: String,
         val to: String,
         val creates_contract: Boolean
-) : EthereumItem {
+) : EthereumItem() {
     constructor(tx: EthereumTransaction) :
             this(
                     block_number = tx.block_number ?: 0,
@@ -89,7 +89,7 @@ data class EthereumAddress(
         val total_received: String,
         val last_transaction_block: Long,
         val tx_number: Int
-) : EthereumItem
+) : EthereumItem()
 
 
 @Table(name = "tx_preview_by_address", readConsistency = "QUORUM", writeConsistency = "QUORUM")
@@ -101,7 +101,7 @@ data class EthereumAddressTransaction(
         val from: String,
         val to: String,
         val value: String
-) : EthereumItem
+) : EthereumItem()
 
 
 fun getBlockReward(number: Long): BigDecimal {

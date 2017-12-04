@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.math.BigDecimal
 
-sealed class JsonRpcBitcoinElement
+sealed class JsonRpcBitcoinElement : CyberSearchItem()
 
 data class JsonRpcBitcoinBlock(
         val hash: String,
