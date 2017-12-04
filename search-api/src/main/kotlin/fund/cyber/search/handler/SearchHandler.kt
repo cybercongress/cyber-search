@@ -24,7 +24,7 @@ import java.time.Instant
 class SearchHandler(
         private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer,
         private val elasticClient: TransportClient = AppContext.elasticClient,
-        private val kafkaProducer: SearchRequestProcessingStatsKafkaProducer = AppContext.searchRequestProcessingStatsKafkaProducer
+        private val kafkaProducer: SearchRequestProcessingStatsKafkaProducer? = null
 ) : HttpHandler {
 
 
@@ -67,8 +67,7 @@ class SearchHandler(
 
     private fun saveRequestProcessingStats(query: String, elasticResponse: org.elasticsearch.action.search.SearchResponse) {
 
-        launch(AppContext.concurrentContext, CoroutineStart.DEFAULT) {
-
+        if (kafkaProducer != null) {
             val stats = SearchRequestProcessingStats(
                     total_hits = elasticResponse.hits.totalHits, max_score = elasticResponse.hits.maxScore,
                     search_time_ms = elasticResponse.tookInMillis, time = Instant.now().toString(),
