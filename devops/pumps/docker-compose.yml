@@ -27,18 +27,34 @@ services:
          CASSANDRA_DC: DEVELOPMENT
          CASSANDRA_CLUSTER_NAME: CYBER_SEARCH
 
-    cs-chain-pumps:
+
+    cs-chain-pumps-btc:
       network_mode: host
       image: cybernode/cs-chain-pumps:release-v1.0.0.M1
       restart: on-failure
       environment:
-         CS_CHAINS_TO_PUMP: BITCOIN, BITCOIN_CASH, ETHEREUM, ETHEREUM_CLASSIC
+         CS_CHAINS_TO_PUMP: BITCOIN, BITCOIN_CASH
          CASSANDRA_HOSTS: localhost
 #         BITCOIND_URL: http://cyber:cyber@cs-bitcoind:8332
 #         ABC_URL: http://bitcoin:password@cs-abc:18332
 #         ETHEREUM: http://cyber:cyber@cs-parity-eth:8545
 #         ETHEREUM_CLASSIC: http://cyber:cyber@cs-parity-etc:18545
          CS_LOG_LEVEL: DEBUG
+
+
+    cs-chain-pumps-eth:
+      network_mode: host
+      image: cybernode/cs-chain-pumps:release-v1.0.0.M1
+      restart: on-failure
+      environment:
+         CS_CHAINS_TO_PUMP: ETHEREUM, ETHEREUM_CLASSIC
+         CASSANDRA_HOSTS: localhost
+#         BITCOIND_URL: http://cyber:cyber@cs-bitcoind:8332
+#         ABC_URL: http://bitcoin:password@cs-abc:18332
+#         ETHEREUM: http://cyber:cyber@cs-parity-eth:8545
+#         ETHEREUM_CLASSIC: http://cyber:cyber@cs-parity-etc:18545
+         CS_LOG_LEVEL: DEBUG
+
 
     cs-search-api:
       network_mode: host
