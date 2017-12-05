@@ -1,5 +1,7 @@
 package fund.cyber.pump.bitcoin
 
+import fund.cyber.dao.migration.Migratable
+import fund.cyber.dao.migration.Migration
 import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.BITCOIN
 import fund.cyber.node.model.BitcoinBlock
@@ -27,7 +29,8 @@ class BitcoinBlockBundle(
         val transactions: List<BitcoinTransaction>
 ) : BlockBundle
 
-class BitcoinBlockchainInterface : BlockchainInterface, FlowableBlockchain {
+class BitcoinBlockchainInterface : BlockchainInterface, FlowableBlockchain, Migratable {
+
     override val lastNetowrkBlock: Long
         get() = BitcoinPumpContext.bitcoinJsonRpcClient.getLastBlockNumber()
     private val downloadNextBlockFunction = DownloadNextBlockFunction(BitcoinPumpContext.bitcoinJsonRpcClient)
@@ -41,6 +44,8 @@ class BitcoinBlockchainInterface : BlockchainInterface, FlowableBlockchain {
     override fun blockBundleByNumber(number: Long): BlockBundle {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
+
+    override val migrations: List<Migration> = BitcoinMigrations.migrations
 }
 
 

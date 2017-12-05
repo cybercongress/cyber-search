@@ -3,6 +3,11 @@ package fund.cyber.dao.migration
 import com.datastax.driver.core.SimpleStatement
 import com.datastax.driver.core.Statement
 
+
+interface Migratable {
+    val migrations: List<Migration>
+}
+
 interface Migration {
     val version: Int
     val applicationId: String

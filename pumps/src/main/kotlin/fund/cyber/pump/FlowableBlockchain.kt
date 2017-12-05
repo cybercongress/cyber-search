@@ -1,31 +1,24 @@
 package fund.cyber.pump
 
-import fund.cyber.dao.migration.Migration
 import fund.cyber.node.common.Chain
 import io.reactivex.Emitter
 import io.reactivex.Flowable
+import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.toFlowable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.Callable
-import io.reactivex.functions.BiFunction
 
 
-interface  FlowableBlockchain : Blockchain {
+interface FlowableBlockchain : Blockchain {
     fun subscribeBlocks(startBlockNumber: Long): Flowable<out BlockBundle>
 }
 
-abstract class AbstractFlowableBlockchain(private val blockchain: BlockchainInterface) : FlowableBlockchain, Migratory {
-    override val migrations: List<Migration>
-        get() = if (blockchain is Migratory)
-            blockchain.migrations
-        else
-            emptyList()
-
-    override val chain: Chain
-        get() = blockchain.chain
+abstract class AbstractFlowableBlockchain(blockchain: BlockchainInterface) : FlowableBlockchain {
+    override val chain: Chain = blockchain.chain
 }
 
 class SerialPulledBlockchain(val blockchain: BlockchainInterface) : AbstractFlowableBlockchain(blockchain) {
+
     override fun subscribeBlocks(startBlockNumber: Long): Flowable<BlockBundle> {
         return Flowable.generate<BlockBundle, Long>(Callable { startBlockNumber }, downloadNextBlockFunction())
 
@@ -66,7 +59,7 @@ class ConcurrentPulledBlockchain(val blockchain: BlockchainInterface, val batchS
         })
                 .flatMap({ buffer ->
                     buffer.toFlowable()
-                            .flatMap ({ number ->
+                            .flatMap({ number ->
                                 Flowable.just(number)
                                         .subscribeOn(Schedulers.io())
                                         .map { number -> blockchain.blockBundleByNumber(number) }

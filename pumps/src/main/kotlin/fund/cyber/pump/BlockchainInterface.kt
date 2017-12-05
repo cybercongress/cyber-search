@@ -1,6 +1,5 @@
 package fund.cyber.pump
 
-import fund.cyber.dao.migration.Migration
 import fund.cyber.node.common.Chain
 import fund.cyber.node.model.CyberSearchItem
 
@@ -13,9 +12,6 @@ interface BlockchainInterface : Blockchain {
     fun blockBundleByNumber(number: Long): BlockBundle
 }
 
-interface Migratory {
-    val migrations: List<Migration>
-}
 
 interface BlockBundle {
     val chain: Chain
