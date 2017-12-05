@@ -78,13 +78,13 @@ class BitcoinAddressConverter {
 
                     tx.allAddressesUsedInTransaction().map { addressId ->
                         BitcoinAddressTransaction(
-                                address = addressId, fee = tx.fee, hash = tx.txid, block_time = tx.block_time,
+                                address = addressId, fee = BigDecimal(tx.fee), hash = tx.hash, block_time = tx.block_time,
                                 ins = tx.ins.map { input ->
                                     BitcoinTransactionPreviewIO(addresses = input.addresses, amount = input.amount)
                                 },
                                 outs = tx.outs.map { out ->
                                     BitcoinTransactionPreviewIO(addresses = out.addresses, amount = out.amount)
-                                }
+                                }, block_number = tx.block_number
                         )
                     }
                 }
