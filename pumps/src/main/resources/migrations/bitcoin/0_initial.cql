@@ -6,7 +6,7 @@ CREATE TYPE IF NOT EXISTS bitcoin.tx_preview_io (
 
 CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_address (
     address text,
-    fee text,
+    fee decimal,
     block_number bigint,
     block_time timestamp,
     hash text,
@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_address (
 
 CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_block (
     block_number bigint,
-    fee text,
+    "index" int,
+    fee decimal,
     hash text,
     ins FROZEN < list < bitcoin.tx_preview_io > >,
     outs FROZEN < list < bitcoin.tx_preview_io > >,
@@ -43,7 +44,7 @@ CREATE TYPE IF NOT EXISTS bitcoin.tx_in (
 );
 
 CREATE TABLE IF NOT EXISTS bitcoin.tx (
-     txid text PRIMARY KEY,
+     hash text PRIMARY KEY,
      block_number bigint,
      block_hash text,
      block_time timestamp,

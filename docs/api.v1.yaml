@@ -8,18 +8,30 @@ info:
   version: 1.0.7
   title: Cyber.Search API
 tags:
+  - name: general
   - name: search
     description: Search operations
   - name: bitcoin
     description: Access to Bitcoin chain entites
 paths:
 
+  /ping:
+    get:
+      tags:
+        - general
+      summary: Ping command
+      description: 'Server health status command'
+      operationId: ping
+      responses:
+         '200':
+           description: 'Successful ping'
+
   /search:
     get:
       tags:
         - search
       summary: Multichain search
-      description: ''
+      description: 'General endpoint to search chains entities'
       operationId: search
       parameters:
         - name: query
@@ -46,6 +58,26 @@ paths:
             format: int32
             minimum: 0
             default: 10
+        - name: chains
+          in: query
+          description: Chains to lookup (Leave empty for all)
+          required: false
+          schema:
+            type: "array"
+            items:
+              $ref: "#/components/schemas/Chain"
+          style: form
+          explode: false
+        - name: entities
+          in: query
+          description: Entities to lookup (Leave empty for all)
+          required: false
+          schema:
+            type: "array"
+            items:
+              $ref: "#/components/schemas/ChainEntity"
+          style: form
+          explode: false
       responses:
         '200':
           description: 'Successful search'
@@ -72,15 +104,6 @@ paths:
           schema:
             type: integer
             format: int64
-        - name: resentTransactionsCount
-          in: query
-          description: 'How many resent transactions to load (max value for all transactions)'
-          required: false
-          schema:
-            type: integer
-            format: int64
-            minimum: 0
-            default: 0
       responses:
         '200':
           description: 'Block found'
@@ -89,7 +112,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/BitcoinBlock'
         '400':
-          description: 'Invalid block number or transactions count parameters'
+          description: 'Invalid block number supplied'
         '404':
           description: 'Block not found'
 
@@ -109,9 +132,18 @@ paths:
           schema:
             type: integer
             format: int64
-        - name: resentTransactionsCount
+        - name: count
           in: query
-          description: 'How many resent transactions to load (max value for all transactions)'
+          description: 'How many transactions to load (max value for all transactions)'
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+            default: 50
+        - name: offset
+          in: query
+          description: 'Transaction index offset in block'
           required: false
           schema:
             type: integer
@@ -124,9 +156,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BitcoinBlock'
+                $ref: '#/components/schemas/BitcoinBlockTransaction'
         '400':
-          description: 'Invalid block number or transactions count parameters'
+          description: "Invalid 'blockNumber', 'count' or 'offset' parameters"
         '404':
           description: 'Block not found'
 
@@ -135,9 +167,9 @@ paths:
     get:
       tags:
         - bitcoin
-      summary: 'Download address resent transactions'
-      description: 'Return address resent transactions'
-      operationId: getAddressResentTransacton
+      summary: 'Download address transactions'
+      description: 'Returns address transactions sorted by time (most recent first)'
+      operationId: getAddressResentTransactons
       parameters:
         - name: address
           in: path
@@ -145,36 +177,62 @@ paths:
           required: true
           schema:
             type: string
-        - name: resentTransactionsCount
+        - name: count
           in: query
-          description: 'How many resent transactions to load (max value for all rest transactions)'
+          description: 'How many transactions to load (max value for all rest transactions)'
           required: false
           schema:
             type: integer
             format: int64
             minimum: 0
             default: 20
+        - name: offset
+          in: query
+          description: 'Transaction offset in address list (sorted by time, most recent first)'
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+            default: 0
       responses:
         '200':
-          description: 'Block found'
+          description: 'Address transactions found'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BitcoinBlock'
+                $ref: '#/components/schemas/BitcoinAddressTransaction'
         '400':
-          description: 'Invalid block number or transactions count parameters'
+          description: "Invalid 'address', 'count' or 'offset' parameters"
         '404':
-          description: 'Block not found'
+          description: 'Address not found'
 
 
 components:
   schemas:
 
+    Chain:
+      type: string
+      enum:
+        - BITCOIN
+        - BITCOIN_CASH
+        - ETHEREUM
+        - ETHEREUM_CLASSIC
+
+    ChainEntity:
+      type: string
+      enum:
+        - BLOCK
+        - TRANSACTION
+        - ADDRESS
+
     ItemPreview:
       type: object
       properties:
-        type:
-          type: string
+        chain:
+          $ref: "#/components/schemas/Chain"
+        entity:
+          $ref: "#/components/schemas/ChainEntity"
         data:
           type: object
           anyOf:
@@ -322,9 +380,6 @@ components:
               type: string
             merkleroot:
               type: string
-            size:
-              type: integer
-              format: int32
 
     BitcoinTransactionIn:
        type: object
@@ -359,3 +414,26 @@ components:
          tx_out:
            type: integer
            format: int32
+
+
+    BitcoinAddressTransaction:
+      type: object
+      properties:
+        hash:
+          type: string
+        block_number:
+          type: integer
+          format: int64
+        block_time:
+          type: string
+          format: date-time
+        fee:
+          type: number
+        ins:
+          type: array
+          items:
+            $ref: "#/components/schemas/BitcoinTransactionPreviewIO"
+        outs:
+          type: array
+          items:
+            $ref: "#/components/schemas/BitcoinTransactionPreviewIO"

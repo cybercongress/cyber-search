@@ -3,8 +3,6 @@ package fund.cyber.index.bitcoin
 import com.datastax.driver.core.Cluster
 import fund.cyber.dao.bitcoin.BitcoinDaoService
 import fund.cyber.index.bitcoin.converter.BitcoinAddressConverter
-import fund.cyber.index.bitcoin.converter.BitcoinBlockConverter
-import fund.cyber.index.bitcoin.converter.BitcoinTransactionConverter
 import fund.cyber.node.common.Chain.BITCOIN
 import fund.cyber.node.common.env
 import fund.cyber.node.kafka.JsonDeserializer
@@ -24,8 +22,6 @@ import java.util.*
 object AppContext {
 
     val streamsConfiguration = StreamConfiguration()
-    val transactionConverter = BitcoinTransactionConverter()
-    val blockConverter = BitcoinBlockConverter()
     val addressConverter = BitcoinAddressConverter()
 
     val cassandra = Cluster.builder()
@@ -69,7 +65,7 @@ class StreamConfiguration(
 }
 
 fun getCacheManager(): CacheManager {
-    val ehcacheSettingsUri = BitcoinBlockSplitterApplication::class.java.getResource("/ehcache.xml")
+    val ehcacheSettingsUri = StreamConfiguration::class.java.getResource("/ehcache.xml")
     val cacheManager = CacheManagerBuilder.newCacheManager(XmlConfiguration(ehcacheSettingsUri))
     cacheManager.init()
     return cacheManager

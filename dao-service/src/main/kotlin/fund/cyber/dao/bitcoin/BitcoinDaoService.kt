@@ -32,7 +32,7 @@ class BitcoinDaoService(
 
 
     fun saveAsyncTx(tx: BitcoinTransaction): ListenableFuture<Void> {
-        txCache?.put(tx.txid, tx)
+        txCache?.put(tx.hash, tx)
         return txStore.saveAsync(tx)
     }
 
@@ -53,7 +53,7 @@ class BitcoinDaoService(
 
 
     fun getTxById(id: String): BitcoinTransaction? = session
-            .execute("SELECT * FROM tx WHERE txid='$id'")
+            .execute("SELECT * FROM tx WHERE hash='$id'")
             .map(this::bitcoinTransactionMapping).firstOrNull()
 
 
@@ -125,7 +125,7 @@ class BitcoinDaoService(
 
     private fun queryTxsByIds(ids: List<String>): List<BitcoinTransaction> {
 
-        val statement = session.prepare("SELECT * FROM tx WHERE txid = ?")
+        val statement = session.prepare("SELECT * FROM tx WHERE hash = ?")
 
         return ids.map { id -> session.executeAsync(statement.bind(id)) } // future<ResultSet>
                 .map { futureResultSet ->
@@ -149,7 +149,7 @@ class BitcoinDaoService(
 
     private fun bitcoinTransactionMapping(row: Row): BitcoinTransaction {
         return BitcoinTransaction(
-                txid = row.getString("txid"), fee = row.getString("fee"), size = row.getInt("size"),
+                hash = row.getString("hash"), fee = row.getString("fee"), size = row.getInt("size"),
                 block_number = row.getLong("block_number"),
                 total_output = row.getString("total_output"), total_input = row.getString("total_input"),
                 block_time = row.getTimestamp("block_time").toInstant(),
