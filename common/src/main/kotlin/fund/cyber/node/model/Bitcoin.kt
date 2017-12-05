@@ -3,6 +3,7 @@ package fund.cyber.node.model
 import com.datastax.driver.mapping.annotations.Table
 import com.datastax.driver.mapping.annotations.Transient
 import com.datastax.driver.mapping.annotations.UDT
+import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 
@@ -22,7 +23,8 @@ data class BitcoinTransactionPreviewIO(
 @Table(name = "tx_preview_by_address", readConsistency = "QUORUM", writeConsistency = "QUORUM")
 data class BitcoinAddressTransaction(
         val address: String,
-        val fee: String,
+        val fee: BigDecimal,
+        val block_number: Long,
         val block_time: Instant,
         val hash: String,
         val ins: List<BitcoinTransactionPreviewIO>,
@@ -33,8 +35,9 @@ data class BitcoinAddressTransaction(
 @Table(name = "tx_preview_by_block", readConsistency = "QUORUM", writeConsistency = "QUORUM")
 data class BitcoinBlockTransaction(
         val hash: String,
+        val index: Int,                     //specify tx number(order) in block
         val block_number: Long,
-        val fee: String,
+        val fee: BigDecimal,
         val ins: List<BitcoinTransactionPreviewIO>,
         val outs: List<BitcoinTransactionPreviewIO>
 ) : BitcoinItem
@@ -70,7 +73,7 @@ data class BitcoinBlock(
 */
 @Table(name = "tx", readConsistency = "QUORUM", writeConsistency = "QUORUM")
 data class BitcoinTransaction(
-        val txid: String,
+        val hash: String,
         val block_number: Long,
         val block_hash: String,
         val coinbase: String? = null,

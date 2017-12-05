@@ -20,7 +20,7 @@ val expectedDaoCoinbaseTransactionOut = BitcoinTransactionOut(
 )
 
 val expectedDaoCoinbaseTransaction = BitcoinTransaction(
-        txid = "8c14f0db3df150123e6f3dbbf30f8b955a8249b62ac1d1ff16284aefa3d06d87", size = 135,
+        hash = "8c14f0db3df150123e6f3dbbf30f8b955a8249b62ac1d1ff16284aefa3d06d87", size = 135,
         coinbase = "044c86041b020602", fee = "0",
         total_output = "0", total_input = "0", ins = emptyList(),
         block_number = 100000, outs = listOf(expectedDaoCoinbaseTransactionOut),
@@ -52,7 +52,7 @@ val expectedSecondTransactionOut = BitcoinTransactionOut(
 )
 
 val expectedRegularTransaction = BitcoinTransaction(
-        txid = "fff2525b8931402dd09222c50775608f75787bd2b87e56995a7bdd30f79702c4", size = 259,
+        hash = "fff2525b8931402dd09222c50775608f75787bd2b87e56995a7bdd30f79702c4", size = 259,
         fee = "0.10", total_output = "50.00", total_input = "50.1",
         ins = listOf(expectedFirstTransactionInput, expectedSecondTransactionInput),
         outs = listOf(expectedFirstTransactionOut, expectedSecondTransactionOut),
