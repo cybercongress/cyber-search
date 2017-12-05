@@ -14,6 +14,8 @@ private val log = LoggerFactory.getLogger(BitcoinCashBlockchainInterface::class.
 
 
 class BitcoinCashBlockchainInterface : BlockchainInterface, FlowableBlockchain {
+    override val lastNetowrkBlock: Long
+        get() = BitcoinCashPumpContext.bitcoinJsonRpcClient.getLastBlockNumber()
     private val downloadNextBlockFunction = DownloadNextBlockFunction(BitcoinCashPumpContext.bitcoinJsonRpcClient)
 
     override val chain = BITCOIN_CASH

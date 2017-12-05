@@ -1,24 +1,16 @@
 package fund.cyber.pump
 
-import com.datastax.driver.mapping.MappingManager
 import fund.cyber.dao.migration.Migration
 import fund.cyber.node.common.Chain
 import fund.cyber.node.model.CyberSearchItem
-import io.reactivex.Emitter
-import io.reactivex.Flowable
-import io.reactivex.functions.BiFunction
-import java.util.concurrent.Callable
 
 interface Blockchain {
     val chain: Chain
 }
 
 interface BlockchainInterface : Blockchain {
+    val lastNetowrkBlock: Long
     fun blockBundleByNumber(number: Long): BlockBundle
-}
-
-interface FlowableBlockchain : Blockchain {
-    fun subscribeBlocks(startBlockNumber: Long): Flowable<out BlockBundle>
 }
 
 interface Migratory {
@@ -32,56 +24,31 @@ interface BlockBundle {
     val number: Long
 }
 
-class SimpleBlockBundle<T: CyberSearchItem>(
+class SimpleBlockBundle (
     override val chain: Chain,
     override val hash: String,
     override val parentHash: String,
-    override val number: Long,
-
-    val manager: MappingManager
+    override val number: Long
 ) : BlockBundle {
 
-    var entities: List<out T> = emptyList()
+    var entities: List<out CyberSearchItem> = emptyList()
     var actions: List<Pair<()->Unit, ()->Unit>> = emptyList()
 
-    inline fun <reified R:T> push(value: R) {
-        val cls = R::class.java
+    companion object {
+        var actionSourceFactories: List<ActionSourceFactory> = emptyList()
+    }
+
+    fun <R: CyberSearchItem>push(value: R, cls: Class<R>) {
         this.entities += value
 
-        val mapper = manager.mapper(cls)
-        add(Pair(
-                {mapper.save(value)},
-                {mapper.delete(value)}
-                )
-        )
+        actions += SimpleBlockBundle.actionSourceFactories
+                .filter { factory -> factory.chain == chain }
+                .map {
+            it.actionFor(value, cls)
+        }
     }
 
     fun add(action: Pair<()->Unit, ()->Unit>) {
         actions += action
     }
-}
-
-class SerialPulledBlockhain(val blockchain: BlockchainInterface) : FlowableBlockchain, Blockchain{
-    override val chain: Chain
-        get() = blockchain.chain
-    override fun subscribeBlocks(startBlockNumber: Long): Flowable<BlockBundle> {
-        return Flowable.generate<BlockBundle, Long>(Callable { startBlockNumber }, downloadNextBlockFunction())
-
-    }
-
-    fun downloadNextBlockFunction() =
-            BiFunction { blockNumber: Long, subscriber: Emitter<BlockBundle> ->
-                try {
-//                log.debug("Pulling block $blockNumber")
-                    val block = blockchain.blockBundleByNumber(blockNumber)
-
-                    if (block != null) {
-                        subscriber.onNext(block)
-                        return@BiFunction blockNumber + 1
-                    }
-                } catch (e: Exception) {
-//                log.error("error during download block $blockNumber", e)
-                }
-                return@BiFunction blockNumber
-            }
 }
