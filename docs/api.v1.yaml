@@ -8,18 +8,30 @@ info:
   version: 1.0.7
   title: Cyber.Search API
 tags:
+  - name: general
   - name: search
     description: Search operations
   - name: bitcoin
     description: Access to Bitcoin chain entites
 paths:
 
+  /ping:
+    get:
+      tags:
+        - general
+      summary: Ping command
+      description: 'Server health status command'
+      operationId: ping
+      responses:
+         '200':
+           description: 'Successful ping'
+
   /search:
     get:
       tags:
         - search
       summary: Multichain search
-      description: ''
+      description: 'General endpoint to search chains entities'
       operationId: search
       parameters:
         - name: query
