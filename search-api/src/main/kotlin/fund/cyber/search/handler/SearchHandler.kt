@@ -1,6 +1,8 @@
 package fund.cyber.search.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import fund.cyber.node.common.Chain
+import fund.cyber.node.common.ChainEntity
 import fund.cyber.node.common.intValue
 import fund.cyber.node.common.stringValue
 import fund.cyber.node.model.DocumentKey
@@ -13,8 +15,6 @@ import fund.cyber.search.model.SearchResponse
 import io.undertow.server.HttpHandler
 import io.undertow.server.HttpServerExchange
 import io.undertow.util.Headers
-import kotlinx.coroutines.experimental.CoroutineStart
-import kotlinx.coroutines.experimental.launch
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.unit.Fuzziness
 import org.elasticsearch.index.query.QueryBuilders
@@ -24,6 +24,7 @@ import java.time.Instant
 class SearchHandler(
         private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer,
         private val elasticClient: TransportClient = AppContext.elasticClient,
+        private val indexToChainEntity: Map<String, Pair<Chain, ChainEntity>>,
         private val kafkaProducer: SearchRequestProcessingStatsKafkaProducer? = null
 ) : HttpHandler {
 
@@ -52,7 +53,10 @@ class SearchHandler(
         saveRequestProcessingStats(query, elasticResponse)
 
         val responseItems = elasticResponse.hits
-                .map { hit -> ItemPreview(type = hit.index, data = hit.sourceAsString) }
+                .map { hit ->
+                    val (chain, entity) = indexToChainEntity[hit.index]!!
+                    ItemPreview(chain, entity, hit.sourceAsString)
+                }
 
         val response = SearchResponse(
                 query = query, page = page, pageSize = pageSize,

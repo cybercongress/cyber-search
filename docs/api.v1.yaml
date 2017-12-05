@@ -173,8 +173,12 @@ components:
     ItemPreview:
       type: object
       properties:
-        type:
+        chain:
           type: string
+          enum: [BITCOIN, BITCOIN_CASH, ETHEREUM, ETHEREUM_CLASSIC]
+        entity:
+          type: string
+          enum: [BLOCK, TRANSACTION, ADDRESS]
         data:
           type: object
           anyOf:
@@ -322,9 +326,6 @@ components:
               type: string
             merkleroot:
               type: string
-            size:
-              type: integer
-              format: int32
 
     BitcoinTransactionIn:
        type: object

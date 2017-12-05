@@ -6,3 +6,9 @@ enum class Chain {
     ETHEREUM,
     ETHEREUM_CLASSIC
 }
+
+enum class ChainEntity {
+    BLOCK,
+    TRANSACTION,
+    ADDRESS
+}
