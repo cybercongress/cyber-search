@@ -1,6 +1,7 @@
 package fund.cyber.pump.ethereum
 
 import fund.cyber.dao.migration.Migration
+import fund.cyber.dao.migration.Migratable
 import fund.cyber.node.common.Chain
 import fund.cyber.node.model.*
 import fund.cyber.pump.*
@@ -14,7 +15,7 @@ import java.util.concurrent.Executors
 
 const val BATCH_SIZE_DEFAULT: Long = 8
 
-class EthereumBlockchainInterface(url: String, override val chain: Chain) : BlockchainInterface, Migratory {
+class EthereumBlockchainInterface(url: String, override val chain: Chain) : BlockchainInterface, Migratable {
     private val parityToDaoConverter = EthereumParityToDaoConverter()
     private var batchSize: BigInteger = BigInteger.valueOf(BATCH_SIZE_DEFAULT)
     private val executorService = Executors.newScheduledThreadPool(batchSize.toInt())
