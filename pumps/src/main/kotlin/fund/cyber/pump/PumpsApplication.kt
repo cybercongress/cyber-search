@@ -107,8 +107,8 @@ private fun initializeBlockchainInterface(chain: Chain): FlowableBlockchain? {
     return when (chain) {
         BITCOIN -> BitcoinBlockchainInterface()
         BITCOIN_CASH -> BitcoinCashBlockchainInterface()
-        ETHEREUM -> SerialPulledBlockhain(EthereumBlockchainInterface(env("ETHEREUM", "http://cyber:cyber@127.0.0.1:8545"), ETHEREUM))
-        ETHEREUM_CLASSIC -> SerialPulledBlockhain(EthereumBlockchainInterface(env("ETHEREUM_CLASSIC", "http://cyber:cyber@127.0.0.1:18545"), ETHEREUM_CLASSIC))
+        ETHEREUM -> ConcurrentPulledBlockchain(EthereumBlockchainInterface(env("ETHEREUM", "http://cyber:cyber@127.0.0.1:8545"), ETHEREUM))
+        ETHEREUM_CLASSIC -> SerialPulledBlockchain(EthereumBlockchainInterface(env("ETHEREUM_CLASSIC", "http://cyber:cyber@127.0.0.1:18545"), ETHEREUM_CLASSIC))
         else -> null
     }
 }
