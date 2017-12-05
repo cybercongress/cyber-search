@@ -1,5 +1,8 @@
 package fund.cyber.pump
 
+import fund.cyber.node.common.Chain
+import fund.cyber.node.model.CyberSearchItem
+
 interface StorageInterface {
     fun initialize(blockchains: List<Blockchain>)
     fun constructAction(blockBundle: BlockBundle): StorageAction
@@ -24,7 +27,7 @@ object EmptyStorageAction: StorageAction {
     }
 }
 
-class SimpleStorageAction(private val bundle: SimpleBlockBundle<*>): StorageAction {
+class SimpleStorageAction(private val bundle: SimpleBlockBundle): StorageAction {
     var dependencies: List<StorageAction> = listOf()
 
     override fun store() {
@@ -46,4 +49,9 @@ class SimpleStorageAction(private val bundle: SimpleBlockBundle<*>): StorageActi
             it.second()
         }
     }
+}
+
+interface ActionSourceFactory {
+    val chain: Chain
+    fun <R: CyberSearchItem>actionFor(value: R, cls: Class<R>): Pair<()->Unit, ()->Unit>
 }

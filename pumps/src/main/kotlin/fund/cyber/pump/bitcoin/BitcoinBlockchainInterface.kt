@@ -28,6 +28,8 @@ class BitcoinBlockBundle(
 ) : BlockBundle
 
 class BitcoinBlockchainInterface : BlockchainInterface, FlowableBlockchain {
+    override val lastNetowrkBlock: Long
+        get() = BitcoinPumpContext.bitcoinJsonRpcClient.getLastBlockNumber()
     private val downloadNextBlockFunction = DownloadNextBlockFunction(BitcoinPumpContext.bitcoinJsonRpcClient)
     override val chain = BITCOIN
 
