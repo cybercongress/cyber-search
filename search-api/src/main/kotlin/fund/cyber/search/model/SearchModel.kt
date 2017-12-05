@@ -1,10 +1,13 @@
 package fund.cyber.search.model
 
 import com.fasterxml.jackson.annotation.JsonRawValue
+import fund.cyber.node.common.Chain
+import fund.cyber.node.common.ChainEntity
 
 
 data class ItemPreview(
-        val type: String,
+        val chain: Chain,
+        val entity: ChainEntity,
         @JsonRawValue val data: String
 )
 
