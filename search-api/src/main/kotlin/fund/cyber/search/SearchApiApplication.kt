@@ -14,6 +14,7 @@ object SearchApiApplication {
 
         val httpHandler = Handlers.routing()
                 .get("/search", SearchHandler(indexToChainEntity = INDEX_TO_CHAIN_ENTITY))
+                .get("/ping", PingHandler())
                 .get("/bitcoin/block/{blockNumber}", BitcoinBlockHandler())
                 .get("/bitcoin/tx/{txId}", BitcoinTxHandler())
                 .get("/bitcoin/address/{address}", BitcoinAddressHandler())
