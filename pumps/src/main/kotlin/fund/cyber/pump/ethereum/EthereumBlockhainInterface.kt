@@ -1,10 +1,11 @@
 package fund.cyber.pump.ethereum
 
-import fund.cyber.dao.migration.Migratory
 import fund.cyber.dao.migration.Migration
+import fund.cyber.dao.migration.Migratory
 import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.ETHEREUM
 import fund.cyber.node.common.env
+import fund.cyber.node.model.CyberSearchItem
 import fund.cyber.node.model.EthereumBlock
 import fund.cyber.node.model.EthereumTransaction
 import fund.cyber.pump.BlockBundle
@@ -22,7 +23,18 @@ class EthereumBlockBundle(
         override val chain: Chain,
         val block: EthereumBlock,
         val transactions: List<EthereumTransaction>
-) : BlockBundle
+) : BlockBundle {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun elementsMap(): Map<Class<CyberSearchItem>, List<CyberSearchItem>> {
+
+        val map: MutableMap<Class<CyberSearchItem>, List<CyberSearchItem>> = mutableMapOf()
+        map.put(EthereumBlock::class.java as Class<CyberSearchItem>, listOf(block))
+        map.put(EthereumTransaction::class.java as Class<CyberSearchItem>, transactions)
+
+        return map
+    }
+}
 
 
 open class EthereumBlockchainInterface(

@@ -24,12 +24,12 @@ class ElassandraStorage(
             defaultMigrations = PumpsMigrations.migrations
     )
 
-    private val actionFactories = mutableMapOf<Chain, CassandraStorageActionFactory<BlockBundle>>()
+    private val actionFactories = mutableMapOf<Chain, CassandraStorageActionSourceFactory<BlockBundle>>()
 
     @Suppress("UNCHECKED_CAST")
-    override fun registerStorageActionFactory(chain: Chain, actionFactory: StorageActionFactory) {
-        if (actionFactory is CassandraStorageActionFactory<*>) {
-            actionFactories.put(chain, actionFactory as CassandraStorageActionFactory<BlockBundle>)
+    override fun registerStorageActionSourceFactory(chain: Chain, actionSourceFactory: StorageActionSourceFactory) {
+        if (actionSourceFactory is CassandraStorageActionSourceFactory<*>) {
+            actionFactories.put(chain, actionSourceFactory as CassandraStorageActionSourceFactory<BlockBundle>)
         }
     }
 
@@ -44,7 +44,7 @@ class ElassandraStorage(
         val cassandraAction = actionFactories[blockBundle.chain]?.constructCassandraAction(blockBundle)
 
         if (cassandraAction != null) {
-            return SimpleCassandraStorageAction(
+            return CassandraStorageAction(
                     cassandraStorageAction = cassandraAction,
                     mappingManager = cassandraService.getChainRepository(blockBundle.chain),
                     session = cassandraService.getChainRepositorySession(blockBundle.chain)
