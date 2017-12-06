@@ -2,16 +2,13 @@
 
 package fund.cyber.pump
 
-import com.datastax.driver.core.Cluster
-import com.datastax.driver.extras.codecs.jdk8.InstantCodec
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import fund.cyber.dao.migration.ElassandraSchemaMigrationEngine
-import fund.cyber.dao.pump.PumpsDaoService
-import fund.cyber.dao.system.SystemDaoService
+import fund.cyber.cassandra.CassandraService
 import fund.cyber.node.common.*
+import fund.cyber.pump.cassandra.ElassandraStorage
 import org.apache.http.impl.client.HttpClients
 import org.ehcache.CacheManager
 import org.ehcache.config.builders.CacheManagerBuilder
@@ -22,12 +19,15 @@ private val log = LoggerFactory.getLogger(PumpsContext::class.java)!!
 
 object PumpsContext {
 
-    val cassandra = Cluster.builder()
-            .addContactPoints(*PumpsConfiguration.cassandraServers.toTypedArray())
-            .withPort(PumpsConfiguration.cassandraPort)
-            .withMaxSchemaAgreementWaitSeconds(30)
-            .build().init()!!
-            .apply { configuration.codecRegistry.register(InstantCodec.instance) }
+    val httpClient = HttpClients.createDefault()!!
+
+    val cassandraService = CassandraService(PumpsConfiguration.cassandraServers, PumpsConfiguration.cassandraPort)
+
+    val elassandraStorage = ElassandraStorage(
+            cassandraService = cassandraService, httpClient = httpClient,
+            elasticHost = PumpsConfiguration.cassandraServers.first(),
+            elasticHttpPort = PumpsConfiguration.elasticHttpPort
+    )
 
     val jacksonJsonSerializer = ObjectMapper().registerKotlinModule().apply {
         this.setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
@@ -36,22 +36,13 @@ object PumpsContext {
     val jacksonJsonDeserializer = ObjectMapper().registerKotlinModule()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)!!
 
-    val httpClient = HttpClients.createDefault()!!
 
     val cacheManager by lazy { getCacheManager() }
 
-    val systemDaoService by lazy { SystemDaoService(cassandra) }
-    val pumpDaoService by lazy { PumpsDaoService(cassandra) }
-
-    val schemaMigrationEngine = ElassandraSchemaMigrationEngine(
-            cassandra = cassandra, httpClient = httpClient, systemDaoService = systemDaoService,
-            elasticHost = PumpsConfiguration.cassandraServers.first(), elasticPort = PumpsConfiguration.elasticHttpPort,
-            defaultMigrations = PumpsMigrations.migrations
-    )
 
     fun closeContext() {
         log.info("Closing application context")
-        cassandra.closeAsync()
+        cassandraService.close()
         httpClient.close()
         log.info("Application context is closed")
     }
