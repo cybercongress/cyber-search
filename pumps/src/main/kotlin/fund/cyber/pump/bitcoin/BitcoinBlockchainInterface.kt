@@ -1,6 +1,6 @@
 package fund.cyber.pump.bitcoin
 
-import fund.cyber.dao.migration.Migratable
+import fund.cyber.dao.migration.Migratory
 import fund.cyber.dao.migration.Migration
 import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.BITCOIN
@@ -23,7 +23,7 @@ class BitcoinBlockBundle(
 open class BitcoinBlockchainInterface(
         private val bitcoinJsonRpcClient: BitcoinJsonRpcClient = BitcoinPumpContext.bitcoinJsonRpcClient,
         private val rpcToBundleEntitiesConverter: JsonRpcBlockToBitcoinBundleConverter = BitcoinPumpContext.rpcToBundleEntitiesConverter
-) : BlockchainInterface<BitcoinBlockBundle>, Migratable {
+) : BlockchainInterface<BitcoinBlockBundle>, Migratory {
 
     override val chain = BITCOIN
     override val migrations: List<Migration> = BitcoinMigrations.migrations

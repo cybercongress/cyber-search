@@ -2,7 +2,7 @@ package fund.cyber.pump.cassandra
 
 import fund.cyber.cassandra.CassandraService
 import fund.cyber.dao.migration.ElassandraSchemaMigrationEngine
-import fund.cyber.dao.migration.Migratable
+import fund.cyber.dao.migration.Migratory
 import fund.cyber.node.common.Chain
 import fund.cyber.node.model.IndexingProgress
 import fund.cyber.pump.*
@@ -34,7 +34,7 @@ class ElassandraStorage(
     }
 
     override fun initialize(blockchainInterface: BlockchainInterface<*>) {
-        if (blockchainInterface is Migratable) {
+        if (blockchainInterface is Migratory) {
             schemaMigrationEngine.executeSchemaUpdate(blockchainInterface.migrations)
         }
     }
