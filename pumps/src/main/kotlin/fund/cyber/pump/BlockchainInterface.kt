@@ -1,6 +1,7 @@
 package fund.cyber.pump
 
 import fund.cyber.node.common.Chain
+import fund.cyber.node.model.CyberSearchItem
 
 
 interface Blockchain {
@@ -17,4 +18,6 @@ interface BlockBundle {
     val hash: String
     val parentHash: String
     val number: Long
+
+    fun elementsMap(): Map<Class<CyberSearchItem>, List<CyberSearchItem>> = emptyMap()
 }

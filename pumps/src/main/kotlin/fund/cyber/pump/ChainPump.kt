@@ -6,12 +6,12 @@ import org.slf4j.LoggerFactory
 import kotlin.reflect.KFunction0
 
 
-private val log = LoggerFactory.getLogger(ChainPumper::class.java)!!
+private val log = LoggerFactory.getLogger(ChainPump::class.java)!!
 
-class ChainPumper<in T : BlockBundle>(
+class ChainPump<in T : BlockBundle>(
 
         private val blockchainInterface: FlowableBlockchainInterface<T>,
-        private val storageActionsFactories: List<StorageActionFactory> = emptyList(),
+        private val storageActionsFactories: List<StorageActionSourceFactory> = emptyList(),
 
         private val storages: List<StorageInterface> = emptyList(),
         private val stateStorage: StateStorage,
@@ -38,8 +38,8 @@ class ChainPumper<in T : BlockBundle>(
     }
 
     private fun registerStorageActionFactories(storage: StorageInterface) {
-        storageActionsFactories.forEach { actionFactory ->
-            storage.registerStorageActionFactory(blockchainInterface.chain, actionFactory)
+        storageActionsFactories.forEach { actionSourceFactory ->
+            storage.registerStorageActionSourceFactory(blockchainInterface.chain, actionSourceFactory)
         }
     }
 

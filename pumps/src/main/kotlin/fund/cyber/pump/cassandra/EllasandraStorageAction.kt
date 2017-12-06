@@ -6,19 +6,11 @@ import fund.cyber.node.common.awaitAll
 import fund.cyber.node.model.CyberSearchItem
 import fund.cyber.pump.BlockBundle
 import fund.cyber.pump.StorageAction
-import fund.cyber.pump.StorageActionFactory
+import fund.cyber.pump.StorageActionSourceFactory
 
-interface CassandraStorageActionFactory<in T : BlockBundle> : StorageActionFactory {
-    fun constructCassandraAction(bundle: T): CassandraStorageAction
-}
 
-interface CassandraStorageAction {
-    fun store(session: Session, mappingManager: MappingManager)
-    fun remove(session: Session, mappingManager: MappingManager)
-}
-
-class SimpleCassandraStorageAction(
-        private val cassandraStorageAction: CassandraStorageAction,
+class CassandraStorageAction(
+        private val cassandraStorageAction: CassandraStorageActionSource,
         private val session: Session,
         private val mappingManager: MappingManager
 ) : StorageAction {
@@ -28,9 +20,28 @@ class SimpleCassandraStorageAction(
 }
 
 
+interface CassandraStorageActionSourceFactory<in T : BlockBundle> : StorageActionSourceFactory {
+    fun constructCassandraAction(bundle: T): CassandraStorageActionSource
+}
+
+interface CassandraStorageActionSource {
+    fun store(session: Session, mappingManager: MappingManager)
+    fun remove(session: Session, mappingManager: MappingManager)
+}
+
+
+class SimpleCassandraActionSourceFactory : CassandraStorageActionSourceFactory<BlockBundle> {
+
+    override fun constructCassandraAction(bundle: BlockBundle): CassandraStorageActionSource {
+        val actions = bundle.elementsMap().map { (type, values) -> StoreListCassandraStorageAction(values, type) }
+        return CompositeCassandraStorageAction(*actions.toTypedArray())
+    }
+}
+
+
 class CompositeCassandraStorageAction(
-        private vararg val actions: CassandraStorageAction
-) : CassandraStorageAction {
+        private vararg val actions: CassandraStorageActionSource
+) : CassandraStorageActionSource {
 
     override fun store(session: Session, mappingManager: MappingManager) {
         actions.forEach { action -> action.store(session, mappingManager) }
@@ -45,7 +56,7 @@ class CompositeCassandraStorageAction(
 class StoreListCassandraStorageAction<out I : CyberSearchItem>(
         private val values: List<I>,
         private val valueType: Class<I>
-) : CassandraStorageAction {
+) : CassandraStorageActionSource {
 
     override fun store(session: Session, mappingManager: MappingManager) {
         val mapper = mappingManager.mapper(valueType)
@@ -62,7 +73,7 @@ class StoreListCassandraStorageAction<out I : CyberSearchItem>(
 class StoreValueCassandraStorageAction<out I : CyberSearchItem>(
         private val value: I,
         private val valueType: Class<I>
-) : CassandraStorageAction {
+) : CassandraStorageActionSource {
 
     override fun store(session: Session, mappingManager: MappingManager) {
         mappingManager.mapper(valueType).save(value)
