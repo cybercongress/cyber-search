@@ -1,6 +1,6 @@
 package fund.cyber.pump.ethereum
 
-import fund.cyber.dao.migration.Migratable
+import fund.cyber.dao.migration.Migratory
 import fund.cyber.dao.migration.Migration
 import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.ETHEREUM
@@ -29,7 +29,7 @@ open class EthereumBlockchainInterface(
         parityUrl: String = env("PARITY_ETHEREUM", "http://cyber:cyber@127.0.0.1:8545"),
         network: Chain = ETHEREUM
 
-) : BlockchainInterface<EthereumBlockBundle>, Migratable {
+) : BlockchainInterface<EthereumBlockBundle>, Migratory {
 
     override val migrations: List<Migration> = EthereumMigrations.migrations
     override val chain: Chain = network

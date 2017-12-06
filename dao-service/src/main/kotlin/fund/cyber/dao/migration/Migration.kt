@@ -4,7 +4,7 @@ import com.datastax.driver.core.SimpleStatement
 import com.datastax.driver.core.Statement
 
 
-interface Migratable {
+interface Migratory {
     val migrations: List<Migration>
 }
 
