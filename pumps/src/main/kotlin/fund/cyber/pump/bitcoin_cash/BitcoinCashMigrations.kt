@@ -3,7 +3,7 @@ package fund.cyber.pump.bitcoin_cash
 import fund.cyber.dao.migration.CqlFileBasedMigration
 import fund.cyber.dao.migration.ElasticHttpMigration
 import fund.cyber.node.common.Chain.*
-import fund.cyber.pump.chainApplicationId
+import fund.cyber.pump.cassandra.chainApplicationId
 
 
 object BitcoinCashMigrations {

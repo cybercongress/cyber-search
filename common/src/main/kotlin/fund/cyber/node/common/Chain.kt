@@ -4,7 +4,9 @@ enum class Chain {
     BITCOIN,
     BITCOIN_CASH,
     ETHEREUM,
-    ETHEREUM_CLASSIC
+    ETHEREUM_CLASSIC;
+
+    fun lowercaseName() = this.toString().toLowerCase()
 }
 
 enum class ChainEntity {

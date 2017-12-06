@@ -50,23 +50,14 @@ class BitcoinJsonRpcClient(
         return executeRequest(request, LongResponse::class.java)
     }
 
-    fun getBlockByNumber(number: Long): Observable<JsonRpcBitcoinBlock> {
-        return Observable.just(number)
-                .map { blockNumber -> getBlockHash(blockNumber)!! }
-                .map { hash -> getBlockByHash(hash)!! }
-                .map { block ->
-                    val transactions = if (block.height != 0L) getTxes(block.tx) else emptyList()
-                    block.copy(rawtx = transactions)
-                }.observeOn(Schedulers.io())
-    }
+    fun getBlockByNumber(number: Long): JsonRpcBitcoinBlock? {
 
-    fun getBlocksByNumber(blockNumbers: List<Long>): List<JsonRpcBitcoinBlock> {
-        return Observable.fromIterable(blockNumbers)
-                .flatMap { blockNumber -> getBlockByNumber(blockNumber) }
-                .doOnError { error -> println(error) }
-                .toSortedList().blockingGet()
-    }
+        val hash = getBlockHash(number) ?: return null
+        val block = getBlockByHash(hash) ?: return null
 
+        val transactions = if (block.height != 0L) getTxes(block.tx) else emptyList()
+        return block.copy(rawtx = transactions)
+    }
 
     private fun <C, T : Response<C>> executeBatchRequest(request: Any, valueType: Class<T>): List<C> {
         val payload = jsonSerializer.writeValueAsBytes(request)
