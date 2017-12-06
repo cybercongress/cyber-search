@@ -1,5 +1,6 @@
 package fund.cyber.pump.ethereum
 
+import fund.cyber.node.common.Chain
 import fund.cyber.node.common.hexToLong
 import fund.cyber.node.common.sumByBigDecimal
 import fund.cyber.node.model.EthereumBlock
@@ -9,11 +10,23 @@ import org.web3j.protocol.core.methods.response.EthBlock
 import java.math.BigDecimal
 import java.time.Instant
 
-class EthereumParityToDaoConverter {
+class ParityToEthereumBundleConverter(private val chain: Chain) {
 
     private val weiToEthRate = BigDecimal("1E-18")
 
-    fun parityTransactionsToDao(parityBlock: EthBlock.Block): List<EthereumTransaction> {
+    fun convertToBundle(parityBlock: EthBlock.Block): EthereumBlockBundle {
+
+        val transactions = parityTransactionsToDao(parityBlock)
+        val block = parityBlockToDao(parityBlock)
+
+        return EthereumBlockBundle(
+                hash = parityBlock.hash, parentHash = parityBlock.parentHash ?: "-1",
+                number = parityBlock.number.toLong(), block = block, transactions = transactions,
+                chain = chain
+        )
+    }
+
+    private fun parityTransactionsToDao(parityBlock: EthBlock.Block): List<EthereumTransaction> {
 
         return parityBlock.transactions
                 .filterIsInstance<EthBlock.TransactionObject>()
@@ -34,8 +47,7 @@ class EthereumParityToDaoConverter {
                 }
     }
 
-
-    fun parityBlockToDao(parityBlock: EthBlock.Block): EthereumBlock {
+    private fun parityBlockToDao(parityBlock: EthBlock.Block): EthereumBlock {
 
         val blockTxes = parityBlock.transactions
                 .filterIsInstance<EthBlock.TransactionObject>()

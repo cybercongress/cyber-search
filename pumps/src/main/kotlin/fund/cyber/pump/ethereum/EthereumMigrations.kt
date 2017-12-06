@@ -3,7 +3,7 @@ package fund.cyber.pump.ethereum
 import fund.cyber.node.common.Chain.*
 import fund.cyber.dao.migration.CqlFileBasedMigration
 import fund.cyber.dao.migration.ElasticHttpMigration
-import fund.cyber.pump.chainApplicationId
+import fund.cyber.pump.cassandra.chainApplicationId
 
 object EthereumMigrations {
 

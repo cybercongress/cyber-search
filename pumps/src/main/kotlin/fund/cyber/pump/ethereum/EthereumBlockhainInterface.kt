@@ -1,54 +1,51 @@
 package fund.cyber.pump.ethereum
 
+import fund.cyber.dao.migration.Migratory
 import fund.cyber.dao.migration.Migration
 import fund.cyber.node.common.Chain
-import fund.cyber.node.model.*
-import fund.cyber.pump.*
-import fund.cyber.pump.ethereum_classic.EthereumClassicMigrations
+import fund.cyber.node.common.Chain.ETHEREUM
+import fund.cyber.node.common.env
+import fund.cyber.node.model.EthereumBlock
+import fund.cyber.node.model.EthereumTransaction
+import fund.cyber.pump.BlockBundle
+import fund.cyber.pump.BlockchainInterface
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameter
 import org.web3j.protocol.http.HttpService
 import java.math.BigInteger
-import java.util.concurrent.Executors
 
 
-const val BATCH_SIZE_DEFAULT: Long = 8
+class EthereumBlockBundle(
+        override val hash: String,
+        override val parentHash: String,
+        override val number: Long,
+        override val chain: Chain,
+        val block: EthereumBlock,
+        val transactions: List<EthereumTransaction>
+) : BlockBundle
 
-class EthereumBlockchainInterface(url: String, override val chain: Chain) : BlockchainInterface, Migratory {
-    private val parityToDaoConverter = EthereumParityToDaoConverter()
-    private var batchSize: BigInteger = BigInteger.valueOf(BATCH_SIZE_DEFAULT)
-    private val executorService = Executors.newScheduledThreadPool(batchSize.toInt())
-    private val parityClient = Web3j.build(HttpService(url), 15 * 1000, executorService)
 
-    override val migrations: List<Migration>
-        get() = if (chain == Chain.ETHEREUM) {
-            EthereumMigrations.migrations
-        } else {
-            EthereumClassicMigrations.migrations
-        }
+open class EthereumBlockchainInterface(
+        parityUrl: String = env("PARITY_ETHEREUM", "http://cyber:cyber@127.0.0.1:8545"),
+        network: Chain = ETHEREUM
 
-    override val lastNetowrkBlock: Long
-        get() = parityClient.ethBlockNumber().send().blockNumber.longValueExact()
+) : BlockchainInterface<EthereumBlockBundle>, Migratory {
 
-    override fun blockBundleByNumber(number: Long): SimpleBlockBundle {
-        val _block = parityClient.ethGetBlockByNumber(this.blockParameter(java.math.BigInteger(number.toString())), true).send()
-        val block = parityToDaoConverter.parityBlockToDao(_block.block)
+    override val migrations: List<Migration> = EthereumMigrations.migrations
+    override val chain: Chain = network
 
-        val blockBundle = SimpleBlockBundle(
-                hash = block.hash,
-                parentHash = block.parent_hash,
-                number = block.number,
-                chain = chain
-        )
+    private val parityClient: Web3j = Web3j.build(HttpService(parityUrl))
+    private val parityToBundleConverter = ParityToEthereumBundleConverter(network)
 
-        blockBundle.push(block, EthereumBlock::class.java)
-        parityToDaoConverter.parityTransactionsToDao(_block.block).forEach {
-            blockBundle.push(it, EthereumTransaction::class.java)
-        }
 
-        return blockBundle
+    override fun lastNetworkBlock() = parityClient.ethBlockNumber().send().blockNumber.longValueExact()
+
+    override fun blockBundleByNumber(number: Long): EthereumBlockBundle {
+
+        val blockParameter = blockParameter(BigInteger(number.toString()))
+        val ethBlock = parityClient.ethGetBlockByNumber(blockParameter, true).send()
+        return parityToBundleConverter.convertToBundle(ethBlock.block)
     }
 
     private fun blockParameter(blockNumber: BigInteger) = DefaultBlockParameter.valueOf(blockNumber)!!
 }
-

@@ -2,7 +2,7 @@ package fund.cyber.dao.migration
 
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Session
-import fund.cyber.dao.system.SystemDaoService
+import fund.cyber.cassandra.CyberSystemKeyspaceRepository
 import fund.cyber.node.common.readAsString
 import fund.cyber.node.model.SchemaVersion
 import org.apache.http.HttpStatus
@@ -18,10 +18,11 @@ class ElassandraSchemaMigrationEngine(
         elasticPort: Int,
         private val cassandra: Cluster,
         private val httpClient: HttpClient,
-        private val systemDaoService: SystemDaoService,
         private val defaultMigrations: List<Migration> = emptyList()
 ) {
 
+
+    private val systemKeyspaceRepository = CyberSystemKeyspaceRepository(cassandra)
     private val elasticBaseUri = URI.create("http://$elasticHost:$elasticPort")
     private val log = LoggerFactory.getLogger(ElassandraSchemaMigrationEngine::class.java)
 
@@ -33,7 +34,7 @@ class ElassandraSchemaMigrationEngine(
 
         defaultMigrations.plus(migrations).groupBy { m -> m.applicationId }.forEach { applicationId, applicationMigrations ->
 
-            val lastMigrationVersion = systemDaoService.getLastMigration(applicationId)?.version ?: -1
+            val lastMigrationVersion = systemKeyspaceRepository.getLastMigration(applicationId)?.version ?: -1
 
             applicationMigrations
                     .filter { migration -> migration.version > lastMigrationVersion }
@@ -79,6 +80,6 @@ class ElassandraSchemaMigrationEngine(
                 application_id = migration.applicationId, version = migration.version,
                 apply_time = Date(), migration_hash = migration.hashCode()
         )
-        systemDaoService.schemaVersionMapper.save(schemeMigrationRecord)
+        systemKeyspaceRepository.schemaVersionMapper.save(schemeMigrationRecord)
     }
 }
