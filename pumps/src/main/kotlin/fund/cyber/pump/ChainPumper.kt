@@ -3,6 +3,7 @@ package fund.cyber.pump
 import fund.cyber.node.common.StackCache
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
+import kotlin.reflect.KFunction0
 
 
 private val log = LoggerFactory.getLogger(ChainPumper::class.java)!!
@@ -13,8 +14,11 @@ class ChainPumper<in T : BlockBundle>(
         private val storageActionsFactories: List<StorageActionFactory> = emptyList(),
 
         private val storages: List<StorageInterface> = emptyList(),
-        private val stateStorage: StateStorage
+        private val stateStorage: StateStorage,
+
+        private val errorCallback: KFunction0<Unit> = PumpsContext::closeContext
 ) {
+
 
     fun start() {
         initializeStorages()
@@ -50,6 +54,7 @@ class ChainPumper<in T : BlockBundle>(
     private fun initializeStreamProcessing(startBlockNumber: Long, history: StackCache<List<StorageAction>>) {
 
         blockchainInterface.subscribeBlocks(startBlockNumber)
+                .doOnTerminate(errorCallback)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .scan { current, next ->
