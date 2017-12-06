@@ -21,8 +21,13 @@ class ChainPumper<in T : BlockBundle>(
 
 
     fun start() {
-        initializeStorages()
-        initializeIndexing()
+        try {
+            initializeStorages()
+            initializeIndexing()
+        } catch (e: Exception) {
+            log.error("Error during starting '${blockchainInterface.chain}' chain pump", e)
+            errorCallback()
+        }
     }
 
     private fun initializeStorages() {
