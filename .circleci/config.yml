@@ -39,23 +39,6 @@ jobs:
             - ~/.gradle/wrapper/
 
 
-  deploy_connectors_image:
-     <<: *default_container
-     steps:
-       - checkout
-       - setup_remote_docker:
-           version: 17.05.0-ce
-       - run:
-           name: Build kafka-connectors docker image
-           command: |
-             docker build -t build/cn-kafka-connectors -f ./devops/cyber-connectors/Dockerfile ./
-             docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker tag build/cn-kafka-connectors cybernode/cn-kafka-connectors:$CIRCLE_TAG
-             docker push cybernode/cn-kafka-connectors:$CIRCLE_TAG
-             docker tag build/cn-kafka-connectors cybernode/cn-kafka-connectors:latest
-             docker push cybernode/cn-kafka-connectors:latest
-
-
   deploy_search_api_image:
      <<: *default_container
      steps:
