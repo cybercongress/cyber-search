@@ -4,6 +4,7 @@ import com.datastax.driver.mapping.annotations.Table
 import com.datastax.driver.mapping.annotations.Transient
 import com.datastax.driver.mapping.annotations.UDT
 import java.math.BigDecimal
+import java.math.BigDecimal.ZERO
 import java.math.BigInteger
 import java.time.Instant
 
@@ -15,12 +16,12 @@ data class BitcoinTransactionPreviewIO(
         val addresses: List<String>,
         val amount: String
 ) {
-    //used by gson to create instance
-    constructor() : this(emptyList(), "")
+    //used by datastax driver to create instance via default constructor
+    private constructor() : this(emptyList(), "")
 }
 
 
-@Table(name = "tx_preview_by_address", readConsistency = "QUORUM", writeConsistency = "QUORUM")
+@Table(name = "tx_preview_by_address")
 data class BitcoinAddressTransaction(
         val address: String,
         val fee: BigDecimal,
@@ -32,7 +33,7 @@ data class BitcoinAddressTransaction(
 ) : BitcoinItem()
 
 
-@Table(name = "tx_preview_by_block", readConsistency = "QUORUM", writeConsistency = "QUORUM")
+@Table(name = "tx_preview_by_block")
 data class BitcoinBlockTransaction(
         val hash: String,
         val index: Int,                     //specify tx number(order) in block
@@ -48,7 +49,7 @@ data class BitcoinBlockTransaction(
 * Bitcoin block
 *
 */
-@Table(name = "block", readConsistency = "QUORUM", writeConsistency = "QUORUM")
+@Table(name = "block")
 data class BitcoinBlock(
         val hash: String,
         val height: Long,
@@ -71,7 +72,7 @@ data class BitcoinBlock(
 * Bitcoin transaction
 *
 */
-@Table(name = "tx", readConsistency = "QUORUM", writeConsistency = "QUORUM")
+@Table(name = "tx")
 data class BitcoinTransaction(
         val hash: String,
         val block_number: Long,
@@ -101,8 +102,8 @@ data class BitcoinTransactionIn(
         val tx_out: Int
 ) {
 
-    //used by gson to create instance
-    constructor() : this(emptyList(), "0", "", "", 0)
+    //used by datastax driver to create instance via default constructor
+    private constructor() : this(emptyList(), "0", "", "", 0)
 }
 
 
@@ -115,16 +116,20 @@ data class BitcoinTransactionOut(
         val required_signatures: Int
 ) {
 
-    //used by gson to create instance
-    constructor() : this(emptyList(), "0", "", 0, 1)
+    //used by datastax driver to create instance via default constructor
+    private constructor() : this(emptyList(), "0", "", 0, 1)
 }
 
 
-@Table(name = "address", readConsistency = "QUORUM", writeConsistency = "QUORUM")
+@Table(name = "address")
 data class BitcoinAddress(
         val id: String,
-        val balance: String,
-        val total_received: String,
-        val last_transaction_block: Long,
-        val tx_number: Int
-) : BitcoinItem()
+        val confirmed_balance: String,
+        val confirmed_total_received: BigDecimal,
+        val confirmed_tx_number: Int,
+        val unconfirmed_tx_values: Map<String, BigDecimal>,
+        @Transient val transactionPreviews: List<BitcoinAddressTransaction> = emptyList()
+) : BitcoinItem() {
+    //used by datastax driver to create instance via default constructor
+    private constructor() : this("", "", ZERO, 0, emptyMap())
+}

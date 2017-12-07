@@ -76,10 +76,10 @@ CREATE TABLE IF NOT EXISTS bitcoin_cash.block (
 
 
 
-CREATE TABLE IF NOT EXISTS bitcoin_cash.address (
+CREATE TABLE IF NOT EXISTS bitcoin.address (
     id text PRIMARY KEY,
-    balance text,
-    total_received text,
-    last_transaction_block bigint,
-    tx_number int
+    confirmed_balance text,
+    confirmed_total_received decimal,
+    confirmed_tx_number int,
+    unconfirmed_tx_values map<text,decimal>
 );
