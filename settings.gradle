@@ -2,7 +2,3 @@ include "common"
 include "cassandra-service"
 include "search-api"
 include "pumps"
-
-include "stream-processing:common"
-include "stream-processing:bitcoin"
-include "stream-processing:ethereum"

@@ -1,17 +1,21 @@
 package fund.cyber.search.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import fund.cyber.cassandra.BitcoinDaoService
+import fund.cyber.cassandra.CassandraKeyspaceRepository
 import fund.cyber.node.common.longValue
+import fund.cyber.node.model.BitcoinBlock
 import fund.cyber.search.configuration.AppContext
 import io.undertow.server.HttpHandler
 import io.undertow.server.HttpServerExchange
 import io.undertow.util.Headers
 
+
 class BitcoinBlockHandler(
-        private val bitcoinDaoService: BitcoinDaoService = AppContext.bitcoinDaoService,
+        repository: CassandraKeyspaceRepository,
         private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer
 ) : HttpHandler {
+
+    private val blockTable = repository.mappingManager.mapper(BitcoinBlock::class.java)
 
     override fun handleRequest(exchange: HttpServerExchange) {
 
@@ -22,9 +26,9 @@ class BitcoinBlockHandler(
             return
         }
 
-        val block = bitcoinDaoService.getBlockByNumber(blockNumber)
+        val block = blockTable.get(blockNumber)
 
-        if(block == null) {
+        if (block == null) {
             exchange.statusCode = 404
             return
         }
