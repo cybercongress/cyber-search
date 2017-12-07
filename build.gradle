@@ -5,7 +5,7 @@ buildscript {
         kotlinCoroutinesVersion = "0.19.3"
         jacksonVersion = "2.9.2"
         undertowVersion = "1.4.20.Final"
-        kafkaVersion = "0.11.0.1"
+        kafkaVersion = "1.0.0"
         cassandraVersion = "3.3.2"
         web3jVersion = "2.3.0"
         rxkotlinVersion = "2.2.0"
@@ -133,6 +133,11 @@ project(":common") {
         compile("com.datastax.cassandra:cassandra-driver-extras")
 
         compile("org.apache.httpcomponents:httpasyncclient")
+
+        //dependencies for jaxb
+        compile 'javax.xml.bind:jaxb-api:2.3.0'
+        compile 'org.glassfish.jaxb:jaxb-runtime:2.3.0'
+        compile 'javax.activation:activation:1.1.1'
     }
 }
 
@@ -154,11 +159,12 @@ project(":cassandra-service") {
     dependencies {
         compile(project(":common"))
         compile("org.ehcache:ehcache")
+    }
+}
 
-        //dependencies for jaxb
-        compile 'javax.xml.bind:jaxb-api:2.3.0'
-        compile 'org.glassfish.jaxb:jaxb-runtime:2.3.0'
-        compile 'javax.activation:activation:1.1.1'
+project(":address-service") {
+    dependencies {
+        compile project(":common")
     }
 }
 
