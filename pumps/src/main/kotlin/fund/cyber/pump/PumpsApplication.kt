@@ -3,6 +3,7 @@ package fund.cyber.pump
 import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.*
 import fund.cyber.pump.bitcoin.BitcoinBlockchainInterface
+import fund.cyber.pump.bitcoin.BitcoinKafkaStorageActionTemplateFactory
 import fund.cyber.pump.bitcoin_cash.BitcoinCashBlockchainInterface
 import fund.cyber.pump.cassandra.SimpleCassandraActionSourceFactory
 import fund.cyber.pump.ethereum.EthereumBlockchainInterface
@@ -11,7 +12,9 @@ import fund.cyber.pump.ethereum_classic.EthereumClassicBlockchainInterface
 
 object PumpsApplication {
 
-    private val storages: List<StorageInterface> = listOf(PumpsContext.elassandraStorage)
+    private val storages: List<StorageInterface> = listOf(
+            PumpsContext.elassandraStorage, PumpsContext.kafkaStorage
+    )
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -22,8 +25,12 @@ object PumpsApplication {
     private fun startChainPumper(chain: Chain) {
         when (chain) {
             BITCOIN -> {
+                val actionTemplateFactories = listOf(
+                        SimpleCassandraActionSourceFactory(),
+                        BitcoinKafkaStorageActionTemplateFactory()
+                )
                 val flowableInterface = ConcurrentPulledBlockchain(BitcoinBlockchainInterface())
-                getChainPumper(flowableInterface, listOf(SimpleCassandraActionSourceFactory())).start()
+                getChainPumper(flowableInterface, actionTemplateFactories).start()
             }
             BITCOIN_CASH -> {
                 val flowableInterface = ConcurrentPulledBlockchain(BitcoinCashBlockchainInterface())

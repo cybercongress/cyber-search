@@ -9,6 +9,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import fund.cyber.cassandra.CassandraService
 import fund.cyber.node.common.*
 import fund.cyber.pump.cassandra.ElassandraStorage
+import fund.cyber.pump.kafka.KafkaStorage
 import org.apache.http.impl.client.HttpClients
 import org.ehcache.CacheManager
 import org.ehcache.config.builders.CacheManagerBuilder
@@ -28,6 +29,8 @@ object PumpsContext {
             elasticHost = PumpsConfiguration.cassandraServers.first(),
             elasticHttpPort = PumpsConfiguration.elasticHttpPort
     )
+
+    val kafkaStorage by lazy { KafkaStorage() }
 
     val jacksonJsonSerializer = ObjectMapper().registerKotlinModule().apply {
         this.setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
@@ -64,6 +67,8 @@ object PumpsConfiguration {
     val cassandraServers: List<String> = env(CASSANDRA_HOSTS, CASSANDRA_HOSTS_DEFAULT).split(",")
     val cassandraPort: Int = env(CASSANDRA_PORT, CASSANDRA_PORT_DEFAULT)
     val elasticHttpPort: Int = env(ELASTIC_HTTP_PORT, ELASTIC_HTTP_PORT_DEFAULT)
+
+    val kafkaBrokers: List<String> = env(KAFKA_BROKERS, KAFKA_BROKERS_DEFAULT).split(",")
 
     val chainsToPump: List<Chain> = env("CS_CHAINS_TO_PUMP", "")
             .split(",").map(String::trim).filter(String::isNotEmpty).map(Chain::valueOf)
