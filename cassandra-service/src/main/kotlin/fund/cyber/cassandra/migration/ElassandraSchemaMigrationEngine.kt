@@ -1,8 +1,7 @@
-package fund.cyber.dao.migration
+package fund.cyber.cassandra.migration
 
-import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Session
-import fund.cyber.cassandra.CyberSystemKeyspaceRepository
+import fund.cyber.cassandra.CassandraService
 import fund.cyber.node.common.readAsString
 import fund.cyber.node.model.SchemaVersion
 import org.apache.http.HttpStatus
@@ -16,13 +15,13 @@ import java.util.*
 class ElassandraSchemaMigrationEngine(
         elasticHost: String,
         elasticPort: Int,
-        private val cassandra: Cluster,
+        private val cassandraService: CassandraService,
         private val httpClient: HttpClient,
         private val defaultMigrations: List<Migration> = emptyList()
 ) {
 
 
-    private val systemKeyspaceRepository = CyberSystemKeyspaceRepository(cassandra)
+    private val systemKeyspaceRepository = cassandraService.systemKeyspaceRepository
     private val elasticBaseUri = URI.create("http://$elasticHost:$elasticPort")
     private val log = LoggerFactory.getLogger(ElassandraSchemaMigrationEngine::class.java)
 
@@ -30,7 +29,7 @@ class ElassandraSchemaMigrationEngine(
     fun executeSchemaUpdate(migrations: List<Migration>) {
 
         log.info("Executing elassandra schema update")
-        val session: Session = cassandra.connect()
+        val session: Session = cassandraService.newSession()
 
         defaultMigrations.plus(migrations).groupBy { m -> m.applicationId }.forEach { applicationId, applicationMigrations ->
 

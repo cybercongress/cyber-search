@@ -1,7 +1,7 @@
 package fund.cyber.search.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import fund.cyber.dao.bitcoin.BitcoinDaoService
+import fund.cyber.cassandra.BitcoinDaoService
 import fund.cyber.node.common.longValue
 import fund.cyber.search.configuration.AppContext
 import io.undertow.server.HttpHandler

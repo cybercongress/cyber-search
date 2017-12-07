@@ -1,8 +1,8 @@
 package fund.cyber.pump.ethereum_classic
 
 import fund.cyber.node.common.Chain.*
-import fund.cyber.dao.migration.CqlFileBasedMigration
-import fund.cyber.dao.migration.ElasticHttpMigration
+import fund.cyber.cassandra.migration.CqlFileBasedMigration
+import fund.cyber.cassandra.migration.ElasticHttpMigration
 import fund.cyber.pump.cassandra.chainApplicationId
 
 

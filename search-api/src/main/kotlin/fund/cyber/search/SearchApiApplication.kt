@@ -1,6 +1,6 @@
 package fund.cyber.search
 
-import fund.cyber.dao.model.ChainsIndex.INDEX_TO_CHAIN_ENTITY
+import fund.cyber.cassandra.model.ChainsIndex.INDEX_TO_CHAIN_ENTITY
 import fund.cyber.search.configuration.SearchApiConfiguration
 import fund.cyber.search.handler.*
 import io.undertow.Handlers

@@ -1,8 +1,8 @@
 package fund.cyber.pump.cassandra
 
 import fund.cyber.cassandra.CassandraService
-import fund.cyber.dao.migration.ElassandraSchemaMigrationEngine
-import fund.cyber.dao.migration.Migratory
+import fund.cyber.cassandra.migration.ElassandraSchemaMigrationEngine
+import fund.cyber.cassandra.migration.Migratory
 import fund.cyber.node.common.Chain
 import fund.cyber.node.model.IndexingProgress
 import fund.cyber.pump.*
@@ -19,7 +19,7 @@ class ElassandraStorage(
     private val log = LoggerFactory.getLogger(ConcurrentPulledBlockchain::class.java)!!
 
     private val schemaMigrationEngine = ElassandraSchemaMigrationEngine(
-            cassandra = cassandraService.cassandra, httpClient = httpClient,
+            cassandraService = cassandraService, httpClient = httpClient,
             elasticHost = elasticHost, elasticPort = elasticHttpPort,
             defaultMigrations = PumpsMigrations.migrations
     )
@@ -46,8 +46,7 @@ class ElassandraStorage(
         if (cassandraAction != null) {
             return CassandraStorageAction(
                     cassandraStorageAction = cassandraAction,
-                    mappingManager = cassandraService.getChainRepository(blockBundle.chain),
-                    session = cassandraService.getChainRepositorySession(blockBundle.chain)
+                    keyspaceRepository = cassandraService.getChainRepository(blockBundle.chain)
             )
         }
         return EmptyStorageAction

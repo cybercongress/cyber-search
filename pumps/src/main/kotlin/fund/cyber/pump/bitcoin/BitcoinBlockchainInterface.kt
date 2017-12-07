@@ -1,7 +1,7 @@
 package fund.cyber.pump.bitcoin
 
-import fund.cyber.dao.migration.Migration
-import fund.cyber.dao.migration.Migratory
+import fund.cyber.cassandra.migration.Migration
+import fund.cyber.cassandra.migration.Migratory
 import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.BITCOIN
 import fund.cyber.node.model.BitcoinBlock

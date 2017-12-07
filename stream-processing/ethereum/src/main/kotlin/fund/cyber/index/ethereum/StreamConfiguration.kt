@@ -1,10 +1,9 @@
 package fund.cyber.index.ethereum
 
 import com.datastax.driver.core.Cluster
-import fund.cyber.dao.ethereum.EthereumDaoService
+import fund.cyber.cassandra.repository.EthereumKeyspaceRepository
 import fund.cyber.index.ethereum.converter.EthereumAddressConverter
 import fund.cyber.index.ethereum.converter.EthereumParityToDaoConverter
-import fund.cyber.node.common.Chain
 import fund.cyber.node.common.env
 import fund.cyber.node.kafka.JsonDeserializer
 import fund.cyber.node.kafka.JsonSerializer
@@ -39,7 +38,7 @@ object ApplicationContext {
     private val cacheManager = getCacheManager()
     val addressCache = cacheManager.getCache("addresses", String::class.java, EthereumAddress::class.java)
 
-    val ethereumDaoService = EthereumDaoService(cassandra, "ethereum")
+    val ethereumDaoService = EthereumKeyspaceRepository(cassandra, "ethereum")
 }
 
 class StreamConfiguration(

@@ -1,4 +1,4 @@
-package fund.cyber.dao.migration
+package fund.cyber.cassandra.migration
 
 import com.datastax.driver.core.SimpleStatement
 import com.datastax.driver.core.Statement

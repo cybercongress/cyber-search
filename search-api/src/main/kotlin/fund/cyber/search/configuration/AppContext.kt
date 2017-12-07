@@ -2,8 +2,8 @@ package fund.cyber.search.configuration
 
 import com.datastax.driver.core.Cluster
 import com.fasterxml.jackson.databind.ObjectMapper
-import fund.cyber.dao.bitcoin.BitcoinDaoService
-import fund.cyber.dao.ethereum.EthereumDaoService
+import fund.cyber.cassandra.BitcoinDaoService
+import fund.cyber.cassandra.repository.EthereumKeyspaceRepository
 import fund.cyber.node.common.*
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import org.elasticsearch.common.settings.Settings
@@ -37,7 +37,7 @@ object AppContext {
             .build().init()!!
 
     val bitcoinDaoService by lazy { BitcoinDaoService(cassandra) }
-    val ethereumDaoService by lazy { EthereumDaoService(cassandra) }
+    val ethereumDaoService by lazy { EthereumKeyspaceRepository(cassandra) }
 
 
     fun closeContext() {

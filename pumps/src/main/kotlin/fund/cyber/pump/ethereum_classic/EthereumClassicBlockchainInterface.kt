@@ -1,6 +1,6 @@
 package fund.cyber.pump.ethereum_classic
 
-import fund.cyber.dao.migration.Migration
+import fund.cyber.cassandra.migration.Migration
 import fund.cyber.node.common.Chain.ETHEREUM_CLASSIC
 import fund.cyber.node.common.env
 import fund.cyber.pump.ethereum.EthereumBlockchainInterface
