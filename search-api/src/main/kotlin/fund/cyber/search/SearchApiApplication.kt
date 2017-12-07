@@ -17,6 +17,7 @@ object SearchApiApplication {
         val ethereumRepository = AppContext.cassandraService.ethereumRepository
 
         val httpHandler = Handlers.routing()
+                .get("/index-stats", IndexStatusHandler(indexToChainEntity = INDEX_TO_CHAIN_ENTITY))
                 .get("/search", SearchHandler(indexToChainEntity = INDEX_TO_CHAIN_ENTITY))
                 .get("/ping", PingHandler())
                 .get("/bitcoin/block/{blockNumber}", BitcoinBlockHandler(bitcoinRepository))
