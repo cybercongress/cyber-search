@@ -1,7 +1,6 @@
 package fund.cyber.pump.cassandra
 
-import com.datastax.driver.core.Session
-import com.datastax.driver.mapping.MappingManager
+import fund.cyber.cassandra.CassandraKeyspaceRepository
 import fund.cyber.node.common.awaitAll
 import fund.cyber.node.model.CyberSearchItem
 import fund.cyber.pump.BlockBundle
@@ -11,12 +10,11 @@ import fund.cyber.pump.StorageActionSourceFactory
 
 class CassandraStorageAction(
         private val cassandraStorageAction: CassandraStorageActionSource,
-        private val session: Session,
-        private val mappingManager: MappingManager
+        private val keyspaceRepository: CassandraKeyspaceRepository
 ) : StorageAction {
 
-    override fun store() = cassandraStorageAction.store(session, mappingManager)
-    override fun remove() = cassandraStorageAction.remove(session, mappingManager)
+    override fun store() = cassandraStorageAction.store(keyspaceRepository)
+    override fun remove() = cassandraStorageAction.remove(keyspaceRepository)
 }
 
 
@@ -25,8 +23,8 @@ interface CassandraStorageActionSourceFactory<in T : BlockBundle> : StorageActio
 }
 
 interface CassandraStorageActionSource {
-    fun store(session: Session, mappingManager: MappingManager)
-    fun remove(session: Session, mappingManager: MappingManager)
+    fun store(keyspaceRepository: CassandraKeyspaceRepository)
+    fun remove(keyspaceRepository: CassandraKeyspaceRepository)
 }
 
 
@@ -43,12 +41,12 @@ class CompositeCassandraStorageAction(
         private vararg val actions: CassandraStorageActionSource
 ) : CassandraStorageActionSource {
 
-    override fun store(session: Session, mappingManager: MappingManager) {
-        actions.forEach { action -> action.store(session, mappingManager) }
+    override fun store(keyspaceRepository: CassandraKeyspaceRepository) {
+        actions.forEach { action -> action.store(keyspaceRepository) }
     }
 
-    override fun remove(session: Session, mappingManager: MappingManager) {
-        actions.forEach { action -> action.remove(session, mappingManager) }
+    override fun remove(keyspaceRepository: CassandraKeyspaceRepository) {
+        actions.forEach { action -> action.remove(keyspaceRepository) }
     }
 }
 
@@ -58,13 +56,13 @@ class StoreListCassandraStorageAction<out I : CyberSearchItem>(
         private val valueType: Class<I>
 ) : CassandraStorageActionSource {
 
-    override fun store(session: Session, mappingManager: MappingManager) {
-        val mapper = mappingManager.mapper(valueType)
+    override fun store(keyspaceRepository: CassandraKeyspaceRepository) {
+        val mapper = keyspaceRepository.mappingManager.mapper(valueType)
         values.map { value -> mapper.saveAsync(value) }.awaitAll()
     }
 
-    override fun remove(session: Session, mappingManager: MappingManager) {
-        val mapper = mappingManager.mapper(valueType)
+    override fun remove(keyspaceRepository: CassandraKeyspaceRepository) {
+        val mapper = keyspaceRepository.mappingManager.mapper(valueType)
         values.map { value -> mapper.saveAsync(value) }.awaitAll()
     }
 }
@@ -75,12 +73,11 @@ class StoreValueCassandraStorageAction<out I : CyberSearchItem>(
         private val valueType: Class<I>
 ) : CassandraStorageActionSource {
 
-    override fun store(session: Session, mappingManager: MappingManager) {
-        mappingManager.mapper(valueType).save(value)
+    override fun store(keyspaceRepository: CassandraKeyspaceRepository) {
+        keyspaceRepository.mappingManager.mapper(valueType).save(value)
     }
 
-    override fun remove(session: Session, mappingManager: MappingManager) {
-        mappingManager.mapper(valueType).delete(value)
+    override fun remove(keyspaceRepository: CassandraKeyspaceRepository) {
+        keyspaceRepository.mappingManager.mapper(valueType).delete(value)
     }
-
 }

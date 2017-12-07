@@ -1,6 +1,7 @@
-package fund.cyber.cassandra
+package fund.cyber.cassandra.repository
 
 import com.datastax.driver.core.Cluster
+import fund.cyber.cassandra.CassandraKeyspaceRepository
 import fund.cyber.node.model.SchemaVersion
 
 class CyberSystemKeyspaceRepository(cassandra: Cluster)

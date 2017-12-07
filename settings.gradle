@@ -1,5 +1,5 @@
 include "common"
-include "dao-service"
+include "cassandra-service"
 include "search-api"
 include "pumps"
 

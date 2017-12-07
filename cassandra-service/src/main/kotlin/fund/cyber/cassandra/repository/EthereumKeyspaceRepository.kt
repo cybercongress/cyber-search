@@ -1,36 +1,22 @@
-package fund.cyber.dao.ethereum
+package fund.cyber.cassandra.repository
 
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Row
-import com.datastax.driver.core.Session
-import com.datastax.driver.mapping.MappingManager
-import fund.cyber.node.model.*
+import fund.cyber.cassandra.CassandraKeyspaceRepository
+import fund.cyber.node.common.Chain
+import fund.cyber.node.model.EthereumAddress
+import fund.cyber.node.model.EthereumBlock
+import fund.cyber.node.model.EthereumTransaction
 import org.ehcache.Cache
-import org.slf4j.LoggerFactory
 import java.util.*
 
 
-private val log = LoggerFactory.getLogger(EthereumDaoService::class.java)!!
+class EthereumKeyspaceRepository(
+        cassandra: Cluster, chain: Chain
+) : CassandraKeyspaceRepository(cassandra, chain.lowercaseName()) {
 
-class EthereumDaoService(cassandra: Cluster, keyspace: String = "ethereum",
-                         private val addressCache: Cache<String, EthereumAddress>? = null
-) {
 
-    private val session: Session = cassandra.connect(keyspace).apply {
-        val manager = MappingManager(this)
-        manager.mapper(EthereumBlock::class.java)
-        manager.mapper(EthereumTransaction::class.java)
-        manager.mapper(EthereumAddress::class.java)
-        manager.mapper(EthereumAddressTransaction::class.java)
-    }
-
-    val manager: MappingManager
-
-    init {
-        this.manager = MappingManager(this.session)
-
-    }
-
+    private val addressCache: Cache<String, EthereumAddress>? = null
 
     fun getAddress(id: String): EthereumAddress? {
 
@@ -71,8 +57,6 @@ class EthereumDaoService(cassandra: Cluster, keyspace: String = "ethereum",
                     else
                         idsWithoutCacheHit.add(id)
                 }
-
-                log.debug("Address - Total ids: ${ids.size}, Cache hits: ${addresses.size}")
 
                 addresses.addAll(queryAddressesWithLastTransactionBeforeGivenBlock(idsWithoutCacheHit, blockNumber))
                 return addresses
