@@ -1,4 +1,4 @@
-package fund.cyber.index.bitcoin.converter
+package fund.cyber.address.bitcoin
 
 import fund.cyber.node.model.*
 import org.slf4j.LoggerFactory
@@ -20,7 +20,7 @@ class BitcoinAddressConverter {
                     tx.ins.flatMap { input ->
                         input.addresses.map { addressId ->
                             log.trace("looking for address: $addressId")
-                            updateAddressByTransactionInput(tx.block_number, addressLookUp[addressId]!!, input)
+                            updateAddressByTransactionInput(addressLookUp[addressId]!!, input)
                                     .apply { addressLookUp.put(addressId, this) }
                         }
                     } +
@@ -29,8 +29,8 @@ class BitcoinAddressConverter {
                         output.addresses.map { addressId ->
                             val address = addressLookUp[addressId]
                             when (address) {
-                                null -> nonExistingAddressFromOutput(tx.block_number, addressId, output)
-                                else -> updateAddressByTransactionOutput(tx.block_number, address, output)
+                                null -> nonExistingAddressFromOutput(addressId, output)
+                                else -> updateAddressByTransactionOutput(address, output)
                             }.apply { addressLookUp.put(addressId, this) }
                         }
                     }
@@ -38,35 +38,31 @@ class BitcoinAddressConverter {
     }
 
 
-    private fun nonExistingAddressFromOutput(
-            blockNumber: Long, addressId: String, output: BitcoinTransactionOut): BitcoinAddress {
+    private fun nonExistingAddressFromOutput(addressId: String, output: BitcoinTransactionOut): BitcoinAddress {
 
         return BitcoinAddress(
-                id = addressId, last_transaction_block = blockNumber, tx_number = 1,
-                total_received = output.amount, balance = output.amount
+                id = addressId, confirmed_tx_number = 1, confirmed_balance = output.amount,
+                confirmed_total_received = BigDecimal(output.amount)
         )
     }
 
 
-    private fun updateAddressByTransactionOutput(
-            blockNumber: Long, address: BitcoinAddress, output: BitcoinTransactionOut): BitcoinAddress {
+    private fun updateAddressByTransactionOutput(address: BitcoinAddress, output: BitcoinTransactionOut): BitcoinAddress {
 
         return BitcoinAddress(
-                id = address.id, last_transaction_block = blockNumber,
-                tx_number = address.tx_number + 1,
-                total_received = (BigDecimal(address.total_received) + BigDecimal(output.amount)).toString(),
-                balance = (BigDecimal(address.balance) + BigDecimal(output.amount)).toString()
+                id = address.id, confirmed_tx_number = address.confirmed_tx_number + 1,
+                confirmed_total_received = address.confirmed_total_received + BigDecimal(output.amount),
+                confirmed_balance = (BigDecimal(address.confirmed_balance) + BigDecimal(output.amount)).toString()
         )
     }
 
 
-    private fun updateAddressByTransactionInput(
-            blockNumber: Long, address: BitcoinAddress, input: BitcoinTransactionIn): BitcoinAddress {
+    private fun updateAddressByTransactionInput(address: BitcoinAddress, input: BitcoinTransactionIn): BitcoinAddress {
 
         return BitcoinAddress(
-                id = address.id, last_transaction_block = blockNumber,
-                tx_number = address.tx_number + 1, total_received = address.total_received,
-                balance = (BigDecimal(address.balance) - BigDecimal(input.amount)).toString()
+                id = address.id, confirmed_tx_number = address.confirmed_tx_number + 1,
+                confirmed_total_received = address.confirmed_total_received,
+                confirmed_balance = (BigDecimal(address.confirmed_balance) - BigDecimal(input.amount)).toString()
         )
     }
 
