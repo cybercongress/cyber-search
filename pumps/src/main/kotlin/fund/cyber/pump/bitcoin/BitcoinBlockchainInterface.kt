@@ -1,7 +1,6 @@
 package fund.cyber.pump.bitcoin
 
 import fund.cyber.cassandra.migration.Migration
-import fund.cyber.cassandra.migration.Migratory
 import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.BITCOIN
 import fund.cyber.node.model.BitcoinBlock
@@ -37,7 +36,7 @@ class BitcoinBlockBundle(
 open class BitcoinBlockchainInterface(
         private val bitcoinJsonRpcClient: BitcoinJsonRpcClient = BitcoinPumpContext.bitcoinJsonRpcClient,
         private val rpcToBundleEntitiesConverter: JsonRpcBlockToBitcoinBundleConverter = BitcoinPumpContext.rpcToBundleEntitiesConverter
-) : BlockchainInterface<BitcoinBlockBundle>, Migratory {
+) : BlockchainInterface<BitcoinBlockBundle> {
 
     override val chain = BITCOIN
     override val migrations: List<Migration> = BitcoinMigrations.migrations

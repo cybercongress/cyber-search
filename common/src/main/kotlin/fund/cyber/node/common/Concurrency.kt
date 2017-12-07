@@ -1,16 +1,21 @@
 package fund.cyber.node.common
 
 import com.google.common.util.concurrent.Futures
-import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.JdkFutureAdapters
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.concurrent.FutureCallback
 import org.apache.http.nio.client.HttpAsyncClient
 import java.lang.Exception
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
 
 
-fun <T> List<ListenableFuture<T>>.awaitAll(): List<T> = Futures.allAsList(this).get()
+fun <T> List<Future<T>>.awaitAll(): List<T> {
+    val combinedFuture = this.map { future -> JdkFutureAdapters.listenInPoolThread(future) }
+    return Futures.allAsList(combinedFuture).get()
+}
+
 
 fun HttpAsyncClient.executeAsync(request: HttpUriRequest): CompletableFuture<HttpResponse> {
     val futureCallback = CompletableFutureCallback<HttpResponse>()

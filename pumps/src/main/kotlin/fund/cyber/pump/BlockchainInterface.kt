@@ -1,5 +1,6 @@
 package fund.cyber.pump
 
+import fund.cyber.cassandra.migration.Migratory
 import fund.cyber.node.common.Chain
 import fund.cyber.node.model.CyberSearchItem
 
@@ -8,7 +9,9 @@ interface Blockchain {
     val chain: Chain
 }
 
-interface BlockchainInterface<out T : BlockBundle> : Blockchain {
+
+//todo move migratory outside here??
+interface BlockchainInterface<out T : BlockBundle> : Blockchain, Migratory {
     fun lastNetworkBlock(): Long
     fun blockBundleByNumber(number: Long): T
 }
