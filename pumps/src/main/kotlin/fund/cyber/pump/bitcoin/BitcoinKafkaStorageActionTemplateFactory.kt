@@ -8,6 +8,7 @@ import fund.cyber.pump.kafka.KafkaStorageActionTemplateFactory
 import org.apache.kafka.clients.producer.ProducerRecord
 
 
+//todo move topic from here to coomon place
 class TxRecord(event: KafkaEvent, tx: BitcoinTransaction)
     : ProducerRecord<KafkaEvent, BitcoinTransaction>("bitcoin_tx", event, tx)
 

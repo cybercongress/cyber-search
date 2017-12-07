@@ -79,6 +79,8 @@ subprojects {
 
             dependency("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
             dependency("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+            dependency("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVersion")
+            dependency("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
             dependency("io.undertow:undertow-core:$undertowVersion")
             dependency("org.apache.httpcomponents:httpasyncclient:$apacheHttpClientVersion")
@@ -126,6 +128,8 @@ project(":common") {
 
         compile("com.fasterxml.jackson.core:jackson-databind")
         compile("com.fasterxml.jackson.module:jackson-module-kotlin")
+        compile("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
+        compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
         compile("org.apache.kafka:kafka-clients")
         compile("com.datastax.cassandra:cassandra-driver-core")
@@ -165,6 +169,7 @@ project(":cassandra-service") {
 project(":address-service") {
     dependencies {
         compile project(":common")
+        compile project(":cassandra-service")
     }
 }
 
