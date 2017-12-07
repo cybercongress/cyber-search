@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import fund.cyber.cassandra.CassandraKeyspaceRepository
 import fund.cyber.node.common.stringValue
 import fund.cyber.node.model.BitcoinTransaction
+import fund.cyber.node.model.EthereumTransaction
 import fund.cyber.search.configuration.AppContext
 import io.undertow.server.HttpHandler
 import io.undertow.server.HttpServerExchange
@@ -15,7 +16,7 @@ class EthereumTxHandler(
         private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer
 ) : HttpHandler {
 
-    private val txTable = repository.mappingManager.mapper(BitcoinTransaction::class.java)
+    private val txTable = repository.mappingManager.mapper(EthereumTransaction::class.java)
 
     override fun handleRequest(exchange: HttpServerExchange) {
 
