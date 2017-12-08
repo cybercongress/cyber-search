@@ -1,8 +1,6 @@
 package fund.cyber.address.bitcoin
 
-import fund.cyber.address.AddressStateUpdater
 import fund.cyber.address.ServiceConfiguration.kafkaBrokers
-import fund.cyber.address.ServiceContext
 import fund.cyber.cassandra.CassandraService
 import fund.cyber.node.common.awaitAll
 import fund.cyber.node.kafka.JsonDeserializer
@@ -13,7 +11,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.util.*
 
 
-// https://kafka.apache.org/0101/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html
+/*
 //todo move topic from here to common place
 class BitcoinAddressStateUpdater(
         private val cassandraService: CassandraService = ServiceContext.cassandraService
@@ -53,4 +51,4 @@ class BitcoinAddressStateUpdater(
         newAddressTxes.map { addressTx -> cassandraService.bitcoinRepository.addressTxtore.saveAsync(addressTx) }
                 .awaitAll()
     }
-}
+}*/

@@ -1,6 +1,7 @@
 package fund.cyber.address
 
-import fund.cyber.address.bitcoin.BitcoinAddressStateUpdater
+import fund.cyber.address.bitcoin.BitcoinAddressUpdatesPersistenceProcess
+import fund.cyber.cassandra.CassandraService
 import java.util.concurrent.Executors
 
 
@@ -9,7 +10,13 @@ object AddressServiceApplication {
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val consumers = listOf(BitcoinAddressStateUpdater())
+        val cassandraService = CassandraService(ServiceConfiguration.cassandraServers, ServiceConfiguration.cassandraPort)
+
+        val bitcoinAddressUpdatesPersistenceProcess = BitcoinAddressUpdatesPersistenceProcess(
+                topic = "bitcoin_address_updates", repository = cassandraService.bitcoinRepository
+        )
+
+        val consumers = listOf(bitcoinAddressUpdatesPersistenceProcess)
 
         val executor = Executors.newFixedThreadPool(consumers.size)
         consumers.forEach { consumer -> executor.execute(consumer) }

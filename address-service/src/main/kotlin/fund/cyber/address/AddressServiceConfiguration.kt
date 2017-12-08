@@ -1,14 +1,6 @@
 package fund.cyber.address
 
-import fund.cyber.cassandra.CassandraService
 import fund.cyber.node.common.*
-
-
-object ServiceContext {
-    val cassandraService = CassandraService(ServiceConfiguration.cassandraServers, ServiceConfiguration.cassandraPort)
-
-}
-
 
 object ServiceConfiguration {
 
