@@ -1,6 +1,6 @@
 package fund.cyber.node.common
 
-const val KAFKA_BROKERS = "CASSANDRA_HOSTS"
+const val KAFKA_BROKERS = "KAFKA_BROKERS"
 const val KAFKA_BROKERS_DEFAULT = "localhost:9092"
 
 const val CASSANDRA_HOSTS = "CASSANDRA_HOSTS"
