@@ -1,9 +1,7 @@
 package fund.cyber.search.configuration
 
-import com.datastax.driver.core.Cluster
 import com.fasterxml.jackson.databind.ObjectMapper
-import fund.cyber.dao.bitcoin.BitcoinDaoService
-import fund.cyber.dao.ethereum.EthereumDaoService
+import fund.cyber.cassandra.CassandraService
 import fund.cyber.node.common.*
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import org.elasticsearch.common.settings.Settings
@@ -12,8 +10,6 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient
 import java.net.InetAddress
 
 object AppContext {
-
-    val concurrentContext by lazy { newFixedThreadPoolContext(4, "Coroutines Concurrent Pool") }
 
     val jsonSerializer = ObjectMapper()
     val jsonDeserializer = ObjectMapper()
@@ -30,18 +26,12 @@ object AppContext {
                     InetAddress.getByName(SearchApiConfiguration.cassandraServers.first()), SearchApiConfiguration.elasticTransportPort)
             )!!
 
-    val cassandra = Cluster.builder()
-            .addContactPoints(*SearchApiConfiguration.cassandraServers.toTypedArray())
-            .withPort(SearchApiConfiguration.cassandraPort)
-            .withMaxSchemaAgreementWaitSeconds(30)
-            .build().init()!!
-
-    val bitcoinDaoService by lazy { BitcoinDaoService(cassandra) }
-    val ethereumDaoService by lazy { EthereumDaoService(cassandra) }
-
+    val cassandraService by lazy {
+        CassandraService(SearchApiConfiguration.cassandraServers, SearchApiConfiguration.cassandraPort)
+    }
 
     fun closeContext() {
-        cassandra.closeAsync()
+        cassandraService.close()
         elasticClient.close()
     }
 }

@@ -1,17 +1,24 @@
 package fund.cyber.search.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import fund.cyber.dao.ethereum.EthereumDaoService
+import fund.cyber.cassandra.CassandraKeyspaceRepository
 import fund.cyber.node.common.longValue
+import fund.cyber.node.model.BitcoinTransaction
+import fund.cyber.node.model.EthereumBlock
+import fund.cyber.node.model.EthereumTransaction
 import fund.cyber.search.configuration.AppContext
 import io.undertow.server.HttpHandler
 import io.undertow.server.HttpServerExchange
 import io.undertow.util.Headers
 
+
 class EthereumBlockHandler(
-        private val ethereumDaoService: EthereumDaoService = AppContext.ethereumDaoService,
+        repository: CassandraKeyspaceRepository,
         private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer
 ) : HttpHandler {
+
+    private val blockTable = repository.mappingManager.mapper(EthereumBlock::class.java)
+
 
     override fun handleRequest(exchange: HttpServerExchange) {
 
@@ -22,7 +29,7 @@ class EthereumBlockHandler(
             return
         }
 
-        val block = ethereumDaoService.getBlockByNumber(blockNumber)
+        val block = blockTable.get(blockNumber)
 
         if (block == null) {
             exchange.statusCode = 404

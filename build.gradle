@@ -142,7 +142,7 @@ project(":search-api") {
 
     dependencies {
         compile project(":common")
-        compile project(":dao-service")
+        compile project(":cassandra-service")
         compile("io.undertow:undertow-core")
         compile("org.elasticsearch.client:transport")
     }
@@ -150,7 +150,7 @@ project(":search-api") {
     mainClassName = "fund.cyber.search.SearchApiApplication"
 }
 
-project(":dao-service") {
+project(":cassandra-service") {
     dependencies {
         compile(project(":common"))
         compile("org.ehcache:ehcache")
@@ -167,7 +167,7 @@ project(":pumps") {
 
     dependencies {
         compile project(":common")
-        compile project(":dao-service")
+        compile project(":cassandra-service")
         compile("org.web3j:core")
         compile("io.reactivex.rxjava2:rxkotlin")
     }

@@ -9,6 +9,4 @@ open class CassandraKeyspaceRepository(cassandra: Cluster, cassandraKeyspace: St
 
     protected val session: Session by lazy { cassandra.connect(cassandraKeyspace) }
     val mappingManager by lazy { MappingManager(session) }
-
-    fun close() = session.closeAsync()
 }

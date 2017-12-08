@@ -1,8 +1,8 @@
 package fund.cyber.pump.cassandra
 
 import fund.cyber.cassandra.CassandraService
-import fund.cyber.dao.migration.ElassandraSchemaMigrationEngine
-import fund.cyber.dao.migration.Migratory
+import fund.cyber.cassandra.migration.ElassandraSchemaMigrationEngine
+import fund.cyber.cassandra.migration.Migratory
 import fund.cyber.node.common.Chain
 import fund.cyber.node.model.IndexingProgress
 import fund.cyber.pump.*
@@ -19,17 +19,17 @@ class ElassandraStorage(
     private val log = LoggerFactory.getLogger(ConcurrentPulledBlockchain::class.java)!!
 
     private val schemaMigrationEngine = ElassandraSchemaMigrationEngine(
-            cassandra = cassandraService.cassandra, httpClient = httpClient,
+            cassandraService = cassandraService, httpClient = httpClient,
             elasticHost = elasticHost, elasticPort = elasticHttpPort,
             defaultMigrations = PumpsMigrations.migrations
     )
 
-    private val actionFactories = mutableMapOf<Chain, CassandraStorageActionFactory<BlockBundle>>()
+    private val actionFactories = mutableMapOf<Chain, CassandraStorageActionSourceFactory<BlockBundle>>()
 
     @Suppress("UNCHECKED_CAST")
-    override fun registerStorageActionFactory(chain: Chain, actionFactory: StorageActionFactory) {
-        if (actionFactory is CassandraStorageActionFactory<*>) {
-            actionFactories.put(chain, actionFactory as CassandraStorageActionFactory<BlockBundle>)
+    override fun registerStorageActionSourceFactory(chain: Chain, actionSourceFactory: StorageActionSourceFactory) {
+        if (actionSourceFactory is CassandraStorageActionSourceFactory<*>) {
+            actionFactories.put(chain, actionSourceFactory as CassandraStorageActionSourceFactory<BlockBundle>)
         }
     }
 
@@ -44,10 +44,9 @@ class ElassandraStorage(
         val cassandraAction = actionFactories[blockBundle.chain]?.constructCassandraAction(blockBundle)
 
         if (cassandraAction != null) {
-            return SimpleCassandraStorageAction(
+            return CassandraStorageAction(
                     cassandraStorageAction = cassandraAction,
-                    mappingManager = cassandraService.getChainRepository(blockBundle.chain),
-                    session = cassandraService.getChainRepositorySession(blockBundle.chain)
+                    keyspaceRepository = cassandraService.getChainRepository(blockBundle.chain)
             )
         }
         return EmptyStorageAction

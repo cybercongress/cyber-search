@@ -1,6 +1,6 @@
 package fund.cyber.index.ethereum
 
-import fund.cyber.dao.ethereum.EthereumDaoService
+import fund.cyber.cassandra.repository.EthereumKeyspaceRepository
 import fund.cyber.index.ethereum.ApplicationContext.cassandra
 import fund.cyber.index.ethereum.ApplicationContext.streamsConfiguration
 import fund.cyber.index.ethereum.converter.EthereumAddressConverter
@@ -100,9 +100,9 @@ object EthereumBlockSplitterApplication {
 
     private fun getExistingAddressesUsedInBlock(
             block: EthereumBlock,
-            ethereumDaoService: EthereumDaoService = ApplicationContext.ethereumDaoService): List<EthereumAddress> {
+            ethereumKeyspaceRepository: EthereumKeyspaceRepository = ApplicationContext.ethereumDaoService): List<EthereumAddress> {
 
-        //return ethereumDaoService.getAddressesWithLastTransactionBeforeGivenBlock(block.addressesUsedInBlock(), block.number)
+        //return ethereumKeyspaceRepository.getAddressesWithLastTransactionBeforeGivenBlock(block.addressesUsedInBlock(), block.number)
         return emptyList()
     }
 }

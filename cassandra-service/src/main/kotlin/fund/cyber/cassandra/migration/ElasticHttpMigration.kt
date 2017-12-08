@@ -1,4 +1,4 @@
-package fund.cyber.dao.migration
+package fund.cyber.cassandra.migration
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper

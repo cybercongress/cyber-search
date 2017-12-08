@@ -1,6 +1,6 @@
 package fund.cyber.pump.bitcoin_cash
 
-import fund.cyber.dao.migration.Migration
+import fund.cyber.cassandra.migration.Migration
 import fund.cyber.node.common.Chain
 import fund.cyber.pump.bitcoin.BitcoinBlockchainInterface
 

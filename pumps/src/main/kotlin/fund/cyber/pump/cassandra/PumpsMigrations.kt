@@ -1,6 +1,6 @@
 package fund.cyber.pump.cassandra
 
-import fund.cyber.dao.migration.CqlFileBasedMigration
+import fund.cyber.cassandra.migration.CqlFileBasedMigration
 import fund.cyber.node.common.Chain
 
 object PumpsMigrations {

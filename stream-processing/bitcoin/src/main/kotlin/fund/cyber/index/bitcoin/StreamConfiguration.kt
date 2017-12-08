@@ -1,7 +1,7 @@
 package fund.cyber.index.bitcoin
 
 import com.datastax.driver.core.Cluster
-import fund.cyber.dao.bitcoin.BitcoinDaoService
+import fund.cyber.cassandra.BitcoinDaoService
 import fund.cyber.index.bitcoin.converter.BitcoinAddressConverter
 import fund.cyber.node.common.Chain.BITCOIN
 import fund.cyber.node.common.env

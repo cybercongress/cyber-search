@@ -1,4 +1,4 @@
-package fund.cyber.dao.model
+package fund.cyber.cassandra.model
 
 import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.*

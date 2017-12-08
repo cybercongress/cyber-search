@@ -1,28 +1,21 @@
-package fund.cyber.dao.bitcoin
+package fund.cyber.cassandra.repository
 
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Row
-import com.datastax.driver.core.Session
-import com.datastax.driver.mapping.MappingManager
 import com.google.common.util.concurrent.ListenableFuture
+import fund.cyber.cassandra.CassandraKeyspaceRepository
 import fund.cyber.node.common.Chain
 import fund.cyber.node.model.*
 import org.ehcache.Cache
-import org.slf4j.LoggerFactory
 import java.util.*
 
+class BitcoinKeyspaceRepository(
+        cassandra: Cluster, chain: Chain
+) : CassandraKeyspaceRepository(cassandra, chain.lowercaseName()) {
 
-private val log = LoggerFactory.getLogger(BitcoinDaoService::class.java)!!
 
-class BitcoinDaoService(
-        cassandra: Cluster,
-        chain: Chain = Chain.BITCOIN,
-        private val txCache: Cache<String, BitcoinTransaction>? = null,
-        private val addressCache: Cache<String, BitcoinAddress>? = null
-) {
-
-    private val session: Session = cassandra.connect(chain.name)
-    private val mappingManager = MappingManager(session)
+    private val txCache: Cache<String, BitcoinTransaction>? = null
+    private val addressCache: Cache<String, BitcoinAddress>? = null
 
     val blockStore = mappingManager.mapper(BitcoinBlock::class.java)!!
     val blockTxStore = mappingManager.mapper(BitcoinBlockTransaction::class.java)!!
@@ -42,21 +35,6 @@ class BitcoinDaoService(
             .map { row -> row.getString("hash") }
 
 
-    fun getAddress(id: String): BitcoinAddress? = session
-            .execute("SELECT * FROM address WHERE id='$id'")
-            .map(this::bitcoinAddressMapping).firstOrNull()
-
-
-    fun getBlockByNumber(number: Long): BitcoinBlock? = session
-            .execute("SELECT * FROM block WHERE height=$number")
-            .map(this::bitcoinBlockMapping).firstOrNull()
-
-
-    fun getTxById(id: String): BitcoinTransaction? = session
-            .execute("SELECT * FROM tx WHERE hash='$id'")
-            .map(this::bitcoinTransactionMapping).firstOrNull()
-
-
     fun getTxs(ids: List<String>): List<BitcoinTransaction> {
 
         if (ids.isEmpty()) return emptyList()
@@ -71,7 +49,6 @@ class BitcoinDaoService(
                 if (tx != null) txs.add(tx) else idsWithoutCacheHit.add(id)
             }
 
-            log.debug("Transactions - Total ids: ${ids.size}, Cache hits: ${txs.size}")
 
             txs.addAll(queryTxsByIds(idsWithoutCacheHit))
             return txs
@@ -100,7 +77,6 @@ class BitcoinDaoService(
                         idsWithoutCacheHit.add(id)
                 }
 
-                log.debug("Address - Total ids: ${ids.size}, Cache hits: ${addresses.size}")
 
                 addresses.addAll(queryAddressesWithLastTransactionBeforeGivenBlock(idsWithoutCacheHit, blockNumber))
                 return addresses

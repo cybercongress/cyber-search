@@ -1,28 +1,32 @@
 package fund.cyber.search.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import fund.cyber.dao.bitcoin.BitcoinDaoService
+import fund.cyber.cassandra.CassandraKeyspaceRepository
 import fund.cyber.node.common.stringValue
+import fund.cyber.node.model.BitcoinTransaction
 import fund.cyber.search.configuration.AppContext
 import io.undertow.server.HttpHandler
 import io.undertow.server.HttpServerExchange
 import io.undertow.util.Headers
 
+
 class BitcoinTxHandler(
-        private val bitcoinDaoService: BitcoinDaoService = AppContext.bitcoinDaoService,
+        repository: CassandraKeyspaceRepository,
         private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer
 ) : HttpHandler {
 
+    private val txTable = repository.mappingManager.mapper(BitcoinTransaction::class.java)
+
     override fun handleRequest(exchange: HttpServerExchange) {
 
-        val txId = exchange.queryParameters["txId"]?.stringValue()
+        val txHash = exchange.queryParameters["txHash"]?.stringValue()
 
-        if (txId == null || txId.isEmpty()) {
+        if (txHash == null || txHash.isEmpty()) {
             exchange.statusCode = 400
             return
         }
 
-        val tx = bitcoinDaoService.getTxById(txId)
+        val tx = txTable.get(txHash)
 
         if (tx == null) {
             exchange.statusCode = 404
