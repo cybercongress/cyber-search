@@ -113,10 +113,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - deploy_connectors_image:
-          <<: *release_filter
-          requires:
-            - build_project
       - deploy_search_api_image:
           <<: *release_filter
           requires:
