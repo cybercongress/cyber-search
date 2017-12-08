@@ -147,7 +147,9 @@ project(":common") {
 
 
 project(":search-api") {
+
     apply plugin: "application"
+    mainClassName = "fund.cyber.search.SearchApiApplication"
 
     dependencies {
         compile project(":common")
@@ -155,8 +157,6 @@ project(":search-api") {
         compile("io.undertow:undertow-core")
         compile("org.elasticsearch.client:transport")
     }
-
-    mainClassName = "fund.cyber.search.SearchApiApplication"
 }
 
 project(":cassandra-service") {
@@ -167,14 +167,21 @@ project(":cassandra-service") {
 }
 
 project(":address-service") {
+
+    apply plugin: "application"
+    mainClassName = "fund.cyber.address.AddressServiceApplication"
+
     dependencies {
         compile project(":common")
         compile project(":cassandra-service")
     }
+
 }
 
 project(":pumps") {
+
     apply plugin: "application"
+    mainClassName = "fund.cyber.pump.PumpsApplication"
 
     dependencies {
         compile project(":common")
@@ -182,6 +189,4 @@ project(":pumps") {
         compile("org.web3j:core")
         compile("io.reactivex.rxjava2:rxkotlin")
     }
-
-    mainClassName = "fund.cyber.pump.PumpsApplication"
 }
