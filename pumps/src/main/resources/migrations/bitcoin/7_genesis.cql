@@ -47,7 +47,7 @@ INSERT INTO bitcoin.tx JSON
 INSERT INTO bitcoin.address JSON
 '{
     "id": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
-    "confirmed_balance": 50,
+    "confirmed_balance": "50",
     "confirmed_total_received": 50,
     "confirmed_tx_number": 1
 }';
