@@ -7,7 +7,6 @@ import fund.cyber.node.kafka.JsonDeserializer
 import fund.cyber.node.kafka.JsonSerializer
 import fund.cyber.node.kafka.KafkaConsumerRunner
 import fund.cyber.node.kafka.KafkaEvent
-import fund.cyber.node.model.BitcoinAddress
 import fund.cyber.node.model.BitcoinTransaction
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -15,7 +14,14 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.TopicPartition
+import java.math.BigDecimal
 import java.util.*
+
+
+data class BitcoinAddressDelta(
+        val address: String,
+        val delta: BigDecimal
+)
 
 
 class BitcoinAddressStateUpdatesEmitingProcess(
@@ -25,13 +31,12 @@ class BitcoinAddressStateUpdatesEmitingProcess(
 ) : KafkaConsumerRunner<KafkaEvent, BitcoinTransaction>(listOf(inputTopic)) {
 
 
-    private fun addressRecord(address: BitcoinAddress): ProducerRecord<Any, Any> {
-        return ProducerRecord(outputTopic, address)
+    private fun addressDeltaRecord(delta: BitcoinAddressDelta): ProducerRecord<Any, Any> {
+        return ProducerRecord(outputTopic, delta)
     }
 
-    private val converter = BitcoinAddressConverter()
 
-    private val consumerGroup = "bitcoin-address-updates-emiting-process-consumer"
+    private val consumerGroup = "bitcoin-address-updates-emiting-process-consumer1"
 
     private val consumerProperties = Properties().apply {
         put("bootstrap.servers", ServiceConfiguration.kafkaBrokers)
@@ -43,7 +48,7 @@ class BitcoinAddressStateUpdatesEmitingProcess(
 
     private val producerProperties = Properties().apply {
         put("bootstrap.servers", ServiceConfiguration.kafkaBrokers)
-        put("group.id", "bitcoin-address-updates-emiting-process-producer")
+        put("group.id", "bitcoin-address-updates-emiting-process-producer1")
         put("transactional.id", "bitcoin-address-updates-emiting-process-producer")
     }
 
@@ -63,17 +68,21 @@ class BitcoinAddressStateUpdatesEmitingProcess(
     override fun processRecord(partition: TopicPartition, record: ConsumerRecord<KafkaEvent, BitcoinTransaction>) {
 
         println(record.offset())
+
         val newTx = record.value()
-        val affectedAddresses = newTx.allAddressesUsedInTransaction()
 
-        val currentAddressStats = affectedAddresses
-                .map { address -> repository.addressStore.getAsync(address) }.awaitAll().filterNotNull()
+        val addressesDeltasByIns = newTx.ins.flatMap { input ->
+            input.addresses.map { address -> BitcoinAddressDelta(address, BigDecimal(input.amount).negate()) }
+        }
 
-        val updatedAddressStates = converter.updateAddressesSummary(listOf(newTx), currentAddressStats)
+        val addressesDeltasByOuts = newTx.outs.flatMap { output ->
+            output.addresses.map { address -> BitcoinAddressDelta(address, BigDecimal(output.amount)) }
+        }
+        val deltas = addressesDeltasByIns + addressesDeltasByOuts
 
         producer.beginTransaction()
         try {
-            updatedAddressStates.map { address -> producer.send(addressRecord(address)) }.awaitAll()
+            deltas.map { delta -> producer.send(addressDeltaRecord(delta)) }.awaitAll()
             val offset = mapOf(partition to OffsetAndMetadata(record.offset() + 1))
             producer.sendOffsetsToTransaction(offset, consumerGroup)
             producer.commitTransaction()
