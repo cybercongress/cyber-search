@@ -17,7 +17,7 @@ class KafkaStorage(
     }
 
     private val jsonSerializer = JsonSerializer<Any>()
-    val producer by lazy { KafkaProducer<Any, Any>(kafkaProperties, jsonSerializer, jsonSerializer) }
+    private val producer by lazy { KafkaProducer<Any, Any>(kafkaProperties, jsonSerializer, jsonSerializer) }
 
     private val actionFactories = mutableMapOf<Chain, KafkaStorageActionTemplateFactory<BlockBundle>>()
 
