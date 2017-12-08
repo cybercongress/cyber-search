@@ -3,6 +3,7 @@ package fund.cyber.pump.bitcoin
 import fund.cyber.node.common.sumByBigDecimalString
 import fund.cyber.node.model.*
 import org.slf4j.LoggerFactory
+import java.math.BigDecimal
 import java.time.Instant
 
 
@@ -24,6 +25,25 @@ private val log = LoggerFactory.getLogger(JsonRpcToDaoBitcoinTransactionConverte
  */
 class JsonRpcToDaoBitcoinTransactionConverter {
 
+
+    fun convertToDaoAddressTransactions(newTransactions: List<BitcoinTransaction>): List<BitcoinAddressTransaction> {
+
+        return newTransactions
+                .flatMap { tx ->
+
+                    tx.allAddressesUsedInTransaction().map { addressId ->
+                        BitcoinAddressTransaction(
+                                address = addressId, fee = BigDecimal(tx.fee), hash = tx.hash, block_time = tx.block_time,
+                                ins = tx.ins.map { input ->
+                                    BitcoinTransactionPreviewIO(addresses = input.addresses, amount = input.amount)
+                                },
+                                outs = tx.outs.map { out ->
+                                    BitcoinTransactionPreviewIO(addresses = out.addresses, amount = out.amount)
+                                }, block_number = tx.block_number
+                        )
+                    }
+                }
+    }
 
     /**
      * @param jsonRpcBlock block to obtain transactions to convert
