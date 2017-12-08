@@ -10,7 +10,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.util.*
 
-//todo move topic from here to common place
 class BitcoinAddressUpdatesPersistenceProcess(
         topic: String,
         private val repository: BitcoinKeyspaceRepository
@@ -21,6 +20,7 @@ class BitcoinAddressUpdatesPersistenceProcess(
         put("bootstrap.servers", ServiceConfiguration.kafkaBrokers)
         put("group.id", "bitcoin-address-updates-persistence-process")
         put("enable.auto.commit", false)
+        put("isolation.level", "read_committed")
         put("auto.offset.reset", "earliest")
     }
 

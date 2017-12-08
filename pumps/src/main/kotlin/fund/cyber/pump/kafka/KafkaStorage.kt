@@ -14,10 +14,13 @@ class KafkaStorage(
     private val kafkaProperties = Properties().apply {
         put("bootstrap.servers", kafkaBrokers)
         put("group.id", "pumps")
+        put("transactional.id", "pumps")
     }
 
     private val jsonSerializer = JsonSerializer<Any>()
-    private val producer by lazy { KafkaProducer<Any, Any>(kafkaProperties, jsonSerializer, jsonSerializer) }
+    private val producer by lazy {
+        KafkaProducer<Any, Any>(kafkaProperties, jsonSerializer, jsonSerializer).apply { initTransactions() }
+    }
 
     private val actionFactories = mutableMapOf<Chain, KafkaStorageActionTemplateFactory<BlockBundle>>()
 

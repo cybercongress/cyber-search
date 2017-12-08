@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class KafkaConsumerRunner<K, V>(private val topics: List<String>) : Runnable {
 
-    abstract val consumer: KafkaConsumer<K, V>
+    abstract protected val consumer: KafkaConsumer<K, V>
     abstract fun processRecord(partition: TopicPartition, record: ConsumerRecord<K, V>)
 
     private val closed = AtomicBoolean(false)
@@ -42,7 +42,7 @@ abstract class KafkaConsumerRunner<K, V>(private val topics: List<String>) : Run
         }
     }
 
-    fun shutdown() {
+    open fun shutdown() {
         closed.set(true)
         consumer.wakeup()
     }
