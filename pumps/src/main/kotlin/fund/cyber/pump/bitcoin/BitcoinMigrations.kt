@@ -17,6 +17,7 @@ object BitcoinMigrations {
             ElasticHttpMigration(3, applicationId, "/migrations/bitcoin/3_create-block-index.json"),
             ElasticHttpMigration(4, applicationId, "/migrations/bitcoin/4_create-block-type.json"),
             ElasticHttpMigration(5, applicationId, "/migrations/bitcoin/5_create-address-index.json"),
-            ElasticHttpMigration(6, applicationId, "/migrations/bitcoin/6_create-address-type.json")
+            ElasticHttpMigration(6, applicationId, "/migrations/bitcoin/6_create-address-type.json"),
+            CqlFileBasedMigration(7, applicationId, "/migrations/bitcoin/7_genesis.cql")
     )
 }
