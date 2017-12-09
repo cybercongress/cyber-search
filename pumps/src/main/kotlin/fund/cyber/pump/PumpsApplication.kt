@@ -28,20 +28,23 @@ object PumpsApplication {
         }
     }
 
-
     private fun startChainPumper(chain: Chain) {
         when (chain) {
             BITCOIN -> {
                 val actionTemplateFactories = listOf(
                         SimpleCassandraActionSourceFactory(),
-                        BitcoinKafkaStorageActionTemplateFactory()
+                        BitcoinKafkaStorageActionTemplateFactory(BITCOIN)
                 )
                 val flowableInterface = ConcurrentPulledBlockchain(BitcoinBlockchainInterface())
                 getChainPumper(flowableInterface, actionTemplateFactories).start()
             }
             BITCOIN_CASH -> {
+                val actionTemplateFactories = listOf(
+                        SimpleCassandraActionSourceFactory(),
+                        BitcoinKafkaStorageActionTemplateFactory(BITCOIN_CASH)
+                )
                 val flowableInterface = ConcurrentPulledBlockchain(BitcoinCashBlockchainInterface())
-                getChainPumper(flowableInterface, listOf(SimpleCassandraActionSourceFactory())).start()
+                getChainPumper(flowableInterface, actionTemplateFactories).start()
             }
             ETHEREUM -> {
                 val flowableInterface = ConcurrentPulledBlockchain(EthereumBlockchainInterface())
