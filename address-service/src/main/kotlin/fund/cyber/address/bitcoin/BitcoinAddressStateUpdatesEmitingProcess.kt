@@ -1,12 +1,12 @@
 package fund.cyber.address.bitcoin
 
 import fund.cyber.address.ServiceConfiguration
-import fund.cyber.cassandra.repository.BitcoinKeyspaceRepository
+import fund.cyber.address.common.AddressDelta
+import fund.cyber.address.common.addressDeltaTopic
+import fund.cyber.node.common.Chain
+import fund.cyber.node.common.ChainEntity.TRANSACTION
 import fund.cyber.node.common.awaitAll
-import fund.cyber.node.kafka.JsonDeserializer
-import fund.cyber.node.kafka.JsonSerializer
-import fund.cyber.node.kafka.KafkaConsumerRunner
-import fund.cyber.node.kafka.KafkaEvent
+import fund.cyber.node.kafka.*
 import fund.cyber.node.model.BitcoinTransaction
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -14,29 +14,25 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.TopicPartition
+import org.slf4j.LoggerFactory
 import java.math.BigDecimal
 import java.util.*
 
 
-data class BitcoinAddressDelta(
-        val address: String,
-        val delta: BigDecimal
-)
-
+private val log = LoggerFactory.getLogger(BitcoinAddressStateUpdatesEmitingProcess::class.java)!!
 
 class BitcoinAddressStateUpdatesEmitingProcess(
-        inputTopic: String,
-        private val outputTopic: String,
-        private val repository: BitcoinKeyspaceRepository
-) : KafkaConsumerRunner<KafkaEvent, BitcoinTransaction>(listOf(inputTopic)) {
+        private val chain: Chain
+) : KafkaConsumerRunner<KafkaEvent, BitcoinTransaction>(listOf(chain.entityTopic(TRANSACTION))) {
+
+    private var lastProcessedItemBlock = -1L
 
 
-    private fun addressDeltaRecord(delta: BitcoinAddressDelta): ProducerRecord<Any, Any> {
-        return ProducerRecord(outputTopic, delta)
+    private fun addressDeltaRecord(delta: AddressDelta): ProducerRecord<Any, Any> {
+        return ProducerRecord(chain.addressDeltaTopic, delta)
     }
 
-
-    private val consumerGroup = "bitcoin-address-updates-emiting-process-consumer1"
+    private val consumerGroup = "${chain}_ADDRESS_UPDATES_EMITING_PROCESS_CONSUMER"
 
     private val consumerProperties = Properties().apply {
         put("bootstrap.servers", ServiceConfiguration.kafkaBrokers)
@@ -48,8 +44,8 @@ class BitcoinAddressStateUpdatesEmitingProcess(
 
     private val producerProperties = Properties().apply {
         put("bootstrap.servers", ServiceConfiguration.kafkaBrokers)
-        put("group.id", "bitcoin-address-updates-emiting-process-producer1")
-        put("transactional.id", "bitcoin-address-updates-emiting-process-producer")
+        put("group.id", "${chain}_ADDRESS_UPDATES_EMITING_PROCESS_PRODUCER")
+        put("transactional.id", "${chain}_ADDRESS_UPDATES_EMITING_PROCESS_TRANSACTION")
     }
 
     override val consumer by lazy {
@@ -67,16 +63,20 @@ class BitcoinAddressStateUpdatesEmitingProcess(
 
     override fun processRecord(partition: TopicPartition, record: ConsumerRecord<KafkaEvent, BitcoinTransaction>) {
 
-        println(record.offset())
-
         val newTx = record.value()
+        val blockNumber = newTx.block_number
+
+        if (lastProcessedItemBlock != blockNumber) {
+            lastProcessedItemBlock = blockNumber
+            log.info("Calculating $chain addresses deltas for block $blockNumber")
+        }
 
         val addressesDeltasByIns = newTx.ins.flatMap { input ->
-            input.addresses.map { address -> BitcoinAddressDelta(address, BigDecimal(input.amount).negate()) }
+            input.addresses.map { address -> AddressDelta(address, BigDecimal(input.amount).negate()) }
         }
 
         val addressesDeltasByOuts = newTx.outs.flatMap { output ->
-            output.addresses.map { address -> BitcoinAddressDelta(address, BigDecimal(output.amount)) }
+            output.addresses.map { address -> AddressDelta(address, BigDecimal(output.amount)) }
         }
         val deltas = addressesDeltasByIns + addressesDeltasByOuts
 
