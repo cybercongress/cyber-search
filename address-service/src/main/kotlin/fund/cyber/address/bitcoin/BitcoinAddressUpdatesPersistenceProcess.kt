@@ -1,7 +1,10 @@
 package fund.cyber.address.bitcoin
 
 import fund.cyber.address.ServiceConfiguration
+import fund.cyber.address.common.AddressDelta
+import fund.cyber.address.common.addressDeltaTopic
 import fund.cyber.cassandra.repository.BitcoinKeyspaceRepository
+import fund.cyber.node.common.Chain
 import fund.cyber.node.kafka.ExactlyOnceKafkaConsumerRunner
 import fund.cyber.node.kafka.JsonDeserializer
 import fund.cyber.node.kafka.KafkaEvent
@@ -13,40 +16,40 @@ import java.util.*
 
 
 class BitcoinAddressUpdatesPersistenceProcess(
-        topic: String,
+        private val chain: Chain,
         private val repository: BitcoinKeyspaceRepository
-) : ExactlyOnceKafkaConsumerRunner<KafkaEvent, BitcoinAddressDelta>(listOf(topic)) {
+) : ExactlyOnceKafkaConsumerRunner<KafkaEvent, AddressDelta>(listOf(chain.addressDeltaTopic)) {
 
     private val kafkaProperties = Properties().apply {
         put("bootstrap.servers", ServiceConfiguration.kafkaBrokers)
-        put("group.id", "bitcoin-address-updates-persistence-process1")
+        put("group.id", "bitcoin-address-updates-persistence-process")
         put("enable.auto.commit", false)
         put("isolation.level", "read_committed")
         put("auto.offset.reset", "earliest")
     }
 
     override val consumer by lazy {
-        KafkaConsumer<KafkaEvent, BitcoinAddressDelta>(
+        KafkaConsumer<KafkaEvent, AddressDelta>(
                 kafkaProperties,
-                JsonDeserializer(KafkaEvent::class.java), JsonDeserializer(BitcoinAddressDelta::class.java)
+                JsonDeserializer(KafkaEvent::class.java), JsonDeserializer(AddressDelta::class.java)
         )
     }
 
-    override fun processRecord(record: ConsumerRecord<KafkaEvent, BitcoinAddressDelta>) {
+    override fun processRecord(record: ConsumerRecord<KafkaEvent, AddressDelta>) {
 
-        val delta = record.value()
-        val address = repository.addressStore.get(delta.address)
+        val addressDelta = record.value()
+        val address = repository.addressStore.get(addressDelta.address)
 
         if (address == null) {
-            val newAddress = nonExistingAddressFromDelta(delta)
+            val newAddress = nonExistingAddressFromDelta(addressDelta)
             repository.addressStore.save(newAddress)
         } else {
-            val updatedAddress = updatedAddressByDelta(address, delta)
+            val updatedAddress = updatedAddressByDelta(address, addressDelta)
             repository.addressStore.save(updatedAddress)
         }
     }
 
-    private fun nonExistingAddressFromDelta(delta: BitcoinAddressDelta): BitcoinAddress {
+    private fun nonExistingAddressFromDelta(delta: AddressDelta): BitcoinAddress {
 
         return BitcoinAddress(
                 id = delta.address, confirmed_tx_number = 1,
@@ -55,7 +58,7 @@ class BitcoinAddressUpdatesPersistenceProcess(
     }
 
 
-    private fun updatedAddressByDelta(address: BitcoinAddress, addressDelta: BitcoinAddressDelta): BitcoinAddress {
+    private fun updatedAddressByDelta(address: BitcoinAddress, addressDelta: AddressDelta): BitcoinAddress {
 
         val sign = addressDelta.delta.signum()
 

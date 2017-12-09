@@ -3,6 +3,8 @@ package fund.cyber.address
 import fund.cyber.address.bitcoin.BitcoinAddressStateUpdatesEmitingProcess
 import fund.cyber.address.bitcoin.BitcoinAddressUpdatesPersistenceProcess
 import fund.cyber.cassandra.CassandraService
+import fund.cyber.node.common.Chain.BITCOIN
+import fund.cyber.node.common.Chain.BITCOIN_CASH
 import java.util.concurrent.Executors
 
 
@@ -14,17 +16,23 @@ object AddressServiceApplication {
         val cassandraService = CassandraService(ServiceConfiguration.cassandraServers, ServiceConfiguration.cassandraPort)
 
         val bitcoinAddressUpdatesPersistenceProcess = BitcoinAddressUpdatesPersistenceProcess(
-                topic = "bitcoin_address_updates", repository = cassandraService.bitcoinRepository
+                chain = BITCOIN, repository = cassandraService.bitcoinRepository
         )
 
-        val bitcoinAddressStateUpdatesEmitingProcess = BitcoinAddressStateUpdatesEmitingProcess(
-                outputTopic = "bitcoin_address_updates", inputTopic = "bitcoin_tx",
-                repository = cassandraService.bitcoinRepository
+        val bitcoinCashAddressUpdatesPersistenceProcess = BitcoinAddressUpdatesPersistenceProcess(
+                chain = BITCOIN_CASH, repository = cassandraService.bitcoinCashRepository
         )
+
+        val bitcoinAddressStateUpdatesEmitingProcess = BitcoinAddressStateUpdatesEmitingProcess(BITCOIN)
+        val bitcoinCashAddressStateUpdatesEmitingProcess = BitcoinAddressStateUpdatesEmitingProcess(BITCOIN_CASH)
 
         val consumers = listOf(
+
                 bitcoinAddressUpdatesPersistenceProcess,
-                bitcoinAddressStateUpdatesEmitingProcess
+                bitcoinAddressStateUpdatesEmitingProcess,
+
+                bitcoinCashAddressUpdatesPersistenceProcess,
+                bitcoinCashAddressStateUpdatesEmitingProcess
         )
 
         val executor = Executors.newFixedThreadPool(consumers.size)

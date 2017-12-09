@@ -5,7 +5,7 @@ import fund.cyber.node.common.ChainEntity.TRANSACTION
 import fund.cyber.node.kafka.KafkaEvent
 import fund.cyber.node.kafka.KafkaEvent.DROPPED_BLOCK_TX
 import fund.cyber.node.kafka.KafkaEvent.NEW_BLOCK_TX
-import fund.cyber.node.kafka.chainEntityKafkaTopic
+import fund.cyber.node.kafka.entityTopic
 import fund.cyber.node.model.BitcoinTransaction
 import fund.cyber.pump.kafka.KafkaStorageActionTemplate
 import fund.cyber.pump.kafka.KafkaStorageActionTemplateFactory
@@ -16,7 +16,7 @@ class BitcoinKafkaStorageActionTemplateFactory(
         chain: Chain
 ) : KafkaStorageActionTemplateFactory<BitcoinBlockBundle> {
 
-    private val transactionsTopic = chainEntityKafkaTopic(chain, TRANSACTION)
+    private val transactionsTopic = chain.entityTopic(TRANSACTION)
 
     override fun constructActionTemplate(bundle: BitcoinBlockBundle): KafkaStorageActionTemplate {
         val newBlockTxesRecords = bundle.transactions.map { tx -> asRecord(NEW_BLOCK_TX, tx) }
