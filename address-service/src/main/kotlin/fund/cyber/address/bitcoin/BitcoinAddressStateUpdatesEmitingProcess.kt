@@ -65,6 +65,7 @@ class BitcoinAddressStateUpdatesEmitingProcess(
 
         val newTx = record.value()
         val blockNumber = newTx.block_number
+        log.debug("Calculating $chain addresses deltas for block $blockNumber and tx ${newTx.hash}")
 
         if (lastProcessedItemBlock != blockNumber) {
             lastProcessedItemBlock = blockNumber
@@ -72,11 +73,11 @@ class BitcoinAddressStateUpdatesEmitingProcess(
         }
 
         val addressesDeltasByIns = newTx.ins.flatMap { input ->
-            input.addresses.map { address -> AddressDelta(address, BigDecimal(input.amount).negate()) }
+            input.addresses.map { address -> AddressDelta(address, BigDecimal(input.amount).negate(), blockNumber) }
         }
 
         val addressesDeltasByOuts = newTx.outs.flatMap { output ->
-            output.addresses.map { address -> AddressDelta(address, BigDecimal(output.amount)) }
+            output.addresses.map { address -> AddressDelta(address, BigDecimal(output.amount), blockNumber) }
         }
         val deltas = addressesDeltasByIns + addressesDeltasByOuts
 
@@ -87,7 +88,9 @@ class BitcoinAddressStateUpdatesEmitingProcess(
             producer.sendOffsetsToTransaction(offset, consumerGroup)
             producer.commitTransaction()
         } catch (e: Exception) {
+            log.error("Calculating $chain addresses deltas for block $blockNumber finished with error", e)
             producer.abortTransaction()
+            Runtime.getRuntime().exit(-1)
         }
     }
 

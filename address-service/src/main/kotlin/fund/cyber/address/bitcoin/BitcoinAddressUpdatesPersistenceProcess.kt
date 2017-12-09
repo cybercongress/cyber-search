@@ -11,14 +11,19 @@ import fund.cyber.node.kafka.KafkaEvent
 import fund.cyber.node.model.BitcoinAddress
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.slf4j.LoggerFactory
 import java.math.BigDecimal
 import java.util.*
 
+
+private val log = LoggerFactory.getLogger(BitcoinAddressUpdatesPersistenceProcess::class.java)!!
 
 class BitcoinAddressUpdatesPersistenceProcess(
         private val chain: Chain,
         private val repository: BitcoinKeyspaceRepository
 ) : ExactlyOnceKafkaConsumerRunner<KafkaEvent, AddressDelta>(listOf(chain.addressDeltaTopic)) {
+
+    private var lastProcessedItemBlock = -1L
 
     private val kafkaProperties = Properties().apply {
         put("bootstrap.servers", ServiceConfiguration.kafkaBrokers)
@@ -38,14 +43,27 @@ class BitcoinAddressUpdatesPersistenceProcess(
     override fun processRecord(record: ConsumerRecord<KafkaEvent, AddressDelta>) {
 
         val addressDelta = record.value()
-        val address = repository.addressStore.get(addressDelta.address)
 
-        if (address == null) {
-            val newAddress = nonExistingAddressFromDelta(addressDelta)
-            repository.addressStore.save(newAddress)
-        } else {
-            val updatedAddress = updatedAddressByDelta(address, addressDelta)
-            repository.addressStore.save(updatedAddress)
+        val blockNumber = addressDelta.blockNumber
+
+        if (lastProcessedItemBlock != blockNumber) {
+            lastProcessedItemBlock = blockNumber
+            log.info("Applying $chain ${addressDelta.address} address delta for block $blockNumber")
+        }
+
+        try {
+            val address = repository.addressStore.get(addressDelta.address)
+
+            if (address == null) {
+                val newAddress = nonExistingAddressFromDelta(addressDelta)
+                repository.addressStore.save(newAddress)
+            } else {
+                val updatedAddress = updatedAddressByDelta(address, addressDelta)
+                repository.addressStore.save(updatedAddress)
+            }
+        } catch (e: Exception) {
+            log.error("Calculating $chain addresses deltas for address ${addressDelta.address} finished with error", e)
+            Runtime.getRuntime().exit(-1)
         }
     }
 
