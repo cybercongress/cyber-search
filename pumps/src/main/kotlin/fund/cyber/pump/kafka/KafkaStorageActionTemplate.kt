@@ -14,6 +14,7 @@ class KafkaStorageAction(
 ) : StorageAction {
 
     //todo create common function
+    //todo right now only single chain is possible to pump
     override fun store() {
         producer.beginTransaction()
         try {
