@@ -22,8 +22,10 @@ class ChainPump<in T : BlockBundle>(
 
     fun start() {
         try {
+            log.info("${blockchainInterface.chain} pump is starting")
             initializeStorages()
             initializeIndexing()
+            log.info("${blockchainInterface.chain} pump is started")
         } catch (e: Exception) {
             log.error("Error during starting '${blockchainInterface.chain}' chain pump", e)
             errorCallback()
@@ -46,6 +48,7 @@ class ChainPump<in T : BlockBundle>(
     private fun initializeIndexing() {
         val startBlockNumber = getStartBlockNumber()
         val history: StackCache<List<StorageAction>> = StackCache(20)
+        log.info("${blockchainInterface.chain} pump start block number is $startBlockNumber")
         initializeStreamProcessing(startBlockNumber, history)
     }
 
@@ -59,7 +62,6 @@ class ChainPump<in T : BlockBundle>(
     private fun initializeStreamProcessing(startBlockNumber: Long, history: StackCache<List<StorageAction>>) {
 
         blockchainInterface.subscribeBlocks(startBlockNumber)
-                .doOnTerminate(errorCallback)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .scan { current, next ->
@@ -74,17 +76,17 @@ class ChainPump<in T : BlockBundle>(
                 .skipWhile { bundle -> bundle.number == startBlockNumber && startBlockNumber != 0L }
                 .subscribe(
                         { blockBundle ->
-
-                            log.debug("Storing ${blockBundle.chain} ${blockBundle.number} block")
+                            log.info("Processing ${blockBundle.chain} ${blockBundle.number} block")
                             val actions = storages.map { storage -> storage.constructAction(blockBundle) }
                             actions.forEach(StorageAction::store)
                             history.push(actions)
                             stateStorage.commitState(blockBundle)
                         },
                         { error ->
-                            if (error !is ChainReindexationException)
+                            if (error !is ChainReindexationException) {
                                 log.error("Error during processing ${blockchainInterface.chain} stream", error)
-
+                                PumpsContext.closeContext()
+                            }
                         }
                 )
     }
