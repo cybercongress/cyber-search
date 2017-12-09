@@ -4,8 +4,10 @@ import fund.cyber.node.common.Chain
 import fund.cyber.node.kafka.JsonSerializer
 import fund.cyber.pump.*
 import org.apache.kafka.clients.producer.KafkaProducer
+import org.slf4j.LoggerFactory
 import java.util.*
 
+private val log = LoggerFactory.getLogger(KafkaStorage::class.java)!!
 
 class KafkaStorage(
         private val kafkaBrokers: List<String> = PumpsConfiguration.kafkaBrokers
@@ -19,7 +21,11 @@ class KafkaStorage(
 
     private val jsonSerializer = JsonSerializer<Any>()
     private val producer by lazy {
-        KafkaProducer<Any, Any>(kafkaProperties, jsonSerializer, jsonSerializer).apply { initTransactions() }
+        log.info("Initializing kafka storage producer")
+        KafkaProducer<Any, Any>(kafkaProperties, jsonSerializer, jsonSerializer).apply {
+            initTransactions()
+            log.info("Initializing kafka storage producer completed")
+        }
     }
 
     private val actionFactories = mutableMapOf<Chain, KafkaStorageActionTemplateFactory<BlockBundle>>()

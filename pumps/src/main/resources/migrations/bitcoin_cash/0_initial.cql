@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS bitcoin_cash.block (
 
 
 
-CREATE TABLE IF NOT EXISTS bitcoin.address (
+CREATE TABLE IF NOT EXISTS bitcoin_cash.address (
     id text PRIMARY KEY,
     confirmed_balance text,
     confirmed_total_received decimal,
