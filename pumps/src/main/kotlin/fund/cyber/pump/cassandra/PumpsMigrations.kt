@@ -13,6 +13,6 @@ object PumpsMigrations {
     )
 }
 
-fun chainApplicationId(chain: Chain): String {
-    return PumpsMigrations.pumpsApplicationIdPrefix + chain
-}
+val Chain.chainApplicationId: String
+    get() = PumpsMigrations.pumpsApplicationIdPrefix + this
+

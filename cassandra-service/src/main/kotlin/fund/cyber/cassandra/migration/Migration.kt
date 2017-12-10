@@ -2,6 +2,7 @@ package fund.cyber.cassandra.migration
 
 import com.datastax.driver.core.SimpleStatement
 import com.datastax.driver.core.Statement
+import fund.cyber.node.model.CyberSearchItem
 
 
 interface Migratory {
@@ -15,6 +16,10 @@ interface Migration {
 
 interface CassandraMigration : Migration {
     fun getStatements(): List<Statement>
+}
+
+interface CassandraEntityMigration: Migration {
+    val entities: List<Pair<Class<CyberSearchItem>, CyberSearchItem>>
 }
 
 

@@ -33,7 +33,7 @@ class ElassandraStorage(
 
     override fun initialize(blockchainInterface: BlockchainInterface<*>) {
         if (blockchainInterface is Migratory) {
-            schemaMigrationEngine.executeSchemaUpdate(blockchainInterface.migrations)
+            schemaMigrationEngine.executeSchemaUpdate(blockchainInterface.migrations, blockchainInterface.chain)
         }
     }
 
@@ -43,7 +43,7 @@ class ElassandraStorage(
 
         if (cassandraAction != null) {
             return CassandraStorageAction(
-                    cassandraStorageAction = cassandraAction,
+                    storageActionSource = cassandraAction,
                     keyspaceRepository = cassandraService.getChainRepository(blockBundle.chain)
             )
         }
@@ -51,13 +51,13 @@ class ElassandraStorage(
     }
 
     override fun getLastCommittedState(chain: Chain): Long? {
-        val applicationId = chainApplicationId(chain)
+        val applicationId = chain.chainApplicationId
         return cassandraService.pumpKeyspaceRepository.indexingProgressStore.get(applicationId)?.block_number
     }
 
     override fun commitState(blockBundle: BlockBundle) {
         val progress = IndexingProgress(
-                application_id = chainApplicationId(blockBundle.chain),
+                application_id = blockBundle.chain.chainApplicationId,
                 block_number = blockBundle.number, block_hash = blockBundle.hash, index_time = Date()
         )
         cassandraService.pumpKeyspaceRepository.indexingProgressStore.save(progress)

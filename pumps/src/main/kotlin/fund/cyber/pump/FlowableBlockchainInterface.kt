@@ -1,5 +1,8 @@
 package fund.cyber.pump
 
+import fund.cyber.cassandra.migration.Migratory
+import fund.cyber.cassandra.migration.Migration
+import fund.cyber.pump.ethereum.EthereumMigrations
 import io.reactivex.Flowable
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.toFlowable
@@ -15,7 +18,11 @@ interface FlowableBlockchainInterface<T : BlockBundle> : BlockchainInterface<T> 
 class ConcurrentPulledBlockchain<T : BlockBundle>(
         private val blockchainInterface: BlockchainInterface<T>,
         private val batchSize: Int = 8
-) : FlowableBlockchainInterface<T>, BlockchainInterface<T> by blockchainInterface {
+) : FlowableBlockchainInterface<T>, BlockchainInterface<T> by blockchainInterface,
+        // TODO: Can we do it better?
+        Migratory {
+    override val migrations: List<Migration>
+            get() = if (blockchainInterface is Migratory) blockchainInterface.migrations else emptyList()
 
     private val log = LoggerFactory.getLogger(ConcurrentPulledBlockchain::class.java)!!
 

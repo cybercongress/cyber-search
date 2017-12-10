@@ -1,7 +1,9 @@
 package fund.cyber.cassandra.migration
 
 import com.datastax.driver.core.Session
+import com.datastax.driver.mapping.MappingManager
 import fund.cyber.cassandra.CassandraService
+import fund.cyber.cassandra.keyspace
 import fund.cyber.node.common.readAsString
 import fund.cyber.node.model.SchemaVersion
 import org.apache.http.HttpStatus
@@ -11,6 +13,8 @@ import org.apache.http.client.utils.HttpClientUtils
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.util.*
+import fund.cyber.node.common.Chain
+import kotlinx.coroutines.experimental.runBlocking
 
 class ElassandraSchemaMigrationEngine(
         elasticHost: String,
@@ -26,10 +30,10 @@ class ElassandraSchemaMigrationEngine(
     private val log = LoggerFactory.getLogger(ElassandraSchemaMigrationEngine::class.java)
 
 
-    fun executeSchemaUpdate(migrations: List<Migration>) {
+    fun executeSchemaUpdate(migrations: List<Migration>, chain: Chain) {
 
         log.info("Executing elassandra schema update")
-        val session: Session = cassandraService.newSession()
+        val session: Session = cassandraService.newSession(chain.keyspace)
 
         defaultMigrations.plus(migrations).groupBy { m -> m.applicationId }.forEach { applicationId, applicationMigrations ->
 
@@ -46,7 +50,7 @@ class ElassandraSchemaMigrationEngine(
 
         }
 
-        session.closeAsync()
+//        session.closeAsync()
         log.info("Elassandra schema update done")
     }
 
@@ -71,7 +75,16 @@ class ElassandraSchemaMigrationEngine(
                 } finally {
                     HttpClientUtils.closeQuietly(response)
                 }
+            }
+            is CassandraEntityMigration -> {
+                val manager = MappingManager(session)
 
+                runBlocking {
+                    migration.entities.map { (cls, entity) ->
+                        val mapper = manager.mapper(cls)
+                        mapper.saveAsync(cls.cast(entity))
+                    }
+                }
             }
         }
 
