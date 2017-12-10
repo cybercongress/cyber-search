@@ -2,6 +2,7 @@ package fund.cyber.cassandra.migration
 
 import com.datastax.driver.core.SimpleStatement
 import com.datastax.driver.core.Statement
+import fund.cyber.node.common.Chain
 import fund.cyber.node.model.CyberSearchItem
 
 
@@ -19,6 +20,7 @@ interface CassandraMigration : Migration {
 }
 
 interface CassandraEntityMigration : Migration {
+    val chain: Chain
     val entities: List<CyberSearchItem>
 }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import fund.cyber.cassandra.migration.CassandraEntityMigration
+import fund.cyber.node.common.Chain
 import fund.cyber.node.model.*
 import java.math.BigDecimal
 import java.time.Instant
@@ -12,6 +13,7 @@ import java.time.Instant
 class GenesisMigration(
         override val version: Int,
         override val applicationId: String,
+        override val chain: Chain,
         private val filePath: String
 ) : CassandraEntityMigration {
 

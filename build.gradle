@@ -162,6 +162,7 @@ project(":search-api") {
 project(":cassandra-service") {
     dependencies {
         compile(project(":common"))
+        compile("io.reactivex.rxjava2:rxkotlin")
         compile("org.ehcache:ehcache")
     }
 }

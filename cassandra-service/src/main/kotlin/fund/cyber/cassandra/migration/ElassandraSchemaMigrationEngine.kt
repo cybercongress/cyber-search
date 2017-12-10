@@ -3,11 +3,12 @@ package fund.cyber.cassandra.migration
 import com.datastax.driver.core.Session
 import com.datastax.driver.mapping.Mapper
 import fund.cyber.cassandra.CassandraService
-import fund.cyber.cassandra.keyspace
-import fund.cyber.node.common.Chain
+import fund.cyber.cassandra.PREFERRED_CONCURRENT_REQUEST_TO_SAVE_ENTITIES_LIST
+import fund.cyber.node.common.awaitAll
 import fund.cyber.node.common.readAsString
 import fund.cyber.node.model.CyberSearchItem
 import fund.cyber.node.model.SchemaVersion
+import io.reactivex.Flowable
 import org.apache.http.HttpStatus
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.RequestBuilder
@@ -30,10 +31,10 @@ class ElassandraSchemaMigrationEngine(
     private val log = LoggerFactory.getLogger(ElassandraSchemaMigrationEngine::class.java)
 
 
-    fun executeSchemaUpdate(migrations: List<Migration>, chain: Chain) {
+    fun executeSchemaUpdate(migrations: List<Migration>) {
 
         log.info("Executing elassandra schema update")
-        val session: Session = cassandraService.newSession(chain.keyspace)
+        val session: Session = cassandraService.newSession()
 
         defaultMigrations.plus(migrations).groupBy { m -> m.applicationId }.forEach { applicationId, applicationMigrations ->
 
@@ -44,7 +45,7 @@ class ElassandraSchemaMigrationEngine(
                     .sortedBy { migration -> migration.version }
                     .forEach { migration ->
                         log.info("Executing '$applicationId' application migration to '${migration.version}' version")
-                        executeMigration(migration, session, chain)
+                        executeMigration(migration, session)
                         log.info("Succeeded '$applicationId' application migration to '${migration.version}' version")
                     }
 
@@ -55,7 +56,8 @@ class ElassandraSchemaMigrationEngine(
     }
 
 
-    private fun executeMigration(migration: Migration, session: Session, chain: Chain) {
+    @Suppress("UNCHECKED_CAST")
+    private fun executeMigration(migration: Migration, session: Session) {
 
         when (migration) {
             is CassandraMigration -> {
@@ -78,12 +80,15 @@ class ElassandraSchemaMigrationEngine(
             }
             is CassandraEntityMigration -> {
 
-                val manager = cassandraService.getChainRepository(chain).mappingManager
+                val manager = cassandraService.getChainRepository(migration.chain).mappingManager
 
-                @Suppress("UNCHECKED_CAST")
-                migration.entities.map { entity ->
-                    (manager.mapper(entity::class.java) as Mapper<CyberSearchItem>).saveAsync(entity)
-                }
+                Flowable.fromIterable(migration.entities)
+                        .buffer(PREFERRED_CONCURRENT_REQUEST_TO_SAVE_ENTITIES_LIST)
+                        .blockingForEach { entities ->
+                            entities.map { entity ->
+                                (manager.mapper(entity::class.java) as Mapper<CyberSearchItem>).saveAsync(entity)
+                            }.awaitAll()
+                        }
             }
         }
 
