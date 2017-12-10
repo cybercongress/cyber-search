@@ -42,15 +42,15 @@ class GenesisMigration(
                                 gas_used = 0,
                                 gas_limit = 0,
                                 fee = "0",
-                                timestamp = Instant.parse("2015-07-30T15:26:13Z"),
+                                block_time = Instant.parse("2015-07-30T15:26:13Z"),
                                 input = "",
                                 creates = ""
                         )
-                        val blockTx = EthereumTxPreviewByBlock(tx, index)
-                        val addressTx = EthereumAddressTransaction(
+                        val blockTx = EthereumBlockTxPreview(tx, index)
+                        val addressTx = EthereumAddressTxPreview(
                                 address = addressId,
                                 fee = tx.fee,
-                                block_time = tx.timestamp,
+                                block_time = tx.block_time,
                                 hash = tx.hash,
                                 from = tx.from,
                                 to = tx.to!!,

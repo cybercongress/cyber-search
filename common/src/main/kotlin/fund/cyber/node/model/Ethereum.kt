@@ -14,6 +14,7 @@ data class EthereumTransaction(
         val nonce: Long,           //parsed from hex
         val block_hash: String?,   //null when its pending
         val block_number: Long?,   //parsed from hex   //null when its pending
+        val block_time: Instant,
         val transaction_index: Long,//parsed from hex
         val from: String,
         val to: String?,           //null when its a contract creation transaction.
@@ -22,12 +23,11 @@ data class EthereumTransaction(
         val gas_limit: Long,       //parsed from hex
         val gas_used: Long,        //parsed from hex
         val fee: String,           //decimal //calculated
-        val timestamp: Instant,     //calculated
         val input: String,
         val creates: String?       //creates contract hash
 ) : EthereumItem() {
 
-    fun addressesUsedInTransaction() = listOf(from, to).filterNotNull()
+    fun addressesUsedInTransaction() = listOfNotNull(from, to, creates)
 }
 
 
@@ -55,10 +55,11 @@ data class EthereumBlock(
         val tx_fees: String
 ) : EthereumItem()
 
+
 @Table(name = "tx_preview_by_block",
         readConsistency = "QUORUM", writeConsistency = "QUORUM",
         caseSensitiveKeyspace = false, caseSensitiveTable = false)
-data class EthereumTxPreviewByBlock(
+data class EthereumBlockTxPreview(
         val block_number: Long,
         val index: Int,
         val fee: String,
@@ -68,17 +69,14 @@ data class EthereumTxPreviewByBlock(
         val to: String,
         val creates_contract: Boolean
 ) : EthereumItem() {
-    constructor(tx: EthereumTransaction, index: Int) :
-            this(
-                    block_number = tx.block_number ?: 0,
-                    index = index,
-                    fee = tx.fee,
-                    value = tx.value,
-                    hash = tx.hash,
-                    from = tx.from,
-                    to = tx.to ?: "",
-                    creates_contract = tx.creates != null
-            )
+
+    constructor(tx: EthereumTransaction, index: Int) : this(
+            block_number = tx.block_number ?: 0,
+            index = index, hash = tx.hash,
+            fee = tx.fee, value = tx.value,
+            from = tx.from, to = (tx.to ?: tx.creates)!!, //both 'to' or 'creates' can't be null at same time
+            creates_contract = tx.creates != null
+    )
 }
 
 
@@ -94,7 +92,7 @@ data class EthereumAddress(
 
 
 @Table(name = "tx_preview_by_address", readConsistency = "QUORUM", writeConsistency = "QUORUM")
-data class EthereumAddressTransaction(
+data class EthereumAddressTxPreview(
         val address: String,
         val fee: String,
         val block_time: Instant,
@@ -102,7 +100,14 @@ data class EthereumAddressTransaction(
         val from: String,
         val to: String,
         val value: String
-) : EthereumItem()
+) : EthereumItem() {
+
+    constructor(tx: EthereumTransaction, address: String) : this(
+            hash = tx.hash, address = address, block_time = tx.block_time,
+            from = tx.from, to = (tx.to ?: tx.creates)!!, //both 'to' or 'creates' can't be null at same time
+            value = tx.value, fee = tx.fee
+    )
+}
 
 
 fun getBlockReward(number: Long): BigDecimal {
