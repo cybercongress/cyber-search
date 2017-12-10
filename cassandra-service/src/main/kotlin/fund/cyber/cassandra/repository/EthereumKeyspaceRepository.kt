@@ -3,6 +3,7 @@ package fund.cyber.cassandra.repository
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Row
 import fund.cyber.cassandra.CassandraKeyspaceRepository
+import fund.cyber.cassandra.keyspace
 import fund.cyber.node.common.Chain
 import fund.cyber.node.model.EthereumAddress
 import fund.cyber.node.model.EthereumBlock
@@ -13,7 +14,7 @@ import java.util.*
 
 class EthereumKeyspaceRepository(
         cassandra: Cluster, chain: Chain
-) : CassandraKeyspaceRepository(cassandra, chain.lowercaseName()) {
+) : CassandraKeyspaceRepository(cassandra, chain.keyspace) {
 
 
     private val addressCache: Cache<String, EthereumAddress>? = null

@@ -8,7 +8,7 @@ import fund.cyber.pump.cassandra.chainApplicationId
 
 object BitcoinMigrations {
 
-    private val applicationId = chainApplicationId(BITCOIN)
+    private val applicationId = BITCOIN.chainApplicationId
 
     val migrations = listOf(
             CqlFileBasedMigration(0, applicationId, "/migrations/bitcoin/0_initial.cql"),

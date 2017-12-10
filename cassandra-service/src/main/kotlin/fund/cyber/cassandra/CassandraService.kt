@@ -44,7 +44,7 @@ class CassandraService(
         }
     }
 
-    fun newSession() = cassandra.newSession()!!
+    fun newSession(keyspace: String? = null) = if (keyspace == null) cassandra.newSession()!! else cassandra.connect(keyspace)!!
 
     fun close() {
         if (cassandraLazy.isInitialized()) {

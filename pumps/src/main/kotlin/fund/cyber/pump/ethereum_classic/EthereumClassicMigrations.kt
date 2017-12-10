@@ -4,11 +4,12 @@ import fund.cyber.node.common.Chain.*
 import fund.cyber.cassandra.migration.CqlFileBasedMigration
 import fund.cyber.cassandra.migration.ElasticHttpMigration
 import fund.cyber.pump.cassandra.chainApplicationId
+import fund.cyber.pump.ethereum.GenesisMigration
 
 
 object EthereumClassicMigrations {
 
-    private val applicationId = chainApplicationId(ETHEREUM_CLASSIC)
+    private val applicationId = ETHEREUM_CLASSIC.chainApplicationId
 
 
     val migrations = listOf(
@@ -18,6 +19,7 @@ object EthereumClassicMigrations {
             ElasticHttpMigration(3, applicationId, "/migrations/ethereum_classic/3_create-block-index.json"),
             ElasticHttpMigration(4, applicationId, "/migrations/ethereum_classic/4_create-block-type.json"),
             ElasticHttpMigration(5, applicationId, "/migrations/ethereum_classic/5_create-address-index.json"),
-            ElasticHttpMigration(6, applicationId, "/migrations/ethereum_classic/6_create-address-type.json")
+            ElasticHttpMigration(6, applicationId, "/migrations/ethereum_classic/6_create-address-type.json"),
+            GenesisMigration(7, applicationId, "/migrations/ethereum_classic/7_genesis.json")
     )
 }

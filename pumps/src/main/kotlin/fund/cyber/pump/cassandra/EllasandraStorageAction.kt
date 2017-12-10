@@ -9,12 +9,12 @@ import fund.cyber.pump.StorageActionSourceFactory
 
 
 class CassandraStorageAction(
-        private val cassandraStorageAction: CassandraStorageActionSource,
+        private val storageActionSource: CassandraStorageActionSource,
         private val keyspaceRepository: CassandraKeyspaceRepository
 ) : StorageAction {
 
-    override fun store() = cassandraStorageAction.store(keyspaceRepository)
-    override fun remove() = cassandraStorageAction.remove(keyspaceRepository)
+    override fun store() = storageActionSource.store(keyspaceRepository)
+    override fun remove() = storageActionSource.remove(keyspaceRepository)
 }
 
 

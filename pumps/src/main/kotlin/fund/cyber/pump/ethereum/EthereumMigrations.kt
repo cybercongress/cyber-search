@@ -7,7 +7,7 @@ import fund.cyber.pump.cassandra.chainApplicationId
 
 object EthereumMigrations {
 
-    private val applicationId = chainApplicationId(ETHEREUM)
+    private val applicationId = ETHEREUM.chainApplicationId
 
     val migrations = listOf(
             CqlFileBasedMigration(0, applicationId, "/migrations/ethereum/0_initial.cql"),
@@ -16,6 +16,7 @@ object EthereumMigrations {
             ElasticHttpMigration(3, applicationId, "/migrations/ethereum/3_create-block-index.json"),
             ElasticHttpMigration(4, applicationId, "/migrations/ethereum/4_create-block-type.json"),
             ElasticHttpMigration(5, applicationId, "/migrations/ethereum/5_create-address-index.json"),
-            ElasticHttpMigration(6, applicationId, "/migrations/ethereum/6_create-address-type.json")
+            ElasticHttpMigration(6, applicationId, "/migrations/ethereum/6_create-address-type.json"),
+            GenesisMigration(7, applicationId, "/migrations/ethereum/7_genesis.json")
     )
 }
