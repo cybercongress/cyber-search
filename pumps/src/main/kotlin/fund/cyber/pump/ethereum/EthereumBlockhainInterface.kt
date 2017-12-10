@@ -5,9 +5,7 @@ import fund.cyber.cassandra.migration.Migratory
 import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.ETHEREUM
 import fund.cyber.node.common.env
-import fund.cyber.node.model.CyberSearchItem
-import fund.cyber.node.model.EthereumBlock
-import fund.cyber.node.model.EthereumTransaction
+import fund.cyber.node.model.*
 import fund.cyber.pump.BlockBundle
 import fund.cyber.pump.BlockchainInterface
 import org.web3j.protocol.Web3j
@@ -22,6 +20,8 @@ class EthereumBlockBundle(
         override val number: Long,
         override val chain: Chain,
         val block: EthereumBlock,
+        val blockTxesPreviews: List<EthereumBlockTxPreview>,
+        val addressTxesPreviews: List<EthereumAddressTxPreview>,
         val transactions: List<EthereumTransaction>
 ) : BlockBundle {
 
@@ -31,6 +31,8 @@ class EthereumBlockBundle(
         val map: MutableMap<Class<CyberSearchItem>, List<CyberSearchItem>> = mutableMapOf()
         map.put(EthereumBlock::class.java as Class<CyberSearchItem>, listOf(block))
         map.put(EthereumTransaction::class.java as Class<CyberSearchItem>, transactions)
+        map.put(EthereumBlockTxPreview::class.java as Class<CyberSearchItem>, blockTxesPreviews)
+        map.put(EthereumAddressTxPreview::class.java as Class<CyberSearchItem>, addressTxesPreviews)
 
         return map
     }

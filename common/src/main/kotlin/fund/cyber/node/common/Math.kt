@@ -19,16 +19,17 @@ inline fun <T> Iterable<T>.sumByBigDecimalString(selector: (T) -> String): BigDe
     return sum
 }
 
+
 /**
- * Returns the sum of all values produced by [selector] function applied to each element in the collection.
+ * Returns the sum of all values in the collection.
  */
-inline fun <T> Iterable<T>.sumByBigDecimal(selector: (T) -> BigDecimal): BigDecimal {
+inline fun Iterable<BigDecimal>.sum(): BigDecimal {
     var sum: BigDecimal = BigDecimal.ZERO
     for (element in this) {
-        sum += selector(element)
+        sum += element
     }
     return sum
 }
 
-inline fun String.hexToLong() : Long = java.lang.Long.decode(this)
+inline fun String.hexToLong(): Long = java.lang.Long.decode(this)
 

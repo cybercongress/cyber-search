@@ -22,5 +22,6 @@ interface BlockBundle {
     val parentHash: String
     val number: Long
 
+    //todo make a list instead of map
     fun elementsMap(): Map<Class<CyberSearchItem>, List<CyberSearchItem>> = emptyMap()
 }

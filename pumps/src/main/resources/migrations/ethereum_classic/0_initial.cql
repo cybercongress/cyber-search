@@ -27,7 +27,7 @@ CREATE TABLE IF NOT exists ethereum_classic.tx (
     hash text PRIMARY KEY,
     nonce bigint,
     block_hash text,
-    timestamp timestamp,
+    block_time timestamp,
     block_number bigint,
     transaction_index bigint,
     "from" text,
