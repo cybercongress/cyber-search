@@ -18,8 +18,8 @@ interface CassandraMigration : Migration {
     fun getStatements(): List<Statement>
 }
 
-interface CassandraEntityMigration: Migration {
-    val entities: List<Pair<Class<CyberSearchItem>, CyberSearchItem>>
+interface CassandraEntityMigration : Migration {
+    val entities: List<CyberSearchItem>
 }
 
 

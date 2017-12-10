@@ -1,10 +1,12 @@
 package fund.cyber.cassandra.migration
 
 import com.datastax.driver.core.Session
-import com.datastax.driver.mapping.MappingManager
+import com.datastax.driver.mapping.Mapper
 import fund.cyber.cassandra.CassandraService
 import fund.cyber.cassandra.keyspace
+import fund.cyber.node.common.Chain
 import fund.cyber.node.common.readAsString
+import fund.cyber.node.model.CyberSearchItem
 import fund.cyber.node.model.SchemaVersion
 import org.apache.http.HttpStatus
 import org.apache.http.client.HttpClient
@@ -13,8 +15,6 @@ import org.apache.http.client.utils.HttpClientUtils
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.util.*
-import fund.cyber.node.common.Chain
-import kotlinx.coroutines.experimental.runBlocking
 
 class ElassandraSchemaMigrationEngine(
         elasticHost: String,
@@ -44,18 +44,18 @@ class ElassandraSchemaMigrationEngine(
                     .sortedBy { migration -> migration.version }
                     .forEach { migration ->
                         log.info("Executing '$applicationId' application migration to '${migration.version}' version")
-                        executeMigration(migration, session)
+                        executeMigration(migration, session, chain)
                         log.info("Succeeded '$applicationId' application migration to '${migration.version}' version")
                     }
 
         }
 
-//        session.closeAsync()
+        session.close()
         log.info("Elassandra schema update done")
     }
 
 
-    private fun executeMigration(migration: Migration, session: Session) {
+    private fun executeMigration(migration: Migration, session: Session, chain: Chain) {
 
         when (migration) {
             is CassandraMigration -> {
@@ -77,13 +77,12 @@ class ElassandraSchemaMigrationEngine(
                 }
             }
             is CassandraEntityMigration -> {
-                val manager = MappingManager(session)
 
-                runBlocking {
-                    migration.entities.map { (cls, entity) ->
-                        val mapper = manager.mapper(cls)
-                        mapper.saveAsync(cls.cast(entity))
-                    }
+                val manager = cassandraService.getChainRepository(chain).mappingManager
+
+                @Suppress("UNCHECKED_CAST")
+                migration.entities.map { entity ->
+                    (manager.mapper(entity::class.java) as Mapper<CyberSearchItem>).saveAsync(entity)
                 }
             }
         }
