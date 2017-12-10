@@ -4,7 +4,7 @@ import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Row
 import com.google.common.util.concurrent.ListenableFuture
 import fund.cyber.cassandra.CassandraKeyspaceRepository
-import fund.cyber.cassandra.keyspace
+import fund.cyber.cassandra.model.keyspace
 import fund.cyber.node.common.Chain
 import fund.cyber.node.model.*
 import org.ehcache.Cache
