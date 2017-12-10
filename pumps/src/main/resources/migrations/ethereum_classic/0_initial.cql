@@ -51,7 +51,7 @@ CREATE TABLE IF NOT exists ethereum_classic.tx_preview_by_address (
     "to" text,
     value text,
     PRIMARY KEY (address, block_time, hash)
-);
+)  WITH CLUSTERING ORDER BY ( block_time DESC );
 
 CREATE TABLE IF NOT exists ethereum_classic.tx_preview_by_block (
     block_number bigint,
@@ -61,8 +61,9 @@ CREATE TABLE IF NOT exists ethereum_classic.tx_preview_by_block (
     "from" text,
     "to" text,
     creates_contract boolean,
-    PRIMARY KEY (block_number, hash)
-);
+    "index" int,
+    PRIMARY KEY ( block_number, "index" )
+) WITH CLUSTERING ORDER BY ( "index" ASC );
 
 CREATE TABLE IF NOT exists ethereum_classic.address (
     id text PRIMARY KEY,

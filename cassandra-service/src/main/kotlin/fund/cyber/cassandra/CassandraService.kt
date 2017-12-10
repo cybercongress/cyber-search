@@ -11,6 +11,8 @@ import fund.cyber.node.common.Chain.*
 import org.slf4j.LoggerFactory
 
 
+const val MAX_CONCURRENT_REQUESTS = 256
+
 private val log = LoggerFactory.getLogger(CassandraService::class.java)!!
 
 class CassandraService(

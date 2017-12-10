@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_block (
     hash text,
     ins FROZEN < list < bitcoin.tx_preview_io > >,
     outs FROZEN < list < bitcoin.tx_preview_io > >,
-    PRIMARY KEY ( block_number, hash )
-);
+    PRIMARY KEY ( block_number, "index" )
+) WITH CLUSTERING ORDER BY ( "index" ASC );
 
 
 
