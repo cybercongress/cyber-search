@@ -25,11 +25,12 @@ class JsonRpcBlockToBitcoinBundleConverter(
         val inputTransactions = getTransactionsInputs(jsonRpcBlock)
         val transactions = transactionConverter.convertToDaoTransactions(jsonRpcBlock, inputTransactions)
         val block = blockConverter.convertToDaoBlock(jsonRpcBlock, transactions)
+        val addressTransactions = transactionConverter.convertToDaoAddressTransactions(transactions)
 
         return BitcoinBlockBundle(
                 hash = jsonRpcBlock.hash, parentHash = jsonRpcBlock.previousblockhash ?: "-1",
                 number = jsonRpcBlock.height, block = block, transactions = transactions,
-                chain = chain
+                addressTransactions = addressTransactions, chain = chain
         )
     }
 

@@ -26,6 +26,7 @@ class ConcurrentPulledBlockchain<T : BlockBundle>(
 
     private val log = LoggerFactory.getLogger(ConcurrentPulledBlockchain::class.java)!!
 
+
     override fun subscribeBlocks(startBlockNumber: Long): Flowable<T> {
 
         var lastNetworkBlock = lastNetworkBlock()

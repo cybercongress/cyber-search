@@ -8,7 +8,10 @@ import fund.cyber.cassandra.repository.EthereumKeyspaceRepository
 import fund.cyber.cassandra.repository.PumpsKeyspaceRepository
 import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.*
+import org.slf4j.LoggerFactory
 
+
+private val log = LoggerFactory.getLogger(CassandraService::class.java)!!
 
 class CassandraService(
         private val cassandraServers: List<String>,
@@ -16,12 +19,16 @@ class CassandraService(
 ) {
 
     private val cassandraLazy = lazy {
+        log.info("Initializing cassandra service")
         Cluster.builder()
                 .addContactPoints(*cassandraServers.toTypedArray())
                 .withPort(cassandraPort)
                 .withMaxSchemaAgreementWaitSeconds(1)
                 .build().init()!!
-                .apply { configuration.codecRegistry.register(InstantCodec.instance) }
+                .apply {
+                    configuration.codecRegistry.register(InstantCodec.instance)
+                    log.info("Initializing cassandra service finished")
+                }
     }
 
     private val cassandra by cassandraLazy

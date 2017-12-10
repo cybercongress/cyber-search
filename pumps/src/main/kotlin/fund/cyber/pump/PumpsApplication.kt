@@ -3,31 +3,48 @@ package fund.cyber.pump
 import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.*
 import fund.cyber.pump.bitcoin.BitcoinBlockchainInterface
+import fund.cyber.pump.bitcoin.BitcoinKafkaStorageActionTemplateFactory
 import fund.cyber.pump.bitcoin_cash.BitcoinCashBlockchainInterface
 import fund.cyber.pump.cassandra.SimpleCassandraActionSourceFactory
 import fund.cyber.pump.ethereum.EthereumBlockchainInterface
 import fund.cyber.pump.ethereum_classic.EthereumClassicBlockchainInterface
+import org.slf4j.LoggerFactory
 
+private val log = LoggerFactory.getLogger(PumpsApplication::class.java)!!
 
 object PumpsApplication {
 
-    private val storages: List<StorageInterface> = listOf(PumpsContext.elassandraStorage)
+    private val storages: List<StorageInterface> = listOf(
+            PumpsContext.elassandraStorage, PumpsContext.kafkaStorage
+    )
 
     @JvmStatic
     fun main(args: Array<String>) {
-        PumpsConfiguration.chainsToPump.forEach { chain -> startChainPumper(chain) }
+        try {
+            PumpsConfiguration.chainsToPump.forEach { chain -> startChainPumper(chain) }
+        } catch (e: Exception) {
+            log.error("Error during start pump application", e)
+            PumpsContext.closeContext()
+        }
     }
-
 
     private fun startChainPumper(chain: Chain) {
         when (chain) {
             BITCOIN -> {
+                val actionTemplateFactories = listOf(
+                        SimpleCassandraActionSourceFactory(),
+                        BitcoinKafkaStorageActionTemplateFactory(chain)
+                )
                 val flowableInterface = ConcurrentPulledBlockchain(BitcoinBlockchainInterface())
-                getChainPumper(flowableInterface, listOf(SimpleCassandraActionSourceFactory())).start()
+                getChainPumper(flowableInterface, actionTemplateFactories).start()
             }
             BITCOIN_CASH -> {
+                val actionTemplateFactories = listOf(
+                        SimpleCassandraActionSourceFactory(),
+                        BitcoinKafkaStorageActionTemplateFactory(chain)
+                )
                 val flowableInterface = ConcurrentPulledBlockchain(BitcoinCashBlockchainInterface())
-                getChainPumper(flowableInterface, listOf(SimpleCassandraActionSourceFactory())).start()
+                getChainPumper(flowableInterface, actionTemplateFactories).start()
             }
             ETHEREUM -> {
                 val flowableInterface = ConcurrentPulledBlockchain(EthereumBlockchainInterface())

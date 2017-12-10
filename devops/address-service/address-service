@@ -1,0 +1,10 @@
+# Build Stage
+FROM openjdk:8u131-jdk AS build
+COPY ./ /cs
+WORKDIR /cs
+RUN ./gradlew clean :address-service:installDist
+
+# Container with application
+FROM openjdk:8u131-jre-alpine
+COPY --from=build /cs/address-service/build/install/address-service /cyberapp
+ENTRYPOINT ["/cyberapp/bin/address-service"]

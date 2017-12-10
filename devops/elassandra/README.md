@@ -8,16 +8,10 @@
 
 ### First run
 
+# Run elassandra and than initialize keyspaces and tables
+
 ```bash
-
-# Run elassandra
-sudo docker-compose up -d
-
-# Initialize keyspaces and tables
 cqlsh  -f ./bootstrap.cql
-
-# Add elasstic indexes
-sh bootstrap.sh 
 ```
 
 ### Useful commands

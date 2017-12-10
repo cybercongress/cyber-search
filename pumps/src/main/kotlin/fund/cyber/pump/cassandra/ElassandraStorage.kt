@@ -7,7 +7,6 @@ import fund.cyber.node.common.Chain
 import fund.cyber.node.model.IndexingProgress
 import fund.cyber.pump.*
 import org.apache.http.client.HttpClient
-import org.slf4j.LoggerFactory
 import java.util.*
 
 
@@ -16,7 +15,6 @@ class ElassandraStorage(
         httpClient: HttpClient, elasticHost: String, elasticHttpPort: Int
 ) : StorageInterface, StateStorage {
 
-    private val log = LoggerFactory.getLogger(ConcurrentPulledBlockchain::class.java)!!
 
     private val schemaMigrationEngine = ElassandraSchemaMigrationEngine(
             cassandraService = cassandraService, httpClient = httpClient,
@@ -58,7 +56,6 @@ class ElassandraStorage(
     }
 
     override fun commitState(blockBundle: BlockBundle) {
-        log.debug("Commit ${blockBundle.chain} ${blockBundle.number} block indexation")
         val progress = IndexingProgress(
                 application_id = blockBundle.chain.chainApplicationId,
                 block_number = blockBundle.number, block_hash = blockBundle.hash, index_time = Date()

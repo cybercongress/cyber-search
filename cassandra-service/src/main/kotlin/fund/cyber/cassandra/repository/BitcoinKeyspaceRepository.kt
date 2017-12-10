@@ -58,48 +58,6 @@ class BitcoinKeyspaceRepository(
         return queryTxsByIds(ids)
     }
 
-
-    fun getAddressesWithLastTransactionBeforeGivenBlock(ids: List<String>, blockNumber: Long): List<BitcoinAddress> {
-
-        if (ids.isEmpty()) return emptyList()
-
-        return when (addressCache) {
-            null -> queryAddressesWithLastTransactionBeforeGivenBlock(ids, blockNumber)
-            else -> {
-                val addresses = mutableListOf<BitcoinAddress>()
-                val idsWithoutCacheHit = mutableListOf<String>()
-
-                for (id in ids) {
-
-                    val address = addressCache[id]
-                    if (address != null && address.last_transaction_block < blockNumber)
-                        addresses.add(address)
-                    else
-                        idsWithoutCacheHit.add(id)
-                }
-
-
-                addresses.addAll(queryAddressesWithLastTransactionBeforeGivenBlock(idsWithoutCacheHit, blockNumber))
-                return addresses
-            }
-        }
-    }
-
-    private fun queryAddressesWithLastTransactionBeforeGivenBlock(ids: List<String>, blockNumber: Long): List<BitcoinAddress> {
-
-        val statement = session.prepare("SELECT * FROM address WHERE id=? AND last_transaction_block < $blockNumber ALLOW FILTERING")
-
-        return ids.map { id -> session.executeAsync(statement.bind(id)) } // future<ResultSet>
-                .map { futureResultSet ->
-                    // cql row
-                    while (!futureResultSet.isDone) Thread.sleep(10)
-                    futureResultSet.get().one()
-                }
-                .filter(Objects::nonNull)
-                .map(this::bitcoinAddressMapping)
-    }
-
-
     private fun queryTxsByIds(ids: List<String>): List<BitcoinTransaction> {
 
         val statement = session.prepare("SELECT * FROM tx WHERE hash = ?")
@@ -112,15 +70,6 @@ class BitcoinKeyspaceRepository(
                 }
                 .filter(Objects::nonNull)
                 .map(this::bitcoinTransactionMapping)
-    }
-
-
-    private fun bitcoinAddressMapping(row: Row): BitcoinAddress {
-        return BitcoinAddress(
-                id = row.getString("id"), balance = row.getString("balance"),
-                tx_number = row.getInt("tx_number"), total_received = row.getString("total_received"),
-                last_transaction_block = row.getLong("last_transaction_block")
-        )
     }
 
 

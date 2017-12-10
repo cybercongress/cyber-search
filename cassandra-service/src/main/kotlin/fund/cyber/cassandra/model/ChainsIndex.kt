@@ -3,8 +3,11 @@ package fund.cyber.cassandra.model
 import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.*
 import fund.cyber.node.common.ChainEntity
-import fund.cyber.node.common.ChainEntity.*
+import fund.cyber.node.common.ChainEntity.BLOCK
+import fund.cyber.node.common.ChainEntity.TRANSACTION
 
+
+val Chain.keyspace: String get() = name.toLowerCase()
 
 object ChainsIndex {
 

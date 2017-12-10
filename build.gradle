@@ -5,7 +5,7 @@ buildscript {
         kotlinCoroutinesVersion = "0.19.3"
         jacksonVersion = "2.9.2"
         undertowVersion = "1.4.20.Final"
-        kafkaVersion = "0.11.0.1"
+        kafkaVersion = "1.0.0"
         cassandraVersion = "3.3.2"
         web3jVersion = "2.3.0"
         rxkotlinVersion = "2.2.0"
@@ -79,6 +79,8 @@ subprojects {
 
             dependency("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
             dependency("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+            dependency("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVersion")
+            dependency("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
             dependency("io.undertow:undertow-core:$undertowVersion")
             dependency("org.apache.httpcomponents:httpasyncclient:$apacheHttpClientVersion")
@@ -126,6 +128,8 @@ project(":common") {
 
         compile("com.fasterxml.jackson.core:jackson-databind")
         compile("com.fasterxml.jackson.module:jackson-module-kotlin")
+        compile("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
+        compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
         compile("org.apache.kafka:kafka-clients")
         compile("com.datastax.cassandra:cassandra-driver-core")
@@ -133,27 +137,6 @@ project(":common") {
         compile("com.datastax.cassandra:cassandra-driver-extras")
 
         compile("org.apache.httpcomponents:httpasyncclient")
-    }
-}
-
-
-project(":search-api") {
-    apply plugin: "application"
-
-    dependencies {
-        compile project(":common")
-        compile project(":cassandra-service")
-        compile("io.undertow:undertow-core")
-        compile("org.elasticsearch.client:transport")
-    }
-
-    mainClassName = "fund.cyber.search.SearchApiApplication"
-}
-
-project(":cassandra-service") {
-    dependencies {
-        compile(project(":common"))
-        compile("org.ehcache:ehcache")
 
         //dependencies for jaxb
         compile 'javax.xml.bind:jaxb-api:2.3.0'
@@ -162,8 +145,43 @@ project(":cassandra-service") {
     }
 }
 
-project(":pumps") {
+
+project(":search-api") {
+
     apply plugin: "application"
+    mainClassName = "fund.cyber.search.SearchApiApplication"
+
+    dependencies {
+        compile project(":common")
+        compile project(":cassandra-service")
+        compile("io.undertow:undertow-core")
+        compile("org.elasticsearch.client:transport")
+    }
+}
+
+project(":cassandra-service") {
+    dependencies {
+        compile(project(":common"))
+        compile("org.ehcache:ehcache")
+    }
+}
+
+project(":address-service") {
+
+    apply plugin: "application"
+    mainClassName = "fund.cyber.address.AddressServiceApplication"
+
+    dependencies {
+        compile project(":common")
+        compile project(":cassandra-service")
+    }
+
+}
+
+project(":pumps") {
+
+    apply plugin: "application"
+    mainClassName = "fund.cyber.pump.PumpsApplication"
 
     dependencies {
         compile project(":common")
@@ -171,6 +189,4 @@ project(":pumps") {
         compile("org.web3j:core")
         compile("io.reactivex.rxjava2:rxkotlin")
     }
-
-    mainClassName = "fund.cyber.pump.PumpsApplication"
 }

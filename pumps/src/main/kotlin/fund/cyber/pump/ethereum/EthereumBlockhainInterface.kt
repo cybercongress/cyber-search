@@ -38,7 +38,7 @@ class EthereumBlockBundle(
 
 
 open class EthereumBlockchainInterface(
-        parityUrl: String = env("PARITY_ETHEREUM", "http://cyber:cyber@127.0.0.1:8545"),
+        parityUrl: String = env("PARITY_ETH_URL", "http://127.0.0.1:8545"),
         network: Chain = ETHEREUM
 
 ) : BlockchainInterface<EthereumBlockBundle>, Migratory {

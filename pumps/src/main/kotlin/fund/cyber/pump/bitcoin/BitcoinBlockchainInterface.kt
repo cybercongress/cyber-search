@@ -1,13 +1,9 @@
 package fund.cyber.pump.bitcoin
 
 import fund.cyber.cassandra.migration.Migration
-import fund.cyber.cassandra.migration.Migratory
 import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.BITCOIN
-import fund.cyber.node.model.BitcoinBlock
-import fund.cyber.node.model.BitcoinBlockTransaction
-import fund.cyber.node.model.BitcoinTransaction
-import fund.cyber.node.model.CyberSearchItem
+import fund.cyber.node.model.*
 import fund.cyber.pump.BlockBundle
 import fund.cyber.pump.BlockchainInterface
 
@@ -18,7 +14,8 @@ class BitcoinBlockBundle(
         override val number: Long,
         override val chain: Chain,
         val block: BitcoinBlock,
-        val transactions: List<BitcoinTransaction>
+        val transactions: List<BitcoinTransaction>,
+        val addressTransactions: List<BitcoinAddressTransaction>
 ) : BlockBundle {
 
 
@@ -29,6 +26,7 @@ class BitcoinBlockBundle(
         map.put(BitcoinBlock::class.java as Class<CyberSearchItem>, listOf(block))
         map.put(BitcoinTransaction::class.java as Class<CyberSearchItem>, transactions)
         map.put(BitcoinBlockTransaction::class.java as Class<CyberSearchItem>, block.transactionPreviews)
+        map.put(BitcoinAddressTransaction::class.java as Class<CyberSearchItem>, addressTransactions)
 
         return map
     }
@@ -37,7 +35,7 @@ class BitcoinBlockBundle(
 open class BitcoinBlockchainInterface(
         private val bitcoinJsonRpcClient: BitcoinJsonRpcClient = BitcoinPumpContext.bitcoinJsonRpcClient,
         private val rpcToBundleEntitiesConverter: JsonRpcBlockToBitcoinBundleConverter = BitcoinPumpContext.rpcToBundleEntitiesConverter
-) : BlockchainInterface<BitcoinBlockBundle>, Migratory {
+) : BlockchainInterface<BitcoinBlockBundle> {
 
     override val chain = BITCOIN
     override val migrations: List<Migration> = BitcoinMigrations.migrations

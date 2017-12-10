@@ -7,7 +7,7 @@ import fund.cyber.pump.ethereum.EthereumBlockchainInterface
 
 
 class EthereumClassicBlockchainInterface : EthereumBlockchainInterface(
-        parityUrl = env("ETHEREUM_CLASSIC", "http://cyber:cyber@127.0.0.1:18545"),
+        parityUrl = env("PARITY_ETC_URL", "http://127.0.0.1:18545"),
         network = ETHEREUM_CLASSIC
 ) {
 

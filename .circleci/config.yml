@@ -87,6 +87,22 @@ jobs:
              docker tag build/cs-search-api-docs cybernode/cs-search-api-docs:latest
              docker push cybernode/cs-search-api-docs:latest
 
+  deploy_address-service_image:
+     <<: *default_container
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.05.0-ce
+       - run:
+           name: Build cyber search address service image
+           command: |
+             docker build -t build/address-service -f ./devops/address-service/address-service ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/address-service cybernode/address-service:$CIRCLE_TAG
+             docker push cybernode/address-service:$CIRCLE_TAG
+             docker tag build/address-service cybernode/address-service:latest
+             docker push cybernode/address-service:latest
+
 
 workflows:
   version: 2
@@ -97,10 +113,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - deploy_connectors_image:
-          <<: *release_filter
-          requires:
-            - build_project
       - deploy_search_api_image:
           <<: *release_filter
           requires:
@@ -108,4 +120,8 @@ workflows:
       - deploy_pumps_image:
           <<: *release_filter
           requires:
-            - build_project            
+            - build_project
+      - deploy_address-service_image:
+          <<: *release_filter
+          requires:
+            - build_project

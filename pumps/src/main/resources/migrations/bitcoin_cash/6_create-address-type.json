@@ -10,19 +10,13 @@
           "include_in_all": true,
           "cql_collection": "singleton"
         },
-        "tx_number": {
+        "confirmed_tx_number": {
           "type": "integer",
           "index": "no",
           "include_in_all": false,
           "cql_collection": "singleton"
         },
-        "balance": {
-          "type": "keyword",
-          "index": "no",
-          "include_in_all": false,
-          "cql_collection": "singleton"
-        },
-        "total_received": {
+        "confirmed_balance": {
           "type": "keyword",
           "index": "no",
           "include_in_all": false,
