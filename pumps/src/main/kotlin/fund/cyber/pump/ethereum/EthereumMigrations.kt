@@ -1,8 +1,8 @@
 package fund.cyber.pump.ethereum
 
-import fund.cyber.node.common.Chain.*
 import fund.cyber.cassandra.migration.CqlFileBasedMigration
 import fund.cyber.cassandra.migration.ElasticHttpMigration
+import fund.cyber.node.common.Chain.ETHEREUM
 import fund.cyber.pump.cassandra.chainApplicationId
 
 object EthereumMigrations {
@@ -17,6 +17,6 @@ object EthereumMigrations {
             ElasticHttpMigration(4, applicationId, "/migrations/ethereum/4_create-block-type.json"),
             ElasticHttpMigration(5, applicationId, "/migrations/ethereum/5_create-address-index.json"),
             ElasticHttpMigration(6, applicationId, "/migrations/ethereum/6_create-address-type.json"),
-            GenesisMigration(7, applicationId, "/migrations/ethereum/7_genesis.json")
+            GenesisMigration(7, applicationId, ETHEREUM, "/migrations/ethereum/7_genesis.json")
     )
 }
