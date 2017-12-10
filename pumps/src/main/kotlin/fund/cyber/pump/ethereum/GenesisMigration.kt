@@ -22,28 +22,33 @@ class GenesisMigration(
             val jkMapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).registerModule(KotlinModule())
             val genesis: GenesisFile = jkMapper.readValue(GenesisMigration::class.java.getResourceAsStream(filePath), GenesisFile::class.java)
             return genesis.accounts
+                    .entries
                     .filter { (_, value) -> value.balance != null }
-                    .flatMap { (key, value) ->
+                    .mapIndexed { index, entry ->
+
+                        val addressId = entry.key
+                        val balance = entry.value.balance
+
                         val tx = EthereumTransaction(
-                                hash = "GENESIS_$key",
+                                hash = "GENESIS_$addressId",
                                 nonce = 42,
                                 block_hash = "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3",
                                 block_number = 0,
                                 transaction_index = 0,
                                 from = "",
-                                to = key,
-                                value = value.balance!!,
+                                to = addressId,
+                                value = balance!!,
                                 gas_price = BigDecimal.ZERO,
                                 gas_used = 0,
                                 gas_limit = 0,
                                 fee = "0",
-                                timestamp = Instant.MIN,
+                                timestamp = Instant.parse("2015-07-30T15:26:13Z"),
                                 input = "",
                                 creates = ""
                         )
-                        val blockTx = EthereumTxPreviewByBlock(tx)
+                        val blockTx = EthereumTxPreviewByBlock(tx, index)
                         val addressTx = EthereumAddressTransaction(
-                                address = key,
+                                address = addressId,
                                 fee = tx.fee,
                                 block_time = tx.timestamp,
                                 hash = tx.hash,
@@ -52,7 +57,7 @@ class GenesisMigration(
                                 value = tx.value
                         )
                         val address = EthereumAddress(
-                                id = key,
+                                id = addressId,
                                 balance = tx.value,
                                 contract_address = false,
                                 total_received = tx.value,
@@ -61,6 +66,7 @@ class GenesisMigration(
                         )
                         listOf(tx, blockTx, addressTx, address)
                     }
+                    .flatten()
         }
 }
 

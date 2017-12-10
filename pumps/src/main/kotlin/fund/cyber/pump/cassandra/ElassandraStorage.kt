@@ -33,7 +33,7 @@ class ElassandraStorage(
 
     override fun initialize(blockchainInterface: BlockchainInterface<*>) {
         if (blockchainInterface is Migratory) {
-            schemaMigrationEngine.executeSchemaUpdate(blockchainInterface.migrations, blockchainInterface.chain)
+            schemaMigrationEngine.executeSchemaUpdate(blockchainInterface.migrations)
         }
     }
 

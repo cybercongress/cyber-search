@@ -1,7 +1,6 @@
 package fund.cyber.node.model
 
 import com.datastax.driver.mapping.annotations.Table
-import com.datastax.driver.mapping.annotations.UDT
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
@@ -59,8 +58,9 @@ data class EthereumBlock(
 @Table(name = "tx_preview_by_block",
         readConsistency = "QUORUM", writeConsistency = "QUORUM",
         caseSensitiveKeyspace = false, caseSensitiveTable = false)
-data class EthereumTxPreviewByBlock (
+data class EthereumTxPreviewByBlock(
         val block_number: Long,
+        val index: Int,
         val fee: String,
         val value: String,
         val hash: String,
@@ -68,9 +68,10 @@ data class EthereumTxPreviewByBlock (
         val to: String,
         val creates_contract: Boolean
 ) : EthereumItem() {
-    constructor(tx: EthereumTransaction) :
+    constructor(tx: EthereumTransaction, index: Int) :
             this(
                     block_number = tx.block_number ?: 0,
+                    index = index,
                     fee = tx.fee,
                     value = tx.value,
                     hash = tx.hash,
