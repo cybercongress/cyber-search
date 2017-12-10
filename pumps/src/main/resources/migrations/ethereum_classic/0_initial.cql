@@ -19,6 +19,7 @@ CREATE TABLE IF NOT exists ethereum_classic.block (
     tx_number int,
     tx_fees text,
     block_reward text,
+    uncles_reward text,
     uncles FROZEN < list < text > >
 );
 
@@ -73,3 +74,40 @@ CREATE TABLE IF NOT exists ethereum_classic.address (
     last_transaction_block bigint,
     tx_number int
 );
+
+CREATE TABLE IF NOT exists ethereum_classic.mined_block_by_address (
+    miner text,
+    block_number bigint,
+    block_time timestamp,
+    block_reward decimal,
+    uncles_reward decimal,
+    tx_fees decimal,
+    tx_number int,
+    PRIMARY KEY (miner, block_number)
+)  WITH CLUSTERING ORDER BY ( block_number DESC );
+
+CREATE TABLE IF NOT exists ethereum_classic.uncle (
+     hash text PRIMARY KEY,
+     position int,
+     number bigint,
+     timestamp timestamp,
+     block_number bigint,
+     block_time timestamp,
+     block_hash text,
+     miner text,
+     uncle_reward text
+);
+
+
+CREATE TABLE IF NOT exists ethereum_classic.uncle_by_address (
+     hash text,
+     position int,
+     number bigint,
+     timestamp timestamp,
+     block_number bigint,
+     block_time timestamp,
+     block_hash text,
+     miner text,
+     uncle_reward text,
+     PRIMARY KEY (miner, block_number)
+)  WITH CLUSTERING ORDER BY ( block_number DESC );

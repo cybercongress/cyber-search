@@ -17,7 +17,7 @@ interface FlowableBlockchainInterface<T : BlockBundle> : BlockchainInterface<T> 
 
 class ConcurrentPulledBlockchain<T : BlockBundle>(
         private val blockchainInterface: BlockchainInterface<T>,
-        private val batchSize: Int = 8
+        private val batchSize: Int = 4
 ) : FlowableBlockchainInterface<T>, BlockchainInterface<T> by blockchainInterface,
         // TODO: Can we do it better?
         Migratory {

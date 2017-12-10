@@ -17,6 +17,8 @@ object EthereumMigrations {
             ElasticHttpMigration(4, applicationId, "/migrations/ethereum/4_create-block-type.json"),
             ElasticHttpMigration(5, applicationId, "/migrations/ethereum/5_create-address-index.json"),
             ElasticHttpMigration(6, applicationId, "/migrations/ethereum/6_create-address-type.json"),
-            GenesisMigration(7, applicationId, ETHEREUM, "/migrations/ethereum/7_genesis.json")
+            GenesisMigration(7, applicationId, ETHEREUM, "/migrations/ethereum/7_genesis.json"),
+            ElasticHttpMigration(8, applicationId, "/migrations/ethereum/8_create-uncle-index.json"),
+            ElasticHttpMigration(9, applicationId, "/migrations/ethereum/9_create-uncle-type.json")
     )
 }

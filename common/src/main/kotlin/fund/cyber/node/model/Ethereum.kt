@@ -1,6 +1,7 @@
 package fund.cyber.node.model
 
 import com.datastax.driver.mapping.annotations.Table
+import com.datastax.driver.mapping.annotations.Transient
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
@@ -8,7 +9,7 @@ import java.time.Instant
 
 sealed class EthereumItem : CyberSearchItem()
 
-@Table(name = "tx", readConsistency = "QUORUM", writeConsistency = "QUORUM")
+@Table(name = "tx")
 data class EthereumTransaction(
         val hash: String,
         val nonce: Long,           //parsed from hex
@@ -31,7 +32,7 @@ data class EthereumTransaction(
 }
 
 
-@Table(name = "block", readConsistency = "QUORUM", writeConsistency = "QUORUM")
+@Table(name = "block")
 data class EthereumBlock(
         val hash: String,
         val parent_hash: String,
@@ -52,13 +53,12 @@ data class EthereumBlock(
         val tx_number: Int,
         val uncles: List<String>,
         val block_reward: String,
+        val uncles_reward: String,
         val tx_fees: String
 ) : EthereumItem()
 
 
-@Table(name = "tx_preview_by_block",
-        readConsistency = "QUORUM", writeConsistency = "QUORUM",
-        caseSensitiveKeyspace = false, caseSensitiveTable = false)
+@Table(name = "tx_preview_by_block")
 data class EthereumBlockTxPreview(
         val block_number: Long,
         val index: Int,
@@ -80,7 +80,7 @@ data class EthereumBlockTxPreview(
 }
 
 
-@Table(name = "address", readConsistency = "QUORUM", writeConsistency = "QUORUM")
+@Table(name = "address")
 data class EthereumAddress(
         val id: String,
         val balance: String,
@@ -91,7 +91,7 @@ data class EthereumAddress(
 ) : EthereumItem()
 
 
-@Table(name = "tx_preview_by_address", readConsistency = "QUORUM", writeConsistency = "QUORUM")
+@Table(name = "tx_preview_by_address")
 data class EthereumAddressTxPreview(
         val address: String,
         val fee: String,
@@ -109,6 +109,52 @@ data class EthereumAddressTxPreview(
     )
 }
 
+@Table(name = "mined_block_by_address")
+data class EthereumAddressMinedBlock(
+        val miner: String,
+        val block_number: Long,
+        val block_time: Instant,
+        val block_reward: BigDecimal,
+        val uncles_reward: BigDecimal,
+        val tx_fees: BigDecimal,
+        val tx_number: Int
+) : EthereumItem() {
+    constructor(block: EthereumBlock) : this(
+            miner = block.miner, block_number = block.number, block_time = block.timestamp,
+            block_reward = BigDecimal(block.block_reward), uncles_reward = BigDecimal(block.uncles_reward),
+            tx_fees = BigDecimal(block.tx_fees), tx_number = block.tx_number
+    )
+}
+
+
+@Table(name = "uncle")
+data class EthereumUncle(
+        val hash: String, val position: Int,
+        val number: Long, val timestamp: Instant,
+        val block_number: Long, val block_time: Instant, val block_hash: String,
+        val miner: String, val uncle_reward: String
+) : EthereumItem()
+
+@Table(name = "uncle_by_address")
+data class EthereumAddressUncle(
+        val hash: String, val position: Int,
+        val number: Long, val timestamp: Instant,
+        val block_number: Long, val block_time: Instant, val block_hash: String,
+        val miner: String, val uncle_reward: String
+) : EthereumItem() {
+    constructor(uncle: EthereumUncle) : this(
+            hash = uncle.hash, position = uncle.position,
+            number = uncle.number, timestamp = uncle.timestamp,
+            block_number = uncle.block_number, block_time = uncle.block_time, block_hash = uncle.block_hash,
+            miner = uncle.miner, uncle_reward = uncle.uncle_reward
+    )
+}
+
+private val eight = BigDecimal(8)
+
+fun getUncleReward(uncleNumber: Long, blockNumber: Long, reward: BigDecimal): BigDecimal {
+    return (uncleNumber.toBigDecimal() + eight - blockNumber.toBigDecimal()) * reward / eight
+}
 
 fun getBlockReward(number: Long): BigDecimal {
     return if (number < 4370000) BigDecimal("5") else BigDecimal("3")

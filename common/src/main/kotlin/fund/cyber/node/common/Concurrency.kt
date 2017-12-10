@@ -2,6 +2,7 @@ package fund.cyber.node.common
 
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.JdkFutureAdapters
+import kotlinx.coroutines.experimental.future.future
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.concurrent.FutureCallback
@@ -14,6 +15,12 @@ import java.util.concurrent.Future
 fun <T> List<Future<T>>.awaitAll(): List<T> {
     val combinedFuture = this.map { future -> JdkFutureAdapters.listenInPoolThread(future) }
     return Futures.allAsList(combinedFuture).get()
+}
+
+fun <T> List<CompletableFuture<T>>.await(): List<T> {
+    val futures = this.toTypedArray()
+    return CompletableFuture.allOf(*futures)
+            .thenApply { futures.map { future -> future.get() } }.get()
 }
 
 

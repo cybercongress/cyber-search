@@ -12,20 +12,37 @@ class ParityToEthereumBundleConverter(private val chain: Chain) {
 
     private val weiToEthRate = BigDecimal("1E-18")
 
-    fun convertToBundle(parityBlock: EthBlock.Block): EthereumBlockBundle {
+    fun convertToBundle(parityBlock: EthBlock.Block, uncles: List<EthBlock.Block>): EthereumBlockBundle {
+
+        val block = parityBlockToDao(parityBlock)
+        val blockUncles = parityUnclesToDao(block, uncles)
+        val addressUncles = blockUncles.map { uncle -> EthereumAddressUncle(uncle) }
+        val addressBlock = EthereumAddressMinedBlock(block)
 
         val transactions = parityTransactionsToDao(parityBlock)
         val addressTxesPreviews = toAddressTxesPreviews(transactions)
         val blockTxesPreviews = transactions.mapIndexed { index, tx -> EthereumBlockTxPreview(tx, index) }
-        val block = parityBlockToDao(parityBlock)
 
         return EthereumBlockBundle(
                 chain = chain, hash = parityBlock.hash, parentHash = parityBlock.parentHash ?: "-1",
-                number = parityBlock.number.toLong(), block = block,
-                transactions = transactions,
-                addressTxesPreviews = addressTxesPreviews, blockTxesPreviews = blockTxesPreviews
+                number = parityBlock.number.toLong(),
+                block = block, uncles = blockUncles, addressBlock = addressBlock, addressUncles = addressUncles,
+                transactions = transactions, addressTxesPreviews = addressTxesPreviews,
+                blockTxesPreviews = blockTxesPreviews
 
         )
+    }
+
+    private fun parityUnclesToDao(block: EthereumBlock, uncles: List<EthBlock.Block>): List<EthereumUncle> {
+        return uncles.mapIndexed { index, uncle ->
+            val uncleNumber = uncle.number.toLong()
+            EthereumUncle(
+                    miner = uncle.miner, hash = uncle.hash, number = uncleNumber, position = index,
+                    timestamp = Instant.ofEpochSecond(uncle.timestampRaw.hexToLong()),
+                    block_number = block.number, block_time = block.timestamp, block_hash = block.hash,
+                    uncle_reward = getUncleReward(uncleNumber, block.number, BigDecimal(block.block_reward)).toString()
+            )
+        }
     }
 
     private fun toAddressTxesPreviews(transactions: List<EthereumTransaction>): List<EthereumAddressTxPreview> {
@@ -65,6 +82,7 @@ class ParityToEthereumBundleConverter(private val chain: Chain) {
                 }
 
         val number = parityBlock.numberRaw.hexToLong()
+        val blockReward = getBlockReward(number)
 
         return EthereumBlock(
                 hash = parityBlock.hash, parent_hash = parityBlock.parentHash, number = number,
@@ -76,7 +94,8 @@ class ParityToEthereumBundleConverter(private val chain: Chain) {
                 receipts_root = parityBlock.receiptsRoot, state_root = parityBlock.stateRoot,
                 sha3_uncles = parityBlock.sha3Uncles, uncles = parityBlock.uncles,
                 tx_number = parityBlock.transactions.size,
-                tx_fees = blockTxesFees.sum().toString(), block_reward = getBlockReward(number).toString()
+                tx_fees = blockTxesFees.sum().toString(), block_reward = blockReward.toString(),
+                uncles_reward = (blockReward * parityBlock.uncles.size.toBigDecimal() / 12.toBigDecimal()).toString()
         )
     }
 }
