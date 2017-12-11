@@ -23,8 +23,7 @@ object AddressServiceApplication {
         try {
             run()
         } catch (e: Exception) {
-            //todo close correctly
-            throw RuntimeException(e)
+            Runtime.getRuntime().exit(-1)
         }
     }
 
