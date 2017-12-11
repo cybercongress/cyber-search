@@ -2,6 +2,7 @@ package fund.cyber.address.common
 
 import fund.cyber.address.ServiceConfiguration
 import fund.cyber.node.common.Chain
+import fund.cyber.node.common.ChainEntity
 import fund.cyber.node.kafka.ExactlyOnceKafkaConsumerRunner
 import fund.cyber.node.kafka.JsonDeserializer
 import fund.cyber.node.kafka.KafkaEvent
@@ -10,6 +11,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.util.*
 
+
+val Chain.addressCache: String get() = name + "_" + ChainEntity.ADDRESS
 
 typealias ApplyAddressDeltaFunction = (AddressDelta) -> Unit
 

@@ -35,7 +35,7 @@ abstract class KafkaConsumerRunner<K, V>(private val topics: List<String>) : Run
 
     private fun readAndProcessRecords() {
 
-        val records = consumer.poll(0)
+        val records = consumer.poll(100)
 
         for (partition in records.partitions()) {
             val partitionRecords = records.records(partition)

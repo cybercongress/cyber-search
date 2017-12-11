@@ -10,13 +10,14 @@ import java.util.*
 private val log = LoggerFactory.getLogger(KafkaStorage::class.java)!!
 
 class KafkaStorage(
-        private val kafkaBrokers: List<String> = PumpsConfiguration.kafkaBrokers
+        private val kafkaBrokers: List<String> = PumpsConfiguration.kafkaBrokers,
+        private val chainsToPumpAsString: String = PumpsConfiguration.chainsToPump.map(Chain::name).joinToString("_")
 ) : StorageInterface {
 
     private val kafkaProperties = Properties().apply {
         put("bootstrap.servers", kafkaBrokers)
-        put("group.id", "pumps")
-        put("transactional.id", "pumps")
+        put("group.id", "pumps" + chainsToPumpAsString)
+        put("transactional.id", "pumps_" + chainsToPumpAsString)
         put("transaction.timeout.ms", 30 * 1000)
     }
 
