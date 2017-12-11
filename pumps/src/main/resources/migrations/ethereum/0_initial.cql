@@ -66,13 +66,16 @@ CREATE TABLE IF NOT exists ethereum.tx_preview_by_block (
     PRIMARY KEY ( block_number, "index" )
 ) WITH CLUSTERING ORDER BY ( "index" ASC );
 
+
 CREATE TABLE IF NOT exists ethereum.address (
     id text PRIMARY KEY,
     balance text,
     contract_address boolean,
     total_received text,
     last_transaction_block bigint,
-    tx_number int
+    tx_number int,
+    uncle_number int,
+    mined_block_number int
 );
 
 CREATE TABLE IF NOT exists ethereum.mined_block_by_address (

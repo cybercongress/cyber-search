@@ -72,7 +72,9 @@ CREATE TABLE IF NOT exists ethereum_classic.address (
     contract_address boolean,
     total_received text,
     last_transaction_block bigint,
-    tx_number int
+    tx_number int,
+    uncle_number int,
+    mined_block_number int
 );
 
 CREATE TABLE IF NOT exists ethereum_classic.mined_block_by_address (

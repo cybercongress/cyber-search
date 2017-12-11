@@ -62,7 +62,9 @@ class GenesisMigration(
                                 contract_address = false,
                                 total_received = tx.value,
                                 last_transaction_block = 0,
-                                tx_number = 0
+                                tx_number = 0,
+                                mined_block_number = 0,
+                                uncle_number = 0
                         )
                         listOf(tx, blockTx, addressTx, address)
                     }
