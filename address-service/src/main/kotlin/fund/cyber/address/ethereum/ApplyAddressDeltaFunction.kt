@@ -5,16 +5,18 @@ import fund.cyber.address.common.ApplyAddressDeltaFunction
 import fund.cyber.cassandra.repository.EthereumKeyspaceRepository
 import fund.cyber.node.common.ChainEntity.*
 import fund.cyber.node.model.EthereumAddress
+import org.ehcache.Cache
 import java.math.BigDecimal
 
 
 class ApplyEthereumAddressDeltaFunction(
-        private val repository: EthereumKeyspaceRepository
+        private val repository: EthereumKeyspaceRepository,
+        private val addressCache: Cache<String, EthereumAddress>
 ) : ApplyAddressDeltaFunction {
 
     override fun invoke(addressDelta: AddressDelta) {
 
-        val address = repository.addressStore.get(addressDelta.address)
+        val address = addressCache[addressDelta.address] ?: repository.addressStore.get(addressDelta.address)
 
         val updatedAddress = when (addressDelta.source) {
             TRANSACTION, CONTRACT -> updateAddressByTransaction(address, addressDelta)
@@ -23,6 +25,7 @@ class ApplyEthereumAddressDeltaFunction(
         }
 
         repository.addressStore.save(updatedAddress)
+        addressCache.put(updatedAddress.id, updatedAddress)
     }
 }
 

@@ -7,6 +7,7 @@ import fund.cyber.cassandra.repository.BitcoinKeyspaceRepository
 import fund.cyber.node.common.ChainEntity.TRANSACTION
 import fund.cyber.node.model.BitcoinAddress
 import fund.cyber.node.model.BitcoinTransaction
+import org.ehcache.Cache
 import java.math.BigDecimal
 
 
@@ -33,19 +34,20 @@ class BitcoinTransactionToAddressDeltaFunction : ConvertItemToAddressDeltaFuncti
 
 
 class ApplyBitcoinAddressDeltaFunction(
-        private val repository: BitcoinKeyspaceRepository
+        private val repository: BitcoinKeyspaceRepository,
+        private val addressCache: Cache<String, BitcoinAddress>
 ) : ApplyAddressDeltaFunction {
 
     override fun invoke(addressDelta: AddressDelta) {
-        val address = repository.addressStore.get(addressDelta.address)
 
-        if (address == null) {
-            val newAddress = nonExistingAddressFromDelta(addressDelta)
-            repository.addressStore.save(newAddress)
-        } else {
-            val updatedAddress = updatedAddressByDelta(address, addressDelta)
-            repository.addressStore.save(updatedAddress)
-        }
+        val address = addressCache[addressDelta.address] ?: repository.addressStore.get(addressDelta.address)
+
+        val updatedAddress =
+                if (address == null) nonExistingAddressFromDelta(addressDelta)
+                else updatedAddressByDelta(address, addressDelta)
+
+        repository.addressStore.save(updatedAddress)
+        addressCache.put(updatedAddress.id, updatedAddress)
     }
 }
 
