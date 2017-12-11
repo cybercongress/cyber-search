@@ -8,7 +8,12 @@ enum class Chain {
 }
 
 enum class ChainEntity {
+
+    //common
     BLOCK,
     TRANSACTION,
-    ADDRESS
+    ADDRESS,
+
+    //ethereum
+    UNCLE
 }
