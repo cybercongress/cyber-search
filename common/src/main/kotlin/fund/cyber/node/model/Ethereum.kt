@@ -1,9 +1,9 @@
 package fund.cyber.node.model
 
 import com.datastax.driver.mapping.annotations.Table
-import com.datastax.driver.mapping.annotations.Transient
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.math.RoundingMode
 import java.time.Instant
 
 
@@ -153,7 +153,8 @@ data class EthereumAddressUncle(
 private val eight = BigDecimal(8)
 
 fun getUncleReward(uncleNumber: Long, blockNumber: Long, reward: BigDecimal): BigDecimal {
-    return (uncleNumber.toBigDecimal() + eight - blockNumber.toBigDecimal()) * reward / eight
+    return ((uncleNumber.toBigDecimal() + eight - blockNumber.toBigDecimal()) * reward)
+            .divide(eight, 18, RoundingMode.FLOOR).stripTrailingZeros()
 }
 
 fun getBlockReward(number: Long): BigDecimal {

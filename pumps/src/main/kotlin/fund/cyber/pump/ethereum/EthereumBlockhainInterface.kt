@@ -9,6 +9,8 @@ import fund.cyber.node.common.env
 import fund.cyber.node.model.*
 import fund.cyber.pump.BlockBundle
 import fund.cyber.pump.BlockchainInterface
+import fund.cyber.pump.PumpsContext
+import org.apache.http.impl.client.CloseableHttpClient
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameter
 import org.web3j.protocol.http.HttpService
@@ -47,14 +49,16 @@ class EthereumBlockBundle(
 
 open class EthereumBlockchainInterface(
         parityUrl: String = env("PARITY_ETH_URL", "http://127.0.0.1:8545"),
-        network: Chain = ETHEREUM
+        network: Chain = ETHEREUM,
+        httpClient: CloseableHttpClient = PumpsContext.httpClient
 
 ) : BlockchainInterface<EthereumBlockBundle>, Migratory {
 
     override val migrations: List<Migration> = EthereumMigrations.migrations
     override val chain: Chain = network
 
-    private val parityClient: Web3j = Web3j.build(HttpService(parityUrl))
+
+    private val parityClient: Web3j = Web3j.build(HttpService(parityUrl, httpClient))
     private val parityToBundleConverter = ParityToEthereumBundleConverter(network)
 
 

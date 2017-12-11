@@ -20,10 +20,7 @@ class BitcoinJsonRpcClient(
         private val btcdUrl: String
 ) {
 
-    private val headers = arrayOf(
-            BasicHeader("Content-Type", "application/json; charset=UTF-8"),
-            BasicHeader("Keep-Alive", "timeout=10, max=1000")
-    )
+    private val headers = arrayOf(BasicHeader("Content-Type", "application/json; charset=UTF-8"))
 
     fun getTxes(txIds: List<String>): List<JsonRpcBitcoinTransaction> {
         val requests = txIds.map { id -> Request(method = "getrawtransaction", params = listOf(id, true)) }

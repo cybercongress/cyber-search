@@ -11,6 +11,8 @@ import fund.cyber.node.common.*
 import fund.cyber.pump.cassandra.ElassandraStorage
 import fund.cyber.pump.kafka.KafkaStorage
 import org.apache.http.impl.client.HttpClients
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
+import org.apache.http.message.BasicHeader
 import org.ehcache.CacheManager
 import org.ehcache.config.builders.CacheManagerBuilder
 import org.ehcache.xml.XmlConfiguration
@@ -20,7 +22,17 @@ private val log = LoggerFactory.getLogger(PumpsContext::class.java)!!
 
 object PumpsContext {
 
-    val httpClient = HttpClients.createDefault()!!
+    private val defaultHttpHeaders = listOf(BasicHeader("Keep-Alive", "timeout=10, max=1024"))
+    private val connectionManager = PoolingHttpClientConnectionManager().apply {
+        defaultMaxPerRoute = 16
+        maxTotal = 32
+    }
+
+    val httpClient = HttpClients.custom()
+            .setConnectionManager(connectionManager)
+            .setConnectionManagerShared(true)
+            .setDefaultHeaders(defaultHttpHeaders)
+            .build()!!
 
     val cassandraService = CassandraService(PumpsConfiguration.cassandraServers, PumpsConfiguration.cassandraPort)
 

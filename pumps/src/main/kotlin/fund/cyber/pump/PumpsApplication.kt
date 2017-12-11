@@ -7,6 +7,7 @@ import fund.cyber.pump.bitcoin.BitcoinKafkaStorageActionTemplateFactory
 import fund.cyber.pump.bitcoin_cash.BitcoinCashBlockchainInterface
 import fund.cyber.pump.cassandra.SimpleCassandraActionSourceFactory
 import fund.cyber.pump.ethereum.EthereumBlockchainInterface
+import fund.cyber.pump.ethereum.EthereumKafkaStorageActionTemplateFactory
 import fund.cyber.pump.ethereum_classic.EthereumClassicBlockchainInterface
 import org.slf4j.LoggerFactory
 
@@ -47,12 +48,20 @@ object PumpsApplication {
                 getChainPumper(flowableInterface, actionTemplateFactories).start()
             }
             ETHEREUM -> {
+                val actionTemplateFactories = listOf(
+                        SimpleCassandraActionSourceFactory(),
+                        EthereumKafkaStorageActionTemplateFactory(chain)
+                )
                 val flowableInterface = ConcurrentPulledBlockchain(EthereumBlockchainInterface())
-                getChainPumper(flowableInterface, listOf(SimpleCassandraActionSourceFactory())).start()
+                getChainPumper(flowableInterface, actionTemplateFactories).start()
             }
             ETHEREUM_CLASSIC -> {
+                val actionTemplateFactories = listOf(
+                        SimpleCassandraActionSourceFactory(),
+                        EthereumKafkaStorageActionTemplateFactory(chain)
+                )
                 val flowableInterface = ConcurrentPulledBlockchain(EthereumClassicBlockchainInterface())
-                getChainPumper(flowableInterface, listOf(SimpleCassandraActionSourceFactory())).start()
+                getChainPumper(flowableInterface, actionTemplateFactories).start()
             }
         }
     }

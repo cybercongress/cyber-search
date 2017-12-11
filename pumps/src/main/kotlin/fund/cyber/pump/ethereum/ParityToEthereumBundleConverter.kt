@@ -6,6 +6,7 @@ import fund.cyber.node.common.sum
 import fund.cyber.node.model.*
 import org.web3j.protocol.core.methods.response.EthBlock
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.Instant
 
 class ParityToEthereumBundleConverter(private val chain: Chain) {
@@ -83,6 +84,8 @@ class ParityToEthereumBundleConverter(private val chain: Chain) {
 
         val number = parityBlock.numberRaw.hexToLong()
         val blockReward = getBlockReward(number)
+        val uncleReward = (blockReward * parityBlock.uncles.size.toBigDecimal())
+                .divide(32.toBigDecimal(), 18, RoundingMode.FLOOR).stripTrailingZeros()
 
         return EthereumBlock(
                 hash = parityBlock.hash, parent_hash = parityBlock.parentHash, number = number,
@@ -95,7 +98,7 @@ class ParityToEthereumBundleConverter(private val chain: Chain) {
                 sha3_uncles = parityBlock.sha3Uncles, uncles = parityBlock.uncles,
                 tx_number = parityBlock.transactions.size,
                 tx_fees = blockTxesFees.sum().toString(), block_reward = blockReward.toString(),
-                uncles_reward = (blockReward * parityBlock.uncles.size.toBigDecimal() / 12.toBigDecimal()).toString()
+                uncles_reward = uncleReward.toString()
         )
     }
 }
