@@ -17,6 +17,7 @@ class KafkaStorage(
         put("bootstrap.servers", kafkaBrokers)
         put("group.id", "pumps")
         put("transactional.id", "pumps")
+        put("transaction.timeout.ms", 30 * 1000)
     }
 
     private val jsonSerializer = JsonSerializer<Any>()

@@ -61,7 +61,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
     volumes:
-      - /opt/cyberfund/search/kafka:/var/lib/kafka
+      - /opt/cyberfund/search/kafka:/var/lib/kafka/data
 
   cs-kafka-manager:
     network_mode: host

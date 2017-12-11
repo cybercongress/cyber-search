@@ -1,6 +1,9 @@
 package fund.cyber.node.model
 
+import com.datastax.driver.mapping.annotations.PartitionKey
 import com.datastax.driver.mapping.annotations.Table
+import fund.cyber.node.common.Chain
+import fund.cyber.node.common.Chain.ETHEREUM_CLASSIC
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
@@ -14,7 +17,7 @@ data class EthereumTransaction(
         val hash: String,
         val nonce: Long,           //parsed from hex
         val block_hash: String?,   //null when its pending
-        val block_number: Long?,   //parsed from hex   //null when its pending
+        val block_number: Long,   //parsed from hex   //null when its pending
         val block_time: Instant,
         val transaction_index: Long,//parsed from hex
         val from: String,
@@ -71,7 +74,7 @@ data class EthereumBlockTxPreview(
 ) : EthereumItem() {
 
     constructor(tx: EthereumTransaction, index: Int) : this(
-            block_number = tx.block_number ?: 0,
+            block_number = tx.block_number,
             index = index, hash = tx.hash,
             fee = tx.fee, value = tx.value,
             from = tx.from, to = (tx.to ?: tx.creates)!!, //both 'to' or 'creates' can't be null at same time
@@ -82,13 +85,18 @@ data class EthereumBlockTxPreview(
 
 @Table(name = "address")
 data class EthereumAddress(
-        val id: String,
+        @PartitionKey val id: String,
         val balance: String,
         val contract_address: Boolean,
         val total_received: String,
         val last_transaction_block: Long,
-        val tx_number: Int
-) : EthereumItem()
+        val tx_number: Int,
+        val uncle_number: Int,
+        val mined_block_number: Int
+) : EthereumItem() {
+
+    constructor() : this("", "", false, "", 0, 0, 0, 0)
+}
 
 
 @Table(name = "tx_preview_by_address")
@@ -157,6 +165,6 @@ fun getUncleReward(uncleNumber: Long, blockNumber: Long, reward: BigDecimal): Bi
             .divide(eight, 18, RoundingMode.FLOOR).stripTrailingZeros()
 }
 
-fun getBlockReward(number: Long): BigDecimal {
-    return if (number < 4370000) BigDecimal("5") else BigDecimal("3")
+fun getBlockReward(chain: Chain, number: Long): BigDecimal {
+    return if (number < 4370000 || chain == ETHEREUM_CLASSIC) BigDecimal("5") else BigDecimal("3")
 }

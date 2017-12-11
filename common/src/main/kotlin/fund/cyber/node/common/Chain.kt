@@ -15,5 +15,6 @@ enum class ChainEntity {
     ADDRESS,
 
     //ethereum
-    UNCLE
+    UNCLE,
+    CONTRACT
 }

@@ -83,7 +83,7 @@ class ParityToEthereumBundleConverter(private val chain: Chain) {
                 }
 
         val number = parityBlock.numberRaw.hexToLong()
-        val blockReward = getBlockReward(number)
+        val blockReward = getBlockReward(chain, number)
         val uncleReward = (blockReward * parityBlock.uncles.size.toBigDecimal())
                 .divide(32.toBigDecimal(), 18, RoundingMode.FLOOR).stripTrailingZeros()
 
