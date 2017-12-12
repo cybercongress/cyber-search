@@ -12,6 +12,7 @@ kubectl exec -it elassandra-0 -- cqlsh
 Dive into elassandra docker container shell
 ```bash
 kubectl exec -it elassandra-0 bash
+curl -XGET 'localhost:9200/_cat/indices?v&pretty'
 ```
 
 
