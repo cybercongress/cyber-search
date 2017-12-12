@@ -8,8 +8,7 @@ import fund.cyber.address.ethereum.getEthereumAddressesUpdateProcessParameters
 import fund.cyber.cassandra.CassandraService
 import fund.cyber.cassandra.repository.BitcoinKeyspaceRepository
 import fund.cyber.cassandra.repository.EthereumKeyspaceRepository
-import fund.cyber.node.common.Chain.BITCOIN
-import fund.cyber.node.common.Chain.ETHEREUM
+import fund.cyber.node.common.Chain.*
 import fund.cyber.node.kafka.KafkaConsumerRunner
 import fund.cyber.node.kafka.KafkaEvent
 import org.ehcache.CacheManager
@@ -35,13 +34,13 @@ object AddressServiceApplication {
         val cassandraService = CassandraService(ServiceConfiguration.cassandraServers, ServiceConfiguration.cassandraPort)
         val cacheManager = getCacheManager()
 
-        val bitcoinProcesses = listOf(BITCOIN).map { chain ->
+        val bitcoinProcesses = listOf(BITCOIN, BITCOIN_CASH).map { chain ->
             val repository = cassandraService.getChainRepository(chain) as BitcoinKeyspaceRepository
             val parameters = getBitcoinAddressesUpdateProcessParameters(chain, repository, cacheManager)
             return@map toUpdateAddressesStateProcess(parameters)
         }.flatten()
 
-        val ethereumProcesses = listOf(ETHEREUM).map { chain ->
+        val ethereumProcesses = listOf(ETHEREUM, ETHEREUM_CLASSIC).map { chain ->
             val repository = cassandraService.getChainRepository(chain) as EthereumKeyspaceRepository
             val parameters = getEthereumAddressesUpdateProcessParameters(chain, repository, cacheManager)
             return@map toUpdateAddressesStateProcess(parameters)
