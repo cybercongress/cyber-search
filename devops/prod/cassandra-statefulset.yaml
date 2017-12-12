@@ -1,0 +1,85 @@
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: elassandra
+  labels:
+    app: elassandra
+spec:
+  serviceName: elassandra
+  replicas: 3
+  selector:
+    matchLabels:
+      app: elassandra
+  template:
+    metadata:
+      labels:
+        app: elassandra
+    spec:
+      containers:
+      - name: elassandra
+        image: strapdata/elassandra:5.5.0.8
+        ports:
+        - containerPort: 7000
+          name: intra-node
+        - containerPort: 7001
+          name: tls-intra-node
+        - containerPort: 7199
+          name: jmx
+        - containerPort: 9042
+          name: cql
+        - containerPort: 9200
+          name: elastic-http
+        - containerPort: 9300
+          name: elastic-intra
+        resources:
+          requests:
+           memory: 30Gi
+        securityContext:
+          capabilities:
+            add:
+              - IPC_LOCK
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "PID=$(pidof java) && kill $PID && while ps -p $PID > /dev/null; do sleep 1; done"]
+        env:
+          - name: CASSANDRA_NUM_TOKENS
+            value: "16"
+          - name: CASSANDRA_SEEDS
+            value: "elassandra-0.elassandra.default.svc.cluster.local"
+          - name: CASSANDRA_CLUSTER_NAME
+            value: "CYBER_SEARCH"
+          - name: CASSANDRA_DC
+            value: "PRODUCTION"
+          - name: CASSANDRA_AUTO_BOOTSTRAP
+            value: "true"
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+        # These volume mounts are persistent. They are like inline claims,
+        # but not exactly because the names need to match exactly one of
+        # the stateful pod volumes.
+        volumeMounts:
+        - name: elassandra-data
+          mountPath: /var/lib/cassandra
+  # These are converted to volume claims by the controller
+  # and mounted at the paths mentioned above.
+  # do not use these in production until ssd GCEPersistentDisk or other ssd pd
+  volumeClaimTemplates:
+  - metadata:
+      name: elassandra-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 300Gi
+      storageClassName: fast
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: fast
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-ssd
