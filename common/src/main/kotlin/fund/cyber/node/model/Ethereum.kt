@@ -158,13 +158,25 @@ data class EthereumAddressUncle(
     )
 }
 
-private val eight = BigDecimal(8)
+private val decimal8 = BigDecimal(8)
+private val decimal32 = BigDecimal(32)
 
-fun getUncleReward(uncleNumber: Long, blockNumber: Long, reward: BigDecimal): BigDecimal {
-    return ((uncleNumber.toBigDecimal() + eight - blockNumber.toBigDecimal()) * reward)
-            .divide(eight, 18, RoundingMode.FLOOR).stripTrailingZeros()
+//todo add properly support of new classic fork
+fun getUncleReward(chain: Chain, uncleNumber: Long, blockNumber: Long): BigDecimal {
+
+    val blockReward = getBlockReward(chain, blockNumber)
+    return if (chain == ETHEREUM_CLASSIC) {
+        getBlockReward(chain, blockNumber).divide(decimal32, 18, RoundingMode.FLOOR).stripTrailingZeros()
+    } else {
+        ((uncleNumber.toBigDecimal() + decimal8 - blockNumber.toBigDecimal()) * blockReward)
+                .divide(decimal8, 18, RoundingMode.FLOOR).stripTrailingZeros()
+    }
 }
 
 fun getBlockReward(chain: Chain, number: Long): BigDecimal {
-    return if (number < 4370000 || chain == ETHEREUM_CLASSIC) BigDecimal("5") else BigDecimal("3")
+    return if (chain == ETHEREUM_CLASSIC) {
+        if (number < 5000000) BigDecimal("5") else BigDecimal("4")
+    } else {
+        if (number < 4370000) BigDecimal("5") else BigDecimal("3")
+    }
 }

@@ -41,7 +41,7 @@ class ParityToEthereumBundleConverter(private val chain: Chain) {
                     miner = uncle.miner, hash = uncle.hash, number = uncleNumber, position = index,
                     timestamp = Instant.ofEpochSecond(uncle.timestampRaw.hexToLong()),
                     block_number = block.number, block_time = block.timestamp, block_hash = block.hash,
-                    uncle_reward = getUncleReward(uncleNumber, block.number, BigDecimal(block.block_reward)).toString()
+                    uncle_reward = getUncleReward(chain, uncleNumber, block.number).toString()
             )
         }
     }
