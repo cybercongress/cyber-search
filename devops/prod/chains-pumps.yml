@@ -1,0 +1,46 @@
+version: '3.0'
+services:
+
+  cs-chain-pumps-btc:
+    container_name: pump-btc
+    image: cybernode/cs-chain-pumps:release1.0.0.RC
+    restart: unless-stopped
+    environment:
+      CASSANDRA_HOSTS: elassandra-0,elassandra-1,elassandra-2
+      KAFKA_BROKERS: kafka-broker:9092
+      CS_CHAINS_TO_PUMP: BITCOIN
+      BITCOIND_URL: http://cyber:cyber@bitcoind:8332
+      CS_LOG_LEVEL: INFO
+
+  cs-chain-pumps-bth:
+    container_name: pump-bth
+    image: cybernode/cs-chain-pumps:release1.0.0.RC
+    restart: unless-stopped
+    environment:
+      CASSANDRA_HOSTS: elassandra-0,elassandra-1,elassandra-2
+      KAFKA_BROKERS: kafka-broker:9092
+      CS_CHAINS_TO_PUMP: BITCOIN_CASH
+      ABC_URL: http://cyber:cyber@abc:7332
+      CS_LOG_LEVEL: INFO
+
+  cs-chain-pumps-eth:
+    container_name: pump-eth
+    image: cybernode/cs-chain-pumps:release1.0.0.RC
+    restart: unless-stopped
+    environment:
+      CASSANDRA_HOSTS: elassandra-0,elassandra-1,elassandra-2
+      KAFKA_BROKERS: kafka-broker:9092
+      CS_CHAINS_TO_PUMP: ETHEREUM
+      PARITY_ETH_URL: http://parity_eth:8545
+      CS_LOG_LEVEL: INFO
+
+  cs-chain-pumps-etc:
+    container_name: pump-etc
+    image: cybernode/cs-chain-pumps:release1.0.0.RC
+    restart: on-failure
+    environment:
+      CASSANDRA_HOSTS: elassandra-0,elassandra-1,elassandra-2
+      KAFKA_BROKERS: kafka-broker:9092
+      CS_CHAINS_TO_PUMP: ETHEREUM_CLASSIC
+      PARITY_ETC_URL: http://parity_etc:18545
+      CS_LOG_LEVEL: INFO

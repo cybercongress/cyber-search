@@ -1,0 +1,229 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -f chains-pumps.yml -o chains-pumps.yaml
+      kompose.version: 1.5.0 (999278f)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-chain-pumps-btc
+    name: cs-chain-pumps-btc
+  spec:
+    clusterIP: None
+    ports:
+    - name: headless
+      port: 55555
+      targetPort: 0
+    selector:
+      io.kompose.service: cs-chain-pumps-btc
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -f chains-pumps.yml -o chains-pumps.yaml
+      kompose.version: 1.5.0 (999278f)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-chain-pumps-bth
+    name: cs-chain-pumps-bth
+  spec:
+    clusterIP: None
+    ports:
+    - name: headless
+      port: 55555
+      targetPort: 0
+    selector:
+      io.kompose.service: cs-chain-pumps-bth
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -f chains-pumps.yml -o chains-pumps.yaml
+      kompose.version: 1.5.0 (999278f)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-chain-pumps-etc
+    name: cs-chain-pumps-etc
+  spec:
+    clusterIP: None
+    ports:
+    - name: headless
+      port: 55555
+      targetPort: 0
+    selector:
+      io.kompose.service: cs-chain-pumps-etc
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -f chains-pumps.yml -o chains-pumps.yaml
+      kompose.version: 1.5.0 (999278f)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-chain-pumps-eth
+    name: cs-chain-pumps-eth
+  spec:
+    clusterIP: None
+    ports:
+    - name: headless
+      port: 55555
+      targetPort: 0
+    selector:
+      io.kompose.service: cs-chain-pumps-eth
+  status:
+    loadBalancer: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -f chains-pumps.yml -o chains-pumps.yaml
+      kompose.version: 1.5.0 (999278f)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-chain-pumps-btc
+    name: cs-chain-pumps-btc
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-chain-pumps-btc
+      spec:
+        containers:
+        - env:
+          - name: BITCOIND_URL
+            value: http://cyber:cyber@bitcoind:8332
+          - name: CASSANDRA_HOSTS
+            value: elassandra-0,elassandra-1,elassandra-2
+          - name: CS_CHAINS_TO_PUMP
+            value: BITCOIN
+          - name: CS_LOG_LEVEL
+            value: INFO
+          - name: KAFKA_BROKERS
+            value: kafka-broker:9092
+          image: cybernode/cs-chain-pumps:release1.0.0.RC
+          name: pump-btc
+          resources: {}
+        restartPolicy: Always
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -f chains-pumps.yml -o chains-pumps.yaml
+      kompose.version: 1.5.0 (999278f)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-chain-pumps-bth
+    name: cs-chain-pumps-bth
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-chain-pumps-bth
+      spec:
+        containers:
+        - env:
+          - name: ABC_URL
+            value: http://cyber:cyber@abc:7332
+          - name: CASSANDRA_HOSTS
+            value: elassandra-0,elassandra-1,elassandra-2
+          - name: CS_CHAINS_TO_PUMP
+            value: BITCOIN_CASH
+          - name: CS_LOG_LEVEL
+            value: INFO
+          - name: KAFKA_BROKERS
+            value: kafka-broker:9092
+          image: cybernode/cs-chain-pumps:release1.0.0.RC
+          name: pump-bth
+          resources: {}
+        restartPolicy: Always
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -f chains-pumps.yml -o chains-pumps.yaml
+      kompose.version: 1.5.0 (999278f)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-chain-pumps-etc
+    name: cs-chain-pumps-etc
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-chain-pumps-etc
+      spec:
+        containers:
+        - env:
+          - name: CASSANDRA_HOSTS
+            value: elassandra-0,elassandra-1,elassandra-2
+          - name: CS_CHAINS_TO_PUMP
+            value: ETHEREUM_CLASSIC
+          - name: CS_LOG_LEVEL
+            value: INFO
+          - name: KAFKA_BROKERS
+            value: kafka-broker:9092
+          - name: PARITY_ETC_URL
+            value: http://parity_etc:18545
+          image: cybernode/cs-chain-pumps:release1.0.0.RC
+          name: pump-etc
+          resources: {}
+        restartPolicy: Always
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -f chains-pumps.yml -o chains-pumps.yaml
+      kompose.version: 1.5.0 (999278f)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-chain-pumps-eth
+    name: cs-chain-pumps-eth
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-chain-pumps-eth
+      spec:
+        containers:
+        - env:
+          - name: CASSANDRA_HOSTS
+            value: elassandra-0,elassandra-1,elassandra-2
+          - name: CS_CHAINS_TO_PUMP
+            value: ETHEREUM
+          - name: CS_LOG_LEVEL
+            value: INFO
+          - name: KAFKA_BROKERS
+            value: kafka-broker:9092
+          - name: PARITY_ETH_URL
+            value: http://parity_eth:8545
+          image: cybernode/cs-chain-pumps:release1.0.0.RC
+          name: pump-eth
+          resources: {}
+        restartPolicy: Always
+  status: {}
+kind: List
+metadata: {}
+
