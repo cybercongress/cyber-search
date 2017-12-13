@@ -8,8 +8,8 @@ items:
       kompose.version: 1.5.0 (999278f)
     creationTimestamp: null
     labels:
-      io.kompose.service: cs-address-service
-    name: cs-address-service
+      io.kompose.service: cs-address-service-btc
+    name: cs-address-service-btc
   spec:
     clusterIP: None
     ports:
@@ -17,7 +17,27 @@ items:
       port: 55555
       targetPort: 0
     selector:
-      io.kompose.service: cs-address-service
+      io.kompose.service: cs-address-service-btc
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -f chains-pumps.yml -o chains-pumps.yaml
+      kompose.version: 1.5.0 (999278f)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-address-service-eth
+    name: cs-address-service-eth
+  spec:
+    clusterIP: None
+    ports:
+    - name: headless
+      port: 55555
+      targetPort: 0
+    selector:
+      io.kompose.service: cs-address-service-eth
   status:
     loadBalancer: {}
 - apiVersion: v1
@@ -108,8 +128,8 @@ items:
       kompose.version: 1.5.0 (999278f)
     creationTimestamp: null
     labels:
-      io.kompose.service: cs-address-service
-    name: cs-address-service
+      io.kompose.service: cs-address-service-btc
+    name: cs-address-service-btc
   spec:
     replicas: 1
     strategy: {}
@@ -117,17 +137,53 @@ items:
       metadata:
         creationTimestamp: null
         labels:
-          io.kompose.service: cs-address-service
+          io.kompose.service: cs-address-service-btc
       spec:
         containers:
         - env:
           - name: CASSANDRA_HOSTS
             value: elassandra
+          - name: CS_CHAINS_TO_PUMP
+            value: BITCOIN,BITCOIN_CASH
           - name: CS_LOG_LEVEL
             value: INFO
           - name: KAFKA_BROKERS
             value: kafka-broker:9092
-          image: cybernode/address-service:release-v1.0.0.RC1
+          image: cybernode/address-service:release-v1.0.0.RC3
+          name: address-service
+          resources: {}
+        restartPolicy: Always
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    annotations:
+      kompose.cmd: kompose convert -f chains-pumps.yml -o chains-pumps.yaml
+      kompose.version: 1.5.0 (999278f)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: cs-address-service-eth
+    name: cs-address-service-eth
+  spec:
+    replicas: 0
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: cs-address-service-eth
+      spec:
+        containers:
+        - env:
+          - name: CASSANDRA_HOSTS
+            value: elassandra
+          - name: CS_CHAINS_TO_PUMP
+            value: ETHEREUM,ETHEREUM_CLASSIC
+          - name: CS_LOG_LEVEL
+            value: INFO
+          - name: KAFKA_BROKERS
+            value: kafka-broker:9092
+          image: cybernode/address-service:release-v1.0.0.RC3
           name: address-service
           resources: {}
         restartPolicy: Always
@@ -163,7 +219,7 @@ items:
             value: INFO
           - name: KAFKA_BROKERS
             value: kafka-broker:9092
-          image: cybernode/cs-chain-pumps:release-v1.0.0.RC1
+          image: cybernode/cs-chain-pumps:release-v1.0.0.RC3
           name: pump-btc
           resources: {}
         restartPolicy: Always
@@ -199,7 +255,7 @@ items:
             value: INFO
           - name: KAFKA_BROKERS
             value: kafka-broker:9092
-          image: cybernode/cs-chain-pumps:release-v1.0.0.RC1
+          image: cybernode/cs-chain-pumps:release-v1.0.0.RC3
           name: pump-bth
           resources: {}
         restartPolicy: Always
@@ -235,7 +291,7 @@ items:
             value: kafka-broker:9092
           - name: PARITY_ETC_URL
             value: http://parity-etc:18545
-          image: cybernode/cs-chain-pumps:release-v1.0.0.RC1
+          image: cybernode/cs-chain-pumps:release-v1.0.0.RC3
           name: pump-etc
           resources: {}
         restartPolicy: Always
@@ -271,7 +327,7 @@ items:
             value: kafka-broker:9092
           - name: PARITY_ETH_URL
             value: http://parity-eth:8545
-          image: cybernode/cs-chain-pumps:release-v1.0.0.RC1
+          image: cybernode/cs-chain-pumps:release-v1.0.0.RC3
           name: pump-eth
           resources: {}
         restartPolicy: Always
