@@ -25,6 +25,8 @@ object SearchApiApplication {
                 .get("/bitcoin/address/{address}", BitcoinAddressHandler(bitcoinRepository))
                 .get("/ethereum/block/{blockNumber}", EthereumBlockHandler(ethereumRepository))
                 .get("/ethereum/tx/{txHash}", EthereumTxHandler(ethereumRepository))
+                .get("/ethereum/address/{address}", EthereumAddressHandler(ethereumRepository))
+
 
         val setCorsHeaderHandler = SetCorsHeadersHandler(httpHandler, SearchApiConfiguration.allowedCORS)
 
