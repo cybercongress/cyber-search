@@ -14,7 +14,7 @@ sealed class EthereumItem : CyberSearchItem()
 
 @Table(name = "tx")
 data class EthereumTransaction(
-        val hash: String,
+        @PartitionKey val hash: String,
         val nonce: Long,           //parsed from hex
         val block_hash: String?,   //null when its pending
         val block_number: Long,   //parsed from hex   //null when its pending
@@ -32,14 +32,17 @@ data class EthereumTransaction(
 ) : EthereumItem() {
 
     fun addressesUsedInTransaction() = listOfNotNull(from, to, creates)
+
+    //used by datastax driver to create instance via default constructor
+    private constructor() : this("", 0, "", 0, Instant.now(), 0, "", "", "", BigDecimal.ZERO, 0, 0, "", "", "")
 }
 
 
 @Table(name = "block")
 data class EthereumBlock(
+        @PartitionKey val number: Long,                   //parsed from hex
         val hash: String,
         val parent_hash: String,
-        val number: Long,                   //parsed from hex
         val timestamp: Instant,
         val sha3_uncles: String,
         val logs_bloom: String,
@@ -58,7 +61,13 @@ data class EthereumBlock(
         val block_reward: String,
         val uncles_reward: String,
         val tx_fees: String
-) : EthereumItem()
+) : EthereumItem() {
+
+    //used by datastax driver to create instance via default constructor
+    private constructor() : this(0, "", "", Instant.now(), "", "", "", "", "", "", BigInteger.ZERO, BigInteger.ZERO,
+            "", 0, 0, 0, 0, emptyList(), "", "", "")
+
+}
 
 
 @Table(name = "tx_preview_by_block")
