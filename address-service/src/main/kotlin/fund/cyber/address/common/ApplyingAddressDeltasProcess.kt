@@ -5,7 +5,7 @@ import fund.cyber.node.common.Chain
 import fund.cyber.node.common.ChainEntity
 import fund.cyber.node.kafka.ExactlyOnceKafkaConsumerRunner
 import fund.cyber.node.kafka.JsonDeserializer
-import fund.cyber.node.kafka.KafkaEvent
+import fund.cyber.node.kafka.PumpEvent
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
@@ -14,33 +14,35 @@ import java.util.*
 
 val Chain.addressCache: String get() = name + "_" + ChainEntity.ADDRESS
 
-typealias ApplyAddressDeltaFunction = (AddressDelta) -> Unit
+typealias ApplyAddressDeltaFunction<D> = (D) -> Unit
 
 private val log = LoggerFactory.getLogger(ApplyingAddressDeltasProcess::class.java)!!
 
-class ApplyingAddressDeltasProcess(
+
+//todo apply CAS and  || execution via partitions
+class ApplyingAddressDeltasProcess<D : AddressDelta>(
         private val chain: Chain,
-        private val updateAddressStateByDeltaFunction: ApplyAddressDeltaFunction
-) : ExactlyOnceKafkaConsumerRunner<KafkaEvent, AddressDelta>(listOf(chain.addressDeltaTopic)) {
+        private val addressDeltaClassType: Class<D>,
+        private val updateAddressStateByDeltaFunction: ApplyAddressDeltaFunction<D>
+) : ExactlyOnceKafkaConsumerRunner<PumpEvent, D>(listOf(chain.addressDeltaTopic)) {
 
     private var lastProcessedItemBlock = -1L
 
     private val kafkaProperties = Properties().apply {
         put("bootstrap.servers", ServiceConfiguration.kafkaBrokers)
-        put("group.id", "bitcoin-address-updates-persistence-process")
+        put("group.id", "$chain-apply-address-deltas-process")
         put("enable.auto.commit", false)
         put("isolation.level", "read_committed")
         put("auto.offset.reset", "earliest")
     }
 
     override val consumer by lazy {
-        KafkaConsumer<KafkaEvent, AddressDelta>(
-                kafkaProperties,
-                JsonDeserializer(KafkaEvent::class.java), JsonDeserializer(AddressDelta::class.java)
+        KafkaConsumer<PumpEvent, D>(
+                kafkaProperties, JsonDeserializer(PumpEvent::class.java), JsonDeserializer(addressDeltaClassType)
         )
     }
 
-    override fun processRecord(record: ConsumerRecord<KafkaEvent, AddressDelta>) {
+    override fun processRecord(record: ConsumerRecord<PumpEvent, D>) {
 
         val addressDelta = record.value()
 
@@ -54,7 +56,7 @@ class ApplyingAddressDeltasProcess(
         try {
             updateAddressStateByDeltaFunction(addressDelta)
         } catch (e: Exception) {
-            log.error("Calculating $chain addresses deltas for address ${addressDelta.address} finished with error", e)
+            log.error("Applying $chain addresses deltas for address ${addressDelta.address} finished with error", e)
             Runtime.getRuntime().exit(-1)
         }
     }

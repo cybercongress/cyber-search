@@ -1,8 +1,8 @@
 package fund.cyber.node.kafka
 
 
-enum class KafkaEvent {
-    NEW_BLOCK_TX,
+enum class PumpEvent {
+    NEW_BLOCK,
     NEW_POOL_TX,
-    DROPPED_BLOCK_TX;
+    DROPPED_BLOCK;
 }

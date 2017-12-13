@@ -11,8 +11,9 @@ data class ConvertEntityToAddressDeltaProcessParameters<T : CyberSearchItem>(
 )
 
 
-data class AddressesUpdateProcessParameters(
+data class AddressesUpdateProcessParameters<D : AddressDelta>(
         val chain: Chain,
+        val addressDeltaClassType: Class<D>,
         val convertEntityToAddressDeltaProcessesParameters: List<ConvertEntityToAddressDeltaProcessParameters<*>>,
-        val applyAddressDeltaFunction: ApplyAddressDeltaFunction
+        val applyAddressDeltaFunction: ApplyAddressDeltaFunction<D>
 )
