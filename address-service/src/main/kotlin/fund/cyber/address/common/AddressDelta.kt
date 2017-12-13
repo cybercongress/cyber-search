@@ -4,12 +4,19 @@ import fund.cyber.node.common.Chain
 import fund.cyber.node.common.ChainEntity
 import java.math.BigDecimal
 
-data class AddressDelta(
+open class AddressDelta(
+        val source: ChainEntity,
         val address: String,
-        val delta: BigDecimal,
         val blockNumber: Long,
-        val source: ChainEntity
-)
+        val balanceDelta: BigDecimal,
+        val txNumberDelta: Int
+) {
+
+    open fun reverseDelta(): AddressDelta = AddressDelta(
+            source = source, address = address, blockNumber = blockNumber,
+            balanceDelta = -balanceDelta, txNumberDelta = -txNumberDelta
+    )
+}
 
 
 val Chain.addressDeltaTopic: String get() = name + "_ADDRESS_DELTA"

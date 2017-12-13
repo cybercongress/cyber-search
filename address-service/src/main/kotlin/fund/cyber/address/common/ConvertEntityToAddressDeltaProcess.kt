@@ -6,7 +6,7 @@ import fund.cyber.node.common.awaitAll
 import fund.cyber.node.kafka.JsonDeserializer
 import fund.cyber.node.kafka.JsonSerializer
 import fund.cyber.node.kafka.KafkaConsumerRunner
-import fund.cyber.node.kafka.KafkaEvent
+import fund.cyber.node.kafka.PumpEvent
 import fund.cyber.node.model.CyberSearchItem
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -25,7 +25,7 @@ class ConvertEntityToAddressDeltaProcess<T : CyberSearchItem>(
         private val chain: Chain,
         private val parameters: ConvertEntityToAddressDeltaProcessParameters<T>,
         private val topic: String = parameters.inputTopic
-) : KafkaConsumerRunner<KafkaEvent, T>(listOf(topic)) {
+) : KafkaConsumerRunner<PumpEvent, T>(listOf(topic)) {
 
     private var lastProcessedItemBlock = -1L
 
@@ -50,9 +50,9 @@ class ConvertEntityToAddressDeltaProcess<T : CyberSearchItem>(
     }
 
     override val consumer by lazy {
-        KafkaConsumer<KafkaEvent, T>(
+        KafkaConsumer<PumpEvent, T>(
                 consumerProperties,
-                JsonDeserializer(KafkaEvent::class.java), JsonDeserializer(parameters.entityType)
+                JsonDeserializer(PumpEvent::class.java), JsonDeserializer(parameters.entityType)
         )
     }
 
@@ -62,12 +62,17 @@ class ConvertEntityToAddressDeltaProcess<T : CyberSearchItem>(
     }
 
 
-    override fun processRecord(partition: TopicPartition, record: ConsumerRecord<KafkaEvent, T>) {
+    override fun processRecord(partition: TopicPartition, record: ConsumerRecord<PumpEvent, T>) {
 
         val item = record.value() as T
-        val deltas = parameters.convertEntityToAddressDeltaFunction(item)
+        val event = record.key()
+
+        val deltas = parameters.convertEntityToAddressDeltaFunction(item).let { delta ->
+            if (event != PumpEvent.DROPPED_BLOCK) delta else delta.reversed()
+        }
 
         if (deltas.isEmpty()) return
+
 
         val blockNumber = deltas.first().blockNumber
 

@@ -1,16 +1,16 @@
 package fund.cyber.address
 
 import fund.cyber.address.bitcoin.getBitcoinAddressesUpdateProcessParameters
-import fund.cyber.address.common.AddressesUpdateProcessParameters
-import fund.cyber.address.common.ApplyingAddressDeltasProcess
-import fund.cyber.address.common.ConvertEntityToAddressDeltaProcess
+import fund.cyber.address.common.*
 import fund.cyber.address.ethereum.getEthereumAddressesUpdateProcessParameters
 import fund.cyber.cassandra.CassandraService
 import fund.cyber.cassandra.repository.BitcoinKeyspaceRepository
 import fund.cyber.cassandra.repository.EthereumKeyspaceRepository
+import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.*
+import fund.cyber.node.common.env
 import fund.cyber.node.kafka.KafkaConsumerRunner
-import fund.cyber.node.kafka.KafkaEvent
+import fund.cyber.node.kafka.PumpEvent
 import org.ehcache.CacheManager
 import org.ehcache.config.builders.CacheManagerBuilder
 import org.ehcache.xml.XmlConfiguration
@@ -31,24 +31,17 @@ object AddressServiceApplication {
 
     private fun run() {
 
+        val chainsToPump: List<Chain> = env("CS_CHAINS_TO_PUMP", "")
+                .split(",").map(String::trim).filter(String::isNotEmpty).map(Chain::valueOf)
+
         val cassandraService = CassandraService(ServiceConfiguration.cassandraServers, ServiceConfiguration.cassandraPort)
         val cacheManager = getCacheManager()
 
-        val bitcoinProcesses = listOf(BITCOIN, BITCOIN_CASH).map { chain ->
-            val repository = cassandraService.getChainRepository(chain) as BitcoinKeyspaceRepository
-            val parameters = getBitcoinAddressesUpdateProcessParameters(chain, repository, cacheManager)
-            return@map toUpdateAddressesStateProcess(parameters)
-        }.flatten()
+        val processes = chainsToPump
+                .map { chain -> chainUpdateAddressesStateProcesses(chain, cassandraService, cacheManager) }
+                .flatten()
 
-        val ethereumProcesses = listOf(ETHEREUM, ETHEREUM_CLASSIC).map { chain ->
-            val repository = cassandraService.getChainRepository(chain) as EthereumKeyspaceRepository
-            val parameters = getEthereumAddressesUpdateProcessParameters(chain, repository, cacheManager)
-            return@map toUpdateAddressesStateProcess(parameters)
-        }.flatten()
-
-        val processes = bitcoinProcesses + ethereumProcesses
-
-        val executor = Executors.newFixedThreadPool(processes.size * 2)
+        val executor = Executors.newFixedThreadPool(processes.size * 3)
         processes.forEach { process -> executor.execute(process) }
 
         Runtime.getRuntime().addShutdownHook(object : Thread() {
@@ -61,15 +54,38 @@ object AddressServiceApplication {
         })
     }
 
-    private fun toUpdateAddressesStateProcess(processParameters: AddressesUpdateProcessParameters)
-            : List<KafkaConsumerRunner<KafkaEvent, out Any>> {
+    private fun chainUpdateAddressesStateProcesses(
+            chain: Chain, cassandraService: CassandraService, cacheManager: CacheManager
+    ): List<KafkaConsumerRunner<PumpEvent, out Any>> {
+
+        return when (chain) {
+            BITCOIN, BITCOIN_CASH -> {
+                val repository = cassandraService.getChainRepository(chain) as BitcoinKeyspaceRepository
+                val parameters = getBitcoinAddressesUpdateProcessParameters(chain, repository, cacheManager)
+                toUpdateAddressesStateProcess(parameters)
+            }
+            ETHEREUM, ETHEREUM_CLASSIC -> {
+                val repository = cassandraService.getChainRepository(chain) as EthereumKeyspaceRepository
+                val parameters = getEthereumAddressesUpdateProcessParameters(chain, repository, cacheManager)
+                toUpdateAddressesStateProcess(parameters)
+            }
+            else -> emptyList()
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun toUpdateAddressesStateProcess(processParameters: AddressesUpdateProcessParameters<out AddressDelta>)
+            : List<KafkaConsumerRunner<PumpEvent, out Any>> {
 
         val chain = processParameters.chain
 
         val deltasEmitingProcesses = processParameters.convertEntityToAddressDeltaProcessesParameters
                 .map { parameters -> ConvertEntityToAddressDeltaProcess(chain, parameters) }
 
-        val applyDeltasProcess = ApplyingAddressDeltasProcess(chain, processParameters.applyAddressDeltaFunction)
+        val applyDeltasProcess = ApplyingAddressDeltasProcess(
+                chain, processParameters.addressDeltaClassType as Class<AddressDelta>,
+                processParameters.applyAddressDeltaFunction as ApplyAddressDeltaFunction<AddressDelta>
+        )
 
         return deltasEmitingProcesses + applyDeltasProcess
     }

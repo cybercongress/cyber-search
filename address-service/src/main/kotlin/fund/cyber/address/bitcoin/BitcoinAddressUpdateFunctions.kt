@@ -19,13 +19,13 @@ class BitcoinTransactionToAddressDeltaFunction : ConvertItemToAddressDeltaFuncti
 
         val addressesDeltasByIns = tx.ins.flatMap { input ->
             input.addresses.map { address ->
-                AddressDelta(address, BigDecimal(input.amount).negate(), blockNumber, TRANSACTION)
+                AddressDelta(TRANSACTION, address, blockNumber, BigDecimal(input.amount).negate(), txNumberDelta = 1)
             }
         }
 
         val addressesDeltasByOuts = tx.outs.flatMap { output ->
             output.addresses.map { address ->
-                AddressDelta(address, BigDecimal(output.amount), blockNumber, TRANSACTION)
+                AddressDelta(TRANSACTION, address, blockNumber, BigDecimal(output.amount), txNumberDelta = 1)
             }
         }
         return addressesDeltasByIns + addressesDeltasByOuts
@@ -36,7 +36,7 @@ class BitcoinTransactionToAddressDeltaFunction : ConvertItemToAddressDeltaFuncti
 class ApplyBitcoinAddressDeltaFunction(
         private val repository: BitcoinKeyspaceRepository,
         private val addressCache: Cache<String, BitcoinAddress>
-) : ApplyAddressDeltaFunction {
+) : ApplyAddressDeltaFunction<AddressDelta> {
 
     override fun invoke(addressDelta: AddressDelta) {
 
@@ -55,19 +55,19 @@ private fun nonExistingAddressFromDelta(delta: AddressDelta): BitcoinAddress {
 
     return BitcoinAddress(
             id = delta.address, confirmed_tx_number = 1,
-            confirmed_balance = delta.delta.toString(), confirmed_total_received = delta.delta
+            confirmed_balance = delta.balanceDelta.toString(), confirmed_total_received = delta.balanceDelta
     )
 }
 
 
 private fun updatedAddressByDelta(address: BitcoinAddress, addressDelta: AddressDelta): BitcoinAddress {
 
-    val sign = addressDelta.delta.signum()
+    val sign = addressDelta.balanceDelta.signum()
 
     val totalReceived =
-            if (sign > 0) address.confirmed_total_received + addressDelta.delta else address.confirmed_total_received
+            if (sign > 0) address.confirmed_total_received + addressDelta.balanceDelta else address.confirmed_total_received
 
-    val newBalance = (BigDecimal(address.confirmed_balance) + addressDelta.delta).toString()
+    val newBalance = (BigDecimal(address.confirmed_balance) + addressDelta.balanceDelta).toString()
 
     return BitcoinAddress(
             id = address.id, confirmed_tx_number = address.confirmed_tx_number + 1,
