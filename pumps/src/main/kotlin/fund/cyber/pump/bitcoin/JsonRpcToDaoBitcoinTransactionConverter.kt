@@ -111,7 +111,7 @@ class JsonRpcToDaoBitcoinTransactionConverter {
                 hash = jsonRpcTransaction.txid, block_number = jsonRpcBlock.height,
                 coinbase = firstInput.coinbase, fee = "0", block_hash = jsonRpcBlock.hash,
                 block_time = Instant.ofEpochSecond(jsonRpcBlock.time),
-                ins = emptyList(), total_input = "0",
+                ins = emptyList(), total_input = outputs.sumByBigDecimalString { out -> out.amount }.toString(),
                 outs = outputs, total_output = "0", size = jsonRpcTransaction.size
         )
     }

@@ -52,8 +52,8 @@ data class BitcoinBlockTransaction(
 */
 @Table(name = "block")
 data class BitcoinBlock(
+        @PartitionKey val height: Long,
         val hash: String,
-        val height: Long,
         val time: Instant,
         val nonce: Long,
         val merkleroot: String,
@@ -65,7 +65,11 @@ data class BitcoinBlock(
         val tx_number: Int,
         val total_outputs_value: String,
         @Transient val transactionPreviews: List<BitcoinBlockTransaction> = emptyList()
-) : BitcoinItem()
+) : BitcoinItem() {
+
+    //used by datastax driver to create instance via default constructor
+    private constructor() : this(0, "", Instant.now(), 0, "", 0, 0, 0, "", BigInteger.ZERO, 0, "")
+}
 
 
 /*
@@ -75,7 +79,7 @@ data class BitcoinBlock(
 */
 @Table(name = "tx")
 data class BitcoinTransaction(
-        val hash: String,
+        @PartitionKey val hash: String,
         val block_number: Long,
         val block_hash: String,
         val coinbase: String? = null,
@@ -91,6 +95,9 @@ data class BitcoinTransaction(
     fun getOutputByNumber(number: Int) = outs.find { out -> out.out == number }!!
 
     fun allAddressesUsedInTransaction() = ins.flatMap { input -> input.addresses } + outs.flatMap { output -> output.addresses }
+
+    //used by datastax driver to create instance via default constructor
+    private constructor() : this("", 0, "", "", Instant.now(), 0, "", "", "", emptyList(), emptyList())
 }
 
 
