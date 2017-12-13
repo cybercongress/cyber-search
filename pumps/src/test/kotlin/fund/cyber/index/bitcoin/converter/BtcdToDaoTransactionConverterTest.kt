@@ -22,7 +22,7 @@ val expectedDaoCoinbaseTransactionOut = BitcoinTransactionOut(
 val expectedDaoCoinbaseTransaction = BitcoinTransaction(
         hash = "8c14f0db3df150123e6f3dbbf30f8b955a8249b62ac1d1ff16284aefa3d06d87", size = 135,
         coinbase = "044c86041b020602", fee = "0",
-        total_output = "0", total_input = "0", ins = emptyList(),
+        total_output = "50", total_input = "0", ins = emptyList(),
         block_number = 100000, outs = listOf(expectedDaoCoinbaseTransactionOut),
         block_time = Instant.ofEpochSecond(1293623863),
         block_hash = "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506"
