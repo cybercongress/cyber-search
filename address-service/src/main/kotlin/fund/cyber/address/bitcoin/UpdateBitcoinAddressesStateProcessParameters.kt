@@ -1,5 +1,6 @@
 package fund.cyber.address.bitcoin
 
+import fund.cyber.address.common.AddressDelta
 import fund.cyber.address.common.AddressesUpdateProcessParameters
 import fund.cyber.address.common.ConvertEntityToAddressDeltaProcessParameters
 import fund.cyber.address.common.addressCache
@@ -14,7 +15,7 @@ import org.ehcache.CacheManager
 
 fun getBitcoinAddressesUpdateProcessParameters(
         chain: Chain, keyspaceRepository: BitcoinKeyspaceRepository, cacheManager: CacheManager
-): AddressesUpdateProcessParameters {
+): AddressesUpdateProcessParameters<AddressDelta> {
 
     val transactionToAddressDeltaProcessesParameters = ConvertEntityToAddressDeltaProcessParameters(
             entityType = BitcoinTransaction::class.java,
@@ -26,7 +27,8 @@ fun getBitcoinAddressesUpdateProcessParameters(
     val applyAddressDeltaFunction = ApplyBitcoinAddressDeltaFunction(keyspaceRepository, addressCache)
 
     return AddressesUpdateProcessParameters(
-            chain = chain, applyAddressDeltaFunction = applyAddressDeltaFunction,
+            chain = chain, addressDeltaClassType = AddressDelta::class.java,
+            applyAddressDeltaFunction = applyAddressDeltaFunction,
             convertEntityToAddressDeltaProcessesParameters = listOf(transactionToAddressDeltaProcessesParameters)
     )
 }

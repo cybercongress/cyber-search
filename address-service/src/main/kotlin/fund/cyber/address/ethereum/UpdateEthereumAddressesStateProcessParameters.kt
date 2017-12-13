@@ -17,7 +17,7 @@ import org.ehcache.CacheManager
 
 fun getEthereumAddressesUpdateProcessParameters(
         chain: Chain, keyspaceRepository: EthereumKeyspaceRepository, cacheManager: CacheManager
-): AddressesUpdateProcessParameters {
+`): AddressesUpdateProcessParameters<EthereumAddressDelta> {
 
     val transactionToAddressDeltaProcessesParameters = ConvertEntityToAddressDeltaProcessParameters(
             entityType = EthereumTransaction::class.java,
@@ -47,7 +47,8 @@ fun getEthereumAddressesUpdateProcessParameters(
     val applyAddressDeltaFunction = ApplyEthereumAddressDeltaFunction(keyspaceRepository, addressCache)
 
     return AddressesUpdateProcessParameters(
-            chain = chain, applyAddressDeltaFunction = applyAddressDeltaFunction,
+            chain = chain, addressDeltaClassType = EthereumAddressDelta::class.java,
+            applyAddressDeltaFunction = applyAddressDeltaFunction,
             convertEntityToAddressDeltaProcessesParameters = deltasEmitingProcessesParameters
     )
 }

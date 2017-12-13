@@ -16,13 +16,14 @@ class EthereumTransactionToAddressDeltaFunction : ConvertItemToAddressDeltaFunct
 
         val blockNumber = tx.block_number
 
-        val addressDeltaByInput = AddressDelta(
-                address = tx.input, blockNumber = blockNumber,
-                delta = tx.value.toBigDecimal().negate(), source = TRANSACTION
+         val addressDeltaByInput = EthereumAddressDelta(
+                address = tx.from, blockNumber = blockNumber, txNumberDelta = 1,
+                balanceDelta = tx.value.toBigDecimal().negate(), source = TRANSACTION
         )
 
-        val addressDeltaByOutput = AddressDelta(
-                address = tx.input, blockNumber = blockNumber, delta = tx.value.toBigDecimal().negate(),
+        val addressDeltaByOutput = EthereumAddressDelta(
+                address = (tx.to ?: tx.creates)!!, blockNumber = blockNumber, txNumberDelta = 1,
+                balanceDelta = tx.value.toBigDecimal().negate(),
                 source = if (tx.creates != null) CONTRACT else TRANSACTION
         )
 
@@ -34,9 +35,9 @@ class EthereumTransactionToAddressDeltaFunction : ConvertItemToAddressDeltaFunct
 class EthereumUncleToAddressDeltaFunction : ConvertItemToAddressDeltaFunction<EthereumUncle> {
 
     override fun invoke(uncle: EthereumUncle): List<AddressDelta> {
-        val delta = AddressDelta(
-                address = uncle.miner, delta = BigDecimal(uncle.uncle_reward),
-                blockNumber = uncle.block_number, source = UNCLE
+        val delta = EthereumAddressDelta(
+                address = uncle.miner, balanceDelta = BigDecimal(uncle.uncle_reward), source = UNCLE,
+                blockNumber = uncle.block_number, uncleNumberDelta = 1
         )
         return listOf(delta)
     }
@@ -48,8 +49,9 @@ class EthereumMinedBlockToAddressDeltaFunction : ConvertItemToAddressDeltaFuncti
 
         val finalReward = block.block_reward + block.tx_fees + block.uncles_reward
 
-        val delta = AddressDelta(
-                address = block.miner, delta = finalReward, blockNumber = block.block_number, source = BLOCK
+        val delta = EthereumAddressDelta(
+                address = block.miner, balanceDelta = finalReward, blockNumber = block.block_number,
+                source = BLOCK, minedBlockNumberDelta = 1
         )
         return listOf(delta)
     }
