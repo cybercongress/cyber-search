@@ -16,6 +16,9 @@ interface BitcoinKeyspaceRepositoryAccessor {
 
     @Query("SELECT * FROM tx_preview_by_address where address=? limit 20")
     fun addressTransactions(address: String): ListenableFuture<Result<BitcoinAddressTransaction>>
+
+    @Query("SELECT * FROM tx_preview_by_block where block_number=? limit 20")
+    fun blockTransactions(block_number: Long): ListenableFuture<Result<BitcoinBlockTransaction>>
 }
 
 

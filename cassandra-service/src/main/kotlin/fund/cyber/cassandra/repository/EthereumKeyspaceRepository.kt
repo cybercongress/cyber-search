@@ -10,6 +10,7 @@ import fund.cyber.cassandra.model.keyspace
 import fund.cyber.node.common.Chain
 import fund.cyber.node.model.EthereumAddress
 import fund.cyber.node.model.EthereumAddressTxPreview
+import fund.cyber.node.model.EthereumBlockTxPreview
 
 
 @Accessor
@@ -17,6 +18,9 @@ interface EthereumKeyspaceRepositoryAccessor {
 
     @Query("SELECT * FROM tx_preview_by_address where address=? limit 20")
     fun addressTransactions(address: String): ListenableFuture<Result<EthereumAddressTxPreview>>
+
+    @Query("SELECT * FROM tx_preview_by_block where block_number=? limit 20")
+    fun blockTransactions(block_number: Long): ListenableFuture<Result<EthereumBlockTxPreview>>
 }
 
 class EthereumKeyspaceRepository(
