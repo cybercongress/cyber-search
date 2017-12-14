@@ -32,9 +32,9 @@ data class BitcoinAddressTransaction(
 
 @Table(name = "tx_preview_by_block")
 data class BitcoinBlockTransaction(
+        @PartitionKey val block_number: Long,
         val hash: String,
         val index: Int,                     //specify tx number(order) in block
-        val block_number: Long,
         val fee: BigDecimal,
         val ins: List<BitcoinTransactionPreviewIO>,
         val outs: List<BitcoinTransactionPreviewIO>
