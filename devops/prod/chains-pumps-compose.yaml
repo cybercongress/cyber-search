@@ -149,7 +149,7 @@ items:
             value: INFO
           - name: KAFKA_BROKERS
             value: kafka-broker:9092
-          image: cybernode/address-service:release-v1.0.0.RC3
+          image: cybernode/address-service:release-v1.0.0.RC5
           name: address-service
           resources: {}
         restartPolicy: Always
@@ -165,7 +165,7 @@ items:
       io.kompose.service: cs-address-service-eth
     name: cs-address-service-eth
   spec:
-    replicas: 0
+    replicas: 1
     strategy: {}
     template:
       metadata:
@@ -183,7 +183,7 @@ items:
             value: INFO
           - name: KAFKA_BROKERS
             value: kafka-broker:9092
-          image: cybernode/address-service:release-v1.0.0.RC3
+          image: cybernode/address-service:release-v1.0.0.RC5
           name: address-service
           resources: {}
         restartPolicy: Always
@@ -219,7 +219,7 @@ items:
             value: INFO
           - name: KAFKA_BROKERS
             value: kafka-broker:9092
-          image: cybernode/cs-chain-pumps:release-v1.0.0.RC3
+          image: cybernode/cs-chain-pumps:release-v1.0.0.RC5
           name: pump-btc
           resources: {}
         restartPolicy: Always
@@ -255,7 +255,7 @@ items:
             value: INFO
           - name: KAFKA_BROKERS
             value: kafka-broker:9092
-          image: cybernode/cs-chain-pumps:release-v1.0.0.RC3
+          image: cybernode/cs-chain-pumps:release-v1.0.0.RC5
           name: pump-bth
           resources: {}
         restartPolicy: Always
@@ -291,7 +291,7 @@ items:
             value: kafka-broker:9092
           - name: PARITY_ETC_URL
             value: http://parity-etc:18545
-          image: cybernode/cs-chain-pumps:release-v1.0.0.RC3
+          image: cybernode/cs-chain-pumps:release-v1.0.0.RC5
           name: pump-etc
           resources: {}
         restartPolicy: Always
@@ -327,7 +327,7 @@ items:
             value: kafka-broker:9092
           - name: PARITY_ETH_URL
             value: http://parity-eth:8545
-          image: cybernode/cs-chain-pumps:release-v1.0.0.RC3
+          image: cybernode/cs-chain-pumps:release-v1.0.0.RC5
           name: pump-eth
           resources: {}
         restartPolicy: Always
