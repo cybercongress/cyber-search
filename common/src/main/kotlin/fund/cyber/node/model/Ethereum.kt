@@ -98,7 +98,7 @@ data class EthereumAddress(
 
 @Table(name = "tx_preview_by_address")
 data class EthereumAddressTxPreview(
-        val address: String,
+        @PartitionKey val address: String,
         val fee: String,
         val block_time: Instant,
         val hash: String,

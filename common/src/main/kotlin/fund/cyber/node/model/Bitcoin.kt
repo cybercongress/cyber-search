@@ -5,7 +5,6 @@ import com.datastax.driver.mapping.annotations.Table
 import com.datastax.driver.mapping.annotations.Transient
 import com.datastax.driver.mapping.annotations.UDT
 import java.math.BigDecimal
-import java.math.BigDecimal.ZERO
 import java.math.BigInteger
 import java.time.Instant
 
@@ -21,7 +20,7 @@ data class BitcoinTransactionPreviewIO(
 
 @Table(name = "tx_preview_by_address")
 data class BitcoinAddressTransaction(
-        val address: String,
+        @PartitionKey val address: String,
         val fee: BigDecimal,
         val block_number: Long,
         val block_time: Instant,
