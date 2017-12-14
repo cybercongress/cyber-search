@@ -16,10 +16,7 @@ sealed class BitcoinItem : CyberSearchItem()
 data class BitcoinTransactionPreviewIO(
         val addresses: List<String>,
         val amount: String
-) {
-    //used by datastax driver to create instance via default constructor
-    private constructor() : this(emptyList(), "")
-}
+)
 
 
 @Table(name = "tx_preview_by_address")
@@ -65,11 +62,7 @@ data class BitcoinBlock(
         val tx_number: Int,
         val total_outputs_value: String,
         @Transient val transactionPreviews: List<BitcoinBlockTransaction> = emptyList()
-) : BitcoinItem() {
-
-    //used by datastax driver to create instance via default constructor
-    private constructor() : this(0, "", Instant.now(), 0, "", 0, 0, 0, "", BigInteger.ZERO, 0, "")
-}
+) : BitcoinItem()
 
 
 /*
@@ -95,9 +88,6 @@ data class BitcoinTransaction(
     fun getOutputByNumber(number: Int) = outs.find { out -> out.out == number }!!
 
     fun allAddressesUsedInTransaction() = ins.flatMap { input -> input.addresses } + outs.flatMap { output -> output.addresses }
-
-    //used by datastax driver to create instance via default constructor
-    private constructor() : this("", 0, "", "", Instant.now(), 0, "", "", "", emptyList(), emptyList())
 }
 
 
@@ -108,11 +98,7 @@ data class BitcoinTransactionIn(
         val asm: String,
         val tx_id: String,
         val tx_out: Int
-) {
-
-    //used by datastax driver to create instance via default constructor
-    private constructor() : this(emptyList(), "0", "", "", 0)
-}
+)
 
 
 @UDT(name = "tx_out")
@@ -122,12 +108,7 @@ data class BitcoinTransactionOut(
         val asm: String,
         val out: Int,
         val required_signatures: Int
-) {
-
-    //used by datastax driver to create instance via default constructor
-    private constructor() : this(emptyList(), "0", "", 0, 1)
-}
-
+)
 
 @Table(name = "address")
 data class BitcoinAddress(
@@ -136,7 +117,4 @@ data class BitcoinAddress(
         val confirmed_total_received: BigDecimal,
         val confirmed_tx_number: Int,
         val unconfirmed_tx_values: Map<String, BigDecimal> = emptyMap()
-) : BitcoinItem() {
-    //used by datastax driver to create instance via default constructor
-    private constructor() : this("", "", ZERO, 0, emptyMap())
-}
+) : BitcoinItem()
