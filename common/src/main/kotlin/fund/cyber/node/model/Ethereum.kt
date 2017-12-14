@@ -32,9 +32,6 @@ data class EthereumTransaction(
 ) : EthereumItem() {
 
     fun addressesUsedInTransaction() = listOfNotNull(from, to, creates)
-
-    //used by datastax driver to create instance via default constructor
-    private constructor() : this("", 0, "", 0, Instant.now(), 0, "", "", "", BigDecimal.ZERO, 0, 0, "", "", "")
 }
 
 
@@ -61,13 +58,7 @@ data class EthereumBlock(
         val block_reward: String,
         val uncles_reward: String,
         val tx_fees: String
-) : EthereumItem() {
-
-    //used by datastax driver to create instance via default constructor
-    private constructor() : this(0, "", "", Instant.now(), "", "", "", "", "", "", BigInteger.ZERO, BigInteger.ZERO,
-            "", 0, 0, 0, 0, emptyList(), "", "", "")
-
-}
+) : EthereumItem()
 
 
 @Table(name = "tx_preview_by_block")
@@ -102,10 +93,7 @@ data class EthereumAddress(
         val tx_number: Int,
         val uncle_number: Int,
         val mined_block_number: Int
-) : EthereumItem() {
-
-    constructor() : this("", "", false, "", 0, 0, 0, 0)
-}
+) : EthereumItem()
 
 
 @Table(name = "tx_preview_by_address")

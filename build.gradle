@@ -1,7 +1,7 @@
 /* Gradle plugins part */
 buildscript {
     ext {
-        kotlinVersion = "1.2.0"
+        kotlinVersion = "1.2.10"
         kotlinCoroutinesVersion = "0.19.3"
         jacksonVersion = "2.9.2"
         undertowVersion = "1.4.20.Final"
@@ -36,6 +36,7 @@ buildscript {
 
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath "org.jetbrains.kotlin:kotlin-noarg:$kotlinVersion"
         classpath("io.spring.gradle:dependency-management-plugin:$dependencyPluginVersion")
         classpath("org.junit.platform:junit-platform-gradle-plugin:$junitPlatformVersion")
         classpath("com.github.jengelman.gradle.plugins:shadow:$shadowPluginVersion")
@@ -46,6 +47,7 @@ task wrapper(type: Wrapper) {
     gradleVersion = '4.3.1'
     distributionType = Wrapper.DistributionType.ALL
 }
+
 
 
 subprojects {
@@ -118,6 +120,13 @@ subprojects {
 
 
 project(":common") {
+
+    apply plugin: "kotlin-noarg"
+
+    noArg {
+        annotation("com.datastax.driver.mapping.annotations.Table")
+    }
+
     dependencies {
         compile("org.slf4j:slf4j-api")
         compile("ch.qos.logback:logback-classic")
