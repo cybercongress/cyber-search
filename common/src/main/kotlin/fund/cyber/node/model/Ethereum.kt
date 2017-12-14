@@ -63,7 +63,7 @@ data class EthereumBlock(
 
 @Table(name = "tx_preview_by_block")
 data class EthereumBlockTxPreview(
-        val block_number: Long,
+        @PartitionKey val block_number: Long,
         val index: Int,
         val fee: String,
         val value: String,
@@ -116,7 +116,7 @@ data class EthereumAddressTxPreview(
 
 @Table(name = "mined_block_by_address")
 data class EthereumAddressMinedBlock(
-        val miner: String,
+        @PartitionKey val miner: String,
         val block_number: Long,
         val block_time: Instant,
         val block_reward: BigDecimal,
@@ -134,18 +134,28 @@ data class EthereumAddressMinedBlock(
 
 @Table(name = "uncle")
 data class EthereumUncle(
-        val hash: String, val position: Int,
-        val number: Long, val timestamp: Instant,
-        val block_number: Long, val block_time: Instant, val block_hash: String,
-        val miner: String, val uncle_reward: String
+        @PartitionKey val hash: String,
+        val position: Int,
+        val number: Long,
+        val timestamp: Instant,
+        val block_number: Long,
+        val block_time: Instant,
+        val block_hash: String,
+        val miner: String,
+        val uncle_reward: String
 ) : EthereumItem()
 
 @Table(name = "uncle_by_address")
 data class EthereumAddressUncle(
-        val hash: String, val position: Int,
-        val number: Long, val timestamp: Instant,
-        val block_number: Long, val block_time: Instant, val block_hash: String,
-        val miner: String, val uncle_reward: String
+        @PartitionKey val miner: String,
+        val hash: String,
+        val position: Int,
+        val number: Long,
+        val timestamp: Instant,
+        val block_number: Long,
+        val block_time: Instant,
+        val block_hash: String,
+        val uncle_reward: String
 ) : EthereumItem() {
     constructor(uncle: EthereumUncle) : this(
             hash = uncle.hash, position = uncle.position,
