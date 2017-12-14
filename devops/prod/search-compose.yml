@@ -5,7 +5,7 @@ services:
     container_name: search-api
     ports:
       - 80:10300
-    image: cybernode/cs-search-api:release-v1.0.0.RC5
+    image: cybernode/cs-search-api:release-v1.0.0.RC6
     restart: unless-stopped
     environment:
       CASSANDRA_HOSTS: elassandra
@@ -20,7 +20,7 @@ services:
       - 80:80
     environment:
       CYBER_CHAINGEAR_API: http://staging.cyber.fund:32600
-      CYBER_SEARCH_API: http://search.cyber.fund/api
+      CYBER_SEARCH_API: http://api.search.cyber.fund
       CYBER_MARKETS_API: http://staging.cyber.fund:32800
     labels:
       kompose.service.type: loadbalancer
