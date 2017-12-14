@@ -70,7 +70,7 @@ items:
             value: '*'
           - name: CS_LOG_LEVEL
             value: INFO
-          image: cybernode/cs-search-api:release-v1.0.0.RC5
+          image: cybernode/cs-search-api:release-v1.0.0.RC6
           name: search-api
           ports:
           - containerPort: 10300
@@ -104,7 +104,7 @@ items:
           - name: CYBER_MARKETS_API
             value: http://staging.cyber.fund:32800
           - name: CYBER_SEARCH_API
-            value: http://search.cyber.fund/api
+            value: http://api.search.cyber.fund
           image: cybernode/cui-browser:latest
           name: cyber-ui
           ports:
