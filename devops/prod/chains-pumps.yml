@@ -3,7 +3,7 @@ services:
 
   cs-chain-pumps-btc:
     container_name: pump-btc
-    image: cybernode/cs-chain-pumps:release-v1.0.0.RC3
+    image: cybernode/cs-chain-pumps:release-v1.0.0.RC5
     restart: unless-stopped
     environment:
       CASSANDRA_HOSTS: elassandra
@@ -14,7 +14,7 @@ services:
 
   cs-chain-pumps-bth:
     container_name: pump-bth
-    image: cybernode/cs-chain-pumps:release-v1.0.0.RC3
+    image: cybernode/cs-chain-pumps:release-v1.0.0.RC5
     restart: unless-stopped
     environment:
       CASSANDRA_HOSTS: elassandra
@@ -25,7 +25,7 @@ services:
 
   cs-chain-pumps-eth:
     container_name: pump-eth
-    image: cybernode/cs-chain-pumps:release-v1.0.0.RC3
+    image: cybernode/cs-chain-pumps:release-v1.0.0.RC5
     restart: unless-stopped
     environment:
       CASSANDRA_HOSTS: elassandra
@@ -36,7 +36,7 @@ services:
 
   cs-chain-pumps-etc:
     container_name: pump-etc
-    image: cybernode/cs-chain-pumps:release-v1.0.0.RC3
+    image: cybernode/cs-chain-pumps:release-v1.0.0.RC5
     restart: on-failure
     environment:
       CASSANDRA_HOSTS: elassandra
@@ -47,7 +47,7 @@ services:
 
   cs-address-service-btc:
     container_name: address-service
-    image: cybernode/address-service:release-v1.0.0.RC3
+    image: cybernode/address-service:release-v1.0.0.RC5
     restart: unless-stopped
     environment:
       CS_CHAINS_TO_PUMP: BITCOIN,BITCOIN_CASH
@@ -57,7 +57,7 @@ services:
 
   cs-address-service-eth:
     container_name: address-service
-    image: cybernode/address-service:release-v1.0.0.RC3
+    image: cybernode/address-service:release-v1.0.0.RC5
     restart: unless-stopped
     environment:
       CS_CHAINS_TO_PUMP: ETHEREUM,ETHEREUM_CLASSIC
