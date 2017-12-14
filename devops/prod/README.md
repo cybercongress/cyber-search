@@ -24,6 +24,11 @@ kubectl apply -f chains-services.yaml
 ```
 
 ```bash
-kompose convert -f chains-pumps.yml -o chains-pumps.yaml
+kompose convert -f chains-pumps-compose.yml -o chains-pumps-services.yaml
 kubectl apply -f chains-pumps.yaml
+```
+
+```bash
+kompose convert -f search-compose.yml -o search-services.yaml
+kubectl apply -f search-services.yaml
 ```
