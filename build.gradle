@@ -125,6 +125,7 @@ project(":common") {
 
     noArg {
         annotation("com.datastax.driver.mapping.annotations.Table")
+        annotation("com.datastax.driver.mapping.annotations.UDT")
     }
 
     dependencies {
