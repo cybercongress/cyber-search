@@ -94,7 +94,7 @@ open class EthereumBlockchainInterface(
                             block_time = Instant.now(),
                             hash = parityTx.hash,
                             block_hash = null,//parityBlock.hash,
-                            block_number = null,//parityBlock.numberRaw.hexToLong(),
+                            block_number = 0,//parityBlock.numberRaw.hexToLong(),
                             creates = parityTx.creates, input = parityTx.input,
                             transaction_index = parityTx.transactionIndexRaw.hexToLong(),
                             gas_limit = parityTx.transactionIndexRaw.hexToLong(),//parityTx.ga parityBlock.gasLimitRaw.hexToLong(),
