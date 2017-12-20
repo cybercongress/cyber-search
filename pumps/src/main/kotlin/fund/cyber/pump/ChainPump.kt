@@ -1,6 +1,8 @@
 package fund.cyber.pump
 
 import fund.cyber.node.common.StackCache
+import io.reactivex.Flowable
+import io.reactivex.rxkotlin.toFlowable
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KFunction0
@@ -41,7 +43,7 @@ class ChainPump<in T : BlockBundle>(
 
     private fun registerStorageActionFactories(storage: StorageInterface) {
         storageActionsFactories.forEach { actionSourceFactory ->
-            storage.registerStorageActionSourceFactory(blockchainInterface.chain, actionSourceFactory)
+            storage.setStorageActionSourceFactoryFor(blockchainInterface.chain, actionSourceFactory)
         }
     }
 

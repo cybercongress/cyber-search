@@ -6,15 +6,19 @@ import fund.cyber.node.common.Chain
 import fund.cyber.node.common.Chain.ETHEREUM
 import fund.cyber.node.common.await
 import fund.cyber.node.common.env
+import fund.cyber.node.common.hexToLong
 import fund.cyber.node.model.*
 import fund.cyber.pump.BlockBundle
 import fund.cyber.pump.BlockchainInterface
 import fund.cyber.pump.PumpsContext
+import fund.cyber.pump.TxPoolInterface
 import org.apache.http.impl.client.CloseableHttpClient
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameter
 import org.web3j.protocol.http.HttpService
+import java.math.BigDecimal
 import java.math.BigInteger
+import java.time.Instant
 
 class EthereumBlockBundle(
         override val hash: String,
@@ -52,7 +56,7 @@ open class EthereumBlockchainInterface(
         network: Chain = ETHEREUM,
         httpClient: CloseableHttpClient = PumpsContext.httpClient
 
-) : BlockchainInterface<EthereumBlockBundle>, Migratory {
+) : BlockchainInterface<EthereumBlockBundle>, Migratory, TxPoolInterface<EthereumTransaction> {
 
     override val migrations: List<Migration> = EthereumMigrations.migrations
     override val chain: Chain = network
@@ -70,7 +74,7 @@ open class EthereumBlockchainInterface(
         val ethBlock = parityClient.ethGetBlockByNumber(blockParameter, true).send()
 
         val unclesFutures = ethBlock.block.uncles.mapIndexed { index, _ ->
-            parityClient.ethGetUncleByBlockHashAndIndex(ethBlock.block.hash, index.toBigInteger()).sendAsync()
+            parityClient.ethGetUncleByBlockHashAndIndex(ethBlock.block.hash, BigInteger.valueOf(index.toLong())).sendAsync()
         }
         val uncles = unclesFutures.await().map { uncleEthBlock -> uncleEthBlock.block }
 
@@ -78,4 +82,27 @@ open class EthereumBlockchainInterface(
     }
 
     private fun blockParameter(blockNumber: BigInteger) = DefaultBlockParameter.valueOf(blockNumber)!!
+    private val weiToEthRate = BigDecimal("1E-18")
+
+    override fun onNewTransaction(action: (EthereumTransaction)->Unit) {
+        parityClient.pendingTransactionObservable()
+                .subscribe { parityTx ->
+
+                    action(EthereumTransaction(
+                            from = parityTx.from, to = parityTx.to, nonce = parityTx.nonce.toLong(),
+                            value = (BigDecimal(parityTx.value) * weiToEthRate).toString(),
+                            block_time = Instant.now(),
+                            hash = parityTx.hash,
+                            block_hash = null,//parityBlock.hash,
+                            block_number = null,//parityBlock.numberRaw.hexToLong(),
+                            creates = parityTx.creates, input = parityTx.input,
+                            transaction_index = parityTx.transactionIndexRaw.hexToLong(),
+                            gas_limit = parityTx.transactionIndexRaw.hexToLong(),//parityTx.ga parityBlock.gasLimitRaw.hexToLong(),
+                            gas_used = parityTx.transactionIndexRaw.hexToLong(),
+                            gas_price = BigDecimal(parityTx.gasPrice) * weiToEthRate,
+                            fee = (BigDecimal(parityTx.gasPrice * parityTx.gas) * weiToEthRate).toString()
+                    ))
+//                    action(parityToBundleConverter.)
+                }
+    }
 }

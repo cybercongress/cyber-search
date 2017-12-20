@@ -4,7 +4,7 @@ import fund.cyber.node.common.Chain
 
 interface StorageInterface {
     fun initialize(blockchainInterface: BlockchainInterface<*>)
-    fun registerStorageActionSourceFactory(chain: Chain, actionSourceFactory: StorageActionSourceFactory)
+    fun setStorageActionSourceFactoryFor(chain: Chain, actionSourceFactory: StorageActionSourceFactory)
     fun constructAction(blockBundle: BlockBundle): StorageAction
 }
 

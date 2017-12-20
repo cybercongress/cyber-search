@@ -25,7 +25,7 @@ class ElassandraStorage(
     private val actionFactories = mutableMapOf<Chain, CassandraStorageActionSourceFactory<BlockBundle>>()
 
     @Suppress("UNCHECKED_CAST")
-    override fun registerStorageActionSourceFactory(chain: Chain, actionSourceFactory: StorageActionSourceFactory) {
+    override fun setStorageActionSourceFactoryFor(chain: Chain, actionSourceFactory: StorageActionSourceFactory) {
         if (actionSourceFactory is CassandraStorageActionSourceFactory<*>) {
             actionFactories.put(chain, actionSourceFactory as CassandraStorageActionSourceFactory<BlockBundle>)
         }
