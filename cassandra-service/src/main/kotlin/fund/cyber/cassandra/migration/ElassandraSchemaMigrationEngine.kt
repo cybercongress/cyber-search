@@ -38,7 +38,7 @@ class ElassandraSchemaMigrationEngine(
 
         defaultMigrations.plus(migrations).groupBy { m -> m.applicationId }.forEach { applicationId, applicationMigrations ->
 
-            val lastMigrationVersion = systemKeyspaceRepository.getLastMigration(applicationId)?.version ?: -1
+            val lastMigrationVersion = systemKeyspaceRepository.getLastMigration(applicationId)?.version ?: -2
 
             applicationMigrations
                     .filter { migration -> migration.version > lastMigrationVersion }

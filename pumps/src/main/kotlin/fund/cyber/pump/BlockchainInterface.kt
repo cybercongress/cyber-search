@@ -10,8 +10,7 @@ interface Blockchain {
 }
 
 
-//todo move migratory outside here??
-interface BlockchainInterface<out T : BlockBundle> : Blockchain, Migratory {
+interface BlockchainInterface<out T : BlockBundle> : Blockchain {
     fun lastNetworkBlock(): Long
     fun blockBundleByNumber(number: Long): T
 }
@@ -24,4 +23,9 @@ interface BlockBundle {
 
     //todo make a list instead of map
     fun elementsMap(): Map<Class<CyberSearchItem>, List<CyberSearchItem>> = emptyMap()
+}
+
+
+interface TxPoolInterface<out T: CyberSearchItem> {
+    fun onNewTransaction(action: (T)->Unit)
 }

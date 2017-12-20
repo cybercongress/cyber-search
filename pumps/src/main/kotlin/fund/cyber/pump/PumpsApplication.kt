@@ -16,52 +16,81 @@ private val log = LoggerFactory.getLogger(PumpsApplication::class.java)!!
 object PumpsApplication {
 
     private val storages: List<StorageInterface> = listOf(
-            PumpsContext.elassandraStorage, PumpsContext.kafkaStorage
+            PumpsContext.elassandraStorage//, PumpsContext.kafkaStorage
     )
+    private val stateStorage = PumpsContext.elassandraStorage
 
     @JvmStatic
     fun main(args: Array<String>) {
         try {
-            PumpsConfiguration.chainsToPump.forEach { chain -> startChainPumper(chain) }
+            PumpsConfiguration.chainsToPump.forEach { chain ->
+                val blockchainInterface = this.blockchainInterfaceFor(chain)
+
+                this.storages.forEach { storage ->
+                    storage.initialize(blockchainInterface)
+
+                    this.actionTemplateFactoriesFor(chain).forEach { actionTemplateFactory ->
+                        storage.setStorageActionSourceFactoryFor(chain, actionTemplateFactory)
+                    }
+                }
+
+                chainPumpFor(blockchainInterface, this.storages).start()
+            }
         } catch (e: Exception) {
             log.error("Error during start pump application", e)
             PumpsContext.closeContext()
         }
     }
 
-    private fun startChainPumper(chain: Chain) {
-        when (chain) {
+    private fun chainPumpFor(blockchainInterface: BlockchainInterface<*>, storages: List<StorageInterface>) =
+            EventDrivenChainPump(
+                    blockchainInterface,
+                    storages,
+                    PumpsContext.elassandraStorage
+            )
+
+    private fun actionTemplateFactoriesFor(chain: Chain): List<StorageActionSourceFactory> {
+        return when (chain) {
             BITCOIN -> {
-                val actionTemplateFactories = listOf(
+                listOf(
                         SimpleCassandraActionSourceFactory(),
                         BitcoinKafkaStorageActionTemplateFactory(chain)
                 )
-                val flowableInterface = ConcurrentPulledBlockchain(BitcoinBlockchainInterface())
-                getChainPumper(flowableInterface, actionTemplateFactories).start()
             }
             BITCOIN_CASH -> {
-                val actionTemplateFactories = listOf(
+                listOf(
                         SimpleCassandraActionSourceFactory(),
                         BitcoinKafkaStorageActionTemplateFactory(chain)
                 )
-                val flowableInterface = ConcurrentPulledBlockchain(BitcoinCashBlockchainInterface())
-                getChainPumper(flowableInterface, actionTemplateFactories).start()
             }
             ETHEREUM -> {
-                val actionTemplateFactories = listOf(
+                listOf(
                         SimpleCassandraActionSourceFactory(),
                         EthereumKafkaStorageActionTemplateFactory(chain)
                 )
-                val flowableInterface = ConcurrentPulledBlockchain(EthereumBlockchainInterface())
-                getChainPumper(flowableInterface, actionTemplateFactories).start()
             }
             ETHEREUM_CLASSIC -> {
-                val actionTemplateFactories = listOf(
+                listOf(
                         SimpleCassandraActionSourceFactory(),
                         EthereumKafkaStorageActionTemplateFactory(chain)
                 )
-                val flowableInterface = ConcurrentPulledBlockchain(EthereumClassicBlockchainInterface())
-                getChainPumper(flowableInterface, actionTemplateFactories).start()
+            }
+        }
+    }
+
+    private fun blockchainInterfaceFor(chain: Chain): BlockchainInterface<*> {
+        return when (chain) {
+            BITCOIN -> {
+                BitcoinBlockchainInterface()
+            }
+            BITCOIN_CASH -> {
+                BitcoinCashBlockchainInterface()
+            }
+            ETHEREUM -> {
+                EthereumBlockchainInterface()
+            }
+            ETHEREUM_CLASSIC -> {
+                EthereumClassicBlockchainInterface()
             }
         }
     }
@@ -73,7 +102,7 @@ object PumpsApplication {
 
         return ChainPump(
                 blockchainInterface = flowableInterface, storageActionsFactories = actionFactories,
-                storages = storages, stateStorage = PumpsContext.elassandraStorage
+                storages = this.storages, stateStorage = this.stateStorage
         )
     }
 }

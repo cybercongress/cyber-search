@@ -55,7 +55,7 @@ class ConcurrentPulledBlockchain<T : BlockBundle>(
                             .flatMap({ number ->
                                 Flowable.just(number)
                                         .subscribeOn(Schedulers.io())
-                                        .map { _ -> blockBundleByNumber(number) }
+                                        .map { number -> blockBundleByNumber(number) }
                             }, 16)
                             .sorted { o1, o2 -> o1.number.compareTo(o2.number) }
                 }, 1)
