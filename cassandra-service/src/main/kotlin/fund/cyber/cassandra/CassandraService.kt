@@ -29,7 +29,7 @@ class CassandraService(
 
     private val cassandraLazy = lazy {
         log.info("Initializing cassandra service")
-        Cluster.builder()
+        val cluster = Cluster.builder()
                 .addContactPoints(*cassandraServers.toTypedArray())
                 .withPort(cassandraPort)
                 .withPoolingOptions(poolingOptions)
@@ -39,6 +39,14 @@ class CassandraService(
                     configuration.codecRegistry.register(InstantCodec.instance)
                     log.info("Initializing cassandra service finished")
                 }
+        val session = cluster.newSession()
+        CassandraService::class.java.getResourceAsStream("/cassandra_bootstrap.cql")
+                .bufferedReader().use { it.readText() }
+                .split(";").map(String::trim)
+                .filter { statement -> statement.isNotEmpty() }
+                .map { statement -> statement + ";" }
+                .forEach {statement -> session.execute(statement)}
+        cluster
     }
 
     private val cassandra by cassandraLazy

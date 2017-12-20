@@ -37,7 +37,7 @@ class KafkaStorage(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun registerStorageActionSourceFactory(chain: Chain, actionSourceFactory: StorageActionSourceFactory) {
+    override fun setStorageActionSourceFactoryFor(chain: Chain, actionSourceFactory: StorageActionSourceFactory) {
         if (actionSourceFactory is KafkaStorageActionTemplateFactory<*>) {
             actionFactories.put(chain, actionSourceFactory as KafkaStorageActionTemplateFactory<BlockBundle>)
         }

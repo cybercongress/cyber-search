@@ -85,6 +85,7 @@ object PumpsConfiguration {
     val chainsToPump: List<Chain> = env("CS_CHAINS_TO_PUMP", "")
             .split(",").map(String::trim).filter(String::isNotEmpty).map(Chain::valueOf)
 
+    // TODO: specific start number for each chain
     val startBlock: Long = env("CS_START_BLOCK", CS_START_BLOCK_DEFAULT)
     val emitsEvents: Boolean = env("CS_EMITS_EVENTS", false)
 }
