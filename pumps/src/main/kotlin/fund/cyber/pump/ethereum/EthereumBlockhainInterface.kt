@@ -70,7 +70,7 @@ open class EthereumBlockchainInterface(
 
     override fun blockBundleByNumber(number: Long): EthereumBlockBundle {
 
-        val blockParameter = blockParameter(BigInteger(number.toString()))
+        val blockParameter = blockParameter(number.toBigInteger())
         val ethBlock = parityClient.ethGetBlockByNumber(blockParameter, true).send()
 
         val unclesFutures = ethBlock.block.uncles.mapIndexed { index, _ ->
