@@ -4,6 +4,7 @@ import fund.cyber.cassandra.CassandraService
 import fund.cyber.cassandra.migration.ElassandraSchemaMigrationEngine
 import fund.cyber.cassandra.migration.Migratory
 import fund.cyber.node.common.Chain
+import fund.cyber.node.model.CyberSearchItem
 import fund.cyber.node.model.IndexingProgress
 import fund.cyber.pump.*
 import org.apache.http.client.HttpClient
@@ -13,9 +14,7 @@ import java.util.*
 class ElassandraStorage(
         private val cassandraService: CassandraService,
         httpClient: HttpClient, elasticHost: String, elasticHttpPort: Int
-) : StorageInterface, StateStorage {
-
-
+) : StorageInterface, EntitiesStorageInterface, StateStorage {
     private val schemaMigrationEngine = ElassandraSchemaMigrationEngine(
             cassandraService = cassandraService, httpClient = httpClient,
             elasticHost = elasticHost, elasticPort = elasticHttpPort,
@@ -61,5 +60,10 @@ class ElassandraStorage(
                 block_number = blockBundle.number, block_hash = blockBundle.hash, index_time = Date()
         )
         cassandraService.pumpKeyspaceRepository.indexingProgressStore.save(progress)
+    }
+
+    override fun constructAction(entity: CyberSearchItem, chain: Chain): StorageAction {
+        cassandraService.getChainRepository(chain).mappingManager.mapper(entity.javaClass).save(entity)
+        return EmptyStorageAction
     }
 }
