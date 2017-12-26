@@ -56,7 +56,11 @@ class EventDrivenChainPump(
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.computation())
             .subscribe { searchItem ->
-
+                storages.forEach { storage ->
+                    if (storage is EntitiesStorageInterface) {
+                        storage.constructAction(searchItem, blockchain.chain)
+                    }
+                }
             }
         }
     }
