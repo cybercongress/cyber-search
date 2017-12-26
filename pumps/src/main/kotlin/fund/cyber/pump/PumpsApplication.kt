@@ -16,7 +16,7 @@ private val log = LoggerFactory.getLogger(PumpsApplication::class.java)!!
 object PumpsApplication {
 
     private val storages: List<StorageInterface> = listOf(
-            PumpsContext.elassandraStorage//, PumpsContext.kafkaStorage
+            PumpsContext.elassandraStorage, PumpsContext.kafkaStorage
     )
     private val stateStorage = PumpsContext.elassandraStorage
 
