@@ -6,6 +6,7 @@ import com.datastax.driver.mapping.annotations.Accessor
 import com.datastax.driver.mapping.annotations.Query
 import com.google.common.util.concurrent.ListenableFuture
 import fund.cyber.cassandra.CassandraKeyspaceRepository
+import fund.cyber.cassandra.FETCH_REQUEST_LIMIT_DEFAULT
 import fund.cyber.cassandra.model.keyspace
 import fund.cyber.node.common.Chain
 import fund.cyber.node.model.EthereumAddress
@@ -16,10 +17,10 @@ import fund.cyber.node.model.EthereumBlockTxPreview
 @Accessor
 interface EthereumKeyspaceRepositoryAccessor {
 
-    @Query("SELECT * FROM tx_preview_by_address where address=? limit 20")
+    @Query("SELECT * FROM tx_preview_by_address where address=? limit $FETCH_REQUEST_LIMIT_DEFAULT")
     fun addressTransactions(address: String): ListenableFuture<Result<EthereumAddressTxPreview>>
 
-    @Query("SELECT * FROM tx_preview_by_block where block_number=? limit 20")
+    @Query("SELECT * FROM tx_preview_by_block where block_number=? limit $FETCH_REQUEST_LIMIT_DEFAULT")
     fun blockTransactions(block_number: Long): ListenableFuture<Result<EthereumBlockTxPreview>>
 }
 

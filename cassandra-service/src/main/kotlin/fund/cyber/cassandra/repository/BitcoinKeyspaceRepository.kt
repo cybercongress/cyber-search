@@ -6,6 +6,7 @@ import com.datastax.driver.mapping.annotations.Accessor
 import com.datastax.driver.mapping.annotations.Query
 import com.google.common.util.concurrent.ListenableFuture
 import fund.cyber.cassandra.CassandraKeyspaceRepository
+import fund.cyber.cassandra.FETCH_REQUEST_LIMIT_DEFAULT
 import fund.cyber.cassandra.model.keyspace
 import fund.cyber.node.common.Chain
 import fund.cyber.node.model.*
@@ -14,10 +15,10 @@ import fund.cyber.node.model.*
 @Accessor
 interface BitcoinKeyspaceRepositoryAccessor {
 
-    @Query("SELECT * FROM tx_preview_by_address where address=? limit 20")
+    @Query("SELECT * FROM tx_preview_by_address where address=? limit $FETCH_REQUEST_LIMIT_DEFAULT")
     fun addressTransactions(address: String): ListenableFuture<Result<BitcoinAddressTransaction>>
 
-    @Query("SELECT * FROM tx_preview_by_block where block_number=? limit 20")
+    @Query("SELECT * FROM tx_preview_by_block where block_number=? limit $FETCH_REQUEST_LIMIT_DEFAULT")
     fun blockTransactions(block_number: Long): ListenableFuture<Result<BitcoinBlockTransaction>>
 }
 
