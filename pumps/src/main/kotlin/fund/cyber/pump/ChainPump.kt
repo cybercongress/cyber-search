@@ -49,7 +49,7 @@ class ChainPump<in T : BlockBundle>(
 
     private fun initializeIndexing() {
         val startBlockNumber = getStartBlockNumber()
-        val history: StackCache<List<StorageAction>> = StackCache(20)
+        val history: StackCache<List<StorageAction>> = StackCache(PumpsContext.stackCacheSize)
         log.info("${blockchainInterface.chain} pump start block number is $startBlockNumber")
         initializeStreamProcessing(startBlockNumber, history)
     }

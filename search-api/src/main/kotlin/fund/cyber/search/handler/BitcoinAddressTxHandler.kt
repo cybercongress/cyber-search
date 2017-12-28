@@ -10,7 +10,7 @@ import io.undertow.util.Headers
 
 class BitcoinAddressTxHandler(
         repository: BitcoinKeyspaceRepository,
-        private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer
+        private val jsonSerializer: ObjectMapper = AppContext.getJsonSerializer()
 ) : HttpHandler {
 
 

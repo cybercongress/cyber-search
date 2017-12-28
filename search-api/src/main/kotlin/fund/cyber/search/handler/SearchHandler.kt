@@ -22,7 +22,7 @@ import java.time.Instant
 
 
 class SearchHandler(
-        private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer,
+        private val jsonSerializer: ObjectMapper = AppContext.getJsonSerializer(),
         private val elasticClient: TransportClient = AppContext.elasticClient,
         private val indexToChainEntity: Map<String, Pair<Chain, ChainEntity>>,
         private val kafkaProducer: SearchRequestProcessingStatsKafkaProducer? = null

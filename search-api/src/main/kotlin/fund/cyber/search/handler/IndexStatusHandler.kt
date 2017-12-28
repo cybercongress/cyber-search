@@ -12,7 +12,7 @@ import org.elasticsearch.client.transport.TransportClient
 
 
 class IndexStatusHandler(
-        private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer,
+        private val jsonSerializer: ObjectMapper = AppContext.getJsonSerializer(),
         private val elasticClient: TransportClient = AppContext.elasticClient,
         private val indexToChainEntity: Map<String, Pair<Chain, ChainEntity>>
 ) : HttpHandler {

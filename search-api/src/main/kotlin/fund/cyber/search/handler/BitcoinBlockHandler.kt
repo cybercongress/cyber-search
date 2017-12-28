@@ -12,7 +12,7 @@ import io.undertow.util.Headers
 
 class BitcoinBlockHandler(
         repository: CassandraKeyspaceRepository,
-        private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer
+        private val jsonSerializer: ObjectMapper = AppContext.getJsonSerializer()
 ) : HttpHandler {
 
     private val blockTable = repository.mappingManager.mapper(BitcoinBlock::class.java)

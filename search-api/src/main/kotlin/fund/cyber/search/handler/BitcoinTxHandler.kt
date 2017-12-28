@@ -12,7 +12,7 @@ import io.undertow.util.Headers
 
 class BitcoinTxHandler(
         repository: CassandraKeyspaceRepository,
-        private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer
+        private val jsonSerializer: ObjectMapper = AppContext.getJsonSerializer()
 ) : HttpHandler {
 
     private val txTable = repository.mappingManager.mapper(BitcoinTransaction::class.java)

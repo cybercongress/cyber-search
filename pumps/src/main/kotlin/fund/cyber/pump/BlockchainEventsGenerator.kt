@@ -10,42 +10,42 @@ fun Flowable<BlockchainInterface<*>>.generateEvents(startBlockNumber: Long): Flo
 }
 
 fun generateEvents(blockchain: BlockchainInterface<*>, startBlockNumber: Long): Flowable<out BlockchainEvent> {
-    val fl = ConcurrentPulledBlockchain(blockchain)
+    val flowedBlockchain = ConcurrentPulledBlockchain(blockchain)
     val context = ConvertContext(
             exHash = "",
-            history = StackCache(20),
+            history = StackCache(PumpsContext.stackCacheSize),
             blockByNumber = blockchain::blockBundleByNumber,
             upToDateBlockNumber = blockchain.lastNetworkBlock()
     )
 
-    return fl.subscribeBlocks(startBlockNumber)
+    return flowedBlockchain.subscribeBlocks(startBlockNumber)
             .flatMap { blockBundle ->
                 return@flatMap convert(blockBundle, context).toFlowable()
             }
 }
 
-fun convert(_blockBundle: BlockBundle, context: ConvertContext): List<BlockchainEvent> {
-    var blockBundle = _blockBundle
-    var events: List<out BlockchainEvent>
+fun convert(blockBundle: BlockBundle, context: ConvertContext): List<BlockchainEvent> {
+    var events: List<BlockchainEvent>
 
     if (context.exHash == "" || context.exHash == blockBundle.parentHash) {
         context.exHash = blockBundle.hash
         context.history.push(blockBundle)
         events = listOf(CommitBlock(blockBundle))
     } else {
-        var exBl: BlockBundle? = null
+        var tempBlockBundle = blockBundle
+        var prevBlockBundle: BlockBundle? = null
 
-        var commitBlocks: List<CommitBlock> = listOf(CommitBlock(blockBundle))
+        var commitBlocks: List<CommitBlock> = listOf(CommitBlock(tempBlockBundle))
         var revertBlocks: List<RevertBlock> = emptyList()
 
         do {
-            if (exBl != null) {
-                revertBlocks += RevertBlock(exBl)
-                blockBundle = context.blockByNumber(blockBundle.number - 1L)//exBl
-                commitBlocks += CommitBlock(blockBundle)
+            if (prevBlockBundle != null) {
+                revertBlocks += RevertBlock(prevBlockBundle)
+                tempBlockBundle = context.blockByNumber(tempBlockBundle.number - 1L)//exBl
+                commitBlocks += CommitBlock(tempBlockBundle)
             }
-            exBl = context.history.pop()
-        } while (exBl?.hash != blockBundle.parentHash)
+            prevBlockBundle = context.history.pop()
+        } while (prevBlockBundle?.hash != tempBlockBundle.parentHash)
 
         commitBlocks = commitBlocks.reversed()
         commitBlocks.forEach {context.history.push(it.bundle)}
@@ -54,7 +54,7 @@ fun convert(_blockBundle: BlockBundle, context: ConvertContext): List<Blockchain
         events = listOf(ChainReorganizationBegin()) + events + ChainReorganizationEnd()
     }
     if (context.upToDateBlockNumber != null) {
-        if (_blockBundle.number == context.upToDateBlockNumber)
+        if (blockBundle.number == context.upToDateBlockNumber)
             events += UpToDate()
     }
     return events
