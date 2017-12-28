@@ -14,7 +14,7 @@ import java.net.InetAddress
 
 object AppContext {
 
-    val jsonSerializer = ObjectMapper().registerKotlinModule()
+    fun getJsonSerializer(): ObjectMapper = ObjectMapper().registerKotlinModule()
             .registerModule(Jdk8Module())
             .registerModule(JavaTimeModule())
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

@@ -20,6 +20,9 @@ import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger(PumpsContext::class.java)!!
 
+const val STACK_CACHE_SIZE = "STACK_CACHE_SIZE"
+const val STACK_CACHE_SIZE_DEFAULT = 20
+
 object PumpsContext {
 
     private val defaultHttpHeaders = listOf(BasicHeader("Keep-Alive", "timeout=10, max=1024"))
@@ -61,6 +64,8 @@ object PumpsContext {
         httpClient.close()
         log.info("Application context is closed")
     }
+
+    val stackCacheSize = env(STACK_CACHE_SIZE, STACK_CACHE_SIZE_DEFAULT)
 }
 
 

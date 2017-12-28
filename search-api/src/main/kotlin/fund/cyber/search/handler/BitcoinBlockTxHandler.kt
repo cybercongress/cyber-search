@@ -10,7 +10,7 @@ import io.undertow.util.Headers
 
 class BitcoinBlockTxHandler(
         repository: BitcoinKeyspaceRepository,
-        private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer
+        private val jsonSerializer: ObjectMapper = AppContext.getJsonSerializer()
 ) : HttpHandler {
 
     private val blockTxTable = repository.bitcoinKeyspaceRepositoryAccessor

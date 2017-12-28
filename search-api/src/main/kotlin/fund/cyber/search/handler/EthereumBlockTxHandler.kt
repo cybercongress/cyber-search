@@ -11,7 +11,7 @@ import io.undertow.util.Headers
 
 class EthereumBlockTxHandler(
         repository: EthereumKeyspaceRepository,
-        private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer
+        private val jsonSerializer: ObjectMapper = AppContext.getJsonSerializer()
 ) : HttpHandler {
 
     private val blockTxTable = repository.ethereumKeyspaceRepositoryAccessor

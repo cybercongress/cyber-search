@@ -13,7 +13,7 @@ import io.undertow.util.Headers
 
 class EthereumTxHandler(
         repository: CassandraKeyspaceRepository,
-        private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer
+        private val jsonSerializer: ObjectMapper = AppContext.getJsonSerializer()
 ) : HttpHandler {
 
     private val txTable = repository.mappingManager.mapper(EthereumTransaction::class.java)

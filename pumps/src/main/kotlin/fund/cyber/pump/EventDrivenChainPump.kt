@@ -72,7 +72,7 @@ class EventDrivenChainPump(
                 PumpsConfiguration.startBlock
 }
 
-class FlowableTxPool(private val source: TxPoolInterface<out CyberSearchItem>): Flowable<CyberSearchItem>() {
+class FlowableTxPool(private val source: TxPoolInterface<CyberSearchItem>): Flowable<CyberSearchItem>() {
     override fun subscribeActual(s: Subscriber<in CyberSearchItem>?) {
         source.onNewTransaction { tx ->
             s?.onNext(tx)

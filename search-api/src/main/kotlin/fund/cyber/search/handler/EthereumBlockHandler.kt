@@ -14,7 +14,7 @@ import io.undertow.util.Headers
 
 class EthereumBlockHandler(
         repository: CassandraKeyspaceRepository,
-        private val jsonSerializer: ObjectMapper = AppContext.jsonSerializer
+        private val jsonSerializer: ObjectMapper = AppContext.getJsonSerializer()
 ) : HttpHandler {
 
     private val blockTable = repository.mappingManager.mapper(EthereumBlock::class.java)
