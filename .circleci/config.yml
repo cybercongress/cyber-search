@@ -38,6 +38,19 @@ jobs:
             - ~/.gradle/caches/
             - ~/.gradle/wrapper/
 
+  deploy_search_api_nightly:
+     <<: *default_container
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.05.0-ce
+       - run:
+           name: Build cyber search api image (nightly)
+           command: |
+             docker build -t build/cs-search-api -f ./devops/search-api/search-api ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/cs-search-api cybernode/cs-search-api:nightly
+             docker push cybernode/cs-search-api:nightly
 
   deploy_search_api_image:
      <<: *default_container
@@ -113,6 +126,15 @@ workflows:
           filters:
             tags:
               only: /.*/
+      # deploy :nighly image from master
+      - deploy_search_api_nightly:
+          filters:
+            branches:
+              only:
+              - master
+          requires:
+            - build_project
+      # deploy releases from tags
       - deploy_search_api_image:
           <<: *release_filter
           requires:
