@@ -1,14 +1,18 @@
 version: 2
 
+# This config file uses YAML aliases
+# http://blog.daemonl.com/2016/02/yaml.html
+# https://github.com/cyklo/Bukkit-OtherBlocks/wiki/Aliases-(advanced-YAML-usage)
+aliases:
 
-defaults:
-
-  container: &default_container
+  # Common configuration for all jobs
+  - &defaults
     working_directory: ~/build
     docker:
       - image: circleci/openjdk:8-jdk
 
-  release_filter: &release_filter
+  # Filter that builds only release- tags
+  - &release_filter
     filters:
       tags:
         only: /^release-.*/
@@ -19,7 +23,7 @@ defaults:
 jobs:
 
   build_project:
-    <<: *default_container
+    <<: *defaults
     steps:
       - checkout
       - restore_cache:
@@ -39,7 +43,7 @@ jobs:
             - ~/.gradle/wrapper/
 
   deploy_search_api_nightly:
-     <<: *default_container
+     <<: *defaults
      steps:
        - checkout
        - setup_remote_docker:
@@ -53,7 +57,7 @@ jobs:
              docker push cybernode/cs-search-api:nightly
 
   deploy_search_api_image:
-     <<: *default_container
+     <<: *defaults
      steps:
        - checkout
        - setup_remote_docker:
@@ -69,7 +73,7 @@ jobs:
              docker push cybernode/cs-search-api:latest
 
   deploy_pumps_image:
-     <<: *default_container
+     <<: *defaults
      steps:
        - checkout
        - setup_remote_docker:
@@ -85,7 +89,7 @@ jobs:
              docker push cybernode/cs-chain-pumps:latest
 
   deploy_search_api_docs_image:
-     <<: *default_container
+     <<: *defaults
      steps:
        - checkout
        - setup_remote_docker:
@@ -101,7 +105,7 @@ jobs:
              docker push cybernode/cs-search-api-docs:latest
 
   deploy_address-service_image:
-     <<: *default_container
+     <<: *defaults
      steps:
        - checkout
        - setup_remote_docker:
