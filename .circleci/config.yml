@@ -42,19 +42,28 @@ jobs:
             - ~/.gradle/caches/
             - ~/.gradle/wrapper/
 
-  deploy_search_api_nightly:
+  deploy_nightly:
      <<: *defaults
      steps:
        - checkout
        - setup_remote_docker:
            version: 17.05.0-ce
        - run:
-           name: Build cyber search api image (nightly)
+           name: Build and upload nightly cyber-search images
            command: |
              docker build -t build/cs-search-api -f ./devops/search-api/search-api ./
+             docker build -t build/cs-search-api-docs -f ./devops/api/api-docs ./
+             docker build -t build/cs-chain-pumps -f ./devops/pumps/pumps ./
+             docker build -t build/address-service -f ./devops/address-service/address-service ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
              docker tag build/cs-search-api cybernode/cs-search-api:nightly
+             docker tag build/cs-search-api-docs cybernode/cs-search-api-docs:nightly
+             docker tag build/cs-chain-pumps cybernode/cs-chain-pumps:nightly
+             docker tag build/address-service cybernode/address-service:nightly
              docker push cybernode/cs-search-api:nightly
+             docker push cybernode/cs-search-api-docs:nightly
+             docker push cybernode/cs-chain-pumps:nightly
+             docker push cybernode/address-service:nightly
 
   deploy_search_api_image:
      <<: *defaults
@@ -130,8 +139,8 @@ workflows:
           filters:
             tags:
               only: /.*/
-      # deploy :nighly image from master
-      - deploy_search_api_nightly:
+      # deploy :nighly images for master
+      - deploy_nightly:
           filters:
             branches:
               only:
