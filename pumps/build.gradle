@@ -10,16 +10,13 @@ project(":pumps:common") {
     }
 }
 
-
 project(":pumps:bitcoin") {
 
     apply plugin: "org.springframework.boot"
 
-
-    bootJar {
-        mainClassName = 'fund.cyber.pump.Application'
+    springBoot {
+        mainClassName = 'fund.cyber.pump.PumpApplication'
     }
-
 
     dependencies {
 

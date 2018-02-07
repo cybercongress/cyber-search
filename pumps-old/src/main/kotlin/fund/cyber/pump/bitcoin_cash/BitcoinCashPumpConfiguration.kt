@@ -11,7 +11,7 @@ import fund.cyber.pump.bitcoin.JsonRpcToDaoBitcoinTransactionConverter
 
 
 object BitcoinCashPumpConfiguration {
-    val abcUrl: String = env("ABC_URL", "http://cyber:cyber@127.0.0.1:7332")
+    val abcUrl: String = env("ABC_URL", "http://fund.cyber:fund.cyber@127.0.0.1:7332")
 }
 
 

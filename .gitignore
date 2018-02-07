@@ -25,9 +25,9 @@ classes/
 *.swo
 
 # externalized configuration file
-cyber.markets.properties
+fund.cyber.markets.properties
 
 # Gradle
 .gradle/
 build
-/cyber-connectors/
+/fund.cyber-connectors/

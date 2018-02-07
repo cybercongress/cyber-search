@@ -4,7 +4,7 @@ package fund.cyber.pump.bitcoin.client
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import cyber.search.model.bitcoin.*
+import fund.cyber.search.model.bitcoin.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

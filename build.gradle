@@ -119,6 +119,7 @@ subprojects {
             dependency("org.elasticsearch.client:transport:$elasticVersion")
 
             dependency "org.springframework.data:spring-data-cassandra:$springCassandraVersion"
+            dependency "org.springframework.data:spring-data-commons:$springCassandraVersion"
             dependency("com.datastax.cassandra:cassandra-driver-core:$cassandraVersion")
             dependency("com.datastax.cassandra:cassandra-driver-mapping:$cassandraVersion")
             dependency("com.datastax.cassandra:cassandra-driver-extras:$cassandraVersion")
@@ -183,6 +184,7 @@ project(":cassandra-service") {
 
         compile project(":common")
 
+        //https://jira.spring.io/browse/DATACMNS-1245 bug
         compile 'org.springframework.data:spring-data-cassandra'
         compile "io.projectreactor:reactor-core"
 

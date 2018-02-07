@@ -5,7 +5,7 @@
 
     <cache alias="bitcoin.transactions">
         <key-type>java.lang.String</key-type>
-        <value-type>fund.cyber.node.model.JsonRpcBitcoinTransaction</value-type>
+        <value-type>fund.fund.cyber.node.model.JsonRpcBitcoinTransaction</value-type>
         <resources>
             <heap unit="entries">20000000</heap>
         </resources>
@@ -13,7 +13,7 @@
 
     <cache alias="bitcoin_cash.transactions">
         <key-type>java.lang.String</key-type>
-        <value-type>fund.cyber.node.model.JsonRpcBitcoinTransaction</value-type>
+        <value-type>fund.fund.cyber.node.model.JsonRpcBitcoinTransaction</value-type>
         <resources>
             <heap unit="entries">20000000</heap>
         </resources>

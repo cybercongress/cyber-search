@@ -1,9 +1,10 @@
 package fund.cyber.pump.bitcoin.client
 
-import cyber.search.model.bitcoin.BitcoinBlock
-import cyber.search.model.bitcoin.BitcoinTx
+
 import fund.cyber.pump.common.BlockBundle
 import fund.cyber.pump.common.BlockchainInterface
+import fund.cyber.search.model.bitcoin.BitcoinBlock
+import fund.cyber.search.model.bitcoin.BitcoinTx
 
 
 class BitcoinBlockBundle(

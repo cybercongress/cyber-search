@@ -1,12 +1,14 @@
 package fund.cyber.pump.bitcoin.sink
 
-import cyber.search.configuration.KAFKA_BROKERS
-import cyber.search.configuration.KAFKA_BROKERS_DEFAULT
-import cyber.search.model.chains.BitcoinFamilyChain
-import cyber.search.model.events.PumpEvent
-import cyber.search.model.events.blockPumpTopic
-import cyber.search.model.events.txPumpTopic
 import fund.cyber.common.kafka.JsonSerializer
+import fund.cyber.search.configuration.CHAIN
+import fund.cyber.search.configuration.KAFKA_BROKERS
+import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
+import fund.cyber.search.configuration.env
+import fund.cyber.search.model.chains.BitcoinFamilyChain
+import fund.cyber.search.model.events.PumpEvent
+import fund.cyber.search.model.events.blockPumpTopic
+import fund.cyber.search.model.events.txPumpTopic
 import org.apache.kafka.clients.admin.AdminClientConfig
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.producer.ProducerConfig
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.DependsOn
 import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaAdmin
@@ -28,13 +31,13 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 @EnableTransactionManagement
 open class BitcoinBundleProducerConfiguration {
 
-
     @Value("#{systemProperties['$KAFKA_BROKERS'] ?: '$KAFKA_BROKERS_DEFAULT'}")
     private lateinit var kafkaBrokers: String
 
     @Autowired
     private lateinit var chain: BitcoinFamilyChain
 
+    //todo add topic configuration(retention policy and etc)
     @Bean
     open fun bitcoinRawTxTopic(): NewTopic {
         return NewTopic(chain.txPumpTopic, 1, 1)
@@ -74,6 +77,4 @@ open class BitcoinBundleProducerConfiguration {
     open fun transactionManager(): KafkaTransactionManager<PumpEvent, Any> {
         return KafkaTransactionManager(producerFactory())
     }
-
-
 }

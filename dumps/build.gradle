@@ -1,0 +1,17 @@
+subprojects {
+
+    apply plugin: "org.springframework.boot"
+
+    bootJar {
+        mainClassName = 'fund.cyber.dump.Application'
+    }
+
+    dependencies {
+
+        compile project(":common")
+        compile project(":common-kafka")
+        compile project(":cassandra-service")
+
+        compile "org.springframework.boot:spring-boot-starter"
+    }
+}
