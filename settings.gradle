@@ -6,6 +6,6 @@ include "address-summary:bitcoin"
 
 include "pumps:common"
 include "pumps:bitcoin"
-
+include "pumps:ethereum"
 
 include "dumps:bitcoin"

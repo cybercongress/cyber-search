@@ -31,3 +31,24 @@ project(":pumps:bitcoin") {
         compile 'org.apache.httpcomponents:httpasyncclient'
     }
 }
+
+
+project(":pumps:ethereum") {
+
+    apply plugin: "org.springframework.boot"
+
+
+    bootJar {
+        mainClassName = 'fund.cyber.pump.Application'
+    }
+
+
+    dependencies {
+
+        compile project(":pumps:common")
+
+        compile 'org.ehcache:ehcache'
+        compile 'org.apache.httpcomponents:httpasyncclient'
+        compile 'org.web3j:core'
+    }
+}

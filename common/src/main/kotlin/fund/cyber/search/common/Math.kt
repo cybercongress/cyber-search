@@ -44,3 +44,6 @@ inline fun Iterable<BigDecimal>.sum(): BigDecimal {
 
 inline fun String.hexToLong(): Long = java.lang.Long.decode(this)
 
+val decimal8 = BigDecimal(8)
+val decimal32 = BigDecimal(32)
+
