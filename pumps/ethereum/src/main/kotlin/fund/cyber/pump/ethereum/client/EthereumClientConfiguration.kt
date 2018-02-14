@@ -1,5 +1,7 @@
 package fund.cyber.pump.ethereum.client
 
+import fund.cyber.pump.common.ConcurrentPulledBlockchain
+import fund.cyber.pump.common.FlowableBlockchainInterface
 import fund.cyber.search.configuration.CHAIN_NODE_URL
 import fund.cyber.search.configuration.ETHEREUM_CHAIN_NODE_DEFAULT_URL
 import fund.cyber.search.configuration.env
@@ -30,4 +32,13 @@ open class EthereumClientConfiguration {
 
     @Bean
     open fun parityClient() = Web3j.build(HttpService(endpointUrl, httpClient()))
+
+
+    @Bean
+    open fun blockchainInterface(
+            parityToEthereumBundleConverter: ParityToEthereumBundleConverter
+    ): FlowableBlockchainInterface<EthereumBlockBundle> {
+        val ethereumBlockchainInterface = EthereumBlockchainInterface(parityClient(), parityToEthereumBundleConverter)
+        return ConcurrentPulledBlockchain(ethereumBlockchainInterface)
+    }
 }
