@@ -6,6 +6,7 @@ import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.blockPumpTopic
 import fund.cyber.search.model.events.txPumpTopic
+import fund.cyber.search.model.events.unclePumpTopic
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
 
@@ -19,5 +20,6 @@ class EthereumBlockBundleProducer(
     override fun storeBlockBundle(blockBundle: EthereumBlockBundle) {
         kafkaTemplate.send(chain.blockPumpTopic, PumpEvent.NEW_BLOCK, blockBundle.block)
         blockBundle.transactions.forEach { tx -> kafkaTemplate.send(chain.txPumpTopic, PumpEvent.NEW_BLOCK, tx) }
+        blockBundle.uncles.forEach { uncle -> kafkaTemplate.send(chain.unclePumpTopic, PumpEvent.NEW_BLOCK, uncle)}
     }
 }

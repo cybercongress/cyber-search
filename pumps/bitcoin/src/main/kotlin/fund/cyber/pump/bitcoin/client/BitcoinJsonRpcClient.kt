@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import fund.cyber.search.configuration.BITCOIN_CHAIN_NODE_DEFAULT_URL
 import fund.cyber.search.configuration.CHAIN_NODE_URL
 import fund.cyber.search.configuration.env
 import fund.cyber.search.model.Request
@@ -22,7 +23,7 @@ class BitcoinJsonRpcClient(
         private val httpClient: HttpClient
 ) {
 
-    private val endpointUrl = env(CHAIN_NODE_URL, "http://cyber:cyber@127.0.0.1:8332")
+    private val endpointUrl = env(CHAIN_NODE_URL, BITCOIN_CHAIN_NODE_DEFAULT_URL)
 
     private val headers = arrayOf(BasicHeader("Content-Type", "application/json; charset=UTF-8"))
 

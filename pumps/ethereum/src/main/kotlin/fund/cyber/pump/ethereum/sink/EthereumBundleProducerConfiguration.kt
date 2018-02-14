@@ -66,7 +66,7 @@ open class BitcoinBundleProducerConfiguration {
 
     @Bean
     open fun producerConfigs(): Map<String, Any> = mapOf(
-            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:9092" // TODO: Replace hardcoded value???
+            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers
     )
 
     @Bean
