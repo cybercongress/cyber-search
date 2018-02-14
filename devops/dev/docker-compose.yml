@@ -12,6 +12,7 @@
 #    2181: Zookeper
 #    9092: Kafka
 #    9000: Kafka Manager
+#    3030: Kafka Browser
 
 version: '3.3'
 services:
