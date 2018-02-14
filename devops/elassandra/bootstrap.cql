@@ -20,9 +20,6 @@ WITH REPLICATION = {'class' : 'NetworkTopologyStrategy','DEVELOPMENT' : 1};
 CREATE KEYSPACE IF NOT EXISTS cyber_system
 WITH REPLICATION = {'class' : 'NetworkTopologyStrategy','DEVELOPMENT' : 1};
 
-CREATE KEYSPACE IF NOT EXISTS pump
-WITH REPLICATION = {'class' : 'NetworkTopologyStrategy','DEVELOPMENT' : 1};
-
 
 
 CREATE TABLE IF NOT EXISTS cyber_system.schema_version (

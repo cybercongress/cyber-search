@@ -7,16 +7,4 @@ import org.springframework.data.cassandra.core.mapping.MapId
 import org.springframework.data.cassandra.repository.ReactiveCassandraRepository
 import reactor.core.publisher.Flux
 
-
 interface BitcoinBlockRepository : ReactiveCassandraRepository<CqlBitcoinBlock, Long>
-
-
-interface BitcoinBlockTxRepository : ReactiveCassandraRepository<CqlBitcoinBlockTx, MapId> {
-
-    fun findAllByBlockNumber(blockNumber: Long, options: QueryOptions = QueryOptions.empty()): Flux<CqlBitcoinBlockTx>
-}
-
-
-
-
-

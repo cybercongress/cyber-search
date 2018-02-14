@@ -45,7 +45,7 @@ open class ApplicationConfiguration {
     open fun blocksListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, BitcoinBlock> {
 
         val consumerConfig = consumerConfigs().apply {
-            put(ConsumerConfig.GROUP_ID_CONFIG, "bitcoin-blocks-dump-process4")
+            put(ConsumerConfig.GROUP_ID_CONFIG, "bitcoin-blocks-dump-process")
         }
 
         val consumerFactory = DefaultKafkaConsumerFactory(

@@ -8,13 +8,16 @@ import org.springframework.data.cassandra.core.mapping.Table
 import java.math.BigDecimal
 import java.time.Instant
 
-@Table("address")
+@Table("address_summary")
 data class CqlBitcoinAddressSummary(
 
         @PrimaryKey val id: String,
         val confirmed_balance: String,
         val confirmed_total_received: BigDecimal,
         val confirmed_tx_number: Int,
+        val kafka_delta_offset: Long,
+        val kafka_delta_partition: Short,
+        val kafka_delta_offset_committed: Boolean = false,
         val unconfirmed_tx_values: Map<String, BigDecimal> = emptyMap()
 ) : CqlBitcoinItem
 
