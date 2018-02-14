@@ -18,11 +18,6 @@ open class EthereumPumpApplication {
         return EthereumFamilyChain.valueOf(chainAsString)
     }
 
-    @Bean
-    open fun parityUrl(): String {
-        return env("PARITY_URL", "")
-    }
-
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {

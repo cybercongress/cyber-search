@@ -1,5 +1,8 @@
 package fund.cyber.pump.ethereum.client
 
+import fund.cyber.search.configuration.CHAIN_NODE_URL
+import fund.cyber.search.configuration.ETHEREUM_CHAIN_NODE_DEFAULT_URL
+import fund.cyber.search.configuration.env
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.apache.http.message.BasicHeader
@@ -16,6 +19,8 @@ open class EthereumClientConfiguration {
         maxTotal = 32
     }
 
+    private val endpointUrl = env(CHAIN_NODE_URL, ETHEREUM_CHAIN_NODE_DEFAULT_URL)
+
     @Bean
     open fun httpClient() = HttpClients.custom()
             .setConnectionManager(connectionManager)
@@ -24,5 +29,5 @@ open class EthereumClientConfiguration {
             .build()!!
 
     @Bean
-    open fun parityClient(parityUrl: String) = Web3j.build(HttpService(parityUrl, httpClient()))
+    open fun parityClient() = Web3j.build(HttpService(endpointUrl, httpClient()))
 }
