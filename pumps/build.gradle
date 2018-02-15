@@ -1,5 +1,8 @@
 project(":pumps:common") {
 
+
+    jar.archiveName = "common-pumps"
+
     dependencies {
 
         compile project(":common")
@@ -13,10 +16,6 @@ project(":pumps:common") {
 project(":pumps:bitcoin") {
 
     apply plugin: "org.springframework.boot"
-
-    springBoot {
-        mainClassName = 'fund.cyber.pump.PumpApplication'
-    }
 
     dependencies {
 

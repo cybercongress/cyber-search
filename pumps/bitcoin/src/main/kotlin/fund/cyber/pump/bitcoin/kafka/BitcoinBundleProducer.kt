@@ -1,4 +1,4 @@
-package fund.cyber.pump.bitcoin.sink
+package fund.cyber.pump.bitcoin.kafka
 
 import fund.cyber.pump.bitcoin.client.BitcoinBlockBundle
 import fund.cyber.pump.common.KafkaBlockBundleProducer
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
-open class BitcoinBlockBundleProducer(
+class BitcoinBlockBundleProducer(
         private val kafkaTemplate: KafkaTemplate<PumpEvent, Any>,
         private val chain: BitcoinFamilyChain
 ) : KafkaBlockBundleProducer<BitcoinBlockBundle> {

@@ -21,8 +21,7 @@ class ConcurrentPulledBlockchain<T : BlockBundle>(
         private val batchSize: Int = 4
 ) : FlowableBlockchainInterface<T>, BlockchainInterface<T> by blockchainInterface {
 
-    private var lastNetworkBlock = lastNetworkBlock()
-
+    private var lastNetworkBlock = 0L
 
     // generate block number ranges, example 4000-4003, 4004-4007
     private val generateAvailableBlocksNumbersRangesFunction =

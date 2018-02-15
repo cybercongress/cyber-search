@@ -18,7 +18,7 @@ buildscript {
 
         // plugins
         dependencyPluginVersion = "1.0.3.RELEASE"
-        bootPluginVersion = "2.0.0.M7"
+        bootPluginVersion = "2.0.0.RC1"
 
         // tests
         junitVersion = "5.0.3"
@@ -42,6 +42,7 @@ buildscript {
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
         classpath "org.jetbrains.kotlin:kotlin-noarg:$kotlinVersion"
+        classpath("org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion")
 
         classpath("org.junit.platform:junit-platform-gradle-plugin:$junitPlatformVersion")
 
@@ -59,17 +60,27 @@ task wrapper(type: Wrapper) {
 
 subprojects {
     apply plugin: "kotlin"
+    apply plugin: 'kotlin-spring'
     apply plugin: "org.junit.platform.gradle.plugin"
     apply plugin: "io.spring.dependency-management"
+
+    compileKotlin {
+        kotlinOptions {
+            freeCompilerArgs = ["-Xjsr305=strict"]
+            jvmTarget = "1.8"
+        }
+    }
+    compileTestKotlin {
+        kotlinOptions {
+            freeCompilerArgs = ["-Xjsr305=strict"]
+            jvmTarget = "1.8"
+        }
+    }
 
     kotlin {
         experimental {
             coroutines "enable"
         }
-    }
-
-    compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
     }
 
     repositories {

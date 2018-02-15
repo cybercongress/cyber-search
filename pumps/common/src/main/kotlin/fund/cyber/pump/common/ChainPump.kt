@@ -2,14 +2,12 @@ package fund.cyber.pump.common
 
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
 
 
 private val log = LoggerFactory.getLogger(ChainPump::class.java)!!
 
 
 //todo add chain reorganisation
-@Component
 class ChainPump<T : BlockBundle>(
         private val flowableBlockchainInterface: FlowableBlockchainInterface<T>,
         private val kafkaBlockBundleProducer: KafkaBlockBundleProducer<T>,

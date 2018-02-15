@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-open class BitcoinClientConfiguration {
+class BitcoinClientConfiguration {
 
     private val defaultHttpHeaders = listOf(BasicHeader("Keep-Alive", "timeout=10, max=1024"))
     private val connectionManager = PoolingHttpClientConnectionManager().apply {
@@ -18,7 +18,7 @@ open class BitcoinClientConfiguration {
     }
 
     @Bean
-    open fun httpClient() = HttpClients.custom()
+    fun httpClient() = HttpClients.custom()
             .setConnectionManager(connectionManager)
             .setConnectionManagerShared(true)
             .setDefaultHeaders(defaultHttpHeaders)
@@ -26,7 +26,7 @@ open class BitcoinClientConfiguration {
 
 
     @Bean
-    open fun blockchainInterface(
+    fun blockchainInterface(
             rpcClient: BitcoinJsonRpcClient, rpcToBundleEntitiesConverter: JsonRpcBlockToBitcoinBundleConverter
     ): FlowableBlockchainInterface<BitcoinBlockBundle> {
 
