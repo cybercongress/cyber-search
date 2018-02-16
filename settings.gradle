@@ -9,3 +9,4 @@ include "pumps:bitcoin"
 include "pumps:ethereum"
 
 include "dumps:bitcoin"
+include "dumps:ethereum"

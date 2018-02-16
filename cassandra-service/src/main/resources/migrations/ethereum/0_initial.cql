@@ -55,16 +55,14 @@ CREATE TABLE IF NOT exists ethereum.tx_preview_by_address (
 )  WITH CLUSTERING ORDER BY ( block_time DESC );
 
 CREATE TABLE IF NOT exists ethereum.tx_preview_by_block (
-    block_number bigint,
+    block_number bigint PRIMARY KEY,
     fee text,
     value text,
     hash text,
     "from" text,
     "to" text,
     creates_contract boolean,
-    "index" int,
-    PRIMARY KEY ( block_number, "index" )
-) WITH CLUSTERING ORDER BY ( "index" ASC );
+);
 
 
 CREATE TABLE IF NOT exists ethereum.address (
