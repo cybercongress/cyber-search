@@ -1,4 +1,4 @@
-package fund.cyber.dump
+package fund.cyber.dump.bitcoin
 
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.common.kafka.JsonDeserializer

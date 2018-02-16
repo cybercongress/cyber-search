@@ -1,4 +1,4 @@
-package fund.cyber.dump
+package fund.cyber.dump.bitcoin
 
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlock
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository

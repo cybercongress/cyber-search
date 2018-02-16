@@ -4,6 +4,7 @@ import com.datastax.driver.core.HostDistance
 import com.datastax.driver.core.PoolingOptions
 import fund.cyber.cassandra.migration.DefaultMigrationsLoader
 import fund.cyber.search.model.chains.BitcoinFamilyChain
+import fund.cyber.search.model.chains.Chain
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.apache.http.message.BasicHeader
@@ -16,8 +17,7 @@ import org.springframework.data.cassandra.config.AbstractReactiveCassandraConfig
 
 const val MAX_CONCURRENT_REQUESTS = 8182
 
-private val BitcoinFamilyChain.keyspace: String get() = name.toLowerCase()
-
+val Chain.keyspace: String get() = name.toLowerCase()
 
 abstract class CassandraRepositoriesConfiguration(
         private val cassandraHosts: String,
