@@ -39,7 +39,7 @@ project(":pumps:ethereum") {
 
 
     bootJar {
-        mainClassName = 'fund.cyber.pump.Application'
+        mainClassName = 'fund.cyber.pump.PumpApplication'
     }
 
 

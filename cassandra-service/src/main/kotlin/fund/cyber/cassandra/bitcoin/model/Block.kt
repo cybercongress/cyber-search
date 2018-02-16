@@ -1,7 +1,6 @@
 package fund.cyber.cassandra.bitcoin.model
 
 import fund.cyber.search.model.bitcoin.BitcoinBlock
-import org.springframework.data.annotation.Transient
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.*
 import java.math.BigDecimal

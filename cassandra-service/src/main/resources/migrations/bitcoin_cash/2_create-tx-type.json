@@ -1,0 +1,46 @@
+{
+  "method": "PUT",
+  "url": "/bitcoin_cash_tx/_mapping/tx",
+  "data": {
+    "tx": {
+      "properties": {
+        "hash": {
+          "type": "keyword",
+          "index": "no",
+          "include_in_all": true,
+          "cql_collection": "singleton"
+        },
+        "block_hash": {
+          "type": "keyword",
+          "index": "no",
+          "include_in_all": true,
+          "cql_collection": "singleton"
+        },
+        "block_number": {
+          "type": "long",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
+        },
+        "block_time": {
+          "type": "date",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
+        },
+        "fee": {
+          "type": "keyword",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
+        },
+        "total_output": {
+          "type": "keyword",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
+        }
+      }
+    }
+  }
+}

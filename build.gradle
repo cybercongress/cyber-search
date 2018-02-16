@@ -198,6 +198,7 @@ project(":cassandra-service") {
         //https://jira.spring.io/browse/DATACMNS-1245 bug
         compile 'org.springframework.data:spring-data-cassandra'
         compile "io.projectreactor:reactor-core"
+        compile 'org.apache.httpcomponents:httpasyncclient'
 
         compile("com.datastax.cassandra:cassandra-driver-core")
         compile("com.datastax.cassandra:cassandra-driver-mapping")
