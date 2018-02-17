@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional
 
 
 @Component
-open class EthereumBlockBundleProducer(
+class EthereumBlockBundleProducer(
         private val kafkaTemplate: KafkaTemplate<PumpEvent, Any>,
         private val chain: EthereumFamilyChain
 ): KafkaBlockBundleProducer<EthereumBlockBundle> {

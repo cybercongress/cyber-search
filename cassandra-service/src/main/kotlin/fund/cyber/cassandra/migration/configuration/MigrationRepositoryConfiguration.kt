@@ -15,12 +15,14 @@ import org.springframework.data.cassandra.repository.config.EnableReactiveCassan
 
 
 @Configuration
-@EnableReactiveCassandraRepositories(basePackages = ["fund.cyber.cassandra.migration.repository"],
-        reactiveCassandraTemplateRef = "keyspaceMigrationCassandraTemplate")
-open class MigrationRepositoryConfiguration(
-        @Value("#{systemProperties['${CASSANDRA_HOSTS}'] ?: '${CASSANDRA_HOSTS_DEFAULT}'}")
+@EnableReactiveCassandraRepositories(
+        basePackages = ["fund.cyber.cassandra.migration.repository"],
+        reactiveCassandraTemplateRef = "keyspaceMigrationCassandraTemplate"
+)
+class MigrationRepositoryConfiguration(
+        @Value("#{systemProperties['$CASSANDRA_HOSTS'] ?: '$CASSANDRA_HOSTS_DEFAULT'}")
         private val cassandraHosts: String,
-        @Value("#{systemProperties['${CASSANDRA_PORT}'] ?: '${CASSANDRA_PORT_DEFAULT}'}")
+        @Value("#{systemProperties['$CASSANDRA_PORT'] ?: '$CASSANDRA_PORT_DEFAULT'}")
         private val cassandraPort: Int
 ) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort) {
 
@@ -29,14 +31,14 @@ open class MigrationRepositoryConfiguration(
     override fun getEntityBasePackages(): Array<String> = arrayOf("fund.cyber.cassandra.migration.model")
 
     @Bean("keyspaceMigrationCassandraTemplate")
-    open fun reactiveCassandraTemplate(
+    fun reactiveCassandraTemplate(
             @Qualifier("keyspaceReactiveMigrationSession") session: ReactiveSession
     ): ReactiveCassandraOperations {
         return ReactiveCassandraTemplate(DefaultReactiveSessionFactory(session), cassandraConverter())
     }
 
     @Bean("keyspaceReactiveMigrationSession")
-    open fun reactiveSession(
+    fun reactiveSession(
             @Qualifier("keyspaceMigrationSession") session: CassandraSessionFactoryBean
     ): ReactiveSession {
         return DefaultBridgedReactiveSession(session.`object`)

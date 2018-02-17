@@ -15,10 +15,10 @@ import org.springframework.data.cassandra.repository.config.EnableReactiveCassan
 @Configuration
 @EnableReactiveCassandraRepositories(basePackages = ["fund.cyber.cassandra.bitcoin.repository"])
 @Conditional(BitcoinFamilyChainCondition::class)
-open class BitcoinRepositoryConfiguration(
-        @Value("#{systemProperties['${CASSANDRA_HOSTS}'] ?: '${CASSANDRA_HOSTS_DEFAULT}'}")
+class BitcoinRepositoryConfiguration(
+        @Value("#{systemProperties['$CASSANDRA_HOSTS'] ?: '$CASSANDRA_HOSTS_DEFAULT'}")
         private val cassandraHosts: String,
-        @Value("#{systemProperties['${CASSANDRA_PORT}'] ?: '${CASSANDRA_PORT_DEFAULT}'}")
+        @Value("#{systemProperties['$CASSANDRA_PORT'] ?: '$CASSANDRA_PORT_DEFAULT'}")
         private val cassandraPort: Int
 ) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort) {
 
@@ -28,7 +28,7 @@ open class BitcoinRepositoryConfiguration(
     override fun getEntityBasePackages(): Array<String> = arrayOf("fund.cyber.cassandra.bitcoin.model")
 
     @Bean
-    open fun migrationSettings(): MigrationSettings {
+    fun migrationSettings(): MigrationSettings {
         return BlockchainMigrationSettings(chain)
     }
 }

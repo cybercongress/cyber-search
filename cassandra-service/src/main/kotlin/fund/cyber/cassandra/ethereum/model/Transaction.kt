@@ -9,27 +9,28 @@ import java.time.Instant
 @Table("tx")
 data class CqlEthereumTransaction(
         @PrimaryKey val hash: String,
-        val nonce: Long,           //parsed from hex
-        val block_hash: String?,   //null when its pending
-        val block_number: Long,   //parsed from hex   //null when its pending
+        val nonce: Long,
+        val block_hash: String?,
+        val block_number: Long,
         val block_time: Instant,
-        val transaction_index: Long,//parsed from hex
+        val transaction_index: Long,
         val from: String,
-        val to: String?,           //null when its a contract creation transaction.
-        val value: String,         //decimal   //parsed from hex
-        val gas_price: BigDecimal, //parsed from hex
-        val gas_limit: Long,       //parsed from hex
-        val gas_used: Long,        //parsed from hex
-        val fee: String,           //decimal //calculated
+        val to: String?,
+        val value: String,
+        val gas_price: BigDecimal,
+        val gas_limit: Long,
+        val gas_used: Long,
+        val fee: String,
         val input: String,
-        val creates: String?       //creates contract hash
+        val creates: String?
 ) : CqlEthereumItem {
 
     constructor(tx: EthereumTransaction) : this(
             hash = tx.hash, nonce = tx.nonce, block_hash = tx.block_hash, block_number = tx.block_number,
             block_time = tx.block_time, transaction_index = tx.transaction_index, from = tx.from, to = tx.to,
-            value = tx.value, gas_price = tx.gas_price, gas_limit = tx.gas_limit, gas_used = tx.gas_used,
-            fee = tx.fee, input = tx.input, creates = tx.creates
+            value = tx.value.toString(), gas_price = tx.gas_price, gas_limit = tx.gas_limit, gas_used = tx.gas_used,
+            fee = tx.fee.toString(), input = tx.input, creates = tx.creates
+
     )
 
     fun addressesUsedInTransaction() = listOfNotNull(from, to, creates)

@@ -24,9 +24,9 @@ data class EthereumBlock(
         val gas_used: Long,                //parsed from hex
         val tx_number: Int,
         val uncles: List<String>,
-        val block_reward: String,
-        val uncles_reward: String,
-        val tx_fees: String
+        val block_reward: BigDecimal,
+        val uncles_reward: BigDecimal,
+        val tx_fees: BigDecimal
 )
 
 //todo: add properly support of new classic fork

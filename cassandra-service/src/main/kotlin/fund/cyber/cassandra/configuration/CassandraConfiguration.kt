@@ -3,7 +3,6 @@ package fund.cyber.cassandra.configuration
 import com.datastax.driver.core.HostDistance
 import com.datastax.driver.core.PoolingOptions
 import fund.cyber.cassandra.migration.DefaultMigrationsLoader
-import fund.cyber.search.model.chains.BitcoinFamilyChain
 import fund.cyber.search.model.chains.Chain
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
@@ -17,7 +16,7 @@ import org.springframework.data.cassandra.config.AbstractReactiveCassandraConfig
 
 const val MAX_CONCURRENT_REQUESTS = 8182
 
-val Chain.keyspace: String get() = name.toLowerCase()
+val Chain.keyspace: String get() = lowerCaseName
 
 abstract class CassandraRepositoriesConfiguration(
         private val cassandraHosts: String,
@@ -40,7 +39,7 @@ abstract class CassandraRepositoriesConfiguration(
 
 
 @Configuration
-open class CassandraConfiguration {
+class CassandraConfiguration {
     private val defaultHttpHeaders = listOf(BasicHeader("Keep-Alive", "timeout=10, max=1024"))
     private val connectionManager = PoolingHttpClientConnectionManager().apply {
         defaultMaxPerRoute = 16
@@ -48,12 +47,12 @@ open class CassandraConfiguration {
     }
 
     @Bean
-    open fun httpClient() = HttpClients.custom()
+    fun httpClient() = HttpClients.custom()
             .setConnectionManager(connectionManager)
             .setConnectionManagerShared(true)
             .setDefaultHeaders(defaultHttpHeaders)
             .build()!!
 
     @Bean
-    open fun migrationsLoader() = DefaultMigrationsLoader()
+    fun migrationsLoader() = DefaultMigrationsLoader()
 }

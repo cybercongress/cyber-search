@@ -2,9 +2,7 @@ package fund.cyber.cassandra.ethereum.model
 
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTransaction
-import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
-import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.math.BigInteger
 import java.time.Instant
@@ -13,7 +11,7 @@ interface CqlEthereumItem
 
 @Table("block")
 data class CqlEthereumBlock(
-        @PrimaryKey val number: Long,                   //parsed from hex
+        @PrimaryKey val number: Long,
         val hash: String,
         val parent_hash: String,
         val timestamp: Instant,
@@ -24,11 +22,11 @@ data class CqlEthereumBlock(
         val receipts_root: String,
         val miner: String,
         val difficulty: BigInteger,
-        val total_difficulty: BigInteger,   //parsed from hex
+        val total_difficulty: BigInteger,
         val extra_data: String,
-        val size: Long,                     //parsed from hex
-        val gas_limit: Long,                //parsed from hex
-        val gas_used: Long,                //parsed from hex
+        val size: Long,
+        val gas_limit: Long,
+        val gas_used: Long,
         val tx_number: Int,
         val uncles: List<String>,
         val block_reward: String,
@@ -42,8 +40,8 @@ data class CqlEthereumBlock(
             state_root = block.state_root, receipts_root = block.receipts_root, miner = block.miner,
             difficulty = block.difficulty, total_difficulty = block.total_difficulty, extra_data = block.extra_data,
             size = block.size, gas_limit = block.gas_limit, gas_used = block.gas_used, tx_number = block.tx_number,
-            uncles = block.uncles, block_reward = block.block_reward, uncles_reward = block.uncles_reward,
-            tx_fees = block.tx_fees
+            uncles = block.uncles, block_reward = block.block_reward.toString(),
+            uncles_reward = block.uncles_reward.toString(), tx_fees = block.tx_fees.toString()
     )
 }
 
@@ -60,7 +58,7 @@ data class CqlEthereumBlockTxPreview(
 
     constructor(tx: EthereumTransaction) : this(
             blockNumber = tx.block_number, hash = tx.hash,
-            fee = tx.fee, value = tx.value,
+            fee = tx.fee.toString(), value = tx.value.toString(),
             from = tx.from, to = (tx.to ?: tx.creates)!!, //both 'to' or 'creates' can't be null at same time
             creates_contract = tx.creates != null
     )
