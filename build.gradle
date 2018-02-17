@@ -26,6 +26,9 @@ buildscript {
         mockitoVersion = "2.1.0"
         mockitoKotlinVersion = "0.7.0"
 
+        // metrics
+        micrometerVersion = "1.0.0-rc.9"
+
         // logs
         slf4jVersion = "1.7.25"
         lockbackVersion = "1.2.3"
@@ -92,6 +95,9 @@ subprojects {
 
     dependencyManagement {
         dependencies {
+            imports {
+                mavenBom "org.springframework.boot:spring-boot-starter-parent:$bootPluginVersion"
+            }
             dependency("org.slf4j:slf4j-api:$slf4jVersion")
             dependency("ch.qos.logback:logback-classic:$lockbackVersion")
 
@@ -140,6 +146,9 @@ subprojects {
                 exclude 'org.jetbrains.kotlin:kotlin-stdlib'
             }
             dependency("io.projectreactor:reactor-core:$reactorVersion")
+
+            dependency("io.micrometer:micrometer-core:$micrometerVersion")
+            dependency("io.micrometer:micrometer-registry-prometheus:$micrometerVersion")
         }
     }
 
