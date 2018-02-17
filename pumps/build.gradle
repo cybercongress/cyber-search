@@ -37,12 +37,6 @@ project(":pumps:ethereum") {
 
     apply plugin: "org.springframework.boot"
 
-
-    bootJar {
-        mainClassName = 'fund.cyber.pump.PumpApplication'
-    }
-
-
     dependencies {
 
         compile project(":pumps:common")

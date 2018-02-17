@@ -24,26 +24,20 @@ private const val SCHEMA_VERSION_CQL_LOCATION = "/migrations/schema_version_crea
 
 @Component
 class ElassandraSchemaMigrationEngine(
-        @Value("#{systemProperties['${CASSANDRA_HOSTS}'] ?: '${CASSANDRA_HOSTS_DEFAULT}'}")
+        @Value("#{systemProperties['$CASSANDRA_HOSTS'] ?: '$CASSANDRA_HOSTS_DEFAULT'}")
         private val cassandraHosts: String,
-        @Value("#{systemProperties['${ELASTIC_HTTP_PORT}'] ?: '${ELASTIC_HTTP_PORT_DEFAULT}'}")
+        @Value("#{systemProperties['$ELASTIC_HTTP_PORT'] ?: '$ELASTIC_HTTP_PORT_DEFAULT'}")
         private val elasticPort: Int,
         private val httpClient: HttpClient,
         @Qualifier("keyspaceMigrationCassandraTemplate")
         private val cassandraTemplate: ReactiveCassandraOperations,
         private val schemaVersionRepository: SchemaVersionRepository,
-        private val applicationContext: ApplicationContext,
-        private val migrationsLoader: MigrationsLoader
+        private val migrationsLoader: MigrationsLoader,
+        private val migrationSettings: MigrationSettings = defaultSettings
 ) : InitializingBean {
+
     private val elasticBaseUri = URI.create("http://${cassandraHosts.split(",").first()}:$elasticPort")
     private val log = LoggerFactory.getLogger(ElassandraSchemaMigrationEngine::class.java)
-
-    private val migrationSettings: MigrationSettings
-        get() = try {
-            applicationContext.getBean(MigrationSettings::class.java)
-        } catch (e: BeansException) {
-            defaultSettings
-        }
 
     override fun afterPropertiesSet() {
         createSchemaVersionTable()
@@ -103,8 +97,10 @@ class ElassandraSchemaMigrationEngine(
     }
 
     private fun createSchemaVersionTable() {
-        val createSchemaVersionCql = MigrationRepositoryConfiguration::class.java.getResourceAsStream(SCHEMA_VERSION_CQL_LOCATION)
-                .bufferedReader().use { it.readText() }
+
+        val createSchemaVersionCql = MigrationRepositoryConfiguration::class.java
+                .getResourceAsStream(SCHEMA_VERSION_CQL_LOCATION).readAsString()
+
         cassandraTemplate.reactiveCqlOperations.execute(createSchemaVersionCql).block()
     }
 

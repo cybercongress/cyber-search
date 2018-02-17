@@ -3,9 +3,10 @@ package fund.cyber
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
 
-@SpringBootApplication(exclude = [CassandraDataAutoConfiguration::class])
-open class EthereumDumpApplication {
+@SpringBootApplication(exclude = [CassandraDataAutoConfiguration::class, KafkaAutoConfiguration::class])
+class EthereumDumpApplication {
 
     companion object {
 

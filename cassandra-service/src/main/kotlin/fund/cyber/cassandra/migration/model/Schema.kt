@@ -11,6 +11,4 @@ data class CqlSchemaVersion(
         @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED) val id: String,
         val migration_hash: Int,
         val apply_time: Date
-) {
-    constructor() : this("", "0", 0, Date())
-}
+)

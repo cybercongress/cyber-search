@@ -30,9 +30,9 @@ import org.springframework.kafka.listener.config.ContainerProperties
 //todo add dump of tx, block tx, address tx
 @EnableKafka
 @Configuration
-open class ApplicationConfiguration {
+class ApplicationConfiguration {
 
-    @Value("#{systemProperties['${KAFKA_BROKERS}'] ?: '${KAFKA_BROKERS_DEFAULT}'}")
+    @Value("#{systemProperties['$KAFKA_BROKERS'] ?: '$KAFKA_BROKERS_DEFAULT'}")
     private lateinit var kafkaBrokers: String
 
 
@@ -53,13 +53,13 @@ open class ApplicationConfiguration {
 
 
     @Bean
-    open fun chain(): EthereumFamilyChain {
+    fun chain(): EthereumFamilyChain {
         val chainAsString = env(CHAIN, "")
         return EthereumFamilyChain.valueOf(chainAsString)
     }
 
     @Bean
-    open fun blocksListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, EthereumBlock> {
+    fun blocksListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, EthereumBlock> {
 
         val consumerConfig = consumerConfigs().apply {
             put(ConsumerConfig.GROUP_ID_CONFIG, "ethereum-blocks-dump-process4")
@@ -79,7 +79,7 @@ open class ApplicationConfiguration {
     }
 
     @Bean
-    open fun txsListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, EthereumTransaction> {
+    fun txsListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, EthereumTransaction> {
 
         val consumerConfig = consumerConfigs().apply {
             put(ConsumerConfig.GROUP_ID_CONFIG, "ethereum-txs-dump-process4")
@@ -99,7 +99,7 @@ open class ApplicationConfiguration {
     }
 
     @Bean
-    open fun unclesListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, EthereumUncle> {
+    fun unclesListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, EthereumUncle> {
 
         val consumerConfig = consumerConfigs().apply {
             put(ConsumerConfig.GROUP_ID_CONFIG, "ethereum-uncles-dump-process4")

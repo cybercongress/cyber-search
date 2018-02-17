@@ -14,7 +14,7 @@ import org.web3j.protocol.Web3j
 import org.web3j.protocol.http.HttpService
 
 @Configuration
-open class EthereumClientConfiguration {
+class EthereumClientConfiguration {
     private val defaultHttpHeaders = listOf(BasicHeader("Keep-Alive", "timeout=10, max=1024"))
     private val connectionManager = PoolingHttpClientConnectionManager().apply {
         defaultMaxPerRoute = 16
@@ -24,18 +24,18 @@ open class EthereumClientConfiguration {
     private val endpointUrl = env(CHAIN_NODE_URL, ETHEREUM_CHAIN_NODE_DEFAULT_URL)
 
     @Bean
-    open fun httpClient() = HttpClients.custom()
+    fun httpClient() = HttpClients.custom()
             .setConnectionManager(connectionManager)
             .setConnectionManagerShared(true)
             .setDefaultHeaders(defaultHttpHeaders)
             .build()!!
 
     @Bean
-    open fun parityClient() = Web3j.build(HttpService(endpointUrl, httpClient()))
+    fun parityClient() = Web3j.build(HttpService(endpointUrl, httpClient()))
 
 
     @Bean
-    open fun blockchainInterface(
+    fun blockchainInterface(
             parityToEthereumBundleConverter: ParityToEthereumBundleConverter
     ): FlowableBlockchainInterface<EthereumBlockBundle> {
         val ethereumBlockchainInterface = EthereumBlockchainInterface(parityClient(), parityToEthereumBundleConverter)

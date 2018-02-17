@@ -2,10 +2,6 @@ project(":dumps:bitcoin") {
 
     apply plugin: "org.springframework.boot"
 
-    springBoot {
-        mainClassName = 'fund.cyber.DumpApplication'
-    }
-
     dependencies {
 
         compile project(":common")
@@ -20,12 +16,6 @@ project(":dumps:bitcoin") {
 project(":dumps:ethereum") {
 
     apply plugin: "org.springframework.boot"
-
-
-    bootJar {
-        mainClassName = 'fund.cyber.DumpApplication'
-    }
-
 
     dependencies {
 

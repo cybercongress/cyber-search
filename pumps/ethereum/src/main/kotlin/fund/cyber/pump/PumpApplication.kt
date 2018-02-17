@@ -6,14 +6,14 @@ import fund.cyber.search.configuration.env
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
 import org.springframework.context.annotation.Bean
 
-
-@SpringBootApplication
-open class EthereumPumpApplication {
+@SpringBootApplication(exclude = [KafkaAutoConfiguration::class])
+class EthereumPumpApplication {
 
     @Bean
-    open fun chain(): EthereumFamilyChain {
+    fun chain(): EthereumFamilyChain {
         val chainAsString = env(CHAIN, "")
         return EthereumFamilyChain.valueOf(chainAsString)
     }

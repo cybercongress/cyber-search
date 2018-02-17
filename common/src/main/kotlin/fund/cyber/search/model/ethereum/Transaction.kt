@@ -13,11 +13,11 @@ data class EthereumTransaction(
         val transaction_index: Long,//parsed from hex
         val from: String,
         val to: String?,           //null when its a contract creation transaction.
-        val value: String,         //decimal   //parsed from hex
+        val value: BigDecimal,         //decimal   //parsed from hex
         val gas_price: BigDecimal, //parsed from hex
         val gas_limit: Long,       //parsed from hex
         val gas_used: Long,        //parsed from hex
-        val fee: String,           //decimal //calculated
+        val fee: BigDecimal,           //decimal //calculated
         val input: String,
         val creates: String?       //creates contract hash
 ) {

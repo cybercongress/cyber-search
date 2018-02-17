@@ -2,7 +2,7 @@ package fund.cyber.cassandra.migration
 
 import fund.cyber.search.model.chains.Chain
 
-val defaultSettings = MigrationSettings("default", "")
+val defaultSettings = MigrationSettings("default", "default")
 
 open class MigrationSettings(
         val migrationDirectory: String,
@@ -12,6 +12,6 @@ open class MigrationSettings(
 open class BlockchainMigrationSettings(
         chain: Chain
 ) : MigrationSettings(
-        migrationDirectory = chain.name.toLowerCase(),
-        applicationId = chain.name.toLowerCase()
+        migrationDirectory = chain.lowerCaseName,
+        applicationId = chain.lowerCaseName
 )

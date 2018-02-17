@@ -36,7 +36,7 @@ class ParityToEthereumBundleConverter(
                     miner = uncle.miner, hash = uncle.hash, number = uncleNumber, position = index,
                     timestamp = Instant.ofEpochSecond(uncle.timestampRaw.hexToLong()),
                     block_number = block.number, block_time = block.timestamp, block_hash = block.hash,
-                    uncle_reward = getUncleReward(chain, uncleNumber, block.number).toString()
+                    uncle_reward = getUncleReward(chain, uncleNumber, block.number)
             )
         }
     }
@@ -47,7 +47,7 @@ class ParityToEthereumBundleConverter(
                 .map { parityTx ->
                     EthereumTransaction(
                             from = parityTx.from, to = parityTx.to, nonce = parityTx.nonce.toLong(),
-                            value = (BigDecimal(parityTx.value) * weiToEthRate).toString(),
+                            value = BigDecimal(parityTx.value) * weiToEthRate,
                             hash = parityTx.hash, block_hash = parityBlock.hash,
                             block_number = parityBlock.numberRaw.hexToLong(),
                             block_time = Instant.ofEpochSecond(parityBlock.timestampRaw.hexToLong()),
@@ -56,7 +56,7 @@ class ParityToEthereumBundleConverter(
                             gas_limit = parityBlock.gasLimitRaw.hexToLong(),
                             gas_used = parityTx.transactionIndexRaw.hexToLong(),
                             gas_price = BigDecimal(parityTx.gasPrice) * weiToEthRate,
-                            fee = (BigDecimal(parityTx.gasPrice * parityTx.gas) * weiToEthRate).toString()
+                            fee = BigDecimal(parityTx.gasPrice * parityTx.gas) * weiToEthRate
                     )
                 }
     }
@@ -84,8 +84,8 @@ class ParityToEthereumBundleConverter(
                 receipts_root = parityBlock.receiptsRoot, state_root = parityBlock.stateRoot,
                 sha3_uncles = parityBlock.sha3Uncles, uncles = parityBlock.uncles,
                 tx_number = parityBlock.transactions.size,
-                tx_fees = blockTxesFees.sum().toString(), block_reward = blockReward.toString(),
-                uncles_reward = uncleReward.toString()
+                tx_fees = blockTxesFees.sum(), block_reward = blockReward,
+                uncles_reward = uncleReward
         )
     }
 }

@@ -13,9 +13,13 @@ private const val JSON_EXTENSION = "json"
 class DefaultMigrationsLoader(
         private val migrationsRootDirectory: String = "migrations"
 ) : MigrationsLoader {
+
     override fun load(settings: MigrationSettings): List<Migration> {
+
         val url = MigrationRepositoryConfiguration::class.java.getResource("/$migrationsRootDirectory/${settings.migrationDirectory}")
-        return File(url.path).walk().map { createMigration(it, settings) }.toCollection(mutableListOf())
+
+        return if (url == null) emptyList() else File(url.path)
+                .walk().map { createMigration(it, settings) }.toCollection(mutableListOf())
     }
 
 
