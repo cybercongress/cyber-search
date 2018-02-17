@@ -1,6 +1,6 @@
 project(":pumps:common") {
 
-    apply plugin: "org.springframework.boot"
+    apply plugin: "io.spring.dependency-management"
     jar.archiveName = "common-pumps"
 
     dependencies {
@@ -9,13 +9,13 @@ project(":pumps:common") {
         compile project(":common-kafka")
 
         compile 'io.reactivex.rxjava2:rxkotlin'
-        compile "org.springframework.boot:spring-boot-starter:$bootPluginVersion"
+        compile 'org.springframework.boot:spring-boot-starter'
 
         compile 'org.springframework.boot:spring-boot-starter-webflux'
         compile 'org.springframework.boot:spring-boot-starter-reactor-netty'
         compile 'org.springframework.boot:spring-boot-starter-actuator'
-        compile 'io.micrometer:micrometer-registry-prometheus:1.0.0-rc.9'
-        compile 'io.micrometer:micrometer-core:1.0.0-rc.9'
+        compile 'io.micrometer:micrometer-registry-prometheus'
+        compile 'io.micrometer:micrometer-core'
     }
 }
 
