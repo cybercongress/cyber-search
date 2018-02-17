@@ -1,18 +1,22 @@
 package fund.cyber.pump.common
 
+import io.micrometer.core.instrument.MeterRegistry
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
+import java.util.concurrent.atomic.AtomicLong
 
 
 private val log = LoggerFactory.getLogger(ChainPump::class.java)!!
 
 
 //todo add chain reorganisation
+@Component
 class ChainPump<T : BlockBundle>(
         private val flowableBlockchainInterface: FlowableBlockchainInterface<T>,
         private val kafkaBlockBundleProducer: KafkaBlockBundleProducer<T>,
-        private val lastPumpedBundlesProvider: LastPumpedBundlesProvider<T>
-
+        private val lastPumpedBundlesProvider: LastPumpedBundlesProvider<T>,
+        private val monitoring: MeterRegistry
 ) {
 
     fun startPump() {
@@ -27,12 +31,15 @@ class ChainPump<T : BlockBundle>(
 
     private fun initializeStreamProcessing(startBlockNumber: Long) {
 
+        val lastProcessedBlockMonitor = monitoring.gauge("pump_last_processed_block", AtomicLong(startBlockNumber - 1))!!
+
         flowableBlockchainInterface.subscribeBlocks(startBlockNumber)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .blockingSubscribe(
                         { blockBundle ->
                             log.info("Processing ${blockBundle.number} block")
+                            lastProcessedBlockMonitor.set(blockBundle.number)
                             kafkaBlockBundleProducer.storeBlockBundle(blockBundle)
                         },
                         { error ->
