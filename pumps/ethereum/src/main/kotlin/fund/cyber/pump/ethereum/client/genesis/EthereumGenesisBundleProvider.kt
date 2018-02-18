@@ -7,6 +7,7 @@ import fund.cyber.pump.common.genesis.GenesisBundleProvider
 import fund.cyber.pump.ethereum.client.EthereumBlockBundle
 import fund.cyber.search.model.chains.Chain
 import fund.cyber.search.model.ethereum.EthereumTransaction
+import fund.cyber.search.model.ethereum.weiToEthRate
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -46,7 +47,7 @@ open class EthereumGenesisBundleFileProvider(
                             transaction_index = 0,
                             from = "",
                             to = addressId,
-                            value = BigDecimal(balance!!),
+                            value = BigDecimal(balance!!).multiply(weiToEthRate),
                             gas_price = BigDecimal.ZERO,
                             gas_used = 0,
                             gas_limit = 0,
