@@ -29,6 +29,7 @@ class ChainPump<T : BlockBundle>(
         val lastPumpedBlockNumber = lastPumpedBundlesProvider.getLastBlockBundles().firstOrNull()?.second?.number ?: -1
         val startBlockNumber = lastPumpedBlockNumber + 1
 
+        //todo: start genesis loading when there are no data in genesis affected topic
         if (startBlockNumber == 0L) genesisLoader.load()
 
         log.info("Start block number is $startBlockNumber")
