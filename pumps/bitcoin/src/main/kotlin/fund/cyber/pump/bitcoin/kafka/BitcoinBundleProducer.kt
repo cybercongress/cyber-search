@@ -18,7 +18,7 @@ class BitcoinBlockBundleProducer(
 
     @Transactional
     override fun storeBlockBundle(blockBundle: BitcoinBlockBundle) {
-        blockBundle.block?.let { kafkaTemplate.send(chain.blockPumpTopic, PumpEvent.NEW_BLOCK, it) }
+        kafkaTemplate.send(chain.blockPumpTopic, PumpEvent.NEW_BLOCK, blockBundle.block)
         blockBundle.transactions.forEach { tx -> kafkaTemplate.send(chain.txPumpTopic, PumpEvent.NEW_BLOCK, tx) }
     }
 }

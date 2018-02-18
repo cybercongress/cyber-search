@@ -2,19 +2,15 @@ package fund.cyber.pump.ethereum.client
 
 import fund.cyber.pump.common.ConcurrentPulledBlockchain
 import fund.cyber.pump.common.FlowableBlockchainInterface
-import fund.cyber.pump.ethereum.client.genesis.EthereumGenesisBundleFileProvider
-import fund.cyber.pump.ethereum.client.genesis.EthereumGenesisBundleProvider
+import fund.cyber.pump.ethereum.client.genesis.EthereumGenesisDataProvider
 import fund.cyber.search.configuration.CHAIN_NODE_URL
 import fund.cyber.search.configuration.ETHEREUM_CHAIN_NODE_DEFAULT_URL
 import fund.cyber.search.configuration.env
-import fund.cyber.search.model.chains.EthereumFamilyChain
-import fund.cyber.search.model.events.PumpEvent
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.apache.http.message.BasicHeader
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.kafka.core.KafkaTemplate
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.http.HttpService
 
@@ -41,12 +37,13 @@ class EthereumClientConfiguration {
 
     @Bean
     fun blockchainInterface(
-            parityToEthereumBundleConverter: ParityToEthereumBundleConverter
+            parityToEthereumBundleConverter: ParityToEthereumBundleConverter,
+            genesisDataProvider: EthereumGenesisDataProvider
     ): FlowableBlockchainInterface<EthereumBlockBundle> {
-        val ethereumBlockchainInterface = EthereumBlockchainInterface(parityClient(), parityToEthereumBundleConverter)
+        val ethereumBlockchainInterface = EthereumBlockchainInterface(
+                parityClient(), parityToEthereumBundleConverter, genesisDataProvider
+        )
         return ConcurrentPulledBlockchain(ethereumBlockchainInterface)
     }
 
-    @Bean
-    fun genesisProvider(): EthereumGenesisBundleProvider = EthereumGenesisBundleFileProvider()
 }

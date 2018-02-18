@@ -1,6 +1,5 @@
 package fund.cyber.pump.common
 
-import fund.cyber.pump.common.genesis.GenesisLoader
 import fund.cyber.search.model.chains.Chain
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
@@ -19,7 +18,6 @@ class ChainPump<T : BlockBundle>(
         private val flowableBlockchainInterface: FlowableBlockchainInterface<T>,
         private val kafkaBlockBundleProducer: KafkaBlockBundleProducer<T>,
         private val lastPumpedBundlesProvider: LastPumpedBundlesProvider<T>,
-        private val genesisLoader: GenesisLoader<T>,
         private val chain: Chain,
         private val monitoring: MeterRegistry
 ) {
@@ -28,9 +26,6 @@ class ChainPump<T : BlockBundle>(
 
         val lastPumpedBlockNumber = lastPumpedBundlesProvider.getLastBlockBundles().firstOrNull()?.second?.number ?: -1
         val startBlockNumber = lastPumpedBlockNumber + 1
-
-        //todo: start genesis loading when there are no data in genesis affected topic
-        if (startBlockNumber == 0L) genesisLoader.load()
 
         log.info("Start block number is $startBlockNumber")
         initializeStreamProcessing(startBlockNumber)

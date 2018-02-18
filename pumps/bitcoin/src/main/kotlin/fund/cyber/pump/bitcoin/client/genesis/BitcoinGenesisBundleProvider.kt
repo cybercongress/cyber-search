@@ -4,21 +4,24 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import fund.cyber.pump.bitcoin.client.BitcoinBlockBundle
-import fund.cyber.pump.common.genesis.GenesisBundleProvider
+import fund.cyber.pump.common.genesis.GenesisDataProvider
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.bitcoin.BitcoinTxIn
 import fund.cyber.search.model.bitcoin.BitcoinTxOut
 import fund.cyber.search.model.chains.Chain
+import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.Instant
 
-interface BitcoinGenesisBundleProvider : GenesisBundleProvider<BitcoinBlockBundle>
+interface BitcoinGenesisDataProvider : GenesisDataProvider<BitcoinBlockBundle>
 
-open class BitcoinGenesisBundleFileProvider(
-        private val genesisFileRootDirectory: String = "genesis"
-) : BitcoinGenesisBundleProvider {
+@Component
+class BitcoinGenesisDataFileProvider(
+        private val genesisFileRootDirectory: String = "genesis",
+        private val chain: Chain
+) : BitcoinGenesisDataProvider {
 
-    override fun provide(chain: Chain): BitcoinBlockBundle {
+    override fun provide(blockBundle: BitcoinBlockBundle): BitcoinBlockBundle {
 
         val filePath = "/$genesisFileRootDirectory/${chain.lowerCaseName}.json"
 
@@ -28,7 +31,7 @@ open class BitcoinGenesisBundleFileProvider(
 
         val genesis: BitcoinGenesisFile = jkMapper
                 .readValue(
-                        BitcoinGenesisBundleFileProvider::class.java.getResourceAsStream(filePath),
+                        BitcoinGenesisDataFileProvider::class.java.getResourceAsStream(filePath),
                         BitcoinGenesisFile::class.java
                 )
 
@@ -56,9 +59,8 @@ open class BitcoinGenesisBundleFileProvider(
         }
 
         return BitcoinBlockBundle(
-                hash = "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
-                parentHash = "0000000000000000000000000000000000000000000000000000000000000000",
-                transactions = transactions, block = null, number = 0
+                hash = blockBundle.hash, parentHash = blockBundle.parentHash,
+                transactions = transactions, block = blockBundle.block, number = blockBundle.number
         )
     }
 
