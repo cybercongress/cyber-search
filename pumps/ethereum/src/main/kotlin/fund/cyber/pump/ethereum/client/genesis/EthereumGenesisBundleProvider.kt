@@ -3,21 +3,24 @@ package fund.cyber.pump.ethereum.client.genesis
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import fund.cyber.pump.common.genesis.GenesisBundleProvider
+import fund.cyber.pump.common.genesis.GenesisDataProvider
 import fund.cyber.pump.ethereum.client.EthereumBlockBundle
 import fund.cyber.search.model.chains.Chain
 import fund.cyber.search.model.ethereum.EthereumTransaction
 import fund.cyber.search.model.ethereum.weiToEthRate
+import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.Instant
 
-interface EthereumGenesisBundleProvider : GenesisBundleProvider<EthereumBlockBundle>
+interface EthereumGenesisDataProvider : GenesisDataProvider<EthereumBlockBundle>
 
-open class EthereumGenesisBundleFileProvider(
-        private val genesisFileRootDirectory: String = "genesis"
-) : EthereumGenesisBundleProvider {
+@Component
+class EthereumGenesisDataFileProvider(
+        private val genesisFileRootDirectory: String = "genesis",
+        private val chain: Chain
+) : EthereumGenesisDataProvider {
 
-    override fun provide(chain: Chain): EthereumBlockBundle {
+    override fun provide(blockBundle: EthereumBlockBundle): EthereumBlockBundle {
 
         val filePath = "/$genesisFileRootDirectory/${chain.lowerCaseName}.json"
 
@@ -27,7 +30,7 @@ open class EthereumGenesisBundleFileProvider(
 
         val genesis: EthereumGenesisFile = jkMapper
                 .readValue(
-                        EthereumGenesisBundleProvider::class.java.getResourceAsStream(filePath),
+                        EthereumGenesisDataFileProvider::class.java.getResourceAsStream(filePath),
                         EthereumGenesisFile::class.java
                 )
 
@@ -62,9 +65,9 @@ open class EthereumGenesisBundleFileProvider(
                 .flatten()
 
         return EthereumBlockBundle(
-                hash = "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3",
-                parentHash = "0x0000000000000000000000000000000000000000000000000000000000000000",
-                transactions = txs, block = null, number = 0
+                hash = blockBundle.hash, parentHash = blockBundle.parentHash,
+                transactions = txs, block = blockBundle.block, number = blockBundle.number,
+                uncles = blockBundle.uncles
         )
     }
 }

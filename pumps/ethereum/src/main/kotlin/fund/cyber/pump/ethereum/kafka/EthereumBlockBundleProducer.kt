@@ -20,7 +20,7 @@ class EthereumBlockBundleProducer(
 
     @Transactional
     override fun storeBlockBundle(blockBundle: EthereumBlockBundle) {
-        blockBundle.block?.let { kafkaTemplate.send(chain.blockPumpTopic, PumpEvent.NEW_BLOCK, it) }
+        kafkaTemplate.send(chain.blockPumpTopic, PumpEvent.NEW_BLOCK, blockBundle.block)
         blockBundle.transactions.forEach { tx -> kafkaTemplate.send(chain.txPumpTopic, PumpEvent.NEW_BLOCK, tx) }
         blockBundle.uncles.forEach { uncle -> kafkaTemplate.send(chain.unclePumpTopic, PumpEvent.NEW_BLOCK, uncle)}
     }

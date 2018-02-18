@@ -2,6 +2,7 @@ package fund.cyber.pump.ethereum.client
 
 import fund.cyber.pump.common.BlockBundle
 import fund.cyber.pump.common.BlockchainInterface
+import fund.cyber.pump.ethereum.client.genesis.EthereumGenesisDataProvider
 import fund.cyber.search.common.await
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTransaction
@@ -15,16 +16,17 @@ class EthereumBlockBundle(
         override val hash: String,
         override val parentHash: String,
         override val number: Long,
-        val block: EthereumBlock?,
-        val uncles: List<EthereumUncle> = emptyList(),
-        val transactions: List<EthereumTransaction> = emptyList()
+        val block: EthereumBlock,
+        val uncles: List<EthereumUncle>,
+        val transactions: List<EthereumTransaction>
 ) : BlockBundle
 
 
 @Component
 class EthereumBlockchainInterface(
         val parityClient: Web3j,
-        val parityToBundleConverter: ParityToEthereumBundleConverter
+        val parityToBundleConverter: ParityToEthereumBundleConverter,
+        val genesisDataProvider: EthereumGenesisDataProvider
 ) : BlockchainInterface<EthereumBlockBundle> {
 
     override fun lastNetworkBlock() = parityClient.ethBlockNumber().send().blockNumber.longValueExact()
@@ -39,7 +41,8 @@ class EthereumBlockchainInterface(
         }
         val uncles = unclesFutures.await().map { uncleEthBlock -> uncleEthBlock.block }
 
-        return parityToBundleConverter.convert(ethBlock.block, uncles)
+        val bundle = parityToBundleConverter.convert(ethBlock.block, uncles)
+        return if (number == 0L) genesisDataProvider.provide(bundle) else bundle
     }
 
     private fun blockParameter(blockNumber: BigInteger) = DefaultBlockParameter.valueOf(blockNumber)!!
