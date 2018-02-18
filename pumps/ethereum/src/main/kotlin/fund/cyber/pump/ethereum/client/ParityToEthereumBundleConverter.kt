@@ -14,7 +14,6 @@ import java.time.Instant
 class ParityToEthereumBundleConverter(
         private val chain: EthereumFamilyChain
 ) {
-    private val weiToEthRate = BigDecimal("1E-18")
 
     fun convert(parityBlock: EthBlock.Block, uncles: List<EthBlock.Block>): EthereumBlockBundle {
         val block = parityBlockToDao(parityBlock)

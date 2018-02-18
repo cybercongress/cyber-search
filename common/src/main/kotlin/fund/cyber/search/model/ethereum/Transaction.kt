@@ -3,6 +3,7 @@ package fund.cyber.search.model.ethereum
 import java.math.BigDecimal
 import java.time.Instant
 
+val weiToEthRate = BigDecimal("1E-18")
 
 data class EthereumTransaction(
         val hash: String,
