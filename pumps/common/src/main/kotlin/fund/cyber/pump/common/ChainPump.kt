@@ -1,5 +1,6 @@
 package fund.cyber.pump.common
 
+import fund.cyber.pump.common.genesis.GenesisLoader
 import fund.cyber.search.model.chains.Chain
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
@@ -18,14 +19,17 @@ class ChainPump<T : BlockBundle>(
         private val flowableBlockchainInterface: FlowableBlockchainInterface<T>,
         private val kafkaBlockBundleProducer: KafkaBlockBundleProducer<T>,
         private val lastPumpedBundlesProvider: LastPumpedBundlesProvider<T>,
+        private val genesisLoader: GenesisLoader<T>,
         private val chain: Chain,
         private val monitoring: MeterRegistry
 ) {
 
     fun startPump() {
 
-        val lastPumpedBlockNumber = lastPumpedBundlesProvider.getLastBlockBundles().firstOrNull()?.second?.number ?: 0
+        val lastPumpedBlockNumber = lastPumpedBundlesProvider.getLastBlockBundles().firstOrNull()?.second?.number ?: -1
         val startBlockNumber = lastPumpedBlockNumber + 1
+
+        if (startBlockNumber == 0L) genesisLoader.load()
 
         log.info("Start block number is $startBlockNumber")
         initializeStreamProcessing(startBlockNumber)

@@ -11,8 +11,8 @@ class BitcoinBlockBundle(
         override val hash: String,
         override val parentHash: String,
         override val number: Long,
-        val block: BitcoinBlock,
-        val transactions: List<BitcoinTx>
+        val block: BitcoinBlock?,
+        val transactions: List<BitcoinTx> = emptyList()
 ) : BlockBundle
 
 class BitcoinBlockchainInterface(
