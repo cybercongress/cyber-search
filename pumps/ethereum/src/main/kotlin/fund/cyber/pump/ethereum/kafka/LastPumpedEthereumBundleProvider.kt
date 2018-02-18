@@ -1,4 +1,4 @@
-package fund.cyber.pump.ethereum.state
+package fund.cyber.pump.ethereum.kafka
 
 import fund.cyber.common.kafka.reader.SinglePartitionTopicLastItemsReader
 import fund.cyber.pump.common.LastPumpedBundlesProvider

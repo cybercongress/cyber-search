@@ -1,4 +1,4 @@
-package fund.cyber.pump.ethereum.sink
+package fund.cyber.pump.ethereum.kafka
 
 import fund.cyber.common.kafka.JsonSerializer
 import fund.cyber.search.configuration.KAFKA_BROKERS
@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 @EnableKafka
 @Configuration
 @EnableTransactionManagement
-class BitcoinBundleProducerConfiguration {
+class EthereumBundleProducerConfiguration {
 
     @Value("#{systemProperties['$KAFKA_BROKERS'] ?: '$KAFKA_BROKERS_DEFAULT'}")
     private lateinit var kafkaBrokers: String

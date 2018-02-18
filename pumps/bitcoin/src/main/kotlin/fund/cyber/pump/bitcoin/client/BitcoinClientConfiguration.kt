@@ -1,5 +1,7 @@
 package fund.cyber.pump.bitcoin.client
 
+import fund.cyber.pump.bitcoin.client.genesis.BitcoinGenesisBundleFileProvider
+import fund.cyber.pump.bitcoin.client.genesis.BitcoinGenesisBundleProvider
 import fund.cyber.pump.common.ConcurrentPulledBlockchain
 import fund.cyber.pump.common.FlowableBlockchainInterface
 import org.apache.http.impl.client.HttpClients
@@ -33,4 +35,7 @@ class BitcoinClientConfiguration {
         val bitcoinBlockchainInterface = BitcoinBlockchainInterface(rpcClient, rpcToBundleEntitiesConverter)
         return ConcurrentPulledBlockchain(bitcoinBlockchainInterface)
     }
+
+    @Bean
+    fun genesisBundleProvider(): BitcoinGenesisBundleProvider = BitcoinGenesisBundleFileProvider()
 }

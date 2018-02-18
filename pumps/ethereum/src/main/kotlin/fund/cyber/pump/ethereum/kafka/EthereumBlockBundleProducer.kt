@@ -1,4 +1,4 @@
-package fund.cyber.pump.ethereum.sink
+package fund.cyber.pump.ethereum.kafka
 
 import fund.cyber.pump.common.KafkaBlockBundleProducer
 import fund.cyber.pump.ethereum.client.EthereumBlockBundle
@@ -20,7 +20,7 @@ class EthereumBlockBundleProducer(
 
     @Transactional
     override fun storeBlockBundle(blockBundle: EthereumBlockBundle) {
-        kafkaTemplate.send(chain.blockPumpTopic, PumpEvent.NEW_BLOCK, blockBundle.block)
+        blockBundle.block?.let { kafkaTemplate.send(chain.blockPumpTopic, PumpEvent.NEW_BLOCK, it) }
         blockBundle.transactions.forEach { tx -> kafkaTemplate.send(chain.txPumpTopic, PumpEvent.NEW_BLOCK, tx) }
         blockBundle.uncles.forEach { uncle -> kafkaTemplate.send(chain.unclePumpTopic, PumpEvent.NEW_BLOCK, uncle)}
     }

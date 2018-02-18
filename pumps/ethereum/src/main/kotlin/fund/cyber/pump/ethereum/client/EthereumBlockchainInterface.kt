@@ -15,9 +15,9 @@ class EthereumBlockBundle(
         override val hash: String,
         override val parentHash: String,
         override val number: Long,
-        val block: EthereumBlock,
-        val uncles: List<EthereumUncle>,
-        val transactions: List<EthereumTransaction>
+        val block: EthereumBlock?,
+        val uncles: List<EthereumUncle> = emptyList(),
+        val transactions: List<EthereumTransaction> = emptyList()
 ) : BlockBundle
 
 
