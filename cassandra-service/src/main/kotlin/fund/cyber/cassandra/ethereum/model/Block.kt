@@ -2,6 +2,7 @@ package fund.cyber.cassandra.ethereum.model
 
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTransaction
+import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
 import org.springframework.data.cassandra.core.mapping.Table
 import java.math.BigInteger
@@ -47,17 +48,17 @@ data class CqlEthereumBlock(
 
 @Table("tx_preview_by_block")
 data class CqlEthereumBlockTxPreview(
-        @PrimaryKey val blockNumber: Long,
+        @PrimaryKey val block_number: Long,
         val fee: String,
         val value: String,
         val hash: String,
-        val from: String,
-        val to: String,
+        @Column(forceQuote = true) val from: String,
+        @Column(forceQuote = true) val to: String,
         val creates_contract: Boolean
 ) : CqlEthereumItem {
 
     constructor(tx: EthereumTransaction) : this(
-            blockNumber = tx.block_number, hash = tx.hash,
+            block_number = tx.block_number, hash = tx.hash,
             fee = tx.fee.toString(), value = tx.value.toString(),
             from = tx.from, to = (tx.to ?: tx.creates)!!, //both 'to' or 'creates' can't be null at same time
             creates_contract = tx.creates != null

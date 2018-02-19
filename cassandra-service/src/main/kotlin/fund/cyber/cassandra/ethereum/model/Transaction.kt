@@ -1,6 +1,7 @@
 package fund.cyber.cassandra.ethereum.model
 
 import fund.cyber.search.model.ethereum.EthereumTransaction
+import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
 import org.springframework.data.cassandra.core.mapping.Table
 import java.math.BigDecimal
@@ -14,8 +15,8 @@ data class CqlEthereumTransaction(
         val block_number: Long,
         val block_time: Instant,
         val transaction_index: Long,
-        val from: String,
-        val to: String?,
+        @Column(forceQuote = true) val from: String,
+        @Column(forceQuote = true) val to: String?,
         val value: String,
         val gas_price: BigDecimal,
         val gas_limit: Long,

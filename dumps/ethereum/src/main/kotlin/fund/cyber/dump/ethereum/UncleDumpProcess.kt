@@ -22,7 +22,7 @@ class UncleDumpProcess(
     //todo add retry
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, EthereumUncle>>) {
 
-        log.info("Dumping batch of ${records.size} $chain uncles")
+        log.info("Dumping batch of ${records.size} $chain uncles from offset ${records.first().offset()}")
 
         val unclesToSave = records.filter { record -> record.key() == PumpEvent.NEW_BLOCK }
                 .map { record -> record.value() }

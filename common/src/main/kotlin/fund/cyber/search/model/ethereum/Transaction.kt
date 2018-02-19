@@ -22,5 +22,5 @@ data class EthereumTransaction(
         val input: String,
         val creates: String?       //creates contract hash
 ) {
-    fun addressesUsedInTransaction() = listOfNotNull(from, to, creates)
+    fun addressesUsedInTransaction() = listOfNotNull(from, to, creates).filter { address -> !address.isEmpty() }
 }

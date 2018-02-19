@@ -22,7 +22,7 @@ class TxDumpProcess(
     //todo add retry
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, EthereumTransaction>>) {
 
-        log.info("Dumping batch of ${records.size} $chain txs")
+        log.info("Dumping batch of ${records.size} $chain txs from offset ${records.first().offset()}")
 
         val txsToSave = records.filter { record -> record.key() == PumpEvent.NEW_BLOCK }
                 .map { record -> record.value() }

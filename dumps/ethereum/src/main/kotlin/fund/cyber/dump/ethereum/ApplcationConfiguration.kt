@@ -72,6 +72,7 @@ class ApplicationConfiguration {
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain().blockPumpTopic).apply {
             messageListener = BlockDumpProcess(ethereumBlockRepository, ethereumAddressMinedBlockRepository, chain())
+            pollTimeout = 5000
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
 
@@ -92,6 +93,7 @@ class ApplicationConfiguration {
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain().txPumpTopic).apply {
             messageListener = TxDumpProcess(ethereumTxRepository, ethereumBlockTxRepository, ethereumAddressTxRepository, chain())
+            pollTimeout = 5000
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
 
@@ -112,6 +114,7 @@ class ApplicationConfiguration {
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain().unclePumpTopic).apply {
             messageListener = UncleDumpProcess(ethereumUncleRepository, ethereumAddressUncleRepository, chain())
+            pollTimeout = 5000
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
 

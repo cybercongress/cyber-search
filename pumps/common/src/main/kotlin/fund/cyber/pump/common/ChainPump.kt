@@ -5,6 +5,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.DependsOn
 import org.springframework.stereotype.Component
 import java.util.concurrent.atomic.AtomicLong
 
@@ -14,6 +15,7 @@ private val log = LoggerFactory.getLogger(ChainPump::class.java)!!
 
 //todo add chain reorganisation
 @Component
+@DependsOn(value = ["kafkaBlockBundleProducer"])  // to resolve generics ad runtime
 class ChainPump<T : BlockBundle>(
         private val flowableBlockchainInterface: FlowableBlockchainInterface<T>,
         private val kafkaBlockBundleProducer: KafkaBlockBundleProducer<T>,

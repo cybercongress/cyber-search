@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 
-@Component
+@Component("kafkaBlockBundleProducer")
 class EthereumBlockBundleProducer(
         private val kafkaTemplate: KafkaTemplate<PumpEvent, Any>,
         private val chain: EthereumFamilyChain

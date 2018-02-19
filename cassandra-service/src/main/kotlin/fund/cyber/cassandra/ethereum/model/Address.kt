@@ -4,6 +4,7 @@ import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTransaction
 import fund.cyber.search.model.ethereum.EthereumUncle
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
+import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
@@ -29,8 +30,8 @@ data class CqlEthereumAddressTxPreview(
         @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED) val fee: String,
         @PrimaryKeyColumn(ordinal = 2, type = PrimaryKeyType.CLUSTERED) val block_time: Instant,
         val hash: String,
-        val from: String,
-        val to: String,
+        @Column(forceQuote = true) val from: String,
+        @Column(forceQuote = true) val to: String,
         val value: String
 ) : CqlEthereumItem {
 

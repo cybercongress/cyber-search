@@ -10,7 +10,7 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
-@Component
+@Component("kafkaBlockBundleProducer")
 class BitcoinBlockBundleProducer(
         private val kafkaTemplate: KafkaTemplate<PumpEvent, Any>,
         private val chain: BitcoinFamilyChain

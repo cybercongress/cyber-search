@@ -12,7 +12,6 @@ import org.springframework.context.annotation.ComponentScan
 
 
 @SpringBootApplication(exclude = [KafkaAutoConfiguration::class])
-@ComponentScan(basePackageClasses = [BitcoinPumpApplication::class])
 class BitcoinPumpApplication {
 
     @Bean
