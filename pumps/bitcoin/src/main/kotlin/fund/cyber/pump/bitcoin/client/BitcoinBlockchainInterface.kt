@@ -12,6 +12,7 @@ class BitcoinBlockBundle(
         override val hash: String,
         override val parentHash: String,
         override val number: Long,
+        override val blockSize: Int,
         val block: BitcoinBlock,
         val transactions: List<BitcoinTx>
 ) : BlockBundle

@@ -2,6 +2,7 @@ package fund.cyber.pump.ethereum.client
 
 import fund.cyber.pump.common.ConcurrentPulledBlockchain
 import fund.cyber.pump.common.FlowableBlockchainInterface
+import fund.cyber.pump.common.monitoring.MonitoringService
 import fund.cyber.pump.ethereum.client.genesis.EthereumGenesisDataProvider
 import fund.cyber.search.configuration.CHAIN_NODE_URL
 import fund.cyber.search.configuration.ETHEREUM_CHAIN_NODE_DEFAULT_URL
@@ -38,10 +39,11 @@ class EthereumClientConfiguration {
     @Bean
     fun blockchainInterface(
             parityToEthereumBundleConverter: ParityToEthereumBundleConverter,
-            genesisDataProvider: EthereumGenesisDataProvider
+            genesisDataProvider: EthereumGenesisDataProvider,
+            monitoringService: MonitoringService
     ): FlowableBlockchainInterface<EthereumBlockBundle> {
         val ethereumBlockchainInterface = EthereumBlockchainInterface(
-                parityClient(), parityToEthereumBundleConverter, genesisDataProvider
+                parityClient(), parityToEthereumBundleConverter, genesisDataProvider, monitoringService
         )
         return ConcurrentPulledBlockchain(ethereumBlockchainInterface)
     }

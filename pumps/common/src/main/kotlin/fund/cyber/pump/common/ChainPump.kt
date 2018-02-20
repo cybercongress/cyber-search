@@ -1,8 +1,6 @@
 package fund.cyber.pump.common
 
-import fund.cyber.search.model.chains.Chain
-import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.Tag
+import fund.cyber.pump.common.monitoring.MonitoringService
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.DependsOn
@@ -15,13 +13,12 @@ private val log = LoggerFactory.getLogger(ChainPump::class.java)!!
 
 //todo add chain reorganisation
 @Component
-@DependsOn(value = ["kafkaBlockBundleProducer"])  // to resolve generics ad runtime
+@DependsOn(value = ["kafkaBlockBundleProducer"])  // to resolve generics at runtime
 class ChainPump<T : BlockBundle>(
         private val flowableBlockchainInterface: FlowableBlockchainInterface<T>,
         private val kafkaBlockBundleProducer: KafkaBlockBundleProducer<T>,
         private val lastPumpedBundlesProvider: LastPumpedBundlesProvider<T>,
-        private val chain: Chain,
-        private val monitoring: MeterRegistry
+        private val monitoring: MonitoringService
 ) {
 
     fun startPump() {
@@ -36,8 +33,8 @@ class ChainPump<T : BlockBundle>(
 
     private fun initializeStreamProcessing(startBlockNumber: Long) {
 
-        val labels = listOf(Tag.of("chain", chain.name))
-        val lastProcessedBlockMonitor = monitoring.gauge("pump_last_processed_block", labels, AtomicLong(startBlockNumber - 1))!!
+        val lastProcessedBlockMonitor = monitoring.gauge("pump_last_processed_block", AtomicLong(startBlockNumber - 1))
+        val blockSizeMonitor = monitoring.summary("pump_block_size", "bytes")
 
         flowableBlockchainInterface.subscribeBlocks(startBlockNumber)
                 .subscribeOn(Schedulers.io())
@@ -46,6 +43,7 @@ class ChainPump<T : BlockBundle>(
                         { blockBundle ->
                             log.info("Processing ${blockBundle.number} block")
                             lastProcessedBlockMonitor.set(blockBundle.number)
+                            blockSizeMonitor.record(blockBundle.blockSize.toDouble())
                             kafkaBlockBundleProducer.storeBlockBundle(blockBundle)
                         },
                         { error ->

@@ -35,7 +35,7 @@ class LastPumpedBitcoinBundlesProvider(
 
         val bundle = BitcoinBlockBundle(
                 number = block.height, hash = block.hash, parentHash = UNKNOWN_PARENT_HASH,
-                block = block, transactions = emptyList()
+                block = block, transactions = emptyList(), blockSize = block.size
         )
 
         return listOf(event to bundle)

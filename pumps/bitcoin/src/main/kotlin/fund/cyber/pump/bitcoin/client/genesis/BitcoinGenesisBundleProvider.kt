@@ -59,7 +59,7 @@ class BitcoinGenesisDataFileProvider(
         }
 
         return BitcoinBlockBundle(
-                hash = blockBundle.hash, parentHash = blockBundle.parentHash,
+                hash = blockBundle.hash, parentHash = blockBundle.parentHash, blockSize = blockBundle.blockSize,
                 transactions = transactions, block = blockBundle.block, number = blockBundle.number
         )
     }

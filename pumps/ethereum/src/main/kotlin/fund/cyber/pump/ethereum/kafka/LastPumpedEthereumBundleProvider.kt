@@ -30,7 +30,7 @@ class LastPumpedEthereumBundleProvider(
 
         val bundle = EthereumBlockBundle(
                 number = block.number, hash = block.hash, parentHash = UNKNOWN_PARENT_HASH,
-                block = block, transactions = emptyList(), uncles = emptyList()
+                block = block, transactions = emptyList(), uncles = emptyList(), blockSize = block.size.toInt()
         )
 
         return listOf(event to bundle)

@@ -67,7 +67,7 @@ class EthereumGenesisDataFileProvider(
         return EthereumBlockBundle(
                 hash = blockBundle.hash, parentHash = blockBundle.parentHash,
                 transactions = txs, block = blockBundle.block, number = blockBundle.number,
-                uncles = blockBundle.uncles
+                uncles = blockBundle.uncles, blockSize = blockBundle.blockSize
         )
     }
 }

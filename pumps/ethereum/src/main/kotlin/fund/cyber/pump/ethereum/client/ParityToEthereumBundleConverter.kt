@@ -24,7 +24,7 @@ class ParityToEthereumBundleConverter(
         return EthereumBlockBundle(
                 hash = parityBlock.hash, parentHash = parityBlock.parentHash ?: "-1",
                 number = parityBlock.number.toLong(), block = block, uncles = blockUncles,
-                transactions = transactions
+                transactions = transactions, blockSize = parityBlock.size.toInt()
         )
     }
 

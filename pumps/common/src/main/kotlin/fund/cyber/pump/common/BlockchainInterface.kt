@@ -7,6 +7,7 @@ interface BlockBundle {
     val hash: String
     val parentHash: String
     val number: Long
+    val blockSize: Int
 }
 
 interface BlockchainInterface<out T : BlockBundle> {

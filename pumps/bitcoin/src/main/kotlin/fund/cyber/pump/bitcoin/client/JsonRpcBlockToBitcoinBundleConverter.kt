@@ -31,7 +31,8 @@ class JsonRpcBlockToBitcoinBundleConverter(
 
         return BitcoinBlockBundle(
                 hash = jsonRpcBlock.hash, parentHash = jsonRpcBlock.previousblockhash ?: "-1",
-                number = jsonRpcBlock.height, block = block, transactions = transactions
+                number = jsonRpcBlock.height, block = block, transactions = transactions,
+                blockSize = jsonRpcBlock.size
         )
     }
 

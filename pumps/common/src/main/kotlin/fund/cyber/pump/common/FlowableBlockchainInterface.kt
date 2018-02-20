@@ -18,7 +18,7 @@ private val log = LoggerFactory.getLogger(ConcurrentPulledBlockchain::class.java
 
 class ConcurrentPulledBlockchain<T : BlockBundle>(
         private val blockchainInterface: BlockchainInterface<T>,
-        private val batchSize: Int = 4
+        private val batchSize: Int = 3
 ) : FlowableBlockchainInterface<T>, BlockchainInterface<T> by blockchainInterface {
 
     private var lastNetworkBlock = 0L

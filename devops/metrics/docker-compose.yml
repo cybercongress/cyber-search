@@ -15,6 +15,6 @@ services:
     network_mode: host
     container_name: grafana3
     restart: on-failure
-    image: grafana/grafana:5.0.0-beta3
+    image: grafana/grafana:5.0.0-beta4
 #    ports:
 #      - "3000:3000"
