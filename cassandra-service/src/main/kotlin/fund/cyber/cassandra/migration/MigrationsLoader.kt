@@ -1,6 +1,6 @@
 package fund.cyber.cassandra.migration
 
-import fund.cyber.cassandra.migration.configuration.MigrationRepositoryConfiguration
+import org.springframework.core.io.ClassPathResource
 import java.io.File
 
 interface MigrationsLoader {
@@ -16,9 +16,8 @@ class DefaultMigrationsLoader(
 
     override fun load(settings: MigrationSettings): List<Migration> {
 
-        val url = MigrationRepositoryConfiguration::class.java.getResource("/$migrationsRootDirectory/${settings.migrationDirectory}")
-
-        return if (url == null) emptyList() else File(url.path)
+        val migrations = ClassPathResource("/$migrationsRootDirectory/${settings.migrationDirectory}")
+        return if (!migrations.exists()) emptyList() else migrations.file
                 .walk().map { createMigration(it, settings) }.toCollection(mutableListOf())
     }
 

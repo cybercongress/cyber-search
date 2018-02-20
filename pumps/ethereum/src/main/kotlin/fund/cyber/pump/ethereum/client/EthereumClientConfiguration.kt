@@ -17,6 +17,7 @@ import org.web3j.protocol.http.HttpService
 
 @Configuration
 class EthereumClientConfiguration {
+
     private val defaultHttpHeaders = listOf(BasicHeader("Keep-Alive", "timeout=10, max=1024"))
     private val connectionManager = PoolingHttpClientConnectionManager().apply {
         defaultMaxPerRoute = 16
@@ -47,5 +48,4 @@ class EthereumClientConfiguration {
         )
         return ConcurrentPulledBlockchain(ethereumBlockchainInterface)
     }
-
 }
