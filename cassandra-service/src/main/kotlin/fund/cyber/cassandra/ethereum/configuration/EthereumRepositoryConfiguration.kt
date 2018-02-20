@@ -6,14 +6,24 @@ import fund.cyber.cassandra.migration.BlockchainMigrationSettings
 import fund.cyber.cassandra.migration.MigrationSettings
 import fund.cyber.search.configuration.*
 import fund.cyber.search.model.chains.EthereumFamilyChain
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.*
 import org.springframework.core.type.AnnotatedTypeMetadata
+import org.springframework.data.cassandra.ReactiveSession
+import org.springframework.data.cassandra.config.CassandraSessionFactoryBean
+import org.springframework.data.cassandra.core.ReactiveCassandraOperations
+import org.springframework.data.cassandra.core.ReactiveCassandraTemplate
+import org.springframework.data.cassandra.core.cql.session.DefaultBridgedReactiveSession
+import org.springframework.data.cassandra.core.cql.session.DefaultReactiveSessionFactory
 import org.springframework.data.cassandra.repository.config.EnableReactiveCassandraRepositories
 
 
 @Configuration
-@EnableReactiveCassandraRepositories(basePackages = ["fund.cyber.cassandra.ethereum.repository"])
+@EnableReactiveCassandraRepositories(
+        basePackages = ["fund.cyber.cassandra.ethereum.repository"],
+        reactiveCassandraTemplateRef = "ethereumCassandraTemplate"
+)
 @Conditional(EthereumFamilyChainCondition::class)
 class EthereumRepositoryConfiguration(
         @Value("\${$CASSANDRA_HOSTS:$CASSANDRA_HOSTS_DEFAULT}")
@@ -30,6 +40,28 @@ class EthereumRepositoryConfiguration(
     @Bean
     fun migrationSettings(): MigrationSettings {
         return BlockchainMigrationSettings(chain)
+    }
+
+    @Bean("ethereumCassandraTemplate")
+    fun reactiveCassandraTemplate(
+            @Qualifier("ethereumReactiveSession") session: ReactiveSession
+    ): ReactiveCassandraOperations {
+        return ReactiveCassandraTemplate(DefaultReactiveSessionFactory(session), cassandraConverter())
+    }
+
+    @Bean("ethereumReactiveSession")
+    fun reactiveSession(
+            @Qualifier("ethereumSession") session: CassandraSessionFactoryBean
+    ): ReactiveSession {
+        return DefaultBridgedReactiveSession(session.`object`)
+    }
+
+
+    @Bean("ethereumSession")
+    override fun session(): CassandraSessionFactoryBean {
+        val session = super.session()
+        session.setKeyspaceName(keyspaceName)
+        return session
     }
 }
 

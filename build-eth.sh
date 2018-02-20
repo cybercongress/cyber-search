@@ -1,2 +1,2 @@
-docker build -t build/pump-eth -f ./pumps/ethereum/Dockerfile ./
-docker run -e CHAIN=ETHEREUM -e JAVA_OPTS="-Xmx2g" --net=host build/pump-eth
+docker build -t build/dump-eth -f ./dumps/ethereum/Dockerfile ./
+docker run -e CHAIN=ETHEREUM --net=host build/dump-eth
