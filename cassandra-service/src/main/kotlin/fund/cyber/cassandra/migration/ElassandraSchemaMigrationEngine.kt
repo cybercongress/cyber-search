@@ -10,11 +10,9 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.RequestBuilder
 import org.apache.http.client.utils.HttpClientUtils
 import org.slf4j.LoggerFactory
-import org.springframework.beans.BeansException
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.ApplicationContext
 import org.springframework.data.cassandra.core.ReactiveCassandraOperations
 import org.springframework.stereotype.Component
 import java.net.URI
@@ -47,6 +45,7 @@ class ElassandraSchemaMigrationEngine(
     private fun executeSchemaUpdate(migrations: List<Migration>) {
 
         log.info("Executing elassandra schema update")
+        log.info("Found ${migrations.size} migrations")
 
         migrations.filter { it !is EmptyMigration }.groupBy { m -> m.applicationId }.forEach { applicationId, applicationMigrations ->
 

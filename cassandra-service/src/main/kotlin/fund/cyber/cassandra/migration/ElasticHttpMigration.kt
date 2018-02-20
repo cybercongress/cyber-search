@@ -20,7 +20,7 @@ interface ElasticMigration : Migration {
 class ElasticHttpMigration(
         override val id: String,
         override val applicationId: String,
-        private val filePath: String
+        private val fileContent: String
 ) : ElasticMigration {
 
     private val jsonDeserializer = ObjectMapper().registerKotlinModule()
@@ -33,8 +33,7 @@ class ElasticHttpMigration(
 
     override fun getRequest(): HttpUriRequest {
 
-        val migrationDescriptionAsJson = CqlFileBasedMigration::class.java.getResourceAsStream(filePath)
-        val migration = jsonDeserializer.readValue(migrationDescriptionAsJson, HttpMigrationDescription::class.java)
+        val migration = jsonDeserializer.readValue(fileContent, HttpMigrationDescription::class.java)
 
         return RequestBuilder.create(migration.method)
                 .setUri(URI.create(migration.url))

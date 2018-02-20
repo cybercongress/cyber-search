@@ -13,7 +13,7 @@ interface CassandraMigration : Migration {
     fun getStatements(): List<Statement>
 }
 
-class EmptyMigration: Migration {
+class EmptyMigration : Migration {
     override val id: String = ""
     override val applicationId: String = ""
 }
@@ -21,13 +21,12 @@ class EmptyMigration: Migration {
 class CqlFileBasedMigration(
         override val id: String,
         override val applicationId: String,
-        private val filePath: String
+        private val fileContent: String
 ) : CassandraMigration {
 
     override fun getStatements(): List<Statement> {
 
-        return CqlFileBasedMigration::class.java.getResourceAsStream(filePath)
-                .bufferedReader().use { it.readText() }
+        return fileContent
                 .split(";").map(String::trim)
                 .filter { statement -> statement.isNotEmpty() }
                 .map { statement -> statement + ";" }

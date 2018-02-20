@@ -10,6 +10,7 @@ import org.apache.http.message.BasicHeader
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
+import org.springframework.context.support.GenericApplicationContext
 import org.springframework.data.cassandra.ReactiveSession
 import org.springframework.data.cassandra.config.AbstractReactiveCassandraConfiguration
 
@@ -54,5 +55,5 @@ class CassandraConfiguration {
             .build()!!
 
     @Bean
-    fun migrationsLoader() = DefaultMigrationsLoader()
+    fun migrationsLoader(resourceLoader: GenericApplicationContext) = DefaultMigrationsLoader(resourceLoader = resourceLoader)
 }
