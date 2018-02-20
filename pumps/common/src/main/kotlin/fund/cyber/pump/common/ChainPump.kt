@@ -41,7 +41,7 @@ class ChainPump<T : BlockBundle>(
                 .observeOn(Schedulers.io())
                 .blockingSubscribe(
                         { blockBundle ->
-                            log.info("Processing ${blockBundle.number} block")
+                            log.trace("Processing ${blockBundle.number} block")
                             lastProcessedBlockMonitor.set(blockBundle.number)
                             blockSizeMonitor.record(blockBundle.blockSize.toDouble())
                             kafkaBlockBundleProducer.storeBlockBundle(blockBundle)
