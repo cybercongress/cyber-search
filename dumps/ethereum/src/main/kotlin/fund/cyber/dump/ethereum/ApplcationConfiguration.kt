@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.listener.KafkaMessageListenerContainer
@@ -28,7 +27,6 @@ import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler
 import org.springframework.kafka.listener.config.ContainerProperties
 
 
-//todo add dump of tx, block tx, address tx
 @EnableKafka
 @Configuration
 class ApplicationConfiguration {
@@ -130,9 +128,5 @@ class ApplicationConfiguration {
             ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase()
     )
 
-    @Bean
-    fun kotlinPropertyConfigurer() = PropertySourcesPlaceholderConfigurer().apply {
-        setPlaceholderPrefix("%{")
-        setIgnoreUnresolvablePlaceholders(true)
-    }
+
 }

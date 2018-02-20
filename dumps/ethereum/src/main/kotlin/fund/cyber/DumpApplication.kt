@@ -4,10 +4,18 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+import org.springframework.context.annotation.Bean
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 
 
 @SpringBootApplication(exclude = [CassandraDataAutoConfiguration::class, KafkaAutoConfiguration::class])
 class EthereumDumpApplication {
+
+    @Bean
+    fun kotlinPropertyConfigurer() = PropertySourcesPlaceholderConfigurer().apply {
+        setPlaceholderPrefix("%{")
+        setIgnoreUnresolvablePlaceholders(true)
+    }
 
     companion object {
 
