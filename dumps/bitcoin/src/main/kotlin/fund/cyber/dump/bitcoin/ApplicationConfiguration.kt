@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.listener.KafkaMessageListenerContainer
@@ -26,9 +27,9 @@ import org.springframework.kafka.listener.config.ContainerProperties
 //todo add dump of tx, block tx, address tx
 @EnableKafka
 @Configuration
-open class ApplicationConfiguration {
+class ApplicationConfiguration {
 
-    @Value("#{systemProperties['$KAFKA_BROKERS'] ?: '$KAFKA_BROKERS_DEFAULT'}")
+    @Value("%{$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
     private lateinit var kafkaBrokers: String
 
 
@@ -36,13 +37,13 @@ open class ApplicationConfiguration {
     lateinit var bitcoinBlockRepository: BitcoinBlockRepository
 
     @Bean
-    open fun chain(): BitcoinFamilyChain {
+    fun chain(): BitcoinFamilyChain {
         val chainAsString = env(CHAIN, "")
         return BitcoinFamilyChain.valueOf(chainAsString)
     }
 
     @Bean
-    open fun blocksListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, BitcoinBlock> {
+    fun blocksListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, BitcoinBlock> {
 
         val consumerConfig = consumerConfigs().apply {
             put(ConsumerConfig.GROUP_ID_CONFIG, "bitcoin-blocks-dump-process")
@@ -68,4 +69,10 @@ open class ApplicationConfiguration {
             ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG to 10 * 1000,
             ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase()
     )
+
+    @Bean
+    fun kotlinPropertyConfigurer() = PropertySourcesPlaceholderConfigurer().apply {
+        setPlaceholderPrefix("%{")
+        setIgnoreUnresolvablePlaceholders(true)
+    }
 }

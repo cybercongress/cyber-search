@@ -27,9 +27,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 @EnableKafka
 @Configuration
 @EnableTransactionManagement
-open class BitcoinTxConsumerConfiguration {
+class BitcoinTxConsumerConfiguration {
 
-    @Value("#{systemProperties['$KAFKA_BROKERS'] ?: '$KAFKA_BROKERS_DEFAULT'}")
+    @Value("%{$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
     private lateinit var kafkaBrokers: String
 
     @Autowired
@@ -40,7 +40,7 @@ open class BitcoinTxConsumerConfiguration {
 
 
     @Bean
-    open fun txListenerContainer(): ConcurrentMessageListenerContainer<PumpEvent, BitcoinTx> {
+    fun txListenerContainer(): ConcurrentMessageListenerContainer<PumpEvent, BitcoinTx> {
 
         val consumerFactory = DefaultKafkaConsumerFactory(
                 consumerConfigs(), JsonDeserializer(PumpEvent::class.java), JsonDeserializer(BitcoinTx::class.java)

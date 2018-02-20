@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class LastPumpedEthereumBundleProvider(
-        @Value("#{systemProperties['$KAFKA_BROKERS'] ?: '$KAFKA_BROKERS_DEFAULT'}")
+        @Value("%{$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
         private val kafkaBrokers: String,
         private val chain: Chain
 ) : LastPumpedBundlesProvider<EthereumBlockBundle> {

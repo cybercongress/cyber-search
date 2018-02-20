@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.listener.KafkaMessageListenerContainer
@@ -32,7 +33,7 @@ import org.springframework.kafka.listener.config.ContainerProperties
 @Configuration
 class ApplicationConfiguration {
 
-    @Value("#{systemProperties['$KAFKA_BROKERS'] ?: '$KAFKA_BROKERS_DEFAULT'}")
+    @Value("%{$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
     private lateinit var kafkaBrokers: String
 
 
@@ -128,4 +129,10 @@ class ApplicationConfiguration {
             ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG to 10 * 1000,
             ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase()
     )
+
+    @Bean
+    fun kotlinPropertyConfigurer() = PropertySourcesPlaceholderConfigurer().apply {
+        setPlaceholderPrefix("%{")
+        setIgnoreUnresolvablePlaceholders(true)
+    }
 }
