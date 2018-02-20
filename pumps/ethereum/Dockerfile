@@ -7,4 +7,4 @@ RUN ./gradlew clean :pumps:ethereum:assemble
 # Container with application
 FROM openjdk:9-jre-slim
 COPY --from=build /build/pumps/ethereum/build/libs /cyberapp/bin
-ENTRYPOINT ["java", "-jar", "/cyberapp/bin/ethereum.jar"]
+ENTRYPOINT exec java $JAVA_OPTS -jar /cyberapp/bin/ethereum.jar
