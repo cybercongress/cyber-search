@@ -11,12 +11,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 @SpringBootApplication(exclude = [CassandraDataAutoConfiguration::class, KafkaAutoConfiguration::class])
 class EthereumDumpApplication {
 
-    @Bean
-    fun kotlinPropertyConfigurer() = PropertySourcesPlaceholderConfigurer().apply {
-        setPlaceholderPrefix("%{")
-        setIgnoreUnresolvablePlaceholders(true)
-    }
-
     companion object {
 
         @JvmStatic

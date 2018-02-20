@@ -28,12 +28,10 @@ import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler
 import org.springframework.kafka.listener.config.ContainerProperties
 
 
-@DependsOn("kotlinPropertyConfigurer")
-@EnableKafka
 @Configuration
 class ApplicationConfiguration {
 
-    @Value("%{$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
+    @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
     private lateinit var kafkaBrokers: String
 
 

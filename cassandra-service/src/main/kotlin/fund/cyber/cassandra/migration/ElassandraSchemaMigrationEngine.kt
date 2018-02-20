@@ -24,9 +24,9 @@ private const val SCHEMA_VERSION_CQL_LOCATION = "/migrations/schema_version_crea
 
 @Component
 class ElassandraSchemaMigrationEngine(
-        @Value("#{systemProperties['$CASSANDRA_HOSTS'] ?: '$CASSANDRA_HOSTS_DEFAULT'}")
+        @Value("\${$CASSANDRA_HOSTS:$CASSANDRA_HOSTS_DEFAULT}")
         private val cassandraHosts: String,
-        @Value("#{systemProperties['$ELASTIC_HTTP_PORT'] ?: '$ELASTIC_HTTP_PORT_DEFAULT'}")
+        @Value("\${$ELASTIC_HTTP_PORT:$ELASTIC_HTTP_PORT_DEFAULT}")
         private val elasticPort: Int,
         private val httpClient: HttpClient,
         @Qualifier("keyspaceMigrationCassandraTemplate")

@@ -29,7 +29,7 @@ import org.springframework.kafka.listener.config.ContainerProperties
 @Configuration
 class ApplicationConfiguration {
 
-    @Value("%{$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
+    @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
     private lateinit var kafkaBrokers: String
 
 
@@ -69,10 +69,4 @@ class ApplicationConfiguration {
             ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG to 10 * 1000,
             ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase()
     )
-
-    @Bean
-    fun kotlinPropertyConfigurer() = PropertySourcesPlaceholderConfigurer().apply {
-        setPlaceholderPrefix("%{")
-        setIgnoreUnresolvablePlaceholders(true)
-    }
 }

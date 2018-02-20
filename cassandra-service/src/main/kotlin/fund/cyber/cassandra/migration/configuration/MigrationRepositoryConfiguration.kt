@@ -20,9 +20,9 @@ import org.springframework.data.cassandra.repository.config.EnableReactiveCassan
         reactiveCassandraTemplateRef = "keyspaceMigrationCassandraTemplate"
 )
 class MigrationRepositoryConfiguration(
-        @Value("#{systemProperties['$CASSANDRA_HOSTS'] ?: '$CASSANDRA_HOSTS_DEFAULT'}")
+        @Value("\${$CASSANDRA_HOSTS:$CASSANDRA_HOSTS_DEFAULT}")
         private val cassandraHosts: String,
-        @Value("#{systemProperties['$CASSANDRA_PORT'] ?: '$CASSANDRA_PORT_DEFAULT'}")
+        @Value("\${$CASSANDRA_PORT:$CASSANDRA_PORT_DEFAULT}")
         private val cassandraPort: Int
 ) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort) {
 

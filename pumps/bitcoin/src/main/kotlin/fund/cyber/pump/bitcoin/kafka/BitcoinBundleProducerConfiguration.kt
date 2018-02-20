@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 @EnableTransactionManagement
 class BitcoinBundleProducerConfiguration {
 
-    @Value("%{$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
+    @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
     private lateinit var kafkaBrokers: String
 
     @Autowired

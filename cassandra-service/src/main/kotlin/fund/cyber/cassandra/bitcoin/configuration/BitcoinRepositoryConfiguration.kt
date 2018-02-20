@@ -16,9 +16,9 @@ import org.springframework.data.cassandra.repository.config.EnableReactiveCassan
 @EnableReactiveCassandraRepositories(basePackages = ["fund.cyber.cassandra.bitcoin.repository"])
 @Conditional(BitcoinFamilyChainCondition::class)
 class BitcoinRepositoryConfiguration(
-        @Value("#{systemProperties['$CASSANDRA_HOSTS'] ?: '$CASSANDRA_HOSTS_DEFAULT'}")
+        @Value("\${$CASSANDRA_HOSTS:$CASSANDRA_HOSTS_DEFAULT}")
         private val cassandraHosts: String,
-        @Value("#{systemProperties['$CASSANDRA_PORT'] ?: '$CASSANDRA_PORT_DEFAULT'}")
+        @Value("\${$CASSANDRA_PORT:$CASSANDRA_PORT_DEFAULT}")
         private val cassandraPort: Int
 ) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort) {
 
