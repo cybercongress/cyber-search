@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS bitcoin_cash.block (
 
 CREATE TABLE IF NOT EXISTS bitcoin_cash.address_summary (
     id text PRIMARY KEY,
-    confirmed_balance text,
+    confirmed_balance decimal,
     confirmed_total_received decimal,
     confirmed_tx_number int,
     unconfirmed_tx_values map<text,decimal>,
@@ -86,5 +86,5 @@ CREATE TABLE IF NOT EXISTS bitcoin_cash.address_summary (
     kafka_delta_offset bigint,
     kafka_delta_partition int,
     kafka_delta_topic text,
-    kafka_delta_offset_commited boolean
+    kafka_delta_offset_committed boolean
 );

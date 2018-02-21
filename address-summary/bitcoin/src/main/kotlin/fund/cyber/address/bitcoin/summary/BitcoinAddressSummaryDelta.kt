@@ -14,7 +14,6 @@ import java.math.BigDecimal.ZERO
 
 data class BitcoinAddressSummaryDelta(
         override val address: String,
-        val blockNumber: Long,
         val balanceDelta: BigDecimal,
         val totalReceivedDelta: BigDecimal,
         val txNumberDelta: Int,
@@ -22,9 +21,9 @@ data class BitcoinAddressSummaryDelta(
         override val partition: Int,
         override val offset: Long
 ) : AddressSummaryDelta<CqlBitcoinAddressSummary> {
+
     fun revertedDelta(): BitcoinAddressSummaryDelta = BitcoinAddressSummaryDelta(
-            address = address, blockNumber = blockNumber,
-            balanceDelta = -balanceDelta, txNumberDelta = -txNumberDelta,
+            address = address, balanceDelta = -balanceDelta, txNumberDelta = -txNumberDelta,
             totalReceivedDelta = -totalReceivedDelta, topic = topic,
             partition = partition, offset = offset
     )
@@ -52,23 +51,28 @@ data class BitcoinAddressSummaryDelta(
 
 @Component
 class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinAddressSummary, BitcoinAddressSummaryDelta> {
-    override fun txToDeltas(record: ConsumerRecord<PumpEvent, BitcoinTx>): List<BitcoinAddressSummaryDelta> {
+
+    override fun recordToDeltas(record: ConsumerRecord<PumpEvent, BitcoinTx>): List<BitcoinAddressSummaryDelta> {
         val tx = record.value()
         val event = record.key()
 
         val addressesDeltasByIns = tx.ins.flatMap { input ->
             input.addresses.map { address ->
-                BitcoinAddressSummaryDelta(address = address, blockNumber = tx.blockNumber,
-                        balanceDelta = -input.amount, txNumberDelta = 1, totalReceivedDelta = ZERO,
-                        topic = record.topic(), partition = record.partition(), offset = record.offset())
+                BitcoinAddressSummaryDelta(
+                        address = address, balanceDelta = -input.amount, txNumberDelta = 1,
+                        totalReceivedDelta = ZERO, topic = record.topic(), partition = record.partition(),
+                        offset = record.offset()
+                )
             }
         }
 
         val addressesDeltasByOuts = tx.outs.flatMap { output ->
             output.addresses.map { address ->
-                BitcoinAddressSummaryDelta(address = address, blockNumber = tx.blockNumber,
-                        balanceDelta = output.amount, txNumberDelta = 1, totalReceivedDelta = output.amount,
-                        topic = record.topic(), partition = record.partition(), offset = record.offset())
+                BitcoinAddressSummaryDelta(
+                        address = address, balanceDelta = output.amount, txNumberDelta = 1,
+                        totalReceivedDelta = output.amount, topic = record.topic(), partition = record.partition(),
+                        offset = record.offset()
+                )
             }
         }
 
@@ -101,8 +105,7 @@ class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinAddressSumma
         val txNumber = deltasToApply.sumBy { delta -> delta.txNumberDelta }
 
         return if (deltasToApply.isEmpty()) null else BitcoinAddressSummaryDelta(
-                address = first.address, blockNumber = first.blockNumber,
-                balanceDelta = balance, txNumberDelta = txNumber,
+                address = first.address, balanceDelta = balance, txNumberDelta = txNumber,
                 totalReceivedDelta = totalReceived, topic = first.topic, partition = first.partition,
                 offset = deltasToApply.maxBy { it -> it.offset }!!.offset
         )

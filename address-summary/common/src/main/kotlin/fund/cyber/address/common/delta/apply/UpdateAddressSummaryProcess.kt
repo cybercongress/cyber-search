@@ -33,13 +33,14 @@ class UpdatesAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryD
         val addressesSummary = addressSummaryStorage.findAllByIdIn(addresses)
                 .await().groupBy { a -> a.id }.map { (k, v) -> k to v.first() }.toMap()
 
-        val deltas = records.flatMap { record -> deltaProcessor.txToDeltas(record) }
+        val deltas = records.flatMap { record -> deltaProcessor.recordToDeltas(record) }
 
         val mergedDeltas = deltas.groupBy { delta -> delta.address }
                 .mapValues { addressDeltas -> deltaProcessor.mergeDeltas(addressDeltas.value, addressesSummary) }
                 .filterValues { value -> value != null }
                 .map { entry -> entry.key to entry.value!! }.toMap()
 
+        //todo: remove parallelStream()
         mergedDeltas.values.parallelStream().forEach { delta ->
             store(addressesSummary[delta.address], delta)
         }

@@ -1,5 +1,6 @@
 package fund.cyber.cassandra.ethereum.model
 
+import fund.cyber.cassandra.common.CqlAddressSummary
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTransaction
 import fund.cyber.search.model.ethereum.EthereumUncle
@@ -11,17 +12,21 @@ import org.springframework.data.cassandra.core.mapping.Table
 import java.math.BigDecimal
 import java.time.Instant
 
-@Table("address")
-data class CqlEthereumAddress(
-        @PrimaryKey val id: String,
-        val balance: String,
+@Table("address_summary")
+data class CqlEthereumAddressSummary(
+        @PrimaryKey override val id: String,
+        val confirmed_balance: BigDecimal,
         val contract_address: Boolean,
-        val total_received: String,
-        val last_transaction_block: Long,
+        val confirmed_total_received: BigDecimal,
         val tx_number: Int,
         val uncle_number: Int,
-        val mined_block_number: Int
-) : CqlEthereumItem
+        val mined_block_number: Int,
+        override val version: Long,
+        override val kafka_delta_offset: Long,
+        override val kafka_delta_partition: Int,
+        override val kafka_delta_topic: String,
+        override val kafka_delta_offset_committed: Boolean = false
+) : CqlEthereumItem, CqlAddressSummary
 
 
 @Table("tx_preview_by_address")

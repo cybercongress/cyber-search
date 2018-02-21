@@ -26,6 +26,9 @@ const val ELASTIC_CLUSTER_NAME_DEFAULT = "CYBER_SEARCH"
 const val CORS_ALLOWED_ORIGINS = "CORS_ALLOWED_ORIGINS"
 const val CORS_ALLOWED_ORIGINS_DEFAULT = "search.fund.cyber.fund"
 
+const val START_BLOCK_NUMBER = "START_BLOCK_NUMBER"
+const val START_BLOCK_NUMBER_DEFAULT = -1L
+
 
 inline fun <reified T : Any> env(name: String, default: T): T =
         when (T::class) {

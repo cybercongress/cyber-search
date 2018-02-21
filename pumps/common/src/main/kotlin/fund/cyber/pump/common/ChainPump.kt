@@ -1,8 +1,11 @@
 package fund.cyber.pump.common
 
 import fund.cyber.pump.common.monitoring.MonitoringService
+import fund.cyber.search.configuration.START_BLOCK_NUMBER
+import fund.cyber.search.configuration.START_BLOCK_NUMBER_DEFAULT
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.DependsOn
 import org.springframework.stereotype.Component
 import java.util.concurrent.atomic.AtomicLong
@@ -18,12 +21,14 @@ class ChainPump<T : BlockBundle>(
         private val flowableBlockchainInterface: FlowableBlockchainInterface<T>,
         private val kafkaBlockBundleProducer: KafkaBlockBundleProducer<T>,
         private val lastPumpedBundlesProvider: LastPumpedBundlesProvider<T>,
-        private val monitoring: MonitoringService
+        private val monitoring: MonitoringService,
+        @Value("\${$START_BLOCK_NUMBER:$START_BLOCK_NUMBER_DEFAULT}")
+        private val startBlockNumber: Long
 ) {
 
     fun startPump() {
 
-        val lastPumpedBlockNumber = lastPumpedBundlesProvider.getLastBlockBundles().firstOrNull()?.second?.number ?: -1
+        val lastPumpedBlockNumber = lastBlockNumber()
         val startBlockNumber = lastPumpedBlockNumber + 1
 
         log.info("Start block number is $startBlockNumber")
@@ -53,6 +58,13 @@ class ChainPump<T : BlockBundle>(
                             }
                         }
                 )
+    }
+
+    private fun lastBlockNumber(): Long {
+        return if (startBlockNumber == START_BLOCK_NUMBER_DEFAULT)
+            lastPumpedBundlesProvider.getLastBlockBundles().firstOrNull()?.second?.number ?: -1
+        else
+            startBlockNumber
     }
 
     class ChainReindexationException : RuntimeException()
