@@ -1,6 +1,9 @@
 package fund.cyber.search.address.delta.apply
 
+import fund.cyber.address.common.delta.apply.UpdatesAddressSummaryProcess
 import fund.cyber.common.kafka.JsonDeserializer
+import fund.cyber.search.address.BitcoinAddressSummaryStorage
+import fund.cyber.search.address.summary.BitcoinTxDeltaProcessor
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
 import fund.cyber.search.model.bitcoin.BitcoinTx
@@ -32,8 +35,10 @@ class BitcoinTxConsumerConfiguration {
     private lateinit var chain: Chain
 
     @Autowired
-    private lateinit var updateAddressSummaryProcess: BatchMessageListener<PumpEvent, BitcoinTx>
+    private lateinit var txDeltaProcessor: BitcoinTxDeltaProcessor
 
+    @Autowired
+    private lateinit var addressSummaryStorage: BitcoinAddressSummaryStorage
 
     @Bean
     fun txListenerContainer(): ConcurrentMessageListenerContainer<PumpEvent, BitcoinTx> {
@@ -44,7 +49,7 @@ class BitcoinTxConsumerConfiguration {
 
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
-            messageListener = updateAddressSummaryProcess
+            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, txDeltaProcessor)
             isAckOnError = false
             ackMode = BATCH
         }

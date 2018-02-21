@@ -2,6 +2,7 @@ include "common"
 include "common-kafka"
 include "cassandra-service"
 
+include "address-summary:common"
 include "address-summary:bitcoin"
 include "address-summary:ethereum"
 

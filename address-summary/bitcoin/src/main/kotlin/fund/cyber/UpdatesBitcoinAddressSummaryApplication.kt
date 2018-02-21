@@ -1,7 +1,5 @@
 package fund.cyber
 
-import fund.cyber.cassandra.bitcoin.model.CqlBitcoinAddressSummary
-import fund.cyber.cassandra.bitcoin.repository.BitcoinUpdateAddressSummaryRepository
 import fund.cyber.search.configuration.CHAIN
 import fund.cyber.search.configuration.env
 import fund.cyber.search.model.chains.BitcoinFamilyChain
@@ -10,8 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
 import org.springframework.context.annotation.Bean
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
-import java.math.BigDecimal
 
 
 @SpringBootApplication(exclude = [CassandraDataAutoConfiguration::class, KafkaAutoConfiguration::class])
@@ -27,7 +23,6 @@ class UpdatesBitcoinAddressSummaryApplication {
         @JvmStatic
         fun main(args: Array<String>) {
             val context = SpringApplication.run(UpdatesBitcoinAddressSummaryApplication::class.java, *args)
-//            val repository = context.getBean(BitcoinUpdateAddressSummaryRepository::class.java)
 //            val summary = repository.findById("a1").block()!!
 //            val newSummary = CqlBitcoinAddressSummary(
 //                    id = "a3", confirmed_balance = summary.confirmed_balance + BigDecimal.valueOf(10),
@@ -37,7 +32,7 @@ class UpdatesBitcoinAddressSummaryApplication {
 //                    kafka_delta_offset_committed = false, unconfirmed_tx_values = summary.unconfirmed_tx_values,
 //                    version = 3
 //            )
-//            val valueFromCSS = repository.insertIfNotExists(newSummary).block()
+//            val valueFromCSS = repository.insertIfNotRecord(newSummary).block()
 //
 //            println(valueFromCSS)
 
