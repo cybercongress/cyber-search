@@ -4,17 +4,30 @@ package fund.cyber.search.address.delta.apply
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinAddressSummary
 import fund.cyber.cassandra.bitcoin.repository.BitcoinUpdateAddressSummaryRepository
 import fund.cyber.search.address.summary.BitcoinAddressSummaryDelta
+import fund.cyber.search.address.summary.getAffectedAddresses
 import fund.cyber.search.address.summary.mergeDeltas
 import fund.cyber.search.address.summary.txToDeltas
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.events.PumpEvent
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.apache.kafka.common.TopicPartition
 import org.springframework.kafka.listener.BatchConsumerAwareMessageListener
 import org.springframework.stereotype.Component
-import java.math.BigDecimal
+import reactor.core.publisher.Flux
 
+fun <T> Flux<T>.await(): List<T> {
+    return this.collectList().block()!!
+}
+
+private fun CqlBitcoinAddressSummary.hasSameTopicPartitionAs(delta: BitcoinAddressSummaryDelta) =
+        this.kafka_delta_topic == delta.topic && this.kafka_delta_partition == delta.partition
+
+private fun CqlBitcoinAddressSummary.notSameTopicPartionAs(delta: BitcoinAddressSummaryDelta) =
+        hasSameTopicPartitionAs(delta).not()
+
+private fun CqlBitcoinAddressSummary.committed() = this.kafka_delta_offset_committed
+
+private fun CqlBitcoinAddressSummary.notCommitted() = committed().not()
 
 /**
  *
@@ -30,106 +43,80 @@ class UpdatesBitcoinAddressSummaryProcess(
 
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, BitcoinTx>>, consumer: Consumer<*, *>) {
+        val addresses = getAffectedAddresses(records)
 
-        records.forEach { record ->
-            val deltas = txToDeltas(record)
-            processDeltas(record, deltas)
-            consumer.commitSync()
-            //cassandraCommit()
-        }
-    }
+        val addressesSummary = addressSummaryRepository.findAllByIdIn(addresses)
+                .await().groupBy { a -> a.id }.map { (k, v) -> k to v.first() }.toMap()
 
-    /**
-     * Returns deltas to be committed after kafka offset commit
-     */
-    private fun processDeltas(record: ConsumerRecord<PumpEvent, BitcoinTx>, deltas: List<BitcoinAddressSummaryDelta>)
-            : List<BitcoinAddressSummaryDelta> {
+        val deltas = records.flatMap { record -> txToDeltas(record) }
 
-        // merge deltas for same address for one tx
         val mergedDeltas = deltas.groupBy { delta -> delta.address }
-                .mapValues { addressDeltas -> addressDeltas.value.mergeDeltas() }
-                .values
+                .mapValues { addressDeltas -> addressDeltas.value.mergeDeltas(addressesSummary) }
+                .filterValues { value -> value != null }
+                .map { entry -> entry.key to entry.value!! }.toMap()
 
-        // filter deltas already applied and committed to kafka
-        // find not applied deltas and apply them
-        return emptyList()
+        mergedDeltas.values.parallelStream().forEach { delta ->
+            store(addressesSummary[delta.address], delta)
+        }
+
+        consumer.commitSync()
+
+        val newSummaries = addressSummaryRepository.findAllByIdIn(addresses).await()
+        newSummaries.forEach{ summary -> addressSummaryRepository.commitUpdate(summary.id, summary.version + 1).block() } //todo: blocking operation will be executed one by one!!!!
     }
 
-
-/*    fun processDelta(record: ConsumerRecord<PumpEvent, BitcoinTx>, delta: BitcoinAddressSummaryDelta) {
-
-
-        val currentState = addressSummaryRepository.findById(delta.address).block()
-
-        //first time address appear
-        if (currentState == null) {
-            val newState = newCqlBitcoinAddressSummary(record)
-            saveAndCommit(newState, consumer)
-            return
-        }
-
-        //processed, but not committed to kafka and cassandra record
-        if (isKafkaUncommittedProcessedRecord(record, currentState)) {
-            commit(currentState, consumer)
-            return
-        }
-
-        if (!currentState.kafka_delta_offset_committed) {
-            //processed, committed to kafka, but not to cassandra state. Also, consumer goes further.
-            //might happen if consumer dies after committed to kafka and before committing to cassandra
-            if (isCassandraUncommittedProcessedState(record, currentState, consumer)) {
-                commit(currentState, consumer)
+    private fun store(addressSummary: CqlBitcoinAddressSummary?, delta: BitcoinAddressSummaryDelta) {
+        if (addressSummary != null) {
+            if (addressSummary.committed()) {
+                val result = delta.applyTo(addressSummary)
+                if (!result) {
+                    store(getSummaryByDelta(delta), delta)
+                }
             }
-            //should wait a bit, some one else committing new state
-            throw RuntimeException("Concurrent address summary modification")
+
+            if (addressSummary.notCommitted() && addressSummary.hasSameTopicPartitionAs(delta)) {
+                delta.applyTo(addressSummary)
+            }
+
+            if (addressSummary.notCommitted() && addressSummary.notSameTopicPartionAs(delta)) {
+                val result = delta.applyTo(getSummaryByDelta(delta))
+                if (!result) {
+                    store(getSummaryByDelta(delta), delta)
+                }
+            }
+        } else {
+            val summary = createFromDelta(delta)
+            val result = addressSummaryRepository.insertIfNotExists(summary).block()!!
+            if (!result) {
+                store(getSummaryByDelta(delta), delta)
+            }
         }
+    }
 
-        //update and save new state
-        val newState = updateCqlBitcoinAddressSummary(currentState, record)
-        saveAndCommit(newState, consumer)
-    }*/
+    private fun BitcoinAddressSummaryDelta.applyTo(summary: CqlBitcoinAddressSummary): Boolean =
+            addressSummaryRepository.update(summary.updateFromDelta(this), summary.version).block()!!
 
+    private fun getSummaryByDelta(delta: BitcoinAddressSummaryDelta) =
+            addressSummaryRepository.findById(delta.address).block()!!
 
-    private fun updateCqlBitcoinAddressSummary(
-            currentState: CqlBitcoinAddressSummary,
-            record: ConsumerRecord<PumpEvent, BitcoinAddressSummaryDelta>): CqlBitcoinAddressSummary {
-
-        val delta = record.value()
-
+    private fun createFromDelta(delta: BitcoinAddressSummaryDelta): CqlBitcoinAddressSummary {
         return CqlBitcoinAddressSummary(
-                id = record.value().address,
-                confirmed_balance = (BigDecimal(currentState.confirmed_balance) + delta.balanceDelta).toString(),
-                confirmed_total_received = currentState.confirmed_total_received + delta.totalReceivedDelta,
-                confirmed_tx_number = currentState.confirmed_tx_number + delta.txNumberDelta,
-                kafka_delta_offset = record.offset(), kafka_delta_partition = record.partition().toShort()
+                id = delta.address, confirmed_balance = delta.balanceDelta,
+                confirmed_tx_number = delta.txNumberDelta,
+                confirmed_total_received = delta.totalReceivedDelta,
+                kafka_delta_offset = delta.offset, kafka_delta_topic = delta.topic,
+                kafka_delta_partition = delta.partition, version = 0
         )
     }
 
-    private fun newCqlBitcoinAddressSummary(
-            record: ConsumerRecord<PumpEvent, BitcoinAddressSummaryDelta>) = CqlBitcoinAddressSummary(
-            id = record.value().address, confirmed_balance = record.value().balanceDelta.toString(),
-            confirmed_total_received = record.value().balanceDelta, confirmed_tx_number = 1,
-            kafka_delta_offset = record.offset(), kafka_delta_partition = record.partition().toShort()
-    )
-
-
-    private fun isKafkaUncommittedProcessedRecord(
-            record: ConsumerRecord<PumpEvent, BitcoinAddressSummaryDelta>, currentState: CqlBitcoinAddressSummary
-    ): Boolean {
-        return !currentState.kafka_delta_offset_committed
-                && currentState.kafka_delta_offset == record.offset()
-                && currentState.kafka_delta_partition == record.partition().toShort()
+    private fun CqlBitcoinAddressSummary.updateFromDelta(delta: BitcoinAddressSummaryDelta): CqlBitcoinAddressSummary {
+        return CqlBitcoinAddressSummary(
+                id = this.id, confirmed_balance = this.confirmed_balance + delta.balanceDelta,
+                confirmed_tx_number = this.confirmed_tx_number + delta.txNumberDelta,
+                confirmed_total_received = this.confirmed_total_received + delta.totalReceivedDelta,
+                kafka_delta_offset = delta.offset, kafka_delta_topic = delta.topic,
+                kafka_delta_partition = delta.partition, version = this.version + 1
+        )
     }
 
-
-    private fun isCassandraUncommittedProcessedState(
-            record: ConsumerRecord<PumpEvent, BitcoinAddressSummaryDelta>, currentState: CqlBitcoinAddressSummary,
-            consumer: Consumer<*, *>
-    ): Boolean {
-
-        val topicPartition = TopicPartition(record.topic(), currentState.kafka_delta_partition.toInt())
-        val committedPartitionOffset = consumer.committed(topicPartition).offset()
-
-        return currentState.kafka_delta_offset < committedPartitionOffset
-    }
 }

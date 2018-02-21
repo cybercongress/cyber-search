@@ -3,6 +3,7 @@ include "common-kafka"
 include "cassandra-service"
 
 include "address-summary:bitcoin"
+include "address-summary:ethereum"
 
 include "pumps:common"
 include "pumps:bitcoin"

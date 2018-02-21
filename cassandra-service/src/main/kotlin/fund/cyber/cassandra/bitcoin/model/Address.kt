@@ -12,11 +12,13 @@ import java.time.Instant
 data class CqlBitcoinAddressSummary(
 
         @PrimaryKey val id: String,
-        val confirmed_balance: String,
+        val confirmed_balance: BigDecimal,
         val confirmed_total_received: BigDecimal,
         val confirmed_tx_number: Int,
+        val version: Long,
         val kafka_delta_offset: Long,
-        val kafka_delta_partition: Short,
+        val kafka_delta_partition: Int,
+        val kafka_delta_topic: String,
         val kafka_delta_offset_committed: Boolean = false,
         val unconfirmed_tx_values: Map<String, BigDecimal> = emptyMap()
 ) : CqlBitcoinItem
