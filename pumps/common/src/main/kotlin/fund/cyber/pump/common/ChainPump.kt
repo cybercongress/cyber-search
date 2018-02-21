@@ -4,13 +4,10 @@ import fund.cyber.pump.common.kafka.KafkaBlockBundleProducer
 import fund.cyber.pump.common.kafka.LastPumpedBundlesProvider
 import fund.cyber.pump.common.node.BlockBundle
 import fund.cyber.pump.common.node.FlowableBlockchainInterface
-import fund.cyber.search.configuration.KAFKA_BROKERS
-import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
 import fund.cyber.search.configuration.KAFKA_TRANSACTION_BATCH
 import fund.cyber.search.configuration.KAFKA_TRANSACTION_BATCH_DEFAULT
 import io.micrometer.core.instrument.DistributionSummary
 import io.micrometer.core.instrument.MeterRegistry
-import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.DependsOn
