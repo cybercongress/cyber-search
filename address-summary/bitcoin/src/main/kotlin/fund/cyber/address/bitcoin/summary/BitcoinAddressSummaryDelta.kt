@@ -1,4 +1,4 @@
-package fund.cyber.search.address.summary
+package fund.cyber.address.bitcoin.summary
 
 import fund.cyber.address.common.delta.AddressSummaryDelta
 import fund.cyber.address.common.delta.DeltaProcessor

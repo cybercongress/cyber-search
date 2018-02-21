@@ -1,4 +1,4 @@
-package fund.cyber.search.address
+package fund.cyber.address.bitcoin
 
 import fund.cyber.address.common.summary.AddressSummaryStorage
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinAddressSummary

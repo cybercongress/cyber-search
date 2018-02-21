@@ -1,9 +1,9 @@
-package fund.cyber.search.address.delta.apply
+package fund.cyber.address.bitcoin.delta.apply
 
 import fund.cyber.address.common.delta.apply.UpdatesAddressSummaryProcess
 import fund.cyber.common.kafka.JsonDeserializer
-import fund.cyber.search.address.BitcoinAddressSummaryStorage
-import fund.cyber.search.address.summary.BitcoinTxDeltaProcessor
+import fund.cyber.address.bitcoin.BitcoinAddressSummaryStorage
+import fund.cyber.address.bitcoin.summary.BitcoinTxDeltaProcessor
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
 import fund.cyber.search.model.bitcoin.BitcoinTx
