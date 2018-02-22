@@ -2,21 +2,28 @@ package fund.cyber.dump.ethereum
 
 import fund.cyber.cassandra.ethereum.model.*
 import fund.cyber.cassandra.ethereum.repository.*
-import fund.cyber.search.model.chains.Chain
+import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.events.PumpEvent
+import fund.cyber.search.model.events.txPumpTopic
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Tags
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.BatchMessageListener
+import java.util.concurrent.atomic.AtomicLong
 
 class TxDumpProcess(
         private val txRepository: EthereumTxRepository,
         private val blockTxRepository: EthereumBlockTxRepository,
         private val addressTxRepository: EthereumAddressTxRepository,
-        private val chain: Chain
+        private val chain: EthereumFamilyChain,
+        private val monitoring: MeterRegistry
 ) : BatchMessageListener<PumpEvent, EthereumTx> {
 
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
+
+    private lateinit var topicCurrentOffsetMonitor: AtomicLong
 
 
     //todo add retry
@@ -41,6 +48,13 @@ class TxDumpProcess(
                 .flatMap { tx -> tx.addressesUsedInTransaction().map { it -> CqlEthereumAddressTxPreview(tx, it) } }
 
         addressTxRepository.saveAll(txsByAddressToSave).collectList().block()
+
+        if (::topicCurrentOffsetMonitor.isInitialized) {
+            topicCurrentOffsetMonitor.set(records.last().offset())
+        } else {
+            topicCurrentOffsetMonitor = monitoring.gauge("dump_topic_current_offset",
+                    Tags.of("topic", chain.txPumpTopic), AtomicLong(records.last().offset()))!!
+        }
 
     }
 }

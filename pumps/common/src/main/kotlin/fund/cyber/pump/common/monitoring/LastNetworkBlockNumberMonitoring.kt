@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 @Component
 class LastNetworkBlockNumberMonitoring(
-        monitoring: MeterRegistry,
+        private val monitoring: MeterRegistry,
         private val blockchainInterface: FlowableBlockchainInterface<*>
 ) {
 

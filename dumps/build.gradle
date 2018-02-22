@@ -9,6 +9,12 @@ project(":dumps:bitcoin") {
         compile project(":cassandra-service")
 
         compile "org.springframework.boot:spring-boot-starter"
+
+        compile 'org.springframework.boot:spring-boot-starter-webflux'
+        compile 'org.springframework.boot:spring-boot-starter-reactor-netty'
+        compile 'org.springframework.boot:spring-boot-starter-actuator'
+        compile 'io.micrometer:micrometer-registry-prometheus'
+        compile 'io.micrometer:micrometer-core'
     }
 }
 
@@ -24,5 +30,11 @@ project(":dumps:ethereum") {
         compile project(":cassandra-service")
 
         compile "org.springframework.boot:spring-boot-starter"
+
+        compile 'org.springframework.boot:spring-boot-starter-webflux'
+        compile 'org.springframework.boot:spring-boot-starter-reactor-netty'
+        compile 'org.springframework.boot:spring-boot-starter-actuator'
+        compile 'io.micrometer:micrometer-registry-prometheus'
+        compile 'io.micrometer:micrometer-core'
     }
 }

@@ -6,10 +6,15 @@ import fund.cyber.address.common.delta.DeltaProcessor
 import fund.cyber.address.common.summary.AddressSummaryStorage
 import fund.cyber.cassandra.common.CqlAddressSummary
 import fund.cyber.search.model.events.PumpEvent
+import fund.cyber.search.model.events.txPumpTopic
+import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Tags
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.listener.BatchConsumerAwareMessageListener
 import reactor.core.publisher.Flux
+import java.util.concurrent.atomic.AtomicLong
 
 fun <T> Flux<T>.await(): List<T> {
     return this.collectList().block()!!
@@ -25,11 +30,16 @@ fun <T> Flux<T>.await(): List<T> {
 class UpdatesAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDelta<S>>(
         private val addressSummaryStorage: AddressSummaryStorage<S>,
         private val deltaProcessor: DeltaProcessor<R, S, D>,
-        private val deltaMerger: DeltaMerger<D>
+        private val deltaMerger: DeltaMerger<D>,
+        private val monitoring: MeterRegistry
 ) : BatchConsumerAwareMessageListener<PumpEvent, R> {
 
+    private lateinit var topicCurrentOffsetMonitor: AtomicLong
+    private lateinit var applyLockMonitor: Counter
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, R>>, consumer: Consumer<*, *>) {
+        initMonitors(records.first())
+
         val addresses = deltaProcessor.affectedAddresses(records)
 
         val addressesSummary = addressSummaryStorage.findAllByIdIn(addresses)
@@ -53,6 +63,8 @@ class UpdatesAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryD
 
         //todo: blocking operation will be executed one by one!!!!
         newSummaries.forEach { summary -> addressSummaryStorage.commitUpdate(summary.id, summary.version + 1).block() }
+
+        topicCurrentOffsetMonitor.set(records.last().offset())
     }
 
     private fun store(addressSummary: S?, delta: D) {
@@ -71,6 +83,7 @@ class UpdatesAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryD
             if (addressSummary.notCommitted() && addressSummary.notSameTopicPartionAs(delta)) {
                 val result = delta.applyTo(getSummaryByDelta(delta))
                 if (!result) {
+                    applyLockMonitor.increment()
                     store(getSummaryByDelta(delta), delta)
                 }
             }
@@ -98,4 +111,15 @@ class UpdatesAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryD
     private fun CqlAddressSummary.committed() = this.kafka_delta_offset_committed
 
     private fun CqlAddressSummary.notCommitted() = committed().not()
+
+    private fun initMonitors(record: ConsumerRecord<PumpEvent, R>) {
+        if (!(::topicCurrentOffsetMonitor.isInitialized)) {
+            topicCurrentOffsetMonitor = monitoring.gauge("address_summary_topic_current_offset",
+                    Tags.of("topic", record.topic()), AtomicLong(record.offset()))!!
+        }
+        if (!(::applyLockMonitor.isInitialized)) {
+            applyLockMonitor = monitoring.counter("address_summary_apply_lock_counter", Tags.of("topic", record.topic()))
+        }
+    }
+
 }
