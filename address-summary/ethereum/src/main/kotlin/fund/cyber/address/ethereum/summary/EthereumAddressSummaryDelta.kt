@@ -7,7 +7,7 @@ import fund.cyber.cassandra.common.CqlAddressSummary
 import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressSummary
 import fund.cyber.search.common.sumByDecimal
 import fund.cyber.search.model.ethereum.EthereumBlock
-import fund.cyber.search.model.ethereum.EthereumTransaction
+import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
 import fund.cyber.search.model.events.PumpEvent
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -59,9 +59,9 @@ data class EthereumAddressSummaryDelta(
 }
 
 @Component
-class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTransaction, CqlEthereumAddressSummary, EthereumAddressSummaryDelta> {
+class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumAddressSummary, EthereumAddressSummaryDelta> {
 
-    override fun recordToDeltas(record: ConsumerRecord<PumpEvent, EthereumTransaction>): List<EthereumAddressSummaryDelta> {
+    override fun recordToDeltas(record: ConsumerRecord<PumpEvent, EthereumTx>): List<EthereumAddressSummaryDelta> {
 
         val tx = record.value()
         val event = record.key()
@@ -84,7 +84,7 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTransaction, CqlEthereum
                 .map { delta -> if (event == PumpEvent.DROPPED_BLOCK) delta.revertedDelta() else delta }
     }
 
-    override fun affectedAddresses(records: List<ConsumerRecord<PumpEvent, EthereumTransaction>>): Set<String> {
+    override fun affectedAddresses(records: List<ConsumerRecord<PumpEvent, EthereumTx>>): Set<String> {
         val allAddresses: List<String> = records.flatMap { record ->
             val inAddress = record.value().from
             val outAddress = (record.value().to ?: record.value().creates)!!

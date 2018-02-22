@@ -11,7 +11,7 @@ import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
 import fund.cyber.search.model.chains.Chain
 import fund.cyber.search.model.ethereum.EthereumBlock
-import fund.cyber.search.model.ethereum.EthereumTransaction
+import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.blockPumpTopic
@@ -58,10 +58,10 @@ class BitcoinTxConsumerConfiguration {
     private lateinit var deltaMerger: EthereumDeltaMerger
 
     @Bean
-    fun txListenerContainer(): ConcurrentMessageListenerContainer<PumpEvent, EthereumTransaction> {
+    fun txListenerContainer(): ConcurrentMessageListenerContainer<PumpEvent, EthereumTx> {
 
         val consumerFactory = DefaultKafkaConsumerFactory(
-                consumerConfigs(), JsonDeserializer(PumpEvent::class.java), JsonDeserializer(EthereumTransaction::class.java)
+                consumerConfigs(), JsonDeserializer(PumpEvent::class.java), JsonDeserializer(EthereumTx::class.java)
         )
 
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
