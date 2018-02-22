@@ -1,6 +1,7 @@
 package fund.cyber.address.common.delta.apply
 
 import fund.cyber.address.common.delta.AddressSummaryDelta
+import fund.cyber.address.common.delta.DeltaMerger
 import fund.cyber.address.common.delta.DeltaProcessor
 import fund.cyber.address.common.summary.AddressSummaryStorage
 import fund.cyber.cassandra.common.CqlAddressSummary
@@ -23,7 +24,8 @@ fun <T> Flux<T>.await(): List<T> {
 //todo add deadlock catcher
 class UpdatesAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDelta<S>>(
         private val addressSummaryStorage: AddressSummaryStorage<S>,
-        private val deltaProcessor: DeltaProcessor<R, S, D>
+        private val deltaProcessor: DeltaProcessor<R, S, D>,
+        private val deltaMerger: DeltaMerger<D>
 ) : BatchConsumerAwareMessageListener<PumpEvent, R> {
 
 
@@ -36,7 +38,7 @@ class UpdatesAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryD
         val deltas = records.flatMap { record -> deltaProcessor.recordToDeltas(record) }
 
         val mergedDeltas = deltas.groupBy { delta -> delta.address }
-                .mapValues { addressDeltas -> deltaProcessor.mergeDeltas(addressDeltas.value, addressesSummary) }
+                .mapValues { addressDeltas -> deltaMerger.mergeDeltas(addressDeltas.value, addressesSummary) }
                 .filterValues { value -> value != null }
                 .map { entry -> entry.key to entry.value!! }.toMap()
 

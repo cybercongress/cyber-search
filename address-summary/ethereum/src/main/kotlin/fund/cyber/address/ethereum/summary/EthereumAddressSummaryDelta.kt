@@ -1,6 +1,7 @@
 package fund.cyber.address.ethereum.summary
 
 import fund.cyber.address.common.delta.AddressSummaryDelta
+import fund.cyber.address.common.delta.DeltaMerger
 import fund.cyber.address.common.delta.DeltaProcessor
 import fund.cyber.cassandra.common.CqlAddressSummary
 import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressSummary
@@ -93,30 +94,6 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTransaction, CqlEthereum
         return allAddresses.toSet()
     }
 
-    override fun mergeDeltas(deltas: Iterable<EthereumAddressSummaryDelta>, currentAddresses: Map<String, CqlAddressSummary>): EthereumAddressSummaryDelta? {
-
-        val first = deltas.first()
-        val existingSummary = currentAddresses[first.address]
-
-
-        // todo: what if deltas to apply is empty? Case: we didn't commit offset range and dropped. Then restored with the same offset range
-        val deltasToApply = deltas.filterNot { delta ->
-            existingSummary != null && existingSummary.kafka_delta_topic == delta.topic
-                    && existingSummary.kafka_delta_partition == delta.partition && delta.offset <= existingSummary.kafka_delta_offset
-        }
-        val balance = deltasToApply.sumByDecimal { delta -> delta.balanceDelta }
-        val totalReceived = deltasToApply.sumByDecimal { delta -> delta.totalReceivedDelta }
-        val txNumber = deltasToApply.sumBy { delta -> delta.txNumberDelta }
-        val blockNumber = deltasToApply.sumBy { delta -> delta.minedBlockNumberDelta }
-        val uncleNumber = deltasToApply.sumBy { delta -> delta.uncleNumberDelta }
-
-        return if (deltasToApply.isEmpty()) null else EthereumAddressSummaryDelta(
-                address = first.address, balanceDelta = balance, totalReceivedDelta = totalReceived,
-                txNumberDelta = txNumber, minedBlockNumberDelta = blockNumber, uncleNumberDelta = uncleNumber,
-                contractAddress = deltasToApply.any { delta -> delta.contractAddress ?: false },
-                topic = first.topic, partition = first.partition, offset = deltasToApply.maxBy { it -> it.offset }!!.offset
-        )
-    }
 }
 
 @Component
@@ -141,30 +118,6 @@ class EthereumBlockDeltaProcessor : DeltaProcessor<EthereumBlock, CqlEthereumAdd
         return records.map { record -> record.value().miner }.toSet()
     }
 
-    override fun mergeDeltas(deltas: Iterable<EthereumAddressSummaryDelta>, currentAddresses: Map<String, CqlAddressSummary>): EthereumAddressSummaryDelta? {
-
-        val first = deltas.first()
-        val existingSummary = currentAddresses[first.address]
-
-
-        // todo: what if deltas to apply is empty? Case: we didn't commit offset range and dropped. Then restored with the same offset range
-        val deltasToApply = deltas.filterNot { delta ->
-            existingSummary != null && existingSummary.kafka_delta_topic == delta.topic
-                    && existingSummary.kafka_delta_partition == delta.partition && delta.offset <= existingSummary.kafka_delta_offset
-        }
-        val balance = deltasToApply.sumByDecimal { delta -> delta.balanceDelta }
-        val totalReceived = deltasToApply.sumByDecimal { delta -> delta.totalReceivedDelta }
-        val txNumber = deltasToApply.sumBy { delta -> delta.txNumberDelta }
-        val blockNumber = deltasToApply.sumBy { delta -> delta.minedBlockNumberDelta }
-        val uncleNumber = deltasToApply.sumBy { delta -> delta.uncleNumberDelta }
-
-        return if (deltasToApply.isEmpty()) null else EthereumAddressSummaryDelta(
-                address = first.address, balanceDelta = balance, totalReceivedDelta = totalReceived,
-                txNumberDelta = txNumber, minedBlockNumberDelta = blockNumber, uncleNumberDelta = uncleNumber,
-                contractAddress = deltasToApply.any { delta -> delta.contractAddress ?: false },
-                topic = first.topic, partition = first.partition, offset = deltasToApply.maxBy { it -> it.offset }!!.offset
-        )
-    }
 }
 
 @Component
@@ -187,13 +140,18 @@ class EthereumUncleDeltaProcessor : DeltaProcessor<EthereumUncle, CqlEthereumAdd
         return records.map { record -> record.value().miner }.toSet()
     }
 
-    override fun mergeDeltas(deltas: Iterable<EthereumAddressSummaryDelta>, currentAddresses: Map<String, CqlAddressSummary>): EthereumAddressSummaryDelta? {
+}
+
+@Component
+class EthereumDeltaMerger : DeltaMerger<EthereumAddressSummaryDelta> {
+
+    override fun mergeDeltas(deltas: Iterable<EthereumAddressSummaryDelta>,
+                             currentAddresses: Map<String, CqlAddressSummary>): EthereumAddressSummaryDelta? {
 
         val first = deltas.first()
         val existingSummary = currentAddresses[first.address]
 
 
-        // todo: what if deltas to apply is empty? Case: we didn't commit offset range and dropped. Then restored with the same offset range
         val deltasToApply = deltas.filterNot { delta ->
             existingSummary != null && existingSummary.kafka_delta_topic == delta.topic
                     && existingSummary.kafka_delta_partition == delta.partition && delta.offset <= existingSummary.kafka_delta_offset

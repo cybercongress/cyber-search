@@ -1,6 +1,7 @@
 package fund.cyber.address.bitcoin.summary
 
 import fund.cyber.address.common.delta.AddressSummaryDelta
+import fund.cyber.address.common.delta.DeltaMerger
 import fund.cyber.address.common.delta.DeltaProcessor
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinAddressSummary
 import fund.cyber.cassandra.common.CqlAddressSummary
@@ -90,7 +91,14 @@ class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinAddressSumma
         return allAddresses.toSet()
     }
 
-    override fun mergeDeltas(deltas: Iterable<BitcoinAddressSummaryDelta>, currentAddresses: Map<String, CqlAddressSummary>): BitcoinAddressSummaryDelta? {
+}
+
+@Component
+class BitcoinDeltaMerger: DeltaMerger<BitcoinAddressSummaryDelta> {
+
+    override fun mergeDeltas(deltas: Iterable<BitcoinAddressSummaryDelta>,
+                             currentAddresses: Map<String, CqlAddressSummary>): BitcoinAddressSummaryDelta? {
+
         val first = deltas.first()
         val existingSummary = currentAddresses[first.address]
 

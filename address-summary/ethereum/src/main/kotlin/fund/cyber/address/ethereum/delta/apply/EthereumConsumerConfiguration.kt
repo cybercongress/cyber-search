@@ -3,6 +3,7 @@ package fund.cyber.address.ethereum.delta.apply
 import fund.cyber.address.common.delta.apply.UpdatesAddressSummaryProcess
 import fund.cyber.address.ethereum.EthereumAddressSummaryStorage
 import fund.cyber.address.ethereum.summary.EthereumBlockDeltaProcessor
+import fund.cyber.address.ethereum.summary.EthereumDeltaMerger
 import fund.cyber.address.ethereum.summary.EthereumTxDeltaProcessor
 import fund.cyber.address.ethereum.summary.EthereumUncleDeltaProcessor
 import fund.cyber.common.kafka.JsonDeserializer
@@ -53,6 +54,9 @@ class BitcoinTxConsumerConfiguration {
     @Autowired
     private lateinit var addressSummaryStorage: EthereumAddressSummaryStorage
 
+    @Autowired
+    private lateinit var deltaMerger: EthereumDeltaMerger
+
     @Bean
     fun txListenerContainer(): ConcurrentMessageListenerContainer<PumpEvent, EthereumTransaction> {
 
@@ -62,7 +66,7 @@ class BitcoinTxConsumerConfiguration {
 
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
-            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, txDeltaProcessor)
+            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, txDeltaProcessor, deltaMerger)
             isAckOnError = false
             ackMode = AbstractMessageListenerContainer.AckMode.BATCH
         }
@@ -81,7 +85,7 @@ class BitcoinTxConsumerConfiguration {
 
         val containerProperties = ContainerProperties(chain.blockPumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
-            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, blockDeltaProcessor)
+            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, blockDeltaProcessor, deltaMerger)
             isAckOnError = false
             ackMode = AbstractMessageListenerContainer.AckMode.BATCH
         }
@@ -100,7 +104,7 @@ class BitcoinTxConsumerConfiguration {
 
         val containerProperties = ContainerProperties(chain.unclePumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
-            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, uncleDeltaProcessor)
+            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, uncleDeltaProcessor, deltaMerger)
             isAckOnError = false
             ackMode = AbstractMessageListenerContainer.AckMode.BATCH
         }

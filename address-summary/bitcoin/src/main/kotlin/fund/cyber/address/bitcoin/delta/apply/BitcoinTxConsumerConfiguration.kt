@@ -3,6 +3,7 @@ package fund.cyber.address.bitcoin.delta.apply
 import fund.cyber.address.common.delta.apply.UpdatesAddressSummaryProcess
 import fund.cyber.common.kafka.JsonDeserializer
 import fund.cyber.address.bitcoin.BitcoinAddressSummaryStorage
+import fund.cyber.address.bitcoin.summary.BitcoinDeltaMerger
 import fund.cyber.address.bitcoin.summary.BitcoinTxDeltaProcessor
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
@@ -40,6 +41,9 @@ class BitcoinTxConsumerConfiguration {
     @Autowired
     private lateinit var addressSummaryStorage: BitcoinAddressSummaryStorage
 
+    @Autowired
+    private lateinit var deltaMerger: BitcoinDeltaMerger
+
     @Bean
     fun txListenerContainer(): ConcurrentMessageListenerContainer<PumpEvent, BitcoinTx> {
 
@@ -49,7 +53,7 @@ class BitcoinTxConsumerConfiguration {
 
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
-            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, txDeltaProcessor)
+            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, txDeltaProcessor, deltaMerger)
             isAckOnError = false
             ackMode = BATCH
         }

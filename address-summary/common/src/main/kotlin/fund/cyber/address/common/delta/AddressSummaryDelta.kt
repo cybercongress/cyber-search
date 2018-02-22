@@ -14,8 +14,11 @@ interface AddressSummaryDelta <S: CqlAddressSummary> {
     fun updateSummary(summary: S): S
 }
 
-interface DeltaProcessor<R, S: CqlAddressSummary, D: AddressSummaryDelta<S>> {
+interface DeltaProcessor<R, S: CqlAddressSummary, out D: AddressSummaryDelta<S>> {
     fun recordToDeltas(record: ConsumerRecord<PumpEvent, R>): List<D>
     fun affectedAddresses(records: List<ConsumerRecord<PumpEvent, R>>): Set<String>
+}
+
+interface DeltaMerger<D: AddressSummaryDelta<*>> {
     fun mergeDeltas(deltas: Iterable<D>, currentAddresses: Map<String, CqlAddressSummary>): D?
 }
