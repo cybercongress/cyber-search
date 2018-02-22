@@ -27,7 +27,7 @@ buildscript {
         mockitoKotlinVersion = "0.7.0"
 
         // metrics
-        micrometerVersion = "1.0.0-rc.9"
+        micrometerVersion = "1.0.0"
 
         // logs
         slf4jVersion = "1.7.25"

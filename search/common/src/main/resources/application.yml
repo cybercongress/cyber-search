@@ -8,10 +8,10 @@ management:
         enabled: true
     binders:
       jvm:
-        enabled: false
+        enabled: true
       logback:
         enabled: false
       uptime:
-        enabled: false
+        enabled: true
       processor:
-        enabled: false
+        enabled: true
