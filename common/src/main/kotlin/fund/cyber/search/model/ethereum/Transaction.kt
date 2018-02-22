@@ -20,7 +20,7 @@ data class EthereumTx(
         val gas_used: Long,             //parsed from hex
         val fee: BigDecimal,            //decimal //calculated
         val input: String,
-        val creates: String?            //creates contract hash
+        val creates: String?            //creates contract hash //todo:rename
 ) {
     fun addressesUsedInTransaction() = listOfNotNull(from, to, creates).filter { address -> !address.isEmpty() }
 }

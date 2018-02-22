@@ -68,13 +68,17 @@ CREATE TABLE IF NOT exists ethereum_classic.tx_preview_by_block (
 
 CREATE TABLE IF NOT exists ethereum_classic.address (
     id text PRIMARY KEY,
-    balance text,
+    confirmed_balance decimal,
     contract_address boolean,
-    total_received text,
-    last_transaction_block bigint,
+    confirmed_total_received decimal,
     tx_number int,
     uncle_number int,
-    mined_block_number int
+    mined_block_number int,
+    version bigint,
+    kafka_delta_offset bigint,
+    kafka_delta_partition int,
+    kafka_delta_topic text,
+    kafka_delta_offset_committed boolean
 );
 
 CREATE TABLE IF NOT exists ethereum_classic.mined_block_by_address (

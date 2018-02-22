@@ -1,20 +1,20 @@
-package fund.cyber.search
+package fund.cyber
 
 import fund.cyber.search.configuration.CHAIN
 import fund.cyber.search.configuration.env
 import fund.cyber.search.model.chains.BitcoinFamilyChain
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
 import org.springframework.context.annotation.Bean
-import org.springframework.kafka.annotation.EnableKafka
 
 
-@EnableKafka
-@SpringBootApplication
-open class UpdatesBitcoinAddressSummaryApplication {
+@SpringBootApplication(exclude = [CassandraDataAutoConfiguration::class, KafkaAutoConfiguration::class])
+class UpdateBitcoinAddressSummaryApplication {
 
     @Bean
-    open fun chain(): BitcoinFamilyChain {
+    fun chain(): BitcoinFamilyChain {
         val chainAsString = env(CHAIN, "")
         return BitcoinFamilyChain.valueOf(chainAsString)
     }
@@ -22,7 +22,7 @@ open class UpdatesBitcoinAddressSummaryApplication {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            SpringApplication.run(UpdatesBitcoinAddressSummaryApplication::class.java, *args)
+            SpringApplication.run(UpdateBitcoinAddressSummaryApplication::class.java, *args)
         }
     }
 }

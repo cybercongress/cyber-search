@@ -1,5 +1,6 @@
 package fund.cyber.cassandra.bitcoin.model
 
+import fund.cyber.cassandra.common.CqlAddressSummary
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType.CLUSTERED
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType.PARTITIONED
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
@@ -11,15 +12,17 @@ import java.time.Instant
 @Table("address_summary")
 data class CqlBitcoinAddressSummary(
 
-        @PrimaryKey val id: String,
-        val confirmed_balance: String,
+        @PrimaryKey override val id: String,
+        val confirmed_balance: BigDecimal,
         val confirmed_total_received: BigDecimal,
         val confirmed_tx_number: Int,
-        val kafka_delta_offset: Long,
-        val kafka_delta_partition: Short,
-        val kafka_delta_offset_committed: Boolean = false,
+        override val version: Long,
+        override val kafka_delta_offset: Long,
+        override val kafka_delta_partition: Int,
+        override val kafka_delta_topic: String,
+        override val kafka_delta_offset_committed: Boolean = false,
         val unconfirmed_tx_values: Map<String, BigDecimal> = emptyMap()
-) : CqlBitcoinItem
+) : CqlBitcoinItem, CqlAddressSummary
 
 
 @Table("tx_preview_by_address")

@@ -1,6 +1,10 @@
-package fund.cyber.search.address.delta.apply
+package fund.cyber.address.bitcoin.delta.apply
 
+import fund.cyber.address.common.delta.apply.UpdatesAddressSummaryProcess
 import fund.cyber.common.kafka.JsonDeserializer
+import fund.cyber.address.bitcoin.BitcoinAddressSummaryStorage
+import fund.cyber.address.bitcoin.summary.BitcoinDeltaMerger
+import fund.cyber.address.bitcoin.summary.BitcoinTxDeltaProcessor
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
 import fund.cyber.search.model.bitcoin.BitcoinTx
@@ -15,12 +19,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
+import org.springframework.kafka.listener.*
 import org.springframework.kafka.listener.AbstractMessageListenerContainer.AckMode.BATCH
-import org.springframework.kafka.listener.AbstractMessageListenerContainer.AckMode.MANUAL_IMMEDIATE
-import org.springframework.kafka.listener.BatchMessageListener
-import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
-import org.springframework.kafka.listener.ConsumerAwareMessageListener
-import org.springframework.kafka.listener.SeekToCurrentErrorHandler
 import org.springframework.kafka.listener.config.ContainerProperties
 import org.springframework.transaction.annotation.EnableTransactionManagement
 
@@ -36,8 +36,13 @@ class BitcoinTxConsumerConfiguration {
     private lateinit var chain: Chain
 
     @Autowired
-    private lateinit var updateAddressSummaryProcess: BatchMessageListener<PumpEvent, BitcoinTx>
+    private lateinit var txDeltaProcessor: BitcoinTxDeltaProcessor
 
+    @Autowired
+    private lateinit var addressSummaryStorage: BitcoinAddressSummaryStorage
+
+    @Autowired
+    private lateinit var deltaMerger: BitcoinDeltaMerger
 
     @Bean
     fun txListenerContainer(): ConcurrentMessageListenerContainer<PumpEvent, BitcoinTx> {
@@ -47,8 +52,8 @@ class BitcoinTxConsumerConfiguration {
         )
 
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
-            setErrorHandler(SeekToCurrentErrorHandler())
-            messageListener = updateAddressSummaryProcess
+            setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
+            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, txDeltaProcessor, deltaMerger)
             isAckOnError = false
             ackMode = BATCH
         }
@@ -63,6 +68,7 @@ class BitcoinTxConsumerConfiguration {
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
             ConsumerConfig.GROUP_ID_CONFIG to "bitcoin-address-summary-update-process",
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
-            ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase()
+            ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase(),
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to 10
     )
 }
