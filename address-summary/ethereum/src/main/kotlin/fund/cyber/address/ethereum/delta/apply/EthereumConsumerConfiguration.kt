@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 @EnableKafka
 @Configuration
 @EnableTransactionManagement
-class BitcoinTxConsumerConfiguration {
+class EthereumTxConsumerConfiguration {
 
     @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
     private lateinit var kafkaBrokers: String

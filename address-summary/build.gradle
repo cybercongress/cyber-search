@@ -9,7 +9,6 @@ project(":address-summary:common") {
         compile project(":common-kafka")
         compile project(":cassandra-service")
 
-        compile 'io.reactivex.rxjava2:rxkotlin'
         compile 'org.springframework.boot:spring-boot-starter'
     }
 }

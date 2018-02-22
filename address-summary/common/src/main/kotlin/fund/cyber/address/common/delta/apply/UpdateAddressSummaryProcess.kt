@@ -43,7 +43,7 @@ class UpdatesAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryD
                 .map { entry -> entry.key to entry.value!! }.toMap()
 
         //todo: remove parallelStream()
-        mergedDeltas.values.parallelStream().forEach { delta ->
+        mergedDeltas.values.forEach { delta ->
             store(addressesSummary[delta.address], delta)
         }
 
