@@ -14,6 +14,7 @@ import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.blockPumpTopic
 import fund.cyber.search.model.events.txPumpTopic
 import fund.cyber.search.model.events.unclePumpTopic
+import io.micrometer.core.instrument.MeterRegistry
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.requests.IsolationLevel
 import org.springframework.beans.factory.annotation.Autowired
@@ -47,6 +48,8 @@ class ApplicationConfiguration {
     lateinit var ethereumUncleRepository: EthereumUncleRepository
     @Autowired
     lateinit var ethereumAddressUncleRepository: EthereumAddressUncleRepository
+    @Autowired
+    lateinit var monitoring: MeterRegistry
 
 
     @Bean
@@ -68,7 +71,7 @@ class ApplicationConfiguration {
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain().blockPumpTopic).apply {
-            messageListener = BlockDumpProcess(ethereumBlockRepository, ethereumAddressMinedBlockRepository, chain())
+            messageListener = BlockDumpProcess(ethereumBlockRepository, ethereumAddressMinedBlockRepository, chain(), monitoring)
             pollTimeout = 5000
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
@@ -89,7 +92,7 @@ class ApplicationConfiguration {
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain().txPumpTopic).apply {
-            messageListener = TxDumpProcess(ethereumTxRepository, ethereumBlockTxRepository, ethereumAddressTxRepository, chain())
+            messageListener = TxDumpProcess(ethereumTxRepository, ethereumBlockTxRepository, ethereumAddressTxRepository, chain(), monitoring)
             pollTimeout = 5000
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
@@ -110,7 +113,7 @@ class ApplicationConfiguration {
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain().unclePumpTopic).apply {
-            messageListener = UncleDumpProcess(ethereumUncleRepository, ethereumAddressUncleRepository, chain())
+            messageListener = UncleDumpProcess(ethereumUncleRepository, ethereumAddressUncleRepository, chain(), monitoring)
             pollTimeout = 5000
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }

@@ -50,6 +50,7 @@ data class BitcoinAddressSummaryDelta(
     }
 }
 
+//todo: txNumberDelta should be 1 if address both in ins and outs
 @Component
 class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinAddressSummary, BitcoinAddressSummaryDelta> {
 
