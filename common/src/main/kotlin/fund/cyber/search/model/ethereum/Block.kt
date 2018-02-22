@@ -16,6 +16,7 @@ data class EthereumBlock(
         val state_root: String,
         val receipts_root: String,
         val miner: String,
+        val nonce: Long,                    //parsed from hex
         val difficulty: BigInteger,
         val total_difficulty: BigInteger,   //parsed from hex
         val extra_data: String,

@@ -5,7 +5,7 @@ import fund.cyber.pump.common.node.BlockchainInterface
 import fund.cyber.pump.ethereum.client.genesis.EthereumGenesisDataProvider
 import fund.cyber.search.common.await
 import fund.cyber.search.model.ethereum.EthereumBlock
-import fund.cyber.search.model.ethereum.EthereumTransaction
+import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
 import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.stereotype.Component
@@ -21,7 +21,7 @@ class EthereumBlockBundle(
         override val blockSize: Int,
         val block: EthereumBlock,
         val uncles: List<EthereumUncle>,
-        val transactions: List<EthereumTransaction>
+        val txes: List<EthereumTx>
 ) : BlockBundle
 
 

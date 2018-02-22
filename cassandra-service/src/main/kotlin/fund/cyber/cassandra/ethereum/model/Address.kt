@@ -1,7 +1,7 @@
 package fund.cyber.cassandra.ethereum.model
 
 import fund.cyber.search.model.ethereum.EthereumBlock
-import fund.cyber.search.model.ethereum.EthereumTransaction
+import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
@@ -35,7 +35,7 @@ data class CqlEthereumAddressTxPreview(
         val value: String
 ) : CqlEthereumItem {
 
-    constructor(tx: EthereumTransaction, address: String) : this(
+    constructor(tx: EthereumTx, address: String) : this(
             hash = tx.hash, address = address, block_time = tx.block_time,
             from = tx.from, to = (tx.to ?: tx.creates)!!, //both 'to' or 'creates' can't be null at same time
             value = tx.value.toString(), fee = tx.fee.toString()

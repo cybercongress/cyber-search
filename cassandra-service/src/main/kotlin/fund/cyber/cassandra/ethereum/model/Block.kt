@@ -1,10 +1,11 @@
 package fund.cyber.cassandra.ethereum.model
 
 import fund.cyber.search.model.ethereum.EthereumBlock
-import fund.cyber.search.model.ethereum.EthereumTransaction
+import fund.cyber.search.model.ethereum.EthereumTx
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
 import org.springframework.data.cassandra.core.mapping.Table
+import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 
@@ -48,18 +49,19 @@ data class CqlEthereumBlock(
 
 @Table("tx_preview_by_block")
 data class CqlEthereumBlockTxPreview(
-        @PrimaryKey val block_number: Long,
-        val fee: String,
-        val value: String,
+        @PrimaryKey(value = "block_number") val blockNumber: Long,
+        @Column("position_in_block")  val positionInBlock: Int,
+        val fee: BigDecimal,
+        val value: BigDecimal,
         val hash: String,
         @Column(forceQuote = true) val from: String,
         @Column(forceQuote = true) val to: String,
         val creates_contract: Boolean
 ) : CqlEthereumItem {
 
-    constructor(tx: EthereumTransaction) : this(
-            block_number = tx.block_number, hash = tx.hash,
-            fee = tx.fee.toString(), value = tx.value.toString(),
+    constructor(tx: EthereumTx) : this(
+            blockNumber = tx.block_number, hash = tx.hash, positionInBlock = tx.positionInBlock,
+            fee = tx.fee, value = tx.value,
             from = tx.from, to = (tx.to ?: tx.creates)!!, //both 'to' or 'creates' can't be null at same time
             creates_contract = tx.creates != null
     )

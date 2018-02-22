@@ -8,7 +8,7 @@ import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
 import fund.cyber.search.configuration.env
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumBlock
-import fund.cyber.search.model.ethereum.EthereumTransaction
+import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.blockPumpTopic
@@ -20,8 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.DependsOn
-import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.listener.KafkaMessageListenerContainer
 import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler
@@ -61,7 +59,7 @@ class ApplicationConfiguration {
     fun blocksListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, EthereumBlock> {
 
         val consumerConfig = consumerConfigs().apply {
-            put(ConsumerConfig.GROUP_ID_CONFIG, "ethereum-blocks-dump-process4")
+            put(ConsumerConfig.GROUP_ID_CONFIG, "ethereum-blocks-dump-process")
         }
 
         val consumerFactory = DefaultKafkaConsumerFactory(
@@ -79,14 +77,14 @@ class ApplicationConfiguration {
     }
 
     @Bean
-    fun txsListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, EthereumTransaction> {
+    fun txsListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, EthereumTx> {
 
         val consumerConfig = consumerConfigs().apply {
-            put(ConsumerConfig.GROUP_ID_CONFIG, "ethereum-txs-dump-process4")
+            put(ConsumerConfig.GROUP_ID_CONFIG, "ethereum-txs-dump-process")
         }
 
         val consumerFactory = DefaultKafkaConsumerFactory(
-                consumerConfig, JsonDeserializer(PumpEvent::class.java), JsonDeserializer(EthereumTransaction::class.java)
+                consumerConfig, JsonDeserializer(PumpEvent::class.java), JsonDeserializer(EthereumTx::class.java)
         )
 
         //todo add to error handler exponential wait before retries
@@ -103,7 +101,7 @@ class ApplicationConfiguration {
     fun unclesListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, EthereumUncle> {
 
         val consumerConfig = consumerConfigs().apply {
-            put(ConsumerConfig.GROUP_ID_CONFIG, "ethereum-uncles-dump-process4")
+            put(ConsumerConfig.GROUP_ID_CONFIG, "ethereum-uncles-dump-process")
         }
 
         val consumerFactory = DefaultKafkaConsumerFactory(

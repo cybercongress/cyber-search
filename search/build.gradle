@@ -1,17 +1,14 @@
-/*
-project(":pumps:common") {
+project(":search:common") {
 
     apply plugin: "io.spring.dependency-management"
-    jar.archiveName = "common-pumps"
+    jar.archiveName = "common-search"
 
     dependencies {
 
+        compile project(":cassandra-service")
         compile project(":common")
-        compile project(":common-kafka")
 
-        compile 'io.reactivex.rxjava2:rxkotlin'
         compile 'org.springframework.boot:spring-boot-starter'
-
         compile 'org.springframework.boot:spring-boot-starter-webflux'
         compile 'org.springframework.boot:spring-boot-starter-reactor-netty'
         compile 'org.springframework.boot:spring-boot-starter-actuator'
@@ -20,30 +17,11 @@ project(":pumps:common") {
     }
 }
 
-project(":pumps:bitcoin") {
+project(":search:ethereum") {
 
     apply plugin: "org.springframework.boot"
 
     dependencies {
-
-        compile project(":pumps:common")
-
-        compile 'org.ehcache:ehcache'
-        compile 'org.apache.httpcomponents:httpasyncclient'
+        compile project(":search:common")
     }
 }
-
-
-project(":pumps:ethereum") {
-
-    apply plugin: "org.springframework.boot"
-
-    dependencies {
-
-        compile project(":pumps:common")
-
-        compile 'org.ehcache:ehcache'
-        compile 'org.apache.httpcomponents:httpasyncclient'
-        compile 'org.web3j:core'
-    }
-}*/

@@ -1,6 +1,6 @@
 package fund.cyber.cassandra.ethereum.model
 
-import fund.cyber.search.model.ethereum.EthereumTransaction
+import fund.cyber.search.model.ethereum.EthereumTx
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
 import org.springframework.data.cassandra.core.mapping.Table
@@ -14,7 +14,6 @@ data class CqlEthereumTransaction(
         val block_hash: String?,
         val block_number: Long,
         val block_time: Instant,
-        val transaction_index: Long,
         @Column(forceQuote = true) val from: String,
         @Column(forceQuote = true) val to: String?,
         val value: String,
@@ -26,9 +25,9 @@ data class CqlEthereumTransaction(
         val creates: String?
 ) : CqlEthereumItem {
 
-    constructor(tx: EthereumTransaction) : this(
+    constructor(tx: EthereumTx) : this(
             hash = tx.hash, nonce = tx.nonce, block_hash = tx.block_hash, block_number = tx.block_number,
-            block_time = tx.block_time, transaction_index = tx.transaction_index, from = tx.from, to = tx.to,
+            block_time = tx.block_time, from = tx.from, to = tx.to,
             value = tx.value.toString(), gas_price = tx.gas_price, gas_limit = tx.gas_limit, gas_used = tx.gas_used,
             fee = tx.fee.toString(), input = tx.input, creates = tx.creates
 

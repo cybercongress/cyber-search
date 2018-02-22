@@ -3,7 +3,7 @@ package fund.cyber.dump.ethereum
 import fund.cyber.cassandra.ethereum.model.*
 import fund.cyber.cassandra.ethereum.repository.*
 import fund.cyber.search.model.chains.Chain
-import fund.cyber.search.model.ethereum.EthereumTransaction
+import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.events.PumpEvent
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -14,13 +14,13 @@ class TxDumpProcess(
         private val blockTxRepository: EthereumBlockTxRepository,
         private val addressTxRepository: EthereumAddressTxRepository,
         private val chain: Chain
-) : BatchMessageListener<PumpEvent, EthereumTransaction> {
+) : BatchMessageListener<PumpEvent, EthereumTx> {
 
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
 
 
     //todo add retry
-    override fun onMessage(records: List<ConsumerRecord<PumpEvent, EthereumTransaction>>) {
+    override fun onMessage(records: List<ConsumerRecord<PumpEvent, EthereumTx>>) {
 
         log.info("Dumping batch of ${records.size} $chain txs from offset ${records.first().offset()}")
 
