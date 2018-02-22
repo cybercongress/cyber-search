@@ -27,7 +27,7 @@ class EthereumPumpApplication {
 
             val applicationContext = application.run(*args)
             val pump = applicationContext.getBean(ChainPump::class.java)
-//            pump.startPump()
+            pump.startPump()
         }
     }
 }
