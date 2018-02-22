@@ -6,7 +6,6 @@ import fund.cyber.address.common.delta.DeltaProcessor
 import fund.cyber.address.common.summary.AddressSummaryStorage
 import fund.cyber.cassandra.common.CqlAddressSummary
 import fund.cyber.search.model.events.PumpEvent
-import fund.cyber.search.model.events.txPumpTopic
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
@@ -52,7 +51,6 @@ class UpdatesAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryD
                 .filterValues { value -> value != null }
                 .map { entry -> entry.key to entry.value!! }.toMap()
 
-        //todo: remove parallelStream()
         mergedDeltas.values.forEach { delta ->
             store(addressesSummary[delta.address], delta)
         }
@@ -61,7 +59,6 @@ class UpdatesAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryD
 
         val newSummaries = addressSummaryStorage.findAllByIdIn(addresses).await()
 
-        //todo: blocking operation will be executed one by one!!!!
         newSummaries.forEach { summary -> addressSummaryStorage.commitUpdate(summary.id, summary.version + 1).block() }
 
         topicCurrentOffsetMonitor.set(records.last().offset())
