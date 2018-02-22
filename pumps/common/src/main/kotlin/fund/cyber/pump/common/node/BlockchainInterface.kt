@@ -1,4 +1,4 @@
-package fund.cyber.pump.common
+package fund.cyber.pump.common.node
 
 
 const val UNKNOWN_PARENT_HASH = "UNKNOWN_PARENT_HASH"

@@ -1,4 +1,4 @@
-package fund.cyber.pump.common
+package fund.cyber.pump.common.node
 
 import io.reactivex.Emitter
 import io.reactivex.Flowable
@@ -18,7 +18,7 @@ private val log = LoggerFactory.getLogger(ConcurrentPulledBlockchain::class.java
 
 class ConcurrentPulledBlockchain<T : BlockBundle>(
         private val blockchainInterface: BlockchainInterface<T>,
-        private val batchSize: Int = 3
+        private val batchSize: Int = 20
 ) : FlowableBlockchainInterface<T>, BlockchainInterface<T> by blockchainInterface {
 
     private var lastNetworkBlock = 0L
@@ -50,6 +50,7 @@ class ConcurrentPulledBlockchain<T : BlockBundle>(
     override fun subscribeBlocks(startBlockNumber: Long): Flowable<T> {
 
         return Flowable.generate<LongRange, Long>(Callable { startBlockNumber }, generateAvailableBlocksNumbersRangesFunction)
+                .observeOn(Schedulers.io(), false, 10 * 1024)
                 .flatMap({ blockNumbers -> asyncDownloadBlocks(blockNumbers) }, 1)
     }
 
@@ -57,7 +58,7 @@ class ConcurrentPulledBlockchain<T : BlockBundle>(
     private fun asyncDownloadBlocks(blockNumbers: LongRange): Flowable<T> {
         log.debug("Looking for ${blockNumbers.first}-${blockNumbers.last} blocks")
         return blockNumbers.toFlowable()
-                .flatMap({ number -> asyncDownloadBlock(number) }, 16)
+                .flatMap({ number -> asyncDownloadBlock(number) }, 20)
                 .sorted { o1, o2 -> o1.number.compareTo(o2.number) }
     }
 

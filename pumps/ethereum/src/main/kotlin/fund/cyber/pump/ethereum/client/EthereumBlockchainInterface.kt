@@ -1,13 +1,13 @@
 package fund.cyber.pump.ethereum.client
 
-import fund.cyber.pump.common.BlockBundle
-import fund.cyber.pump.common.BlockchainInterface
-import fund.cyber.pump.common.monitoring.MonitoringService
+import fund.cyber.pump.common.node.BlockBundle
+import fund.cyber.pump.common.node.BlockchainInterface
 import fund.cyber.pump.ethereum.client.genesis.EthereumGenesisDataProvider
 import fund.cyber.search.common.await
 import fund.cyber.search.model.ethereum.EthereumBlock
-import fund.cyber.search.model.ethereum.EthereumTransaction
+import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
+import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.stereotype.Component
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameter
@@ -21,7 +21,7 @@ class EthereumBlockBundle(
         override val blockSize: Int,
         val block: EthereumBlock,
         val uncles: List<EthereumUncle>,
-        val transactions: List<EthereumTransaction>
+        val txes: List<EthereumTx>
 ) : BlockBundle
 
 
@@ -30,7 +30,7 @@ class EthereumBlockchainInterface(
         private val parityClient: Web3j,
         private val parityToBundleConverter: ParityToEthereumBundleConverter,
         private val genesisDataProvider: EthereumGenesisDataProvider,
-        monitoring: MonitoringService
+        monitoring: MeterRegistry
 ) : BlockchainInterface<EthereumBlockBundle> {
 
     private val downloadSpeedMonitor = monitoring.timer("pump_bundle_download")

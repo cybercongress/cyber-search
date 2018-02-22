@@ -13,4 +13,5 @@ include "pumps:ethereum"
 include "dumps:bitcoin"
 include "dumps:ethereum"
 
-include "search:bitcoin"
+include "search:common"
+include "search:ethereum"

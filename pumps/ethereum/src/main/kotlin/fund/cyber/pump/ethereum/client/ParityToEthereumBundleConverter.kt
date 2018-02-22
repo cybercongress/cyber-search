@@ -24,7 +24,7 @@ class ParityToEthereumBundleConverter(
         return EthereumBlockBundle(
                 hash = parityBlock.hash, parentHash = parityBlock.parentHash ?: "-1",
                 number = parityBlock.number.toLong(), block = block, uncles = blockUncles,
-                transactions = transactions, blockSize = parityBlock.size.toInt()
+                txes = transactions, blockSize = parityBlock.size.toInt()
         )
     }
 
@@ -40,19 +40,18 @@ class ParityToEthereumBundleConverter(
         }
     }
 
-    private fun parityTransactionsToDao(parityBlock: EthBlock.Block): List<EthereumTransaction> {
+    private fun parityTransactionsToDao(parityBlock: EthBlock.Block): List<EthereumTx> {
         return parityBlock.transactions
                 .filterIsInstance<EthBlock.TransactionObject>()
-                .map { parityTx ->
-                    EthereumTransaction(
+                .mapIndexed { index, parityTx ->
+                    EthereumTx(
                             from = parityTx.from, to = parityTx.to, nonce = parityTx.nonce.toLong(),
                             value = BigDecimal(parityTx.value) * weiToEthRate,
                             hash = parityTx.hash, block_hash = parityBlock.hash,
                             block_number = parityBlock.numberRaw.hexToLong(),
                             block_time = Instant.ofEpochSecond(parityBlock.timestampRaw.hexToLong()),
                             creates = parityTx.creates, input = parityTx.input,
-                            transaction_index = parityTx.transactionIndexRaw.hexToLong(),
-                            gas_limit = parityBlock.gasLimitRaw.hexToLong(),
+                            positionInBlock = index, gas_limit = parityBlock.gasLimitRaw.hexToLong(),
                             gas_used = parityTx.transactionIndexRaw.hexToLong(),
                             gas_price = BigDecimal(parityTx.gasPrice) * weiToEthRate,
                             fee = BigDecimal(parityTx.gasPrice * parityTx.gas) * weiToEthRate
@@ -82,9 +81,8 @@ class ParityToEthereumBundleConverter(
                 logs_bloom = parityBlock.logsBloom, transactions_root = parityBlock.transactionsRoot,
                 receipts_root = parityBlock.receiptsRoot, state_root = parityBlock.stateRoot,
                 sha3_uncles = parityBlock.sha3Uncles, uncles = parityBlock.uncles,
-                tx_number = parityBlock.transactions.size,
-                tx_fees = blockTxesFees.sum(), block_reward = blockReward,
-                uncles_reward = uncleReward
+                tx_number = parityBlock.transactions.size, nonce = parityBlock.nonce.toLong(),
+                tx_fees = blockTxesFees.sum(), block_reward = blockReward, uncles_reward = uncleReward
         )
     }
 }

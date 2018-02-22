@@ -6,7 +6,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import fund.cyber.pump.common.genesis.GenesisDataProvider
 import fund.cyber.pump.ethereum.client.EthereumBlockBundle
 import fund.cyber.search.model.chains.Chain
-import fund.cyber.search.model.ethereum.EthereumTransaction
+import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.weiToEthRate
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
@@ -37,17 +37,17 @@ class EthereumGenesisDataFileProvider(
         val txs = genesis.accounts
                 .entries
                 .filter { (_, value) -> value.balance != null }
-                .mapIndexed { _, entry ->
+                .mapIndexed { index, entry ->
 
                     val addressId = entry.key
                     val balance = entry.value.balance
 
-                    val tx = EthereumTransaction(
+                    val tx = EthereumTx(
                             hash = "GENESIS_$addressId",
                             nonce = 42,
                             block_hash = "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3",
                             block_number = 0,
-                            transaction_index = 0,
+                            positionInBlock = index,
                             from = "",
                             to = addressId,
                             value = BigDecimal(balance!!).multiply(weiToEthRate),
@@ -66,7 +66,7 @@ class EthereumGenesisDataFileProvider(
 
         return EthereumBlockBundle(
                 hash = blockBundle.hash, parentHash = blockBundle.parentHash,
-                transactions = txs, block = blockBundle.block, number = blockBundle.number,
+                txes = txs, block = blockBundle.block, number = blockBundle.number,
                 uncles = blockBundle.uncles, blockSize = blockBundle.blockSize
         )
     }

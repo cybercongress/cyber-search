@@ -1,14 +1,12 @@
-package fund.cyber.pump.common
+package fund.cyber.search.common
 
 import fund.cyber.search.model.chains.Chain
 import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer
 
-@EnableScheduling
 @Configuration
 class CommonConfiguration {
 

@@ -1,8 +1,8 @@
 package fund.cyber.pump.ethereum.kafka
 
 import fund.cyber.common.kafka.reader.SinglePartitionTopicLastItemsReader
-import fund.cyber.pump.common.LastPumpedBundlesProvider
-import fund.cyber.pump.common.UNKNOWN_PARENT_HASH
+import fund.cyber.pump.common.kafka.LastPumpedBundlesProvider
+import fund.cyber.pump.common.node.UNKNOWN_PARENT_HASH
 import fund.cyber.pump.ethereum.client.EthereumBlockBundle
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
@@ -30,7 +30,7 @@ class LastPumpedEthereumBundleProvider(
 
         val bundle = EthereumBlockBundle(
                 number = block.number, hash = block.hash, parentHash = UNKNOWN_PARENT_HASH,
-                block = block, transactions = emptyList(), uncles = emptyList(), blockSize = block.size.toInt()
+                block = block, txes = emptyList(), uncles = emptyList(), blockSize = block.size.toInt()
         )
 
         return listOf(event to bundle)

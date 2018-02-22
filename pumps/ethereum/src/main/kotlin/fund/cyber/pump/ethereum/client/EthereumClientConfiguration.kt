@@ -1,12 +1,12 @@
 package fund.cyber.pump.ethereum.client
 
-import fund.cyber.pump.common.ConcurrentPulledBlockchain
-import fund.cyber.pump.common.FlowableBlockchainInterface
-import fund.cyber.pump.common.monitoring.MonitoringService
+import fund.cyber.pump.common.node.ConcurrentPulledBlockchain
+import fund.cyber.pump.common.node.FlowableBlockchainInterface
 import fund.cyber.pump.ethereum.client.genesis.EthereumGenesisDataProvider
 import fund.cyber.search.configuration.CHAIN_NODE_URL
 import fund.cyber.search.configuration.ETHEREUM_CHAIN_NODE_DEFAULT_URL
 import fund.cyber.search.configuration.env
+import io.micrometer.core.instrument.MeterRegistry
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.apache.http.message.BasicHeader
@@ -37,14 +37,14 @@ class EthereumClientConfiguration {
     fun parityClient() = Web3j.build(HttpService(endpointUrl, httpClient()))
 
 
-    @Bean
+    @Bean("blockchainInterface")
     fun blockchainInterface(
             parityToEthereumBundleConverter: ParityToEthereumBundleConverter,
             genesisDataProvider: EthereumGenesisDataProvider,
-            monitoringService: MonitoringService
+            monitoring: MeterRegistry
     ): FlowableBlockchainInterface<EthereumBlockBundle> {
         val ethereumBlockchainInterface = EthereumBlockchainInterface(
-                parityClient(), parityToEthereumBundleConverter, genesisDataProvider, monitoringService
+                parityClient(), parityToEthereumBundleConverter, genesisDataProvider, monitoring
         )
         return ConcurrentPulledBlockchain(ethereumBlockchainInterface)
     }

@@ -5,22 +5,22 @@ import java.time.Instant
 
 val weiToEthRate = BigDecimal("1E-18")
 
-data class EthereumTransaction(
+data class EthereumTx(
         val hash: String,
-        val nonce: Long,           //parsed from hex
-        val block_hash: String?,   //null when its pending
-        val block_number: Long,   //parsed from hex   //null when its pending
+        val nonce: Long,                //parsed from hex
+        val block_hash: String?,        //null when its pending
+        val block_number: Long,         //parsed from hex   //null when its pending
         val block_time: Instant,
-        val transaction_index: Long,//parsed from hex
+        val positionInBlock: Int,       //txes from one block ordering field
         val from: String,
-        val to: String?,           //null when its a contract creation transaction.
-        val value: BigDecimal,         //decimal   //parsed from hex
-        val gas_price: BigDecimal, //parsed from hex
-        val gas_limit: Long,       //parsed from hex
-        val gas_used: Long,        //parsed from hex
-        val fee: BigDecimal,           //decimal //calculated
+        val to: String?,                //null when its a contract creation transaction.
+        val value: BigDecimal,          //decimal   //parsed from hex
+        val gas_price: BigDecimal,      //parsed from hex
+        val gas_limit: Long,            //parsed from hex
+        val gas_used: Long,             //parsed from hex
+        val fee: BigDecimal,            //decimal //calculated
         val input: String,
-        val creates: String?       //creates contract hash //todo:rename
+        val creates: String?            //creates contract hash //todo:rename
 ) {
     fun addressesUsedInTransaction() = listOfNotNull(from, to, creates).filter { address -> !address.isEmpty() }
 }

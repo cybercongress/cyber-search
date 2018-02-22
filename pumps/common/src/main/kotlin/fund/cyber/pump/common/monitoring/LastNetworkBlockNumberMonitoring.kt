@@ -1,6 +1,7 @@
 package fund.cyber.pump.common.monitoring
 
-import fund.cyber.pump.common.FlowableBlockchainInterface
+import fund.cyber.pump.common.node.FlowableBlockchainInterface
+import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.util.concurrent.atomic.AtomicLong
@@ -8,12 +9,12 @@ import java.util.concurrent.atomic.AtomicLong
 
 @Component
 class LastNetworkBlockNumberMonitoring(
-        monitoring: MonitoringService,
+        monitoring: MeterRegistry,
         private val blockchainInterface: FlowableBlockchainInterface<*>
 ) {
 
-    val lastProcessedBlockMonitor = monitoring
-            .gauge("pump_last_network_block", AtomicLong(blockchainInterface.lastNetworkBlock()))
+    private val lastProcessedBlockMonitor = monitoring
+            .gauge("pump_last_network_block", AtomicLong(blockchainInterface.lastNetworkBlock()))!!
 
     @Scheduled(fixedRate = 10 * 1000)
     fun getLastNetworkBlockNumber() {
