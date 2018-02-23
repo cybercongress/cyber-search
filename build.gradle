@@ -214,3 +214,23 @@ project(":cassandra-service") {
         compile("com.datastax.cassandra:cassandra-driver-extras")
     }
 }
+
+
+project(":search-api") {
+
+    apply plugin: "org.springframework.boot"
+
+    dependencies {
+
+        compile project(":common")
+        compile project(":cassandra-service")
+
+        compile 'org.springframework.boot:spring-boot-starter'
+        compile 'org.springframework.boot:spring-boot-starter-webflux'
+        compile 'org.springframework.boot:spring-boot-starter-reactor-netty'
+        compile 'org.springframework.boot:spring-boot-starter-actuator'
+        compile 'org.elasticsearch.client:transport'
+        compile 'io.micrometer:micrometer-registry-prometheus'
+        compile 'io.micrometer:micrometer-core'
+    }
+}

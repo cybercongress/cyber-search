@@ -11,6 +11,7 @@ import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.chains.Chain
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.txPumpTopic
+import io.micrometer.core.instrument.MeterRegistry
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.requests.IsolationLevel
 import org.springframework.beans.factory.annotation.Autowired
@@ -44,6 +45,9 @@ class BitcoinTxConsumerConfiguration {
     @Autowired
     private lateinit var deltaMerger: BitcoinDeltaMerger
 
+    @Autowired
+    private lateinit var monitoring: MeterRegistry
+
     @Bean
     fun txListenerContainer(): ConcurrentMessageListenerContainer<PumpEvent, BitcoinTx> {
 
@@ -53,7 +57,7 @@ class BitcoinTxConsumerConfiguration {
 
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
-            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, txDeltaProcessor, deltaMerger)
+            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, txDeltaProcessor, deltaMerger, monitoring)
             isAckOnError = false
             ackMode = BATCH
         }

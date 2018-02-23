@@ -1,7 +1,5 @@
 package fund.cyber.api.search
 
-import fund.cyber.search.model.ItemPreview
-import fund.cyber.search.model.SearchResponse
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.unit.Fuzziness
 import org.elasticsearch.index.query.QueryBuilders
