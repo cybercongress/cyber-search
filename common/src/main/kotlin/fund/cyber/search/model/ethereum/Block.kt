@@ -8,26 +8,26 @@ import java.time.Instant
 data class EthereumBlock(
         val number: Long,                   //parsed from hex
         val hash: String,
-        val parent_hash: String,
+        val parentHash: String,
         val timestamp: Instant,
-        val sha3_uncles: String,
-        val logs_bloom: String,
-        val transactions_root: String,
-        val state_root: String,
-        val receipts_root: String,
+        val sha3Uncles: String,
+        val logsBloom: String,
+        val transactionsRoot: String,
+        val stateRoot: String,
+        val receiptsRoot: String,
         val miner: String,
         val nonce: Long,                    //parsed from hex
         val difficulty: BigInteger,
-        val total_difficulty: BigInteger,   //parsed from hex
-        val extra_data: String,
+        val totalDifficulty: BigInteger,   //parsed from hex
+        val extraData: String,
         val size: Long,                     //parsed from hex
-        val gas_limit: Long,                //parsed from hex
-        val gas_used: Long,                //parsed from hex
-        val tx_number: Int,
+        val gasLimit: Long,                //parsed from hex
+        val gasUsed: Long,                //parsed from hex
+        val txNumber: Int,
         val uncles: List<String>,
-        val block_reward: BigDecimal,
-        val uncles_reward: BigDecimal,
-        val tx_fees: BigDecimal
+        val blockReward: BigDecimal,
+        val unclesReward: BigDecimal,
+        val txFees: BigDecimal
 )
 
 //todo: add properly support of new classic fork

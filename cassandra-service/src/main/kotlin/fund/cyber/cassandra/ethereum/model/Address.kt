@@ -41,8 +41,8 @@ data class CqlEthereumAddressTxPreview(
 ) : CqlEthereumItem {
 
     constructor(tx: EthereumTx, address: String) : this(
-            hash = tx.hash, address = address, block_time = tx.block_time,
-            from = tx.from, to = (tx.to ?: tx.creates)!!, //both 'to' or 'creates' can't be null at same time
+            hash = tx.hash, address = address, block_time = tx.blockTime,
+            from = tx.from, to = (tx.to ?: tx.createdContract)!!, //both 'to' or 'createdContract' can't be null at same time
             value = tx.value.toString(), fee = tx.fee.toString()
     )
 }
@@ -59,8 +59,8 @@ data class CqlEthereumAddressMinedBlock(
 ) : CqlEthereumItem {
     constructor(block: EthereumBlock) : this(
             miner = block.miner, block_number = block.number, block_time = block.timestamp,
-            block_reward = block.block_reward, uncles_reward = block.uncles_reward,
-            tx_fees = block.tx_fees, tx_number = block.tx_number
+            block_reward = block.blockReward, uncles_reward = block.unclesReward,
+            tx_fees = block.txFees, tx_number = block.txNumber
     )
 }
 
@@ -79,7 +79,7 @@ data class CqlEthereumAddressUncle(
     constructor(uncle: EthereumUncle) : this(
             hash = uncle.hash, position = uncle.position,
             number = uncle.number, timestamp = uncle.timestamp,
-            block_number = uncle.block_number, block_time = uncle.block_time, block_hash = uncle.block_hash,
-            miner = uncle.miner, uncle_reward = uncle.uncle_reward.toString()
+            block_number = uncle.blockNumber, block_time = uncle.blockTime, block_hash = uncle.blockHash,
+            miner = uncle.miner, uncle_reward = uncle.uncleReward.toString()
     )
 }

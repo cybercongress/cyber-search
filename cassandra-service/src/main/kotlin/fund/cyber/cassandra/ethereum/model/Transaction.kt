@@ -26,10 +26,10 @@ data class CqlEthereumTransaction(
 ) : CqlEthereumItem {
 
     constructor(tx: EthereumTx) : this(
-            hash = tx.hash, nonce = tx.nonce, block_hash = tx.block_hash, block_number = tx.block_number,
-            block_time = tx.block_time, from = tx.from, to = tx.to,
-            value = tx.value.toString(), gas_price = tx.gas_price, gas_limit = tx.gas_limit, gas_used = tx.gas_used,
-            fee = tx.fee.toString(), input = tx.input, creates = tx.creates
+            hash = tx.hash, nonce = tx.nonce, block_hash = tx.blockHash, block_number = tx.blockNumber,
+            block_time = tx.blockTime, from = tx.from, to = tx.to,
+            value = tx.value.toString(), gas_price = tx.gasPrice, gas_limit = tx.gasLimit, gas_used = tx.gasUsed,
+            fee = tx.fee.toString(), input = tx.input, creates = tx.createdContract
 
     )
 

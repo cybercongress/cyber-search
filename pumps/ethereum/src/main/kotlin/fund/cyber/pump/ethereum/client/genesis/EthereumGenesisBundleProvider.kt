@@ -45,19 +45,19 @@ class EthereumGenesisDataFileProvider(
                     val tx = EthereumTx(
                             hash = "GENESIS_$addressId",
                             nonce = 42,
-                            block_hash = "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3",
-                            block_number = 0,
+                            blockHash = "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3",
+                            blockNumber = 0,
                             positionInBlock = index,
                             from = "",
                             to = addressId,
                             value = BigDecimal(balance!!).multiply(weiToEthRate),
-                            gas_price = BigDecimal.ZERO,
-                            gas_used = 0,
-                            gas_limit = 0,
+                            gasPrice = BigDecimal.ZERO,
+                            gasUsed = 0,
+                            gasLimit = 0,
                             fee = BigDecimal.ZERO,
-                            block_time = Instant.parse("2015-07-30T15:26:13Z"),
+                            blockTime = Instant.parse("2015-07-30T15:26:13Z"),
                             input = "",
-                            creates = ""
+                            createdContract = ""
                     )
 
                     listOf(tx)

@@ -12,11 +12,11 @@ data class EthereumUncle(
         val position: Int,
         val number: Long,
         val timestamp: Instant,
-        val block_number: Long,
-        val block_time: Instant,
-        val block_hash: String,
+        val blockNumber: Long,
+        val blockTime: Instant,
+        val blockHash: String,
         val miner: String,
-        val uncle_reward: BigDecimal
+        val uncleReward: BigDecimal
 )
 
 fun getUncleReward(chain: EthereumFamilyChain, uncleNumber: Long, blockNumber: Long): BigDecimal {

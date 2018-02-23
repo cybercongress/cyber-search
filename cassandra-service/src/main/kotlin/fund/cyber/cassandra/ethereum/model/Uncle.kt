@@ -21,8 +21,8 @@ data class CqlEthereumUncle(
 
     constructor(uncle: EthereumUncle) : this(
             hash = uncle.hash, position = uncle.position, number = uncle.number, timestamp = uncle.timestamp,
-            block_number = uncle.block_number, block_time = uncle.block_time, block_hash = uncle.block_hash,
-            miner = uncle.miner, uncle_reward = uncle.uncle_reward.toString()
+            block_number = uncle.blockNumber, block_time = uncle.blockTime, block_hash = uncle.blockHash,
+            miner = uncle.miner, uncle_reward = uncle.uncleReward.toString()
 
     )
 }

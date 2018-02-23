@@ -69,14 +69,14 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumAddressSu
         val addressDeltaByInput = EthereumAddressSummaryDelta(
                 address = tx.from, txNumberDelta = 1, minedBlockNumberDelta = 0, uncleNumberDelta = 0,
                 balanceDelta = tx.value.negate(), totalReceivedDelta = tx.value.negate(),
-                contractAddress = (tx.creates != null), topic = record.topic(), partition = record.partition(),
+                contractAddress = (tx.createdContract != null), topic = record.topic(), partition = record.partition(),
                 offset = record.offset()
         )
 
         val addressDeltaByOutput = EthereumAddressSummaryDelta(
-                address = (tx.to ?: tx.creates)!!, txNumberDelta = 1, minedBlockNumberDelta = 0, uncleNumberDelta = 0,
+                address = (tx.to ?: tx.createdContract)!!, txNumberDelta = 1, minedBlockNumberDelta = 0, uncleNumberDelta = 0,
                 balanceDelta = tx.value, totalReceivedDelta = tx.value,
-                contractAddress = (tx.creates != null), topic = record.topic(), partition = record.partition(),
+                contractAddress = (tx.createdContract != null), topic = record.topic(), partition = record.partition(),
                 offset = record.offset()
         )
 
@@ -87,7 +87,7 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumAddressSu
     override fun affectedAddresses(records: List<ConsumerRecord<PumpEvent, EthereumTx>>): Set<String> {
         val allAddresses: List<String> = records.flatMap { record ->
             val inAddress = record.value().from
-            val outAddress = (record.value().to ?: record.value().creates)!!
+            val outAddress = (record.value().to ?: record.value().createdContract)!!
             return@flatMap listOf(inAddress, outAddress)
         }
 
@@ -104,7 +104,7 @@ class EthereumBlockDeltaProcessor : DeltaProcessor<EthereumBlock, CqlEthereumAdd
         val block = record.value()
         val event = record.key()
 
-        val finalReward = block.block_reward + block.tx_fees + block.uncles_reward
+        val finalReward = block.blockReward + block.txFees + block.unclesReward
 
         val delta = EthereumAddressSummaryDelta(
                 address = block.miner, balanceDelta = finalReward, totalReceivedDelta = finalReward,
@@ -129,7 +129,7 @@ class EthereumUncleDeltaProcessor : DeltaProcessor<EthereumUncle, CqlEthereumAdd
         val event = record.key()
 
         val delta = EthereumAddressSummaryDelta(
-                address = uncle.miner, balanceDelta = uncle.uncle_reward, totalReceivedDelta = uncle.uncle_reward,
+                address = uncle.miner, balanceDelta = uncle.uncleReward, totalReceivedDelta = uncle.uncleReward,
                 txNumberDelta = 0, minedBlockNumberDelta = 0, uncleNumberDelta = 1,
                 contractAddress = null, topic = record.topic(), partition = record.partition(), offset = record.offset()
         )

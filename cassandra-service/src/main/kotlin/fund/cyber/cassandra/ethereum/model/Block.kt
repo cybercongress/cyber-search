@@ -37,13 +37,13 @@ data class CqlEthereumBlock(
 ) : CqlEthereumItem {
 
     constructor(block: EthereumBlock) : this(
-            number = block.number, hash = block.hash, parent_hash = block.parent_hash, timestamp = block.timestamp,
-            sha3_uncles = block.sha3_uncles, logs_bloom = block.logs_bloom, transactions_root = block.transactions_root,
-            state_root = block.state_root, receipts_root = block.receipts_root, miner = block.miner,
-            difficulty = block.difficulty, total_difficulty = block.total_difficulty, extra_data = block.extra_data,
-            size = block.size, gas_limit = block.gas_limit, gas_used = block.gas_used, tx_number = block.tx_number,
-            uncles = block.uncles, block_reward = block.block_reward.toString(),
-            uncles_reward = block.uncles_reward.toString(), tx_fees = block.tx_fees.toString()
+            number = block.number, hash = block.hash, parent_hash = block.parentHash, timestamp = block.timestamp,
+            sha3_uncles = block.sha3Uncles, logs_bloom = block.logsBloom, transactions_root = block.transactionsRoot,
+            state_root = block.stateRoot, receipts_root = block.receiptsRoot, miner = block.miner,
+            difficulty = block.difficulty, total_difficulty = block.totalDifficulty, extra_data = block.extraData,
+            size = block.size, gas_limit = block.gasLimit, gas_used = block.gasUsed, tx_number = block.txNumber,
+            uncles = block.uncles, block_reward = block.blockReward.toString(),
+            uncles_reward = block.unclesReward.toString(), tx_fees = block.txFees.toString()
     )
 }
 
@@ -60,9 +60,9 @@ data class CqlEthereumBlockTxPreview(
 ) : CqlEthereumItem {
 
     constructor(tx: EthereumTx) : this(
-            blockNumber = tx.block_number, hash = tx.hash, positionInBlock = tx.positionInBlock,
+            blockNumber = tx.blockNumber, hash = tx.hash, positionInBlock = tx.positionInBlock,
             fee = tx.fee, value = tx.value,
-            from = tx.from, to = (tx.to ?: tx.creates)!!, //both 'to' or 'creates' can't be null at same time
-            creates_contract = tx.creates != null
+            from = tx.from, to = (tx.to ?: tx.createdContract)!!, //both 'to' or 'createdContract' can't be null at same time
+            creates_contract = tx.createdContract != null
     )
 }

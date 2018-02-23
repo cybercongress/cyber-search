@@ -8,19 +8,19 @@ val weiToEthRate = BigDecimal("1E-18")
 data class EthereumTx(
         val hash: String,
         val nonce: Long,                //parsed from hex
-        val block_hash: String?,        //null when its pending
-        val block_number: Long,         //parsed from hex   //null when its pending
-        val block_time: Instant,
+        val blockHash: String?,        //null when its pending
+        val blockNumber: Long,         //parsed from hex   //null when its pending
+        val blockTime: Instant,
         val positionInBlock: Int,       //txes from one block ordering field
         val from: String,
         val to: String?,                //null when its a contract creation transaction.
         val value: BigDecimal,          //decimal   //parsed from hex
-        val gas_price: BigDecimal,      //parsed from hex
-        val gas_limit: Long,            //parsed from hex
-        val gas_used: Long,             //parsed from hex
+        val gasPrice: BigDecimal,      //parsed from hex
+        val gasLimit: Long,            //parsed from hex
+        val gasUsed: Long,             //parsed from hex
         val fee: BigDecimal,            //decimal //calculated
         val input: String,
-        val creates: String?            //creates contract hash //todo:rename
+        val createdContract: String?            //creates contract hash //todo:rename
 ) {
-    fun addressesUsedInTransaction() = listOfNotNull(from, to, creates).filter { address -> !address.isEmpty() }
+    fun addressesUsedInTransaction() = listOfNotNull(from, to, createdContract).filter { address -> !address.isEmpty() }
 }
