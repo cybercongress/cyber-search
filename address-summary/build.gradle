@@ -14,8 +14,8 @@ project(":address-summary:common") {
         compile 'org.springframework.boot:spring-boot-starter-webflux'
         compile 'org.springframework.boot:spring-boot-starter-reactor-netty'
         compile 'org.springframework.boot:spring-boot-starter-actuator'
-        compile 'io.micrometer:micrometer-registry-prometheus:1.0.0-rc.9'
-        compile 'io.micrometer:micrometer-core:1.0.0-rc.9'
+        compile 'io.micrometer:micrometer-registry-prometheus'
+        compile 'io.micrometer:micrometer-core'
     }
 }
 
