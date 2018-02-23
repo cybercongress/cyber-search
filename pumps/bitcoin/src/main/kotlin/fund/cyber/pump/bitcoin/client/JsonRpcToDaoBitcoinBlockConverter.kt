@@ -1,6 +1,6 @@
 package fund.cyber.pump.bitcoin.client
 
-import fund.cyber.search.common.sum
+import fund.cyber.common.sum
 import fund.cyber.search.model.bitcoin.BitcoinBlock
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinBlock

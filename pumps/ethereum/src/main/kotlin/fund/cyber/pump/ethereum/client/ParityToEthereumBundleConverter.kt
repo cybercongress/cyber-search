@@ -1,7 +1,7 @@
 package fund.cyber.pump.ethereum.client
 
-import fund.cyber.search.common.hexToLong
-import fund.cyber.search.common.sum
+import fund.cyber.common.hexToLong
+import fund.cyber.common.sum
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.*
 import org.springframework.stereotype.Component

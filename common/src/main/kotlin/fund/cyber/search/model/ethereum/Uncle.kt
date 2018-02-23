@@ -1,7 +1,7 @@
 package fund.cyber.search.model.ethereum
 
-import fund.cyber.search.common.decimal32
-import fund.cyber.search.common.decimal8
+import fund.cyber.common.decimal32
+import fund.cyber.common.decimal8
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import java.math.BigDecimal
 import java.math.RoundingMode

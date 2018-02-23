@@ -5,7 +5,7 @@ import fund.cyber.address.common.delta.DeltaMerger
 import fund.cyber.address.common.delta.DeltaProcessor
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinAddressSummary
 import fund.cyber.cassandra.common.CqlAddressSummary
-import fund.cyber.search.common.sumByDecimal
+import fund.cyber.common.sumByDecimal
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.events.PumpEvent
 import org.apache.kafka.clients.consumer.ConsumerRecord

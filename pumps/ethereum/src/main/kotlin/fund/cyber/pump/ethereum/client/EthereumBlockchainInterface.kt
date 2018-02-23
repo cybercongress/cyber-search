@@ -3,7 +3,7 @@ package fund.cyber.pump.ethereum.client
 import fund.cyber.pump.common.node.BlockBundle
 import fund.cyber.pump.common.node.BlockchainInterface
 import fund.cyber.pump.ethereum.client.genesis.EthereumGenesisDataProvider
-import fund.cyber.search.common.await
+import fund.cyber.common.await
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle

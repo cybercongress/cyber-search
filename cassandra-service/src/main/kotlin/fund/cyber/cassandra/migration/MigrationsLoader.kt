@@ -1,6 +1,6 @@
 package fund.cyber.cassandra.migration
 
-import fund.cyber.search.common.readAsString
+import fund.cyber.common.readAsString
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.core.io.Resource
 

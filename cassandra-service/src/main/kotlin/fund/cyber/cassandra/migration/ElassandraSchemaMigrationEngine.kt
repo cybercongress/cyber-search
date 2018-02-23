@@ -3,7 +3,7 @@ package fund.cyber.cassandra.migration
 import fund.cyber.cassandra.migration.configuration.MigrationRepositoryConfiguration
 import fund.cyber.cassandra.migration.model.CqlSchemaVersion
 import fund.cyber.cassandra.migration.repository.SchemaVersionRepository
-import fund.cyber.search.common.readAsString
+import fund.cyber.common.readAsString
 import fund.cyber.search.configuration.*
 import org.apache.http.HttpStatus
 import org.apache.http.client.HttpClient

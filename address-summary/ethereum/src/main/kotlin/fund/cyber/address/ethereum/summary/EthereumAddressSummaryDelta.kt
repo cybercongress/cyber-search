@@ -5,7 +5,7 @@ import fund.cyber.address.common.delta.DeltaMerger
 import fund.cyber.address.common.delta.DeltaProcessor
 import fund.cyber.cassandra.common.CqlAddressSummary
 import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressSummary
-import fund.cyber.search.common.sumByDecimal
+import fund.cyber.common.sumByDecimal
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
