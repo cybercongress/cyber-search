@@ -91,7 +91,7 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumAddressSu
             return@flatMap listOf(inAddress, outAddress)
         }
 
-        return allAddresses.toSet()
+        return allAddresses.filter { address -> address.isNotEmpty() }.toSet()
     }
 
 }

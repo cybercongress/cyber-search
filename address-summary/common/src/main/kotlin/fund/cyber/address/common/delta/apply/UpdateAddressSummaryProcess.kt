@@ -47,6 +47,7 @@ class UpdatesAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryD
         val deltas = records.flatMap { record -> deltaProcessor.recordToDeltas(record) }
 
         val mergedDeltas = deltas.groupBy { delta -> delta.address }
+                .filterKeys { address -> address.isNotEmpty() }
                 .mapValues { addressDeltas -> deltaMerger.mergeDeltas(addressDeltas.value, addressesSummary) }
                 .filterValues { value -> value != null }
                 .map { entry -> entry.key to entry.value!! }.toMap()
