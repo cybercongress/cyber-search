@@ -1,4 +1,4 @@
-package fund.cyber
+package fund.cyber.api.ethereum
 
 import fund.cyber.api.common.asSingleRouterFunction
 import fund.cyber.api.ethereum.functions.BlockTxesByBlockNumber

@@ -10,7 +10,6 @@ import org.springframework.context.annotation.*
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.reactive.CorsWebFilter
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
-import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.util.pattern.PathPatternParser
@@ -22,6 +21,9 @@ fun <E : ServerResponse> List<RouterFunction<E>>.asSingleRouterFunction() = redu
 
 @Configuration
 class CommonConfiguration {
+
+    @Value("\${$CORS_ALLOWED_ORIGINS:$CORS_ALLOWED_ORIGINS_DEFAULT}")
+    private lateinit var allowedOrigin: String
 
     @Bean
     fun elasticClient(
@@ -43,16 +45,6 @@ class CommonConfiguration {
                     .forEach { address -> addTransportAddress(address) }
         }
     }
-}
-
-@EnableWebFlux
-@Configuration
-@DependsOn("cassandra-repositories")
-class WebConfig {
-
-
-    @Value("\${$CORS_ALLOWED_ORIGINS:$CORS_ALLOWED_ORIGINS_DEFAULT}")
-    private lateinit var allowedOrigin: String
 
     @Bean
     fun corsFilter(): CorsWebFilter {
