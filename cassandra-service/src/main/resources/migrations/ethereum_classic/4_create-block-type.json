@@ -1,6 +1,6 @@
 {
   "method": "PUT",
-  "url": "/ethereum_classic_block/_mapping/block",
+  "url": "/ethereum_classic.block/_mapping/block",
   "data": {
     "block": {
       "properties": {

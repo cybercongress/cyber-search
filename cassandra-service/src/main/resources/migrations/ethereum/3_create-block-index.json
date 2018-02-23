@@ -1,6 +1,6 @@
 {
   "method": "PUT",
-  "url": "/ethereum_block/",
+  "url": "/ethereum.block/",
   "data": {
     "settings": {
       "keyspace": "ethereum"

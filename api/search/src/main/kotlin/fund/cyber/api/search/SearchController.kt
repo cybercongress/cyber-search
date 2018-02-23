@@ -2,8 +2,6 @@ package fund.cyber.api.search
 
 import fund.cyber.search.model.ItemPreview
 import fund.cyber.search.model.SearchResponse
-import fund.cyber.search.model.chains.BitcoinFamilyChain
-import fund.cyber.search.model.chains.BitcoinFamilyChainEntity
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.unit.Fuzziness
 import org.elasticsearch.index.query.QueryBuilders
@@ -34,7 +32,9 @@ class SearchController(
                 .get()
 
         val responseItems = elasticResponse.hits.map { hit ->
-            ItemPreview(BitcoinFamilyChain.BITCOIN, BitcoinFamilyChainEntity.TRANSACTION, hit.sourceAsString)
+            val chain = hit.index.substringBefore(".")
+            val entity = hit.index.substringAfter(".")
+            ItemPreview(chain, entity, hit.sourceAsString)
         }
 
         return Mono.just(

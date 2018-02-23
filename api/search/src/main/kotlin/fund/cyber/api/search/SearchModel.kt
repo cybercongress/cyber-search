@@ -6,8 +6,8 @@ import fund.cyber.search.model.chains.ChainEntity
 
 
 data class ItemPreview(
-        val chain: Chain,
-        val entity: ChainEntity,
+        val chain: String,
+        val entity: String,
         @JsonRawValue val data: String
 )
 

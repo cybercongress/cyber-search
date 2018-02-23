@@ -1,6 +1,6 @@
 {
   "method": "PUT",
-  "url": "/ethereum_uncle/",
+  "url": "/ethereum.uncle/",
   "data": {
     "settings": {
       "keyspace": "ethereum"

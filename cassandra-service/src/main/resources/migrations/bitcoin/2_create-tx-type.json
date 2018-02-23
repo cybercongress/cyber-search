@@ -1,6 +1,6 @@
 {
   "method": "PUT",
-  "url": "/bitcoin_tx/_mapping/tx",
+  "url": "/bitcoin.tx/_mapping/tx",
   "data": {
     "tx": {
       "properties": {

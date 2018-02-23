@@ -1,6 +1,6 @@
 {
   "method": "PUT",
-  "url": "/ethereum_classic_tx/",
+  "url": "/ethereum_classic.tx/",
   "data": {
     "settings": {
       "keyspace": "ethereum_classic"

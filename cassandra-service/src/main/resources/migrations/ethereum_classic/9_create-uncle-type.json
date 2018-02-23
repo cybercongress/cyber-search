@@ -1,6 +1,6 @@
 {
   "method": "PUT",
-  "url": "/ethereum_classic_uncle/_mapping/uncle",
+  "url": "/ethereum_classic.uncle/_mapping/uncle",
   "data": {
     "uncle": {
       "properties": {
