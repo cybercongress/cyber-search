@@ -70,6 +70,24 @@ jobs:
                docker push cybernode/dumps-ethereum:$CIRCLE_TAG
              fi
 
+  deploy_address_summary_ethereum_image:
+     <<: *defaults
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.11.0-ce
+       - run:
+           name: Build Ethereum Address Summary Image
+           command: |
+             docker build -t build/address-summary-eth -f ./address-summary/ethereum/Dockerfile ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/address-summary-eth cybernode/address-summary-ethereum:nightly
+             docker push cybernode/address-summary-ethereum:nightly
+             if [[ "$CIRCLE_TAG" != "" ]]; then
+               docker tag build/address-summary-eth cybernode/address-summary-ethereum:$CIRCLE_TAG
+               docker push cybernode/address-summary-ethereum:$CIRCLE_TAG
+             fi
+
 workflows:
   version: 2
 
@@ -80,5 +98,8 @@ workflows:
           requires:
             - build_project
       - deploy_dumps_ethereum_image:
+          requires:
+            - build_project
+      - deploy_address_summary_ethereum_image:
           requires:
             - build_project
