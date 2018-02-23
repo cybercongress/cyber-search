@@ -26,7 +26,7 @@ class TxDumpProcess(
 
         val txsToSave = records.filter { record -> record.key() == PumpEvent.NEW_BLOCK }
                 .map { record -> record.value() }
-                .map { tx -> CqlEthereumTransaction(tx) }
+                .map { tx -> CqlEthereumTx(tx) }
 
         txRepository.saveAll(txsToSave).collectList().block()
 

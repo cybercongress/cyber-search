@@ -37,23 +37,23 @@ data class EthereumAddressSummaryDelta(
 
     override fun createSummary(): CqlEthereumAddressSummary {
         return CqlEthereumAddressSummary(
-                id = this.address, confirmed_balance = this.balanceDelta, contract_address = this.contractAddress
+                id = this.address, confirmedBalance = this.balanceDelta, contractAddress = this.contractAddress
                 ?: false,
-                confirmed_total_received = this.totalReceivedDelta, tx_number = this.txNumberDelta,
-                uncle_number = this.uncleNumberDelta, mined_block_number = this.minedBlockNumberDelta,
-                kafka_delta_offset = this.offset, kafka_delta_topic = this.topic,
-                kafka_delta_partition = this.partition, version = 0
+                confirmedTotalReceived = this.totalReceivedDelta, txNumber = this.txNumberDelta,
+                minedUncleNumber = this.uncleNumberDelta, minedBlockNumber = this.minedBlockNumberDelta,
+                kafkaDeltaOffset = this.offset, kafkaDeltaTopic = this.topic,
+                kafkaDeltaPartition = this.partition, version = 0
         )
     }
 
     override fun updateSummary(summary: CqlEthereumAddressSummary): CqlEthereumAddressSummary {
         return CqlEthereumAddressSummary(
-                id = summary.id, confirmed_balance = summary.confirmed_balance + this.balanceDelta, contract_address = summary.contract_address,
-                confirmed_total_received = summary.confirmed_total_received + this.totalReceivedDelta,
-                tx_number = summary.tx_number + this.txNumberDelta, uncle_number = summary.uncle_number + this.uncleNumberDelta,
-                mined_block_number = summary.mined_block_number + this.minedBlockNumberDelta,
-                kafka_delta_offset = this.offset, kafka_delta_topic = this.topic,
-                kafka_delta_partition = this.partition, version = summary.version + 1
+                id = summary.id, confirmedBalance = summary.confirmedBalance + this.balanceDelta, contractAddress = summary.contractAddress,
+                confirmedTotalReceived = summary.confirmedTotalReceived + this.totalReceivedDelta,
+                txNumber = summary.txNumber + this.txNumberDelta, minedUncleNumber = summary.minedUncleNumber + this.uncleNumberDelta,
+                minedBlockNumber = summary.minedBlockNumber + this.minedBlockNumberDelta,
+                kafkaDeltaOffset = this.offset, kafkaDeltaTopic = this.topic,
+                kafkaDeltaPartition = this.partition, version = summary.version + 1
         )
     }
 }
@@ -153,8 +153,8 @@ class EthereumDeltaMerger : DeltaMerger<EthereumAddressSummaryDelta> {
 
 
         val deltasToApply = deltas.filterNot { delta ->
-            existingSummary != null && existingSummary.kafka_delta_topic == delta.topic
-                    && existingSummary.kafka_delta_partition == delta.partition && delta.offset <= existingSummary.kafka_delta_offset
+            existingSummary != null && existingSummary.kafkaDeltaTopic == delta.topic
+                    && existingSummary.kafkaDeltaPartition == delta.partition && delta.offset <= existingSummary.kafkaDeltaOffset
         }
         val balance = deltasToApply.sumByDecimal { delta -> delta.balanceDelta }
         val totalReceived = deltasToApply.sumByDecimal { delta -> delta.totalReceivedDelta }

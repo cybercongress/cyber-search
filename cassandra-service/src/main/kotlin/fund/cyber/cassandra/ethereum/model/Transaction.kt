@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package fund.cyber.cassandra.ethereum.model
 
 import fund.cyber.search.model.ethereum.EthereumTx
@@ -8,30 +10,30 @@ import java.math.BigDecimal
 import java.time.Instant
 
 @Table("tx")
-data class CqlEthereumTransaction(
+data class CqlEthereumTx(
         @PrimaryKey val hash: String,
         val nonce: Long,
-        val block_hash: String?,
-        val block_number: Long,
-        val block_time: Instant,
+        @Column("block_hash") val blockHash: String?,
+        @Column("block_number") val blockNumber: Long,
+        @Column("block_time") val blockTime: Instant,
         @Column(forceQuote = true) val from: String,
         @Column(forceQuote = true) val to: String?,
         val value: String,
-        val gas_price: BigDecimal,
-        val gas_limit: Long,
-        val gas_used: Long,
+        @Column("gas_price") val gasPrice: BigDecimal,
+        @Column("gas_limit") val gasLimit: Long,
+        @Column("gas_used") val gasUsed: Long,
         val fee: String,
         val input: String,
-        val creates: String?
+        @Column("created_contract") val createdContract: String?
 ) : CqlEthereumItem {
 
     constructor(tx: EthereumTx) : this(
-            hash = tx.hash, nonce = tx.nonce, block_hash = tx.blockHash, block_number = tx.blockNumber,
-            block_time = tx.blockTime, from = tx.from, to = tx.to,
-            value = tx.value.toString(), gas_price = tx.gasPrice, gas_limit = tx.gasLimit, gas_used = tx.gasUsed,
-            fee = tx.fee.toString(), input = tx.input, creates = tx.createdContract
+            hash = tx.hash, nonce = tx.nonce, blockHash = tx.blockHash, blockNumber = tx.blockNumber,
+            blockTime = tx.blockTime, from = tx.from, to = tx.to,
+            value = tx.value.toString(), gasPrice = tx.gasPrice, gasLimit = tx.gasLimit, gasUsed = tx.gasUsed,
+            fee = tx.fee.toString(), input = tx.input, createdContract = tx.createdContract
 
     )
 
-    fun addressesUsedInTransaction() = listOfNotNull(from, to, creates)
+    fun addressesUsedInTransaction() = listOfNotNull(from, to, createdContract)
 }

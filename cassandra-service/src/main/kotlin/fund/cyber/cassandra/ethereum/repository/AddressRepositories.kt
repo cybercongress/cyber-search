@@ -3,7 +3,7 @@ package fund.cyber.cassandra.ethereum.repository
 import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressSummary
 import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressMinedBlock
 import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressTxPreview
-import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressUncle
+import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressMinedUncle
 import org.springframework.data.cassandra.core.mapping.MapId
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 
@@ -13,4 +13,4 @@ interface EthereumAddressTxRepository : ReactiveCrudRepository<CqlEthereumAddres
 
 interface EthereumAddressMinedBlockRepository : ReactiveCrudRepository<CqlEthereumAddressMinedBlock, MapId>
 
-interface EthereumAddressUncleRepository : ReactiveCrudRepository<CqlEthereumAddressUncle, MapId>
+interface EthereumAddressUncleRepository : ReactiveCrudRepository<CqlEthereumAddressMinedUncle, MapId>

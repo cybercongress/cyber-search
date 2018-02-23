@@ -1,9 +1,12 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package fund.cyber.cassandra.ethereum.model
 
 import fund.cyber.cassandra.common.CqlAddressSummary
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
+import org.springframework.data.cassandra.core.cql.Ordering.DESCENDING
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
@@ -15,71 +18,74 @@ import java.time.Instant
 @Table("address_summary")
 data class CqlEthereumAddressSummary(
         @PrimaryKey override val id: String,
-        val confirmed_balance: BigDecimal,
-        val contract_address: Boolean,
-        val confirmed_total_received: BigDecimal,
-        val tx_number: Int,
-        val uncle_number: Int,
-        val mined_block_number: Int,
+        @Column("confirmed_balance") val confirmedBalance: BigDecimal,
+        @Column("contract_address") val contractAddress: Boolean,
+        @Column("confirmed_total_received") val confirmedTotalReceived: BigDecimal,
+        @Column("tx_number") val txNumber: Int,
+        @Column("uncle_number") val minedUncleNumber: Int,
+        @Column("mined_block_number") val minedBlockNumber: Int,
         override val version: Long,
-        override val kafka_delta_offset: Long,
-        override val kafka_delta_partition: Int,
-        override val kafka_delta_topic: String,
-        override val kafka_delta_offset_committed: Boolean = false
+        @Column("kafka_delta_offset") override val kafkaDeltaOffset: Long,
+        @Column("kafka_delta_partition") override val kafkaDeltaPartition: Int,
+        @Column("kafka_delta_topic") override val kafkaDeltaTopic: String,
+        @Column("kafka_delta_offset_committed") override val kafkaDeltaOffsetCommitted: Boolean = false
 ) : CqlEthereumItem, CqlAddressSummary
 
 
 @Table("tx_preview_by_address")
 data class CqlEthereumAddressTxPreview(
         @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED) val address: String,
-        @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED) val fee: String,
-        @PrimaryKeyColumn(ordinal = 2, type = PrimaryKeyType.CLUSTERED) val block_time: Instant,
-        val hash: String,
+        @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = DESCENDING, name = "block_time") val blockTime: Instant,
+        @PrimaryKeyColumn(ordinal = 2, type = PrimaryKeyType.CLUSTERED) val hash: String,
+        val fee: BigDecimal,
         @Column(forceQuote = true) val from: String,
         @Column(forceQuote = true) val to: String,
         val value: String
 ) : CqlEthereumItem {
 
+    //both 'to' or 'createdContract' can't be null at same time
     constructor(tx: EthereumTx, address: String) : this(
-            hash = tx.hash, address = address, block_time = tx.blockTime,
-            from = tx.from, to = (tx.to ?: tx.createdContract)!!, //both 'to' or 'createdContract' can't be null at same time
-            value = tx.value.toString(), fee = tx.fee.toString()
+            hash = tx.hash, address = address, blockTime = tx.blockTime,
+            from = tx.from, to = (tx.to ?: tx.createdContract)!!,
+            value = tx.value.toString(), fee = tx.fee
     )
 }
 
 @Table("mined_block_by_address")
 data class CqlEthereumAddressMinedBlock(
         @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED) val miner: String,
-        @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED) val block_number: Long,
-        val block_time: Instant,
-        val block_reward: BigDecimal,
-        val uncles_reward: BigDecimal,
-        val tx_fees: BigDecimal,
-        val tx_number: Int
+        @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED, value = "block_number", ordering = DESCENDING)
+        val blockNumber: Long,
+        @Column("block_time") val blockTime: Instant,
+        @Column("block_reward") val blockReward: BigDecimal,
+        @Column("uncles_reward") val unclesReward: BigDecimal,
+        @Column("tx_fees") val txFees: BigDecimal,
+        @Column("tx_number") val txNumber: Int
 ) : CqlEthereumItem {
     constructor(block: EthereumBlock) : this(
-            miner = block.miner, block_number = block.number, block_time = block.timestamp,
-            block_reward = block.blockReward, uncles_reward = block.unclesReward,
-            tx_fees = block.txFees, tx_number = block.txNumber
+            miner = block.miner, blockNumber = block.number, blockTime = block.timestamp,
+            blockReward = block.blockReward, unclesReward = block.unclesReward,
+            txFees = block.txFees, txNumber = block.txNumber
     )
 }
 
-@Table("uncle_by_address")
-data class CqlEthereumAddressUncle(
+@Table("mined_uncle_by_address")
+data class CqlEthereumAddressMinedUncle(
         @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED) val miner: String,
-        @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED) val block_number: Long,
+        @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED, value = "block_number", ordering = DESCENDING)
+        val blockNumber: Long,
         val hash: String,
         val position: Int,
         val number: Long,
         val timestamp: Instant,
-        val block_time: Instant,
-        val block_hash: String,
-        val uncle_reward: String
+        @Column("block_time") val blockTime: Instant,
+        @Column("block_hash") val blockHash: String,
+        @Column("uncle_reward") val uncleReward: String
 ) : CqlEthereumItem {
     constructor(uncle: EthereumUncle) : this(
             hash = uncle.hash, position = uncle.position,
             number = uncle.number, timestamp = uncle.timestamp,
-            block_number = uncle.blockNumber, block_time = uncle.blockTime, block_hash = uncle.blockHash,
-            miner = uncle.miner, uncle_reward = uncle.uncleReward.toString()
+            blockNumber = uncle.blockNumber, blockTime = uncle.blockTime, blockHash = uncle.blockHash,
+            miner = uncle.miner, uncleReward = uncle.uncleReward.toString()
     )
 }

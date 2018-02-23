@@ -17,10 +17,10 @@ data class CqlBitcoinAddressSummary(
         val confirmed_total_received: BigDecimal,
         val confirmed_tx_number: Int,
         override val version: Long,
-        override val kafka_delta_offset: Long,
-        override val kafka_delta_partition: Int,
-        override val kafka_delta_topic: String,
-        override val kafka_delta_offset_committed: Boolean = false,
+        override val kafkaDeltaOffset: Long,
+        override val kafkaDeltaPartition: Int,
+        override val kafkaDeltaTopic: String,
+        override val kafkaDeltaOffsetCommitted: Boolean = false,
         val unconfirmed_tx_values: Map<String, BigDecimal> = emptyMap()
 ) : CqlBitcoinItem, CqlAddressSummary
 

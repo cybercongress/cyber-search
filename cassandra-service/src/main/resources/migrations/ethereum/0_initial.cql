@@ -39,15 +39,15 @@ CREATE TABLE IF NOT exists ethereum.tx (
     gas_used bigint,
     fee text,
     input text,
-    creates text
+    created_contract text
 );
 
 CREATE TABLE IF NOT exists ethereum.tx_preview_by_address (
     address text,
-    fee text,
-    block_time timestamp,
-    block_number bigint,
     hash text,
+    block_time timestamp,
+    fee decimal,
+    block_number bigint,
     "from" text,
     "to" text,
     value text,
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT exists ethereum.uncle (
 );
 
 
-CREATE TABLE IF NOT exists ethereum.uncle_by_address (
+CREATE TABLE IF NOT exists ethereum.mined_uncle_by_address (
      hash text,
      position int,
      number bigint,

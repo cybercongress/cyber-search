@@ -90,12 +90,12 @@ class UpdatesAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryD
             addressSummaryStorage.findById(delta.address).block()!!
 
     private fun CqlAddressSummary.hasSameTopicPartitionAs(delta: D) =
-            this.kafka_delta_topic == delta.topic && this.kafka_delta_partition == delta.partition
+            this.kafkaDeltaTopic == delta.topic && this.kafkaDeltaPartition == delta.partition
 
     private fun CqlAddressSummary.notSameTopicPartionAs(delta: D) =
             hasSameTopicPartitionAs(delta).not()
 
-    private fun CqlAddressSummary.committed() = this.kafka_delta_offset_committed
+    private fun CqlAddressSummary.committed() = this.kafkaDeltaOffsetCommitted
 
     private fun CqlAddressSummary.notCommitted() = committed().not()
 }

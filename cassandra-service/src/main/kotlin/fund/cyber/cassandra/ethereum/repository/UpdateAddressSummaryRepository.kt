@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 
+//todo write small tests for query consistency with object fields.
 /**
  * To archive atomic updates of address summaries we should use CAS, two-phase commit, serial reads and quorum writes.
  */
@@ -27,15 +28,15 @@ interface EthereumUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlEth
     @Consistency(value = ConsistencyLevel.QUORUM)
     @Query("""
         UPDATE address_summary
-        SET confirmed_balance = :#{#summary.confirmed_balance},
-            contract_address = :#{#summary.contract_address},
-            confirmed_total_received = :#{#summary.confirmed_total_received},
-            tx_number = :#{#summary.tx_number},
-            uncle_number = :#{#summary.uncle_number},
-            mined_block_number = :#{#summary.mined_block_number},
-            kafka_delta_offset = :#{#summary.kafka_delta_offset},
-            kafka_delta_topic = :#{#summary.kafka_delta_topic},
-            kafka_delta_partition = :#{#summary.kafka_delta_partition},
+        SET confirmed_balance = :#{#summary.confirmedBalance},
+            contract_address = :#{#summary.contractAddress},
+            confirmed_total_received = :#{#summary.confirmedTotalReceived},
+            tx_number = :#{#summary.txNumber},
+            uncle_number = :#{#summary.minedUncleNumber},
+            mined_block_number = :#{#summary.minedBlockNumber},
+            kafka_delta_offset = :#{#summary.kafkaDeltaOffset},
+            kafka_delta_topic = :#{#summary.kafkaDeltaTopic},
+            kafka_delta_partition = :#{#summary.kafkaDeltaPartition},
             version = :#{#summary.version},
             kafka_delta_offset_committed = false
         WHERE id = :#{#summary.id}
@@ -52,9 +53,9 @@ interface EthereumUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlEth
           confirmed_total_received, tx_number, uncle_number, mined_block_number,
           version, kafka_delta_offset, kafka_delta_topic,
           kafka_delta_partition, kafka_delta_offset_committed)
-        VALUES (:#{#summary.id}, :#{#summary.confirmed_balance}, :#{#summary.contract_address}, :#{#summary.confirmed_total_received},
-            :#{#summary.tx_number},:#{#summary.uncle_number},:#{#summary.mined_block_number},
-            :#{#summary.version}, :#{#summary.kafka_delta_offset}, :#{#summary.kafka_delta_topic}, :#{#summary.kafka_delta_partition},
+        VALUES (:#{#summary.id}, :#{#summary.confirmedBalance}, :#{#summary.contractAddress}, :#{#summary.confirmedTotalReceived},
+            :#{#summary.txNumber}, :#{#summary.minedUncleNumber}, :#{#summary.minedBlockNumber},
+            :#{#summary.version}, :#{#summary.kafkaDeltaOffset}, :#{#summary.kafkaDeltaTopic}, :#{#summary.kafkaDeltaPartition},
             false)
         IF NOT EXISTS
         """)

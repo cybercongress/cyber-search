@@ -1,6 +1,9 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package fund.cyber.cassandra.ethereum.model
 
 import fund.cyber.search.model.ethereum.EthereumUncle
+import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
@@ -12,17 +15,17 @@ data class CqlEthereumUncle(
         val position: Int,
         val number: Long,
         val timestamp: Instant,
-        val block_number: Long,
-        val block_time: Instant,
-        val block_hash: String,
+        @Column("block_number") val blockNumber: Long,
+        @Column("block_time") val blockTime: Instant,
+        @Column("block_hash") val blockHash: String,
         val miner: String,
-        val uncle_reward: String
+        @Column("uncle_reward") val uncleReward: String
 ) : CqlEthereumItem {
 
     constructor(uncle: EthereumUncle) : this(
             hash = uncle.hash, position = uncle.position, number = uncle.number, timestamp = uncle.timestamp,
-            block_number = uncle.blockNumber, block_time = uncle.blockTime, block_hash = uncle.blockHash,
-            miner = uncle.miner, uncle_reward = uncle.uncleReward.toString()
+            blockNumber = uncle.blockNumber, blockTime = uncle.blockTime, blockHash = uncle.blockHash,
+            miner = uncle.miner, uncleReward = uncle.uncleReward.toString()
 
     )
 }

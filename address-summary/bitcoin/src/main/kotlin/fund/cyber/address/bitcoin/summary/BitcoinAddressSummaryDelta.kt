@@ -34,8 +34,8 @@ data class BitcoinAddressSummaryDelta(
                 id = this.address, confirmed_balance = this.balanceDelta,
                 confirmed_tx_number = this.txNumberDelta,
                 confirmed_total_received = this.totalReceivedDelta,
-                kafka_delta_offset = this.offset, kafka_delta_topic = this.topic,
-                kafka_delta_partition = this.partition, version = 0
+                kafkaDeltaOffset = this.offset, kafkaDeltaTopic = this.topic,
+                kafkaDeltaPartition = this.partition, version = 0
         )
     }
 
@@ -44,8 +44,8 @@ data class BitcoinAddressSummaryDelta(
                 id = summary.id, confirmed_balance = summary.confirmed_balance + this.balanceDelta,
                 confirmed_tx_number = summary.confirmed_tx_number + this.txNumberDelta,
                 confirmed_total_received = summary.confirmed_total_received + this.totalReceivedDelta,
-                kafka_delta_offset = this.offset, kafka_delta_topic = this.topic,
-                kafka_delta_partition = this.partition, version = summary.version + 1
+                kafkaDeltaOffset = this.offset, kafkaDeltaTopic = this.topic,
+                kafkaDeltaPartition = this.partition, version = summary.version + 1
         )
     }
 }
@@ -105,8 +105,8 @@ class BitcoinDeltaMerger: DeltaMerger<BitcoinAddressSummaryDelta> {
 
         // todo: what if deltas to apply is empty? Case: we didn't commit offset range and dropped. Then restored with the same offset range
         val deltasToApply = deltas.filterNot { delta ->
-            existingSummary != null && existingSummary.kafka_delta_topic == delta.topic
-                    && existingSummary.kafka_delta_partition == delta.partition && delta.offset <= existingSummary.kafka_delta_offset
+            existingSummary != null && existingSummary.kafkaDeltaTopic == delta.topic
+                    && existingSummary.kafkaDeltaPartition == delta.partition && delta.offset <= existingSummary.kafkaDeltaOffset
         }
         val balance = deltasToApply.sumByDecimal { delta -> delta.balanceDelta }
         val totalReceived = deltasToApply.sumByDecimal { delta -> delta.totalReceivedDelta }

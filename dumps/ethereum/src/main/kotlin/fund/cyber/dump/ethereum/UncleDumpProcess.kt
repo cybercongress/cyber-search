@@ -32,7 +32,7 @@ class UncleDumpProcess(
 
         val unclesByAddressToSave = records.filter { record -> record.key() == PumpEvent.NEW_BLOCK }
                 .map { record -> record.value() }
-                .map { uncle -> CqlEthereumAddressUncle(uncle) }
+                .map { uncle -> CqlEthereumAddressMinedUncle(uncle) }
 
         addressUncleRepository.saveAll(unclesByAddressToSave).collectList().block()
 
