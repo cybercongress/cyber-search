@@ -50,7 +50,6 @@ class ConcurrentPulledBlockchain<T : BlockBundle>(
     override fun subscribeBlocks(startBlockNumber: Long): Flowable<T> {
 
         return Flowable.generate<LongRange, Long>(Callable { startBlockNumber }, generateAvailableBlocksNumbersRangesFunction)
-                .observeOn(Schedulers.io(), false, 10 * 1024)
                 .flatMap({ blockNumbers -> asyncDownloadBlocks(blockNumbers) }, 1)
     }
 

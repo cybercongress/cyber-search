@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.DependsOn
 import org.springframework.stereotype.Component
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
 
@@ -24,8 +25,6 @@ private val log = LoggerFactory.getLogger(ChainPump::class.java)!!
 @Component
 @DependsOn(value = ["kafkaBlockBundleProducer"])  // to resolve generics at runtime
 class ChainPump<T : BlockBundle>(
-        @Value("\${$KAFKA_TRANSACTION_BATCH:$KAFKA_TRANSACTION_BATCH_DEFAULT}")
-        private val kafkaBatchSize: Int,
         private val flowableBlockchainInterface: FlowableBlockchainInterface<T>,
         private val kafkaBlockBundleProducer: KafkaBlockBundleProducer<T>,
         private val lastPumpedBundlesProvider: LastPumpedBundlesProvider<T>,
@@ -53,9 +52,10 @@ class ChainPump<T : BlockBundle>(
         val kafkaWriteMonitor = monitoring.timer("pump_bundle_kafka_store")
 
         flowableBlockchainInterface.subscribeBlocks(startBlockNumber)
-                .buffer(kafkaBatchSize)
+                .buffer(3, TimeUnit.SECONDS)
                 .blockingSubscribe(
                         { blockBundles ->
+                            if (blockBundles.isEmpty()) return@blockingSubscribe
                             blockBundles.forEach { bundle ->
                                 lastProcessedBlockMonitor.set(bundle.number)
                                 blockSizeMonitor.record(bundle.blockSize.toDouble())

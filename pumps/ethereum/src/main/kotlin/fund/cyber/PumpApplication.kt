@@ -1,4 +1,4 @@
-package fund.cyber.pump
+package fund.cyber
 
 import fund.cyber.pump.common.ChainPump
 import fund.cyber.search.configuration.CHAIN

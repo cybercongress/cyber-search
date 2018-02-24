@@ -14,8 +14,10 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer
+import org.springframework.web.reactive.config.EnableWebFlux
 import java.util.*
 
+@EnableWebFlux
 @EnableScheduling
 @Configuration
 class CommonConfiguration {

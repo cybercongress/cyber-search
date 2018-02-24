@@ -1,17 +1,18 @@
 management:
   endpoints:
     web:
-      expose: ["metrics", "prometheus"]
+      exposure:
+        include: ["metrics", "prometheus"]
   metrics:
     export:
       prometheus:
         enabled: true
     binders:
       jvm:
-        enabled: true
+        enabled: false
       logback:
         enabled: false
       uptime:
         enabled: true
       processor:
-        enabled: true
+        enabled: false

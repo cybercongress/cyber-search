@@ -1,7 +1,8 @@
 management:
   endpoints:
     web:
-      expose: ["metrics", "prometheus"]
+      exposure:
+        include: ["metrics", "prometheus"]
   metrics:
     export:
       prometheus:
@@ -12,6 +13,6 @@ management:
       logback:
         enabled: false
       uptime:
-        enabled: false
+        enabled: true
       processor:
         enabled: false
