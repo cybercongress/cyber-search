@@ -27,6 +27,7 @@ class MetricsWebFilter(private val registry: MeterRegistry) : WebFilter {
         return call.doAfterSuccessOrError { _, _ -> recordTime(exchange, start) }
     }
 
+    //todo make uri not params depended
     private fun recordTime(exchange: ServerWebExchange, start: Long) {
         val uriTag = WebFluxTags.uri(exchange)
         if (uriTag.value == "/actuator/prometheus") return

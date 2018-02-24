@@ -89,7 +89,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "avg(http_requests_processing_seconds{chain=\"ETHEREUM\", quantile=\"0.995\"}) by (uri)",
+          "expr": "avg(http_requests_processing_seconds{quantile=\"0.995\"}) by (uri)",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -174,7 +174,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "avg(http_requests_processing_seconds{chain=\"ETHEREUM\", quantile=\"0.95\"}) by (uri)",
+          "expr": "avg(http_requests_processing_seconds{quantile=\"0.95\"}) by (uri)",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{uri}}",
