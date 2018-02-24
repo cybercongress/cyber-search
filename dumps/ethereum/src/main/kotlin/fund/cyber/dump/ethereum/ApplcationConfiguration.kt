@@ -19,6 +19,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.requests.IsolationLevel
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
@@ -56,6 +57,11 @@ class ApplicationConfiguration {
     fun chain(): EthereumFamilyChain {
         val chainAsString = env(CHAIN, "")
         return EthereumFamilyChain.valueOf(chainAsString)
+    }
+
+    @Bean
+    fun metricsCommonTags(): MeterRegistryCustomizer<MeterRegistry> {
+        return MeterRegistryCustomizer { registry -> registry.config().commonTags("chain", chain().name) }
     }
 
     @Bean
