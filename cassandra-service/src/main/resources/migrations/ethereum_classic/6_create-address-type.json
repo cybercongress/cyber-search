@@ -1,8 +1,8 @@
 {
   "method": "PUT",
-  "url": "/ethereum_classic.address/_mapping/address",
+  "url": "/ethereum_classic.address_summary/_mapping/address_summary",
   "data": {
-    "address": {
+    "address_summary": {
       "properties": {
         "id": {
           "type": "keyword",
