@@ -1,6 +1,6 @@
 package fund.cyber.address.ethereum.delta.apply
 
-import fund.cyber.address.common.delta.apply.UpdatesAddressSummaryProcess
+import fund.cyber.address.common.delta.apply.UpdateAddressSummaryProcess
 import fund.cyber.address.ethereum.EthereumAddressSummaryStorage
 import fund.cyber.address.ethereum.summary.EthereumBlockDeltaProcessor
 import fund.cyber.address.ethereum.summary.EthereumDeltaMerger
@@ -70,7 +70,8 @@ class EthereumTxConsumerConfiguration {
 
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
-            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, txDeltaProcessor, deltaMerger, monitoring)
+            messageListener = UpdateAddressSummaryProcess(addressSummaryStorage, txDeltaProcessor, deltaMerger,
+                    monitoring, kafkaBrokers)
             isAckOnError = false
             ackMode = AbstractMessageListenerContainer.AckMode.BATCH
         }
@@ -89,7 +90,8 @@ class EthereumTxConsumerConfiguration {
 
         val containerProperties = ContainerProperties(chain.blockPumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
-            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, blockDeltaProcessor, deltaMerger, monitoring)
+            messageListener = UpdateAddressSummaryProcess(addressSummaryStorage, blockDeltaProcessor, deltaMerger,
+                    monitoring, kafkaBrokers)
             isAckOnError = false
             ackMode = AbstractMessageListenerContainer.AckMode.BATCH
         }
@@ -108,7 +110,8 @@ class EthereumTxConsumerConfiguration {
 
         val containerProperties = ContainerProperties(chain.unclePumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
-            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, uncleDeltaProcessor, deltaMerger, monitoring)
+            messageListener = UpdateAddressSummaryProcess(addressSummaryStorage, uncleDeltaProcessor, deltaMerger,
+                    monitoring, kafkaBrokers)
             isAckOnError = false
             ackMode = AbstractMessageListenerContainer.AckMode.BATCH
         }

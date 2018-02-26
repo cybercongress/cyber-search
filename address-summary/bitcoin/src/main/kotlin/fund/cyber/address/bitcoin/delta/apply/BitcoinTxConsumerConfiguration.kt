@@ -1,6 +1,6 @@
 package fund.cyber.address.bitcoin.delta.apply
 
-import fund.cyber.address.common.delta.apply.UpdatesAddressSummaryProcess
+import fund.cyber.address.common.delta.apply.UpdateAddressSummaryProcess
 import fund.cyber.common.kafka.JsonDeserializer
 import fund.cyber.address.bitcoin.BitcoinAddressSummaryStorage
 import fund.cyber.address.bitcoin.summary.BitcoinDeltaMerger
@@ -57,7 +57,8 @@ class BitcoinTxConsumerConfiguration {
 
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
-            messageListener = UpdatesAddressSummaryProcess(addressSummaryStorage, txDeltaProcessor, deltaMerger, monitoring)
+            messageListener = UpdateAddressSummaryProcess(addressSummaryStorage, txDeltaProcessor, deltaMerger,
+                    monitoring, kafkaBrokers)
             isAckOnError = false
             ackMode = BATCH
         }
