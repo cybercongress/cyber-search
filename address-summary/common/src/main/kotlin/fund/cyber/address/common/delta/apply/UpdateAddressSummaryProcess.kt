@@ -16,6 +16,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.BatchConsumerAwareMessageListener
 import reactor.core.publisher.Flux
+import java.util.concurrent.atomic.AtomicLong
 
 fun <T> Flux<T>.await(): List<T> {
     return this.collectList().block()!!
@@ -55,6 +56,7 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
     private lateinit var commitKafkaTimer: Timer
     private lateinit var commitCassandraTimer: Timer
     private lateinit var downloadCassandraTimer: Timer
+    private lateinit var currentOffsetMonitor: AtomicLong
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, R>>, consumer: Consumer<*, *>) {
 
@@ -92,15 +94,15 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
                 }
             }
 
-            monitoring.gauge("address_summary_topic_current_offset", Tags.of("topic", info.topic), info.maxOffset)!!
+            currentOffsetMonitor.set(info.maxOffset)
 
         } catch (e: AddressLockException) {
 
-            log.error("Possible address lock for ${info.topic} topic," +
+            log.debug("Possible address lock for ${info.topic} topic," +
                     " ${info.partition} partition, offset: ${info.minOffset}-${info.maxOffset}. Reverting changes...")
             applyLockMonitor.increment()
             revertChanges(addresses, previousStates, info)
-            log.error("Changes for ${info.topic} topic, ${info.partition} partition," +
+            log.debug("Changes for ${info.topic} topic, ${info.partition} partition," +
                     " offset: ${info.minOffset}-${info.maxOffset} reverted!")
         }
 
@@ -149,7 +151,8 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
                         throw AddressLockException()
                     }
                 } else {
-                    storeAttempts.getOrPut(delta.address, { 1 }).inc()
+                    val inc = storeAttempts.getOrPut(delta.address, { 0 }).inc()
+                    storeAttempts[delta.address] = inc
                     store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
                 }
             }
@@ -199,6 +202,10 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
         }
         if (!(::downloadCassandraTimer.isInitialized)) {
             downloadCassandraTimer = monitoring.timer("address_summary_download_cassandra", Tags.of("topic", info.topic))
+        }
+        if (!(::currentOffsetMonitor.isInitialized)) {
+            currentOffsetMonitor = monitoring.gauge("address_summary_topic_current_offset",
+                    Tags.of("topic", info.topic), AtomicLong(info.maxOffset))!!
         }
     }
 
