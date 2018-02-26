@@ -23,6 +23,18 @@ fun <T> Flux<T>.await(): List<T> {
 
 private val log = LoggerFactory.getLogger(UpdateAddressSummaryProcess::class.java)!!
 
+data class UpdateInfo(
+        val topic: String,
+        val partition: Int,
+        val minOffset: Long,
+        val maxOffset: Long
+) {
+    constructor(records: List<ConsumerRecord<*, *>>) : this(
+            topic = records.first().topic(), partition = records.first().partition(),
+            minOffset = records.first().offset(), maxOffset = records.last().offset()
+    )
+}
+
 /**
  *
  * This process should not be aware of chain reorganisation
@@ -42,11 +54,11 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
     private lateinit var applyLockMonitor: Counter
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, R>>, consumer: Consumer<*, *>) {
-        val topic = records.first().topic()
-        val partition = records.first().partition()
+
+        val info = UpdateInfo(records.sortedBy { record -> record.offset() })
         val storeAttempts: MutableMap<String, Int> = mutableMapOf()
         val previousStates: MutableMap<String, S?> = mutableMapOf()
-        initMonitors(records.first())
+        initMonitors(info)
 
         val addresses = deltaProcessor.affectedAddresses(records)
 
@@ -62,6 +74,7 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
                 .map { entry -> entry.key to entry.value!! }.toMap()
 
         try {
+
             mergedDeltas.values.forEach { delta -> store(addressesSummary[delta.address], delta, storeAttempts, previousStates) }
 
             consumer.commitSync()
@@ -72,56 +85,55 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
                 addressSummaryStorage.commitUpdate(summary.id, summary.version + 1).block()
             }
 
-            monitoring.gauge("address_summary_topic_current_offset", Tags.of("topic", records.last().topic()),
-                    records.last().offset())!!
+            monitoring.gauge("address_summary_topic_current_offset", Tags.of("topic", info.topic), info.maxOffset)!!
+
         } catch (e: AddressLockException) {
-            val sortedByOffset = records.sortedBy { record -> record.offset() }
-            val minOffset = sortedByOffset.first().offset()
-            val maxOffset = sortedByOffset.last().offset()
-            log.error("Possible address lock for ${records.first().topic()} topic," +
-                    " ${records.first().partition()} partition, offset: $minOffset-$maxOffset. Reverting changes...")
+
+            log.error("Possible address lock for ${info.topic} topic," +
+                    " ${info.partition} partition, offset: ${info.minOffset}-${info.maxOffset}. Reverting changes...")
             applyLockMonitor.increment()
-            addressSummaryStorage.findAllByIdIn(addresses).await().forEach { summary ->
-                if (summary.notCommitted() && summary.hasSameTopicPartitionAs(topic, partition)
-                        && summary.kafkaDeltaOffset in minOffset..maxOffset) {
-                    // should revert to previous state
-                    val previousState = previousStates[summary.id]
-                    if (previousState != null) {
-                        addressSummaryStorage.update(previousState)
-                    } else {
-                        addressSummaryStorage.remove(summary.id)
-                    }
-                }
-            }
-            log.error("Changes for ${records.first().topic()} topic, ${records.first().partition()} partition," +
-                    " offset: $minOffset-$maxOffset reverted!")
+            revertChanges(addresses, previousStates, info)
+            log.error("Changes for ${info.topic} topic, ${info.partition} partition," +
+                    " offset: ${info.minOffset}-${info.maxOffset} reverted!")
         }
 
     }
 
-    private fun store(addressSummary: S?, delta: D, storeAttempts: MutableMap<String, Int>, previousStates: MutableMap<String, S?>) {
-        previousStates[delta.address] = addressSummary
-        if (addressSummary != null) {
-            if (addressSummary.committed()) {
-                val result = delta.applyTo(addressSummary)
+    private fun revertChanges(addresses: Set<String>, previousStates: MutableMap<String, S?>, info: UpdateInfo) {
+
+        addressSummaryStorage.findAllByIdIn(addresses).await().forEach { summary ->
+            if (summary.notCommitted() && summary.hasSameTopicPartitionAs(info.topic, info.partition)
+                    && summary.kafkaDeltaOffset in info.minOffset..info.maxOffset) {
+                val previousState = previousStates[summary.id]
+                if (previousState != null) {
+                    addressSummaryStorage.update(previousState)
+                } else {
+                    addressSummaryStorage.remove(summary.id)
+                }
+            }
+        }
+    }
+
+    private fun store(summary: S?, delta: D, storeAttempts: MutableMap<String, Int>, previousStates: MutableMap<String, S?>) {
+
+        previousStates[delta.address] = summary
+        if (summary != null) {
+            if (summary.committed()) {
+                val result = delta.applyTo(summary)
                 if (!result) {
                     store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
                 }
             }
 
-            if (addressSummary.notCommitted() && addressSummary.hasSameTopicPartitionAs(delta)) {
-                delta.applyTo(addressSummary)
+            if (summary.notCommitted() && summary.hasSameTopicPartitionAs(delta)) {
+                delta.applyTo(summary)
             }
 
-            if (addressSummary.notCommitted() && addressSummary.notSameTopicPartionAs(delta)) {
+            if (summary.notCommitted() && summary.notSameTopicPartitionAs(delta)) {
                 //todo: timeouts???
                 if (storeAttempts[delta.address] ?: 0 > 5) {
-                    val reader = SinglePartitionTopicLastItemsReader(kafkaBrokers, addressSummary.kafkaDeltaTopic,
-                            Any::class.java, Any::class.java)
-                    val lastOffset = reader.readLastOffset(addressSummary.kafkaDeltaPartition)
-                    //todo : = or >= ????
-                    if (lastOffset >= addressSummary.kafkaDeltaOffset) {
-                        val result = delta.applyTo(addressSummary)
+                    if (summary.currentTopicPartitionWentFurther()) {
+                        val result = delta.applyTo(summary)
                         if (!result) {
                             storeAttempts[delta.address] = 0
                             store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
@@ -135,8 +147,8 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
                 }
             }
         } else {
-            val summary = delta.createSummary()
-            val result = addressSummaryStorage.insertIfNotRecord(summary).block()!!
+            val newSummary = delta.createSummary()
+            val result = addressSummaryStorage.insertIfNotRecord(newSummary).block()!!
             if (!result) {
                 store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
             }
@@ -155,21 +167,32 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
     private fun CqlAddressSummary.hasSameTopicPartitionAs(topic: String, partition: Int) =
             this.kafkaDeltaTopic == topic && this.kafkaDeltaPartition == partition
 
-    private fun CqlAddressSummary.notSameTopicPartionAs(delta: D) =
+    private fun CqlAddressSummary.notSameTopicPartitionAs(delta: D) =
             hasSameTopicPartitionAs(delta).not()
 
     private fun CqlAddressSummary.committed() = this.kafkaDeltaOffsetCommitted
 
     private fun CqlAddressSummary.notCommitted() = committed().not()
 
-    private fun initMonitors(record: ConsumerRecord<PumpEvent, R>) {
+    private fun CqlAddressSummary.currentTopicPartitionWentFurther() =
+            lastOffsetOf(this.kafkaDeltaTopic, this.kafkaDeltaPartition) >= this.kafkaDeltaOffset//todo : = or >= ????
+
+    private fun initMonitors(info: UpdateInfo) {
         if (!(::topicCurrentOffsetMonitor.isInitialized)) {
             topicCurrentOffsetMonitor = monitoring.gauge("address_summary_topic_current_offset",
-                    Tags.of("topic", record.topic()), AtomicLong(record.offset()))!!
+                    Tags.of("topic", info.topic), AtomicLong(info.minOffset))!!
         }
         if (!(::applyLockMonitor.isInitialized)) {
-            applyLockMonitor = monitoring.counter("address_summary_apply_lock_counter", Tags.of("topic", record.topic()))
+            applyLockMonitor = monitoring.counter("address_summary_apply_lock_counter", Tags.of("topic", info.topic))
         }
     }
 
+    private fun lastOffsetOf(topic: String, partition: Int): Long {
+
+        val reader = SinglePartitionTopicLastItemsReader(
+                kafkaBrokers = kafkaBrokers, topic = topic,
+                keyClass = Any::class.java, valueClass = Any::class.java
+        )
+        return reader.readLastOffset(partition)
+    }
 }
