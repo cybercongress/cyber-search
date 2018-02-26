@@ -21,4 +21,8 @@ class EthereumAddressSummaryStorage(
     override fun insertIfNotRecord(summary: CqlEthereumAddressSummary): Mono<Boolean> = addressSummaryRepository.insertIfNotRecord(summary)
 
     override fun commitUpdate(address: String, newVersion: Long): Mono<Boolean> = addressSummaryRepository.commitUpdate(address, newVersion)
+
+    override fun update(summary: CqlEthereumAddressSummary): Mono<CqlEthereumAddressSummary> = addressSummaryRepository.save(summary)
+
+    override fun remove(address: String): Mono<Void> = addressSummaryRepository.deleteById(address)
 }

@@ -65,4 +65,14 @@ class SinglePartitionTopicLastItemsReader<out K, out V>(
 
         return records
     }
+
+    fun readLastOffset(partitionIndex: Int): Long {
+        val partitions = consumer.partitionsFor(topic)?.sortedBy { p -> p.partition() }
+        if (partitions == null || partitions.isEmpty() || partitionIndex >= partitions.size) return 0
+
+        val partition = TopicPartition(topic, partitionIndex)
+        consumer.assign(listOf(partition))
+        consumer.seekToEnd(listOf(partition))
+        return consumer.position(partition) - 1
+    }
 }

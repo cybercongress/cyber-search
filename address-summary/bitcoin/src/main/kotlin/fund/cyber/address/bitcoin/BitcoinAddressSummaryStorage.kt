@@ -21,4 +21,8 @@ class BitcoinAddressSummaryStorage(
     override fun insertIfNotRecord(summary: CqlBitcoinAddressSummary): Mono<Boolean> = addressSummaryRepository.insertIfNotRecord(summary)
 
     override fun commitUpdate(address: String, newVersion: Long): Mono<Boolean> = addressSummaryRepository.commitUpdate(address, newVersion)
+
+    override fun update(summary: CqlBitcoinAddressSummary): Mono<CqlBitcoinAddressSummary> = addressSummaryRepository.save(summary)
+
+    override fun remove(address: String): Mono<Void> = addressSummaryRepository.deleteById(address)
 }

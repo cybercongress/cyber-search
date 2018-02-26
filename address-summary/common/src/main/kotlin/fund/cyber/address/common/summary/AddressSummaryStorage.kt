@@ -10,4 +10,6 @@ interface AddressSummaryStorage<S: CqlAddressSummary> {
     fun update(summary: S, oldVersion: Long): Mono<Boolean>
     fun insertIfNotRecord(summary: S): Mono<Boolean>
     fun commitUpdate(address: String, newVersion: Long): Mono<Boolean>
+    fun update(summary: S): Mono<S>
+    fun remove(address: String): Mono<Void>
 }
