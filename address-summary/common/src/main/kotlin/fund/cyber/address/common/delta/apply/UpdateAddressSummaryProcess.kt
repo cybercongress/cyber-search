@@ -10,12 +10,12 @@ import fund.cyber.search.model.events.PumpEvent
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
+import io.micrometer.core.instrument.Timer
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.BatchConsumerAwareMessageListener
 import reactor.core.publisher.Flux
-import java.util.concurrent.atomic.AtomicLong
 
 fun <T> Flux<T>.await(): List<T> {
     return this.collectList().block()!!
@@ -50,8 +50,11 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
         private val kafkaBrokers: String
 ) : BatchConsumerAwareMessageListener<PumpEvent, R> {
 
-    private lateinit var topicCurrentOffsetMonitor: AtomicLong
     private lateinit var applyLockMonitor: Counter
+    private lateinit var deltaStoreTimer: Timer
+    private lateinit var commitKafkaTimer: Timer
+    private lateinit var commitCassandraTimer: Timer
+    private lateinit var downloadCassandraTimer: Timer
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, R>>, consumer: Consumer<*, *>) {
 
@@ -75,14 +78,18 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
 
         try {
 
-            mergedDeltas.values.forEach { delta -> store(addressesSummary[delta.address], delta, storeAttempts, previousStates) }
+            mergedDeltas.values.forEach { delta ->
+                deltaStoreTimer.recordCallable { store(addressesSummary[delta.address], delta, storeAttempts, previousStates) }
+            }
 
-            consumer.commitSync()
+            commitKafkaTimer.recordCallable { consumer.commitSync() }
 
-            val newSummaries = addressSummaryStorage.findAllByIdIn(addresses).await()
+            val newSummaries = downloadCassandraTimer.recordCallable { addressSummaryStorage.findAllByIdIn(addresses).await() }
 
-            newSummaries.forEach { summary ->
-                addressSummaryStorage.commitUpdate(summary.id, summary.version + 1).block()
+            commitCassandraTimer.recordCallable {
+                newSummaries.forEach { summary ->
+                    addressSummaryStorage.commitUpdate(summary.id, summary.version + 1).block()
+                }
             }
 
             monitoring.gauge("address_summary_topic_current_offset", Tags.of("topic", info.topic), info.maxOffset)!!
@@ -178,12 +185,20 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
             lastOffsetOf(this.kafkaDeltaTopic, this.kafkaDeltaPartition) >= this.kafkaDeltaOffset//todo : = or >= ????
 
     private fun initMonitors(info: UpdateInfo) {
-        if (!(::topicCurrentOffsetMonitor.isInitialized)) {
-            topicCurrentOffsetMonitor = monitoring.gauge("address_summary_topic_current_offset",
-                    Tags.of("topic", info.topic), AtomicLong(info.minOffset))!!
-        }
         if (!(::applyLockMonitor.isInitialized)) {
             applyLockMonitor = monitoring.counter("address_summary_apply_lock_counter", Tags.of("topic", info.topic))
+        }
+        if (!(::deltaStoreTimer.isInitialized)) {
+            deltaStoreTimer = monitoring.timer("address_summary_delta_store", Tags.of("topic", info.topic))
+        }
+        if (!(::commitKafkaTimer.isInitialized)) {
+            commitKafkaTimer = monitoring.timer("address_summary_commit_kafka", Tags.of("topic", info.topic))
+        }
+        if (!(::commitCassandraTimer.isInitialized)) {
+            commitCassandraTimer = monitoring.timer("address_summary_commit_cassandra", Tags.of("topic", info.topic))
+        }
+        if (!(::downloadCassandraTimer.isInitialized)) {
+            downloadCassandraTimer = monitoring.timer("address_summary_download_cassandra", Tags.of("topic", info.topic))
         }
     }
 
