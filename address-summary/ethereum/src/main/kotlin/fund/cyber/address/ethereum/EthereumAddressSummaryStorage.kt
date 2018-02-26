@@ -14,7 +14,7 @@ class EthereumAddressSummaryStorage(
 
     override fun findById(id: String): Mono<CqlEthereumAddressSummary> = addressSummaryRepository.findById(id)
 
-    override fun findAllByIdIn(ids: Iterable<String>): Flux<CqlEthereumAddressSummary> = addressSummaryRepository.findAllByIdIn(ids)
+    override fun findAllByIdIn(ids: Iterable<String>): Flux<CqlEthereumAddressSummary> = addressSummaryRepository.findAllById(ids)
 
     override fun update(summary: CqlEthereumAddressSummary, oldVersion: Long): Mono<Boolean> = addressSummaryRepository.update(summary, oldVersion)
 

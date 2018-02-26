@@ -127,6 +127,6 @@ class EthereumTxConsumerConfiguration {
             ConsumerConfig.GROUP_ID_CONFIG to "ethereum-address-summary-update-process",
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
             ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase(),
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to 100
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to 500
     )
 }

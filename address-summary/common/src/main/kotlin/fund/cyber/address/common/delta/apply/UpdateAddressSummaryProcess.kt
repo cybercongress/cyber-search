@@ -11,17 +11,26 @@ import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
 import io.micrometer.core.instrument.Timer
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.newFixedThreadPoolContext
+import kotlinx.coroutines.experimental.runBlocking
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.BatchConsumerAwareMessageListener
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.experimental.Continuation
+import kotlin.coroutines.experimental.suspendCoroutine
 
 fun <T> Flux<T>.await(): List<T> {
     return this.collectList().block()!!
 }
 
+private val applicationContext = newFixedThreadPoolContext(8, "Coroutines Concurrent Pool")
 private val log = LoggerFactory.getLogger(UpdateAddressSummaryProcess::class.java)!!
 
 data class UpdateInfo(
@@ -80,8 +89,12 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
 
         try {
 
-            mergedDeltas.values.forEach { delta ->
-                deltaStoreTimer.recordCallable { store(addressesSummary[delta.address], delta, storeAttempts, previousStates) }
+            deltaStoreTimer.recordCallable {
+                runBlocking {
+                    mergedDeltas.values.map { delta ->
+                        async(applicationContext) { store(addressesSummary[delta.address], delta, storeAttempts, previousStates) }
+                    }.map { it.await() }
+                }
             }
 
             commitKafkaTimer.recordCallable { consumer.commitSync() }
@@ -89,8 +102,12 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
             val newSummaries = downloadCassandraTimer.recordCallable { addressSummaryStorage.findAllByIdIn(addresses).await() }
 
             commitCassandraTimer.recordCallable {
-                newSummaries.forEach { summary ->
-                    addressSummaryStorage.commitUpdate(summary.id, summary.version + 1).block()
+                runBlocking {
+                    newSummaries.map { summary ->
+                        async(applicationContext) {
+                            addressSummaryStorage.commitUpdate(summary.id, summary.version + 1).await()
+                        }
+                    }.map { it.await() }
                 }
             }
 
@@ -105,7 +122,6 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
             log.debug("Changes for ${info.topic} topic, ${info.partition} partition," +
                     " offset: ${info.minOffset}-${info.maxOffset} reverted!")
         }
-
     }
 
     private fun revertChanges(addresses: Set<String>, previousStates: MutableMap<String, S?>, info: UpdateInfo) {
@@ -123,7 +139,7 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
         }
     }
 
-    private fun store(summary: S?, delta: D, storeAttempts: MutableMap<String, Int>, previousStates: MutableMap<String, S?>) {
+    private suspend fun store(summary: S?, delta: D, storeAttempts: MutableMap<String, Int>, previousStates: MutableMap<String, S?>) {
 
         previousStates[delta.address] = summary
         if (summary != null) {
@@ -139,8 +155,7 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
             }
 
             if (summary.notCommitted() && summary.notSameTopicPartitionAs(delta)) {
-                //todo: timeouts???
-                if (storeAttempts[delta.address] ?: 0 > 5) {
+                if (storeAttempts[delta.address] ?: 0 > 20) {
                     if (summary.currentTopicPartitionWentFurther()) {
                         val result = delta.applyTo(summary)
                         if (!result) {
@@ -151,7 +166,8 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
                         throw AddressLockException()
                     }
                 } else {
-                    val inc = storeAttempts.getOrPut(delta.address, { 0 }).inc()
+                    delay(30, TimeUnit.MILLISECONDS)
+                    val inc = storeAttempts.getOrPut(delta.address, { 1 }).inc()
                     storeAttempts[delta.address] = inc
                     store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
                 }
@@ -165,11 +181,10 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
         }
     }
 
-    private fun D.applyTo(summary: S): Boolean =
-            addressSummaryStorage.update(this.updateSummary(summary), summary.version).block()!!
+    private suspend fun D.applyTo(summary: S): Boolean =
+            addressSummaryStorage.update(this.updateSummary(summary), summary.version).await()!!
 
-    private fun getSummaryByDelta(delta: D) =
-            addressSummaryStorage.findById(delta.address).block()!!
+    private suspend fun getSummaryByDelta(delta: D) = addressSummaryStorage.findById(delta.address).await()
 
     private fun CqlAddressSummary.hasSameTopicPartitionAs(delta: D) =
             this.kafkaDeltaTopic == delta.topic && this.kafkaDeltaPartition == delta.partition
@@ -185,7 +200,7 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
     private fun CqlAddressSummary.notCommitted() = committed().not()
 
     private fun CqlAddressSummary.currentTopicPartitionWentFurther() =
-            lastOffsetOf(this.kafkaDeltaTopic, this.kafkaDeltaPartition) >= this.kafkaDeltaOffset//todo : = or >= ????
+            lastOffsetOf(this.kafkaDeltaTopic, this.kafkaDeltaPartition) > this.kafkaDeltaOffset//todo : = or >= ????
 
     private fun initMonitors(info: UpdateInfo) {
         if (!(::applyLockMonitor.isInitialized)) {
@@ -216,5 +231,13 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
                 keyClass = Any::class.java, valueClass = Any::class.java
         )
         return reader.readLastOffset(partition)
+    }
+
+    private suspend fun <T> Mono<T>.await(): T? {
+        return suspendCoroutine { cont: Continuation<T> ->
+            doOnSuccessOrError { data, error ->
+                if (error == null) cont.resume(data) else cont.resumeWithException(error)
+            }.subscribe()
+        }
     }
 }

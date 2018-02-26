@@ -16,10 +16,10 @@ import reactor.core.publisher.Mono
  */
 interface EthereumUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlEthereumAddressSummary, String> {
 
-    @Consistency(value = ConsistencyLevel.SERIAL)
+    @Consistency(value = ConsistencyLevel.QUORUM)
     override fun findById(id: String): Mono<CqlEthereumAddressSummary>
 
-    @Consistency(value = ConsistencyLevel.SERIAL)
+    @Consistency(value = ConsistencyLevel.QUORUM)
     fun findAllByIdIn(ids: Iterable<String>): Flux<CqlEthereumAddressSummary>
 
     /**

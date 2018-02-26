@@ -16,6 +16,7 @@ project(":address-summary:common") {
         compile 'org.springframework.boot:spring-boot-starter-actuator'
         compile 'io.micrometer:micrometer-registry-prometheus'
         compile 'io.micrometer:micrometer-core'
+        compile 'org.jetbrains.kotlinx:kotlinx-coroutines-jdk8'
     }
 }
 
