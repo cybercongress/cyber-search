@@ -11,6 +11,13 @@ aliases:
     docker:
       - image: circleci/openjdk:8-jdk
 
+  - &release_filter
+    filters:
+      tags:
+        only: /.*/
+      branches:
+        ignore: /.*/
+
 jobs:
 
   build_project:
@@ -33,8 +40,8 @@ jobs:
             - ~/.gradle/caches/
             - ~/.gradle/wrapper/
 
-
-  deploy_pumps_ethereum_image:
+# Ethereum Images
+  deploy_chain_pumps_ethereum_image:
      <<: *defaults
      steps:
        - checkout
@@ -45,14 +52,10 @@ jobs:
            command: |
              docker build -t build/pump-eth -f ./pumps/ethereum/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker tag build/pump-eth cybernode/pumps-ethereum:nightly
-             docker push cybernode/pumps-ethereum:nightly
-             if [[ "$CIRCLE_TAG" != "" ]]; then
-               docker tag build/pump-eth cybernode/pumps-ethereum:$CIRCLE_TAG
-               docker push cybernode/pumps-ethereum:$CIRCLE_TAG
-             fi
+             docker tag build/pump-eth cybernode/chain-pump-ethereum:$CIRCLE_TAG
+             docker push cybernode/chain-pump-ethereum:$CIRCLE_TAG
 
-  deploy_dumps_ethereum_image:
+  deploy_chain_dumps_ethereum_image:
      <<: *defaults
      steps:
        - checkout
@@ -63,14 +66,10 @@ jobs:
            command: |
              docker build -t build/dump-eth -f ./dumps/ethereum/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker tag build/dump-eth cybernode/dumps-ethereum:nightly
-             docker push cybernode/dumps-ethereum:nightly
-             if [[ "$CIRCLE_TAG" != "" ]]; then
-               docker tag build/dump-eth cybernode/dumps-ethereum:$CIRCLE_TAG
-               docker push cybernode/dumps-ethereum:$CIRCLE_TAG
-             fi
+             docker tag build/dump-eth cybernode/chain-dump-ethereum:$CIRCLE_TAG
+             docker push cybernode/chain-dump-ethereum:$CIRCLE_TAG
 
-  deploy_address_summary_ethereum_image:
+  deploy_chain_address_ethereum_image:
      <<: *defaults
      steps:
        - checkout
@@ -81,12 +80,23 @@ jobs:
            command: |
              docker build -t build/address-summary-eth -f ./address-summary/ethereum/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker tag build/address-summary-eth cybernode/address-summary-ethereum:nightly
-             docker push cybernode/address-summary-ethereum:nightly
-             if [[ "$CIRCLE_TAG" != "" ]]; then
-               docker tag build/address-summary-eth cybernode/address-summary-ethereum:$CIRCLE_TAG
-               docker push cybernode/address-summary-ethereum:$CIRCLE_TAG
-             fi
+             docker tag build/address-summary-eth cybernode/chain-address-ethereum:$CIRCLE_TAG
+             docker push cybernode/chain-address-ethereum:$CIRCLE_TAG
+
+# Common Images             
+  deploy_engine_api_chains_image:
+     <<: *defaults
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.11.0-ce
+       - run:
+           name: Chains Search Api Image
+           command: |
+             docker build -t build/search-api -f ./search-api/Dockerfile ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/address-summary-eth cybernode/engine-api-chains:$CIRCLE_TAG
+             docker push cybernode/engine-api-chains:$CIRCLE_TAG
 
 workflows:
   version: 2
@@ -94,12 +104,19 @@ workflows:
   search_build:
     jobs:
       - build_project:
-      - deploy_pumps_ethereum_image:
+      - deploy_chain_pumps_ethereum_image:
+          <<: *release_filter
           requires:
             - build_project
-      - deploy_dumps_ethereum_image:
+      - deploy_chain_dumps_ethereum_image:
+          <<: *release_filter
           requires:
             - build_project
-      - deploy_address_summary_ethereum_image:
+      - deploy_chain_address_ethereum_image:
+          <<: *release_filter
+          requires:
+            - build_project
+      - deploy_engine_api_chains_image:
+          <<: *release_filter
           requires:
             - build_project
