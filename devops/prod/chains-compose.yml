@@ -27,7 +27,7 @@ services:
     image: ruimarinho/bitcoin-core:0.15.1
     ports:
       - "8332:8332"
-    command: "-server -rest -txindex -rpcpassword=cyber -rpcuser=cyber -rpcallowip=0.0.0.0/0"
+    command: "-server -rest -txindex -rpcpassword=fund.cyber -rpcuser=fund.cyber -rpcallowip=0.0.0.0/0"
     volumes:
       - /cyberdata/bitcoind:/home/bitcoin/.bitcoin
 
@@ -37,6 +37,6 @@ services:
     image: hlebalbau/bitcoin-abc-docker:0.16.1
     ports:
       - "7332:7332"
-    command: "bitcoind -server -rest -txindex -rpcpassword=cyber -rpcuser=cyber -rpcallowip=::/0 -rpcport=7332"
+    command: "bitcoind -server -rest -txindex -rpcpassword=fund.cyber -rpcuser=fund.cyber -rpcallowip=::/0 -rpcport=7332"
     volumes:
       - /cyberdata/abc:/home/bitcoin/.bitcoin

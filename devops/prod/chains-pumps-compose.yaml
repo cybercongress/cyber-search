@@ -210,7 +210,7 @@ items:
         containers:
         - env:
           - name: BITCOIND_URL
-            value: http://cyber:cyber@bitcoind:8332
+            value: http://fund.cyber:fund.cyber@bitcoind:8332
           - name: CASSANDRA_HOSTS
             value: elassandra
           - name: CS_CHAINS_TO_PUMP
@@ -246,7 +246,7 @@ items:
         containers:
         - env:
           - name: ABC_URL
-            value: http://cyber:cyber@abc:7332
+            value: http://fund.cyber:fund.cyber@abc:7332
           - name: CASSANDRA_HOSTS
             value: elassandra
           - name: CS_CHAINS_TO_PUMP

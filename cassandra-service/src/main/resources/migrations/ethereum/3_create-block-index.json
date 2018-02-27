@@ -1,0 +1,9 @@
+{
+  "method": "PUT",
+  "url": "/ethereum.block/",
+  "data": {
+    "settings": {
+      "keyspace": "ethereum"
+    }
+  }
+}

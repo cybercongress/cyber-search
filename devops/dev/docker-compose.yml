@@ -12,6 +12,7 @@
 #    2181: Zookeper
 #    9092: Kafka
 #    9000: Kafka Manager
+#    3030: Kafka Browser
 
 version: '3.3'
 services:
@@ -90,3 +91,21 @@ services:
        WEB_ONLY: 1
        RUNTESTS: 0
        SAMPLEDATA: 0
+
+  prometheus:
+    network_mode: host
+    container_name: prometheus
+    restart: on-failure
+    image: prom/prometheus:v2.1.0
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+#    ports:
+#      - "9090:9090"
+
+  grafana:
+    network_mode: host
+    container_name: grafana3
+    restart: on-failure
+    image: grafana/grafana:5.0.0-beta4
+#    ports:
+#      - "3000:3000"

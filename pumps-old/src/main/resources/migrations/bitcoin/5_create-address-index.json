@@ -1,0 +1,9 @@
+{
+  "method": "PUT",
+  "url": "/bitcoin_address_summary/",
+  "data": {
+    "settings": {
+      "keyspace": "bitcoin"
+    }
+  }
+}

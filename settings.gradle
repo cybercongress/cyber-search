@@ -1,5 +1,16 @@
 include "common"
+include "common-kafka"
 include "cassandra-service"
-include "address-service"
+
+include "address-summary:common"
+include "address-summary:bitcoin"
+include "address-summary:ethereum"
+
+include "pumps:common"
+include "pumps:bitcoin"
+include "pumps:ethereum"
+
+include "dumps:bitcoin"
+include "dumps:ethereum"
+
 include "search-api"
-include "pumps"

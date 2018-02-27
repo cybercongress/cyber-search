@@ -1,0 +1,40 @@
+project(":dumps:bitcoin") {
+
+    apply plugin: "org.springframework.boot"
+
+    dependencies {
+
+        compile project(":common")
+        compile project(":common-kafka")
+        compile project(":cassandra-service")
+
+        compile "org.springframework.boot:spring-boot-starter"
+
+        compile 'org.springframework.boot:spring-boot-starter-webflux'
+        compile 'org.springframework.boot:spring-boot-starter-reactor-netty'
+        compile 'org.springframework.boot:spring-boot-starter-actuator'
+        compile 'io.micrometer:micrometer-registry-prometheus'
+        compile 'io.micrometer:micrometer-core'
+    }
+}
+
+
+project(":dumps:ethereum") {
+
+    apply plugin: "org.springframework.boot"
+
+    dependencies {
+
+        compile project(":common")
+        compile project(":common-kafka")
+        compile project(":cassandra-service")
+
+        compile "org.springframework.boot:spring-boot-starter"
+
+        compile 'org.springframework.boot:spring-boot-starter-webflux'
+        compile 'org.springframework.boot:spring-boot-starter-reactor-netty'
+        compile 'org.springframework.boot:spring-boot-starter-actuator'
+        compile 'io.micrometer:micrometer-registry-prometheus'
+        compile 'io.micrometer:micrometer-core'
+    }
+}

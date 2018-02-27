@@ -9,7 +9,7 @@ services:
       CASSANDRA_HOSTS: elassandra
       KAFKA_BROKERS: kafka-broker:9092
       CS_CHAINS_TO_PUMP: BITCOIN
-      BITCOIND_URL: http://cyber:cyber@bitcoind:8332
+      BITCOIND_URL: http://fund.cyber:fund.cyber@bitcoind:8332
       CS_LOG_LEVEL: INFO
 
   cs-chain-pumps-bth:
@@ -20,7 +20,7 @@ services:
       CASSANDRA_HOSTS: elassandra
       KAFKA_BROKERS: kafka-broker:9092
       CS_CHAINS_TO_PUMP: BITCOIN_CASH
-      ABC_URL: http://cyber:cyber@abc:7332
+      ABC_URL: http://fund.cyber:fund.cyber@abc:7332
       CS_LOG_LEVEL: INFO
 
   cs-chain-pumps-eth:
