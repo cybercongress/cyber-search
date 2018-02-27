@@ -57,7 +57,7 @@ class EthereumGenesisDataFileProvider(
                             fee = BigDecimal.ZERO,
                             blockTime = Instant.parse("2015-07-30T15:26:13Z"),
                             input = "",
-                            createdContract = ""
+                            createdContract = null
                     )
 
                     listOf(tx)

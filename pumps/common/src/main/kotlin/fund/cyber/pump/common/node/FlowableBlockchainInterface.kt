@@ -6,6 +6,7 @@ import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.toFlowable
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
+import java.lang.Thread.sleep
 import java.util.concurrent.Callable
 
 
@@ -31,8 +32,10 @@ class ConcurrentPulledBlockchain<T : BlockBundle>(
 
                 if (!isBatchFetch) {
                     lastNetworkBlock = lastNetworkBlock()
-                    if (nextBlockNumber == lastNetworkBlock) {
+                    if (nextBlockNumber > lastNetworkBlock) {
                         log.debug("Up-to-date block $nextBlockNumber")
+                        sleep(1000)
+                        emitter.onNext(-1L..-1L)
                         return@BiFunction nextBlockNumber
                     }
                 }
@@ -55,6 +58,8 @@ class ConcurrentPulledBlockchain<T : BlockBundle>(
 
 
     private fun asyncDownloadBlocks(blockNumbers: LongRange): Flowable<T> {
+        if (blockNumbers.last == -1L) return Flowable.empty()
+
         log.debug("Looking for ${blockNumbers.first}-${blockNumbers.last} blocks")
         return blockNumbers.toFlowable()
                 .flatMap({ number -> asyncDownloadBlock(number) }, 20)
