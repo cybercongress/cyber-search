@@ -31,9 +31,9 @@ class AddressHandlersConfiguration {
             val repository = applicationContext.getBean(chain.name + "addressRepository", EthereumAddressRepository::class.java)
 
             val blockByNumber = HandlerFunction { request ->
-                val blockNumber = request.pathVariable("id")
-                val block = repository.findById(blockNumber)
-                ServerResponse.ok().body(block, CqlEthereumAddressSummary::class.java)
+                val addressId = request.pathVariable("id")
+                val address = repository.findById(addressId)
+                ServerResponse.ok().body(address, CqlEthereumAddressSummary::class.java)
             }
             RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/address/{id}"), blockByNumber)
         }.asSingleRouterFunction()
