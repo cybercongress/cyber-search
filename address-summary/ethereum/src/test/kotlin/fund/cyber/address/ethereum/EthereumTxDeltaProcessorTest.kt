@@ -1,4 +1,4 @@
-package fund.cyber.address.ethfiereum
+package fund.cyber.address.ethereum
 
 import fund.cyber.address.ethereum.summary.EthereumAddressSummaryDelta
 import fund.cyber.address.ethereum.summary.EthereumTxDeltaProcessor
