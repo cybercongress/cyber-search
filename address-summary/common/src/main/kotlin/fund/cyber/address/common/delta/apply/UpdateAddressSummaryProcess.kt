@@ -203,24 +203,25 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
             lastOffsetOf(this.kafkaDeltaTopic, this.kafkaDeltaPartition) > this.kafkaDeltaOffset//todo : = or >= ????
 
     private fun initMonitors(info: UpdateInfo) {
+        val tags = Tags.of("topic", info.topic)
         if (!(::applyLockMonitor.isInitialized)) {
-            applyLockMonitor = monitoring.counter("address_summary_apply_lock_counter", Tags.of("topic", info.topic))
+            applyLockMonitor = monitoring.counter("address_summary_apply_lock_counter", tags)
         }
         if (!(::deltaStoreTimer.isInitialized)) {
-            deltaStoreTimer = monitoring.timer("address_summary_delta_store", Tags.of("topic", info.topic))
+            deltaStoreTimer = monitoring.timer("address_summary_delta_store", tags)
         }
         if (!(::commitKafkaTimer.isInitialized)) {
-            commitKafkaTimer = monitoring.timer("address_summary_commit_kafka", Tags.of("topic", info.topic))
+            commitKafkaTimer = monitoring.timer("address_summary_commit_kafka", tags)
         }
         if (!(::commitCassandraTimer.isInitialized)) {
-            commitCassandraTimer = monitoring.timer("address_summary_commit_cassandra", Tags.of("topic", info.topic))
+            commitCassandraTimer = monitoring.timer("address_summary_commit_cassandra", tags)
         }
         if (!(::downloadCassandraTimer.isInitialized)) {
-            downloadCassandraTimer = monitoring.timer("address_summary_download_cassandra", Tags.of("topic", info.topic))
+            downloadCassandraTimer = monitoring.timer("address_summary_download_cassandra", tags)
         }
         if (!(::currentOffsetMonitor.isInitialized)) {
-            currentOffsetMonitor = monitoring.gauge("address_summary_topic_current_offset",
-                    Tags.of("topic", info.topic), AtomicLong(info.maxOffset))!!
+            currentOffsetMonitor = monitoring.gauge("address_summary_topic_current_offset", tags,
+                    AtomicLong(info.maxOffset))!!
         }
     }
 

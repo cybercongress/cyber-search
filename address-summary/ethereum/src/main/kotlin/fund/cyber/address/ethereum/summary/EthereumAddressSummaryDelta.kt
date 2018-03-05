@@ -68,7 +68,7 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumAddressSu
 
         val addressDeltaByInput = EthereumAddressSummaryDelta(
                 address = tx.from, txNumberDelta = 1, minedBlockNumberDelta = 0, uncleNumberDelta = 0,
-                balanceDelta = tx.value.negate(), totalReceivedDelta = tx.value.negate(),
+                balanceDelta = tx.value.negate() - tx.fee, totalReceivedDelta = BigDecimal.ZERO,
                 contractAddress = (tx.createdContract != null), topic = record.topic(), partition = record.partition(),
                 offset = record.offset()
         )
