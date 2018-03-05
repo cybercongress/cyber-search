@@ -34,7 +34,7 @@ services:
   cs-zoo:
     network_mode: host
     container_name: zoo
-    image: confluentinc/cp-zookeeper:4.0.0
+    image: confluentinc/cp-zookeeper:4.0.0-3
     environment:
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -46,7 +46,7 @@ services:
   cs-kafka:
     network_mode: host
     container_name: kafka
-    image: confluentinc/cp-kafka:4.0.0
+    image: confluentinc/cp-kafka:4.0.0-3
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: localhost:2181
@@ -66,7 +66,7 @@ services:
 
   cs-kafka-manager:
     network_mode: host
-    image: hlebalbau/kafka-manager:1.3.3.15
+    image: hlebalbau/kafka-manager:latest
     environment:
       ZK_HOSTS: "localhost:2181"
       APPLICATION_SECRET: "random-secret"
@@ -74,7 +74,7 @@ services:
 
   kafka-rest:
     network_mode: host
-    image: confluentinc/cp-kafka-rest:4.0.0
+    image: confluentinc/cp-kafka-rest:4.0.0-3
     environment:
       KAFKA_REST_ZOOKEEPER_CONNECT: localhost:2181
       KAFKA_REST_LISTENERS: http://localhost:8082
@@ -86,7 +86,7 @@ services:
 
   fast-data-dev:
     network_mode: host
-    image: landoop/fast-data-dev:cp3.3.1
+    image: landoop/fast-data-dev:cp4.0.0
     environment:
        WEB_ONLY: 1
        RUNTESTS: 0
@@ -106,6 +106,6 @@ services:
     network_mode: host
     container_name: grafana3
     restart: on-failure
-    image: grafana/grafana:5.0.0-beta4
+    image: grafana/grafana:5.0.0
 #    ports:
 #      - "3000:3000"
