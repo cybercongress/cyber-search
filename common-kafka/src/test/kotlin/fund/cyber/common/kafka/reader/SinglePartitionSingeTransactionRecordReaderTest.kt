@@ -29,7 +29,7 @@ class SinglePartitionSingeTransactionRecordReaderTest : BaseForKafkaIntegrationT
 
         SinglePartitionTopicDataPresentLatch(
                 embeddedKafka.brokersAsString, SINGLE_TRANSACTION_RECORD_TOPIC, String::class.java, Int::class.java
-        ).countDownLatch.await()
+        ).await()
     }
 
     @Test

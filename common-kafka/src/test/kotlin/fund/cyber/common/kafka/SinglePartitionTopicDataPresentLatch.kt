@@ -40,4 +40,8 @@ class SinglePartitionTopicDataPresentLatch<out K, out V>(
         }
         countDownLatch.countDown()
     }
+
+    fun await() {
+        countDownLatch.await()
+    }
 }

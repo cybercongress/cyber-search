@@ -30,7 +30,7 @@ class SinglePartitionLackOfRecordsReaderTest : BaseForKafkaIntegrationTest() {
 
         SinglePartitionTopicDataPresentLatch(
                 embeddedKafka.brokersAsString, EXISTING_TOPIC_WITH_RECORDS_LACK, String::class.java, Int::class.java
-        ).countDownLatch.await()
+        ).await()
     }
 
     @Test
