@@ -1,11 +1,9 @@
 package fund.cyber.common.kafka.reader
 
 import fund.cyber.common.kafka.BaseForKafkaIntegrationTest
+import fund.cyber.common.kafka.SinglePartitionTopicDataPresentLatch
 import fund.cyber.common.kafka.sendRecords
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.springframework.kafka.test.context.EmbeddedKafka
 
 
@@ -24,11 +22,13 @@ class SinglePartitionLackOfRecordsReaderTest : BaseForKafkaIntegrationTest() {
 
     private val itemsCount = 4
 
-    @BeforeAll
+    @BeforeEach
     fun produceRecords() {
 
         val records = (0 until itemsCount).map { Pair("key", it) }
         sendRecords(embeddedKafka.brokersAsString, EXISTING_TOPIC_WITH_RECORDS_LACK, records)
+
+        SinglePartitionTopicDataPresentLatch(embeddedKafka.brokersAsString, EXISTING_TOPIC_WITH_RECORDS_LACK, String::class.java, Int::class.java).countDownLatch.await()
     }
 
     @Test
