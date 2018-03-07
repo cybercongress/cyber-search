@@ -1,11 +1,9 @@
 package fund.cyber.common.kafka.reader
 
 import fund.cyber.common.kafka.BaseForKafkaIntegrationTest
+import fund.cyber.common.kafka.SinglePartitionTopicDataPresentLatch
 import fund.cyber.common.kafka.sendRecordsInTransaction
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.springframework.kafka.test.context.EmbeddedKafka
 
 const val MULTIPLE_TRANSACTION_RECORD_TOPIC = "MULTIPLE_TRANSACTION_RECORD_TOPIC"
@@ -22,20 +20,22 @@ class SinglePartitionMultipleTransactionRecordReaderTest : BaseForKafkaIntegrati
 
     private val itemsCount = 4
 
-    @BeforeAll
+
+    @BeforeEach
     fun produceRecords() {
 
         val records = (0 until itemsCount).map { Pair("key", it) }
         sendRecordsInTransaction(embeddedKafka.brokersAsString, MULTIPLE_TRANSACTION_RECORD_TOPIC, records)
+
+        SinglePartitionTopicDataPresentLatch(embeddedKafka.brokersAsString, MULTIPLE_TRANSACTION_RECORD_TOPIC, String::class.java, Int::class.java).countDownLatch.await()
     }
 
 
-    @Test
+//    @Test
+    @RepeatedTest(value = 100)
     @DisplayName("Test topic with transaction returns required number of records")
     fun testMultipleTransactionRecords() {
 
-        //todo create await latch https://www.codenotfound.com/spring-kafka-embedded-unit-test-example.html
-        Thread.sleep(200)
         val reader = SinglePartitionTopicLastItemsReader(
                 kafkaBrokers = embeddedKafka.brokersAsString, topic = MULTIPLE_TRANSACTION_RECORD_TOPIC,
                 keyClass = String::class.java, valueClass = Int::class.java

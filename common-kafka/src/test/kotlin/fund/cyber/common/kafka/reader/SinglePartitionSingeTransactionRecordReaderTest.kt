@@ -1,11 +1,9 @@
 package fund.cyber.common.kafka.reader
 
 import fund.cyber.common.kafka.BaseForKafkaIntegrationTest
+import fund.cyber.common.kafka.SinglePartitionTopicDataPresentLatch
 import fund.cyber.common.kafka.sendRecordsInTransaction
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.springframework.kafka.test.context.EmbeddedKafka
 
 
@@ -22,17 +20,21 @@ const val SINGLE_TRANSACTION_RECORD_TOPIC = "SINGLE_TRANSACTION_RECORD_TOPIC"
 class SinglePartitionSingeTransactionRecordReaderTest : BaseForKafkaIntegrationTest() {
 
 
-    @BeforeAll
+    @BeforeEach
     fun produceRecords() {
 
         sendRecordsInTransaction(
                 embeddedKafka.brokersAsString, SINGLE_TRANSACTION_RECORD_TOPIC, listOf("key" to 1)
         )
+
+        SinglePartitionTopicDataPresentLatch(embeddedKafka.brokersAsString, SINGLE_TRANSACTION_RECORD_TOPIC, String::class.java, Int::class.java).countDownLatch.await()
     }
 
-    @Test
+//    @Test
+    @RepeatedTest(value = 100)
     @DisplayName("Test topic with transaction returns single record")
     fun testSingleTransactionRecord() {
+
 
         val reader = SinglePartitionTopicLastItemsReader(
                 kafkaBrokers = embeddedKafka.brokersAsString, topic = SINGLE_TRANSACTION_RECORD_TOPIC,
