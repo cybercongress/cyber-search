@@ -28,7 +28,9 @@ class SinglePartitionLackOfRecordsReaderTest : BaseForKafkaIntegrationTest() {
         val records = (0 until itemsCount).map { Pair("key", it) }
         sendRecords(embeddedKafka.brokersAsString, EXISTING_TOPIC_WITH_RECORDS_LACK, records)
 
-        SinglePartitionTopicDataPresentLatch(embeddedKafka.brokersAsString, EXISTING_TOPIC_WITH_RECORDS_LACK, String::class.java, Int::class.java).countDownLatch.await()
+        SinglePartitionTopicDataPresentLatch(
+                embeddedKafka.brokersAsString, EXISTING_TOPIC_WITH_RECORDS_LACK, String::class.java, Int::class.java
+        ).countDownLatch.await()
     }
 
     @Test

@@ -27,11 +27,12 @@ class SinglePartitionSingeTransactionRecordReaderTest : BaseForKafkaIntegrationT
                 embeddedKafka.brokersAsString, SINGLE_TRANSACTION_RECORD_TOPIC, listOf("key" to 1)
         )
 
-        SinglePartitionTopicDataPresentLatch(embeddedKafka.brokersAsString, SINGLE_TRANSACTION_RECORD_TOPIC, String::class.java, Int::class.java).countDownLatch.await()
+        SinglePartitionTopicDataPresentLatch(
+                embeddedKafka.brokersAsString, SINGLE_TRANSACTION_RECORD_TOPIC, String::class.java, Int::class.java
+        ).countDownLatch.await()
     }
 
-//    @Test
-    @RepeatedTest(value = 100)
+    @Test
     @DisplayName("Test topic with transaction returns single record")
     fun testSingleTransactionRecord() {
 

@@ -27,12 +27,13 @@ class SinglePartitionMultipleTransactionRecordReaderTest : BaseForKafkaIntegrati
         val records = (0 until itemsCount).map { Pair("key", it) }
         sendRecordsInTransaction(embeddedKafka.brokersAsString, MULTIPLE_TRANSACTION_RECORD_TOPIC, records)
 
-        SinglePartitionTopicDataPresentLatch(embeddedKafka.brokersAsString, MULTIPLE_TRANSACTION_RECORD_TOPIC, String::class.java, Int::class.java).countDownLatch.await()
+        SinglePartitionTopicDataPresentLatch(
+                embeddedKafka.brokersAsString, MULTIPLE_TRANSACTION_RECORD_TOPIC, String::class.java, Int::class.java
+        ).countDownLatch.await()
     }
 
 
-//    @Test
-    @RepeatedTest(value = 100)
+    @Test
     @DisplayName("Test topic with transaction returns required number of records")
     fun testMultipleTransactionRecords() {
 
