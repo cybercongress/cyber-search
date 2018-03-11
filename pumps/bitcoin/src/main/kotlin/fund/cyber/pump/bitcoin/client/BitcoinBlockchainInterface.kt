@@ -6,6 +6,7 @@ import fund.cyber.pump.common.node.BlockBundle
 import fund.cyber.pump.common.node.BlockchainInterface
 import fund.cyber.search.model.bitcoin.BitcoinBlock
 import fund.cyber.search.model.bitcoin.BitcoinTx
+import org.springframework.stereotype.Component
 
 
 class BitcoinBlockBundle(
@@ -17,6 +18,7 @@ class BitcoinBlockBundle(
         val transactions: List<BitcoinTx>
 ) : BlockBundle
 
+@Component
 class BitcoinBlockchainInterface(
         private val bitcoinJsonRpcClient: BitcoinJsonRpcClient,
         private val rpcToBundleEntitiesConverter: JsonRpcBlockToBitcoinBundleConverter,

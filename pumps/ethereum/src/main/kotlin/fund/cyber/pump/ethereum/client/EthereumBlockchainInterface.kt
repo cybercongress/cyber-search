@@ -52,11 +52,16 @@ class EthereumBlockchainInterface(
         val blockParameter = blockParameter(number.toBigInteger())
         val ethBlock = parityClient.ethGetBlockByNumber(blockParameter, true).send()
 
+        val uncles = downloadUnclesData(ethBlock)
+
+        return Pair(ethBlock, uncles)
+    }
+
+    private fun downloadUnclesData(ethBlock: EthBlock): List<EthBlock.Block> {
         val unclesFutures = ethBlock.block.uncles.mapIndexed { index, _ ->
             parityClient.ethGetUncleByBlockHashAndIndex(ethBlock.block.hash, BigInteger.valueOf(index.toLong())).sendAsync()
         }
-        val uncles = unclesFutures.await().map { uncleEthBlock -> uncleEthBlock.block }
-        return Pair(ethBlock, uncles)
+        return unclesFutures.await().map { uncleEthBlock -> uncleEthBlock.block }
     }
 
     private fun blockParameter(blockNumber: BigInteger) = DefaultBlockParameter.valueOf(blockNumber)!!
