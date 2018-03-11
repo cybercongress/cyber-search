@@ -14,11 +14,13 @@ interface AddressSummaryDelta <S: CqlAddressSummary> {
     fun updateSummary(summary: S): S
 }
 
+//todo this class should not be aware of kafka records
 interface DeltaProcessor<R, S: CqlAddressSummary, out D: AddressSummaryDelta<S>> {
     fun recordToDeltas(record: ConsumerRecord<PumpEvent, R>): List<D>
     fun affectedAddresses(records: List<ConsumerRecord<PumpEvent, R>>): Set<String>
 }
 
+//todo this class should not be aware of kafka records
 interface DeltaMerger<D: AddressSummaryDelta<*>> {
     fun mergeDeltas(deltas: Iterable<D>, currentAddresses: Map<String, CqlAddressSummary>): D?
 }

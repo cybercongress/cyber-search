@@ -61,6 +61,8 @@ class EthereumTxConsumerConfiguration {
     @Autowired
     private lateinit var monitoring: MeterRegistry
 
+
+    //todo generate containers on the fly from DeltaProcessor information
     @Bean
     fun txListenerContainer(): ConcurrentMessageListenerContainer<PumpEvent, EthereumTx> {
 
