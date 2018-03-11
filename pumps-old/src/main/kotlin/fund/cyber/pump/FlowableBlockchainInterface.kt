@@ -19,7 +19,6 @@ class ConcurrentPulledBlockchain<T : BlockBundle>(
         private val blockchainInterface: BlockchainInterface<T>,
         private val batchSize: Int = 4
 ) : FlowableBlockchainInterface<T>, BlockchainInterface<T> by blockchainInterface,
-        // TODO: Can we do it better?
         Migratory {
     override val migrations: List<Migration>
             get() = if (blockchainInterface is Migratory) blockchainInterface.migrations else emptyList()

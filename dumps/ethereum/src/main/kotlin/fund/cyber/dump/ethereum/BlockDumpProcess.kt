@@ -27,9 +27,8 @@ class BlockDumpProcess(
 
     private lateinit var topicCurrentOffsetMonitor: AtomicLong
 
-    //todo add retry
-    override fun onMessage(records: List<ConsumerRecord<PumpEvent, EthereumBlock>>) {
 
+    override fun onMessage(records: List<ConsumerRecord<PumpEvent, EthereumBlock>>) {
 
         val first = records.first()
         val last = records.last()

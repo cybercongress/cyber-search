@@ -26,7 +26,6 @@ class TxDumpProcess(
     private lateinit var topicCurrentOffsetMonitor: AtomicLong
 
 
-    //todo add retry
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, EthereumTx>>) {
 
         log.info("Dumping batch of ${records.size} $chain txs from offset ${records.first().offset()}")

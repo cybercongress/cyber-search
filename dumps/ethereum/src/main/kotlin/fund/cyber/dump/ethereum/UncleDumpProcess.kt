@@ -26,7 +26,6 @@ class UncleDumpProcess(
     private lateinit var topicCurrentOffsetMonitor: AtomicLong
 
 
-    //todo add retry
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, EthereumUncle>>) {
 
         log.info("Dumping batch of ${records.size} $chain uncles from offset ${records.first().offset()}")

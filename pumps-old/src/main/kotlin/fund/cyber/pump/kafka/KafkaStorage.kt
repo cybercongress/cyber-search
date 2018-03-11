@@ -33,7 +33,6 @@ class KafkaStorage(
     private val actionFactories = mutableMapOf<Chain, KafkaStorageActionTemplateFactory<BlockBundle>>()
 
     override fun initialize(blockchainInterface: BlockchainInterface<*>) {
-        //todo create topics manually??
     }
 
     @Suppress("UNCHECKED_CAST")

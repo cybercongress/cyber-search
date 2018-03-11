@@ -18,7 +18,6 @@ class BlockDumpProcess(
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
 
 
-    //todo add retry
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, BitcoinBlock>>) {
 
         val first = records.first()

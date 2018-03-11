@@ -31,8 +31,6 @@ data class EthereumBlock(
 )
 
 //todo: add properly support of new classic fork
-
-
 fun getBlockReward(chain: EthereumFamilyChain, number: Long): BigDecimal {
     return if (chain == EthereumFamilyChain.ETHEREUM_CLASSIC) {
         if (number < 5000000) BigDecimal("5") else BigDecimal("4")
