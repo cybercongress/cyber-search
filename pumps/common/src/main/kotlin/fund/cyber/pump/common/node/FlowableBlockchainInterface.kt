@@ -6,6 +6,7 @@ import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.toFlowable
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
+import org.springframework.retry.support.RetryTemplate
 import java.lang.Thread.sleep
 import java.util.concurrent.Callable
 
@@ -19,7 +20,8 @@ private val log = LoggerFactory.getLogger(ConcurrentPulledBlockchain::class.java
 
 class ConcurrentPulledBlockchain<T : BlockBundle>(
         private val blockchainInterface: BlockchainInterface<T>,
-        private val batchSize: Int = 20
+        private val batchSize: Int = 20,
+        private val retryTemplate: RetryTemplate
 ) : FlowableBlockchainInterface<T>, BlockchainInterface<T> by blockchainInterface {
 
     private var lastNetworkBlock = 0L
@@ -31,7 +33,7 @@ class ConcurrentPulledBlockchain<T : BlockBundle>(
                 val isBatchFetch = lastNetworkBlock - nextBlockNumber > batchSize
 
                 if (!isBatchFetch) {
-                    lastNetworkBlock = lastNetworkBlock()
+                    lastNetworkBlock = retryTemplate.execute<Long, Exception> { lastNetworkBlock() }
                     if (nextBlockNumber > lastNetworkBlock) {
                         log.debug("Up-to-date block $nextBlockNumber")
                         sleep(1000)
@@ -69,6 +71,6 @@ class ConcurrentPulledBlockchain<T : BlockBundle>(
     private fun asyncDownloadBlock(blockNumber: Long): Flowable<T> {
         return Flowable.just(blockNumber)
                 .subscribeOn(Schedulers.io())
-                .map { flowedNumber -> blockBundleByNumber(flowedNumber) }
+                .map { flowedNumber -> retryTemplate.execute<T, Exception> { blockBundleByNumber(flowedNumber) } }
     }
 }
