@@ -34,7 +34,7 @@ class EthereumClientConfiguration {
             .build()!!
 
     @Bean
-    fun parityClient() = Web3j.build(HttpService(endpointUrl, httpClient()))
+    fun parityClient() = Web3j.build(HttpService(endpointUrl, httpClient()))!!
 
 
     @Bean("blockchainInterface")

@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 @Component
 class LastTopicOffsetMonitoring(
-        private val monitoring: MeterRegistry,
+        monitoring: MeterRegistry,
         private val consumer: Consumer<Any, Any>,
         private val chain: EthereumFamilyChain
 ) {

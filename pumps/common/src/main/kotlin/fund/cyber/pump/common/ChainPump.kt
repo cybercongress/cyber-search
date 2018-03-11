@@ -4,8 +4,6 @@ import fund.cyber.pump.common.kafka.KafkaBlockBundleProducer
 import fund.cyber.pump.common.kafka.LastPumpedBundlesProvider
 import fund.cyber.pump.common.node.BlockBundle
 import fund.cyber.pump.common.node.FlowableBlockchainInterface
-import fund.cyber.search.configuration.KAFKA_TRANSACTION_BATCH
-import fund.cyber.search.configuration.KAFKA_TRANSACTION_BATCH_DEFAULT
 import fund.cyber.search.configuration.START_BLOCK_NUMBER
 import fund.cyber.search.configuration.START_BLOCK_NUMBER_DEFAULT
 import io.micrometer.core.instrument.DistributionSummary

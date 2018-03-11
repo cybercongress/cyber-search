@@ -14,7 +14,7 @@ class SinglePartitionTopicDataPresentLatch<out K, out V>(
         valueClass: Class<V>
 ) {
 
-    val countDownLatch = CountDownLatch(1)
+    private val countDownLatch = CountDownLatch(1)
 
     private val consumerProperties = Properties().apply {
         put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers)

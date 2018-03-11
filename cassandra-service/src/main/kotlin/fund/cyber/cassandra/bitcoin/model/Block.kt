@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package fund.cyber.cassandra.bitcoin.model
 
 import fund.cyber.search.model.bitcoin.BitcoinBlock

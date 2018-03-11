@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.test.rule.KafkaEmbedded
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
