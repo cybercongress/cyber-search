@@ -29,9 +29,9 @@ import org.springframework.retry.support.RetryTemplate
 import org.springframework.web.reactive.config.EnableWebFlux
 import java.util.*
 
-private val log = LoggerFactory.getLogger(DefaultListenerSupport::class.java)!!
+private val log = LoggerFactory.getLogger(DefaultRetryListenerSupport::class.java)!!
 
-class DefaultListenerSupport: RetryListenerSupport() {
+class DefaultRetryListenerSupport: RetryListenerSupport() {
 
     override fun <T : Any?, E : Throwable?> onError(context: RetryContext?, callback: RetryCallback<T, E>?, throwable: Throwable?) {
         if (context?.retryCount ?: 1 == 1) log.error("Error occurred. Start retrying...", throwable)
@@ -65,7 +65,7 @@ class CommonConfiguration {
         val retryTemplate = RetryTemplate()
         retryTemplate.setBackOffPolicy(ExponentialBackOffPolicy())
         retryTemplate.setRetryPolicy(AlwaysRetryPolicy())
-        retryTemplate.registerListener(DefaultListenerSupport())
+        retryTemplate.registerListener(DefaultRetryListenerSupport())
         return retryTemplate
     }
 
