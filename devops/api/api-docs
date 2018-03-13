@@ -1,4 +1,0 @@
-FROM swaggerapi/swagger-ui:v3.5.0
-
-COPY docs/api.v1.json /docs/api.v1.json
-ENV SWAGGER_JSON=/docs/api.v1.json

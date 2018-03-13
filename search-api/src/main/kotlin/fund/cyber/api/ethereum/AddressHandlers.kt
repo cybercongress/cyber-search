@@ -28,8 +28,8 @@ class AddressHandlersConfiguration {
     fun addressById(): RouterFunction<ServerResponse> {
 
         return EthereumFamilyChain.values().map { chain ->
-            val repository = applicationContext.getBean(chain.name + "addressRepository", EthereumAddressRepository::class.java)
 
+            val repository = applicationContext.getBean(chain.name + "addressRepository", EthereumAddressRepository::class.java)
             val blockByNumber = HandlerFunction { request ->
                 val addressId = request.pathVariable("id")
                 val address = repository.findById(addressId)
@@ -43,6 +43,7 @@ class AddressHandlersConfiguration {
     fun addressTxesByAddress(): RouterFunction<ServerResponse> {
 
         return EthereumFamilyChain.values().map { chain ->
+
             val repository = applicationContext.getBean(
                     chain.name + "pageableAddressTxRepository", PageableEthereumAddressTxRepository::class.java
             )
