@@ -33,8 +33,8 @@ private val log = LoggerFactory.getLogger(DefaultRetryListenerSupport::class.jav
 
 class DefaultRetryListenerSupport: RetryListenerSupport() {
 
-    override fun <T : Any?, E : Throwable?> onError(context: RetryContext?, callback: RetryCallback<T, E>?, throwable: Throwable?) {
-        if (context?.retryCount ?: 1 == 1) log.error("Error occurred. Start retrying...", throwable)
+    override fun <T : Any?, E : Throwable?> onError(context: RetryContext, callback: RetryCallback<T, E>?, throwable: Throwable) {
+        if (context.retryCount == 1) log.error("Error occurred. Start retrying...", throwable)
         super.onError(context, callback, throwable)
     }
 }
