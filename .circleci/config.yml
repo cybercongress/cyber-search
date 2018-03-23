@@ -103,7 +103,10 @@ workflows:
 
   search_build:
     jobs:
-      - build_project
+      - build_project:
+          filters:
+            tags:
+              only: /.*/
       - deploy_chain_pumps_ethereum_image:
           <<: *release_filter
           requires:
