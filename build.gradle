@@ -19,6 +19,7 @@ buildscript {
         // plugins
         dependencyPluginVersion = "1.0.3.RELEASE"
         bootPluginVersion = "2.0.0.RELEASE"
+        detektPluginVersion = "1.0.0.RC6-4"
 
         // tests
         junitVersion = "5.0.3"
@@ -40,6 +41,7 @@ buildscript {
         maven { url 'https://dl.bintray.com/kotlin/kotlin-dev/' }
         maven { url 'https://repo.spring.io/libs-snapshot' }
         maven { url 'https://repo.spring.io/libs-milestone' }
+        maven { url 'https://plugins.gradle.org/m2/' }
     }
 
     dependencies {
@@ -51,6 +53,7 @@ buildscript {
 
         classpath("io.spring.gradle:dependency-management-plugin:$dependencyPluginVersion")
         classpath("org.springframework.boot:spring-boot-gradle-plugin:$bootPluginVersion")
+        classpath("gradle.plugin.io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektPluginVersion")
     }
 }
 
@@ -59,7 +62,28 @@ task wrapper(type: Wrapper) {
     distributionType = Wrapper.DistributionType.ALL
 }
 
+task build {
+    dependsOn "detektCheck"
+}
 
+allprojects {
+
+    buildscript {
+        repositories {
+            maven { url 'https://plugins.gradle.org/m2/' }
+        }
+    }
+
+    apply plugin: "io.gitlab.arturbosch.detekt"
+
+    detekt {
+        profile("main") {
+            config = "$rootDir/detekt.yml"
+            filters = ".*/pumps-old/.*"
+            parallel = true
+        }
+    }
+}
 
 subprojects {
     apply plugin: "kotlin"
@@ -109,7 +133,7 @@ subprojects {
 
             dependency("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
             dependency("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
-            dependency("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"){
+            dependency("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion") {
                 exclude 'org.jetbrains.kotlin:kotlin-stdlib'
             }
             dependency("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVersion")
@@ -127,7 +151,7 @@ subprojects {
             dependency("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
             dependency("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
             dependency("org.mockito:mockito-core:$mockitoVersion")
-            dependency("com.nhaarman:mockito-kotlin:$mockitoKotlinVersion"){
+            dependency("com.nhaarman:mockito-kotlin:$mockitoKotlinVersion") {
                 exclude 'org.jetbrains.kotlin:kotlin-stdlib'
             }
 
@@ -141,7 +165,7 @@ subprojects {
             dependency("com.datastax.cassandra:cassandra-driver-extras:$cassandraVersion")
 
             dependency("org.web3j:core:$web3jVersion")
-            dependency("io.reactivex.rxjava2:rxkotlin:$rxkotlinVersion"){
+            dependency("io.reactivex.rxjava2:rxkotlin:$rxkotlinVersion") {
                 exclude 'org.jetbrains.kotlin:kotlin-stdlib'
             }
             dependency("io.projectreactor:reactor-core:$reactorVersion")

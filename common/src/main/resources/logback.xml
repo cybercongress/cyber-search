@@ -13,6 +13,9 @@
     <logger name="io.netty.util.internal" level="ERROR"/>
     <logger name="org.ehcache.core" level="ERROR"/>
     <logger name="reactor.ipc.netty.channel" level="ERROR"/>
+    <logger name="org.apache.zookeeper" level="WARN"/>
+    <logger name="org.I0Itec" level="WARN"/>
+    <logger name="kafka.server" level="WARN"/>
 
     <root level="${CS_LOG_LEVEL:-INFO}">
         <appender-ref ref="STDOUT"/>
