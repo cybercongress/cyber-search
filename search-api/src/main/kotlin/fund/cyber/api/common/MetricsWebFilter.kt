@@ -13,6 +13,9 @@ import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 import java.util.concurrent.TimeUnit
 
+const val NINGTHY_FIVE_PERCENT = 0.95
+const val NINE_HUNDRED_NINGTHY_FIVE_PERCENT = 0.95
+
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 class MetricsWebFilter(private val registry: MeterRegistry) : WebFilter {
@@ -34,7 +37,7 @@ class MetricsWebFilter(private val registry: MeterRegistry) : WebFilter {
 
         Timer.builder("http_requests_processing")
                 .tags(listOf(uriTag))
-                .publishPercentiles(0.95, 0.995)
+                .publishPercentiles(NINGTHY_FIVE_PERCENT, NINE_HUNDRED_NINGTHY_FIVE_PERCENT)
                 .register(registry)
                 .record(System.nanoTime() - start, TimeUnit.NANOSECONDS)
     }

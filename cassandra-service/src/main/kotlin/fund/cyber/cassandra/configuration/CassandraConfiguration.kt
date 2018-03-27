@@ -16,6 +16,8 @@ import org.springframework.data.cassandra.config.AbstractReactiveCassandraConfig
 
 
 const val MAX_CONCURRENT_REQUESTS = 8182
+const val MAX_PER_ROUTE = 16
+const val MAX_TOTAL = 32
 
 val Chain.keyspace: String get() = lowerCaseName
 
@@ -43,8 +45,8 @@ abstract class CassandraRepositoriesConfiguration(
 class CassandraConfiguration {
     private val defaultHttpHeaders = listOf(BasicHeader("Keep-Alive", "timeout=10, max=1024"))
     private val connectionManager = PoolingHttpClientConnectionManager().apply {
-        defaultMaxPerRoute = 16
-        maxTotal = 32
+        defaultMaxPerRoute = MAX_PER_ROUTE
+        maxTotal = MAX_TOTAL
     }
 
     @Bean
@@ -55,5 +57,7 @@ class CassandraConfiguration {
             .build()!!
 
     @Bean
-    fun migrationsLoader(resourceLoader: GenericApplicationContext) = DefaultMigrationsLoader(resourceLoader = resourceLoader)
+    fun migrationsLoader(resourceLoader: GenericApplicationContext) = DefaultMigrationsLoader(
+            resourceLoader = resourceLoader
+    )
 }

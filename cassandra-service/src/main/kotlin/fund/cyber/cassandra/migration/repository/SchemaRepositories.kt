@@ -5,6 +5,9 @@ import org.springframework.data.cassandra.core.cql.QueryOptions
 import org.springframework.data.cassandra.repository.ReactiveCassandraRepository
 import reactor.core.publisher.Flux
 
-interface SchemaVersionRepository: ReactiveCassandraRepository<CqlSchemaVersion, String> {
-    fun findAllByApplicationId(applicationId: String, options: QueryOptions = QueryOptions.empty()): Flux<CqlSchemaVersion>
+interface SchemaVersionRepository : ReactiveCassandraRepository<CqlSchemaVersion, String> {
+
+    fun findAllByApplicationId(
+            applicationId: String, options: QueryOptions = QueryOptions.empty()
+    ): Flux<CqlSchemaVersion>
 }

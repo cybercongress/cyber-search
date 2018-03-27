@@ -38,7 +38,8 @@ interface BitcoinUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlBitc
         WHERE id = :#{#summary.id}
         IF version = :oldVersion
         """)
-    fun update(@Param("summary") summary: CqlBitcoinAddressSummary, @Param("oldVersion") oldVersion: Long): Mono<Boolean>
+    fun update(@Param("summary") summary: CqlBitcoinAddressSummary,
+               @Param("oldVersion") oldVersion: Long): Mono<Boolean>
 
     /**
      * Return {@code true} if there is no record for key and insert was successful.
@@ -48,9 +49,11 @@ interface BitcoinUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlBitc
         INSERT INTO address_summary (id, confirmed_balance, confirmed_tx_number,
           confirmed_total_received, version, kafka_delta_offset, kafka_delta_topic,
           kafka_delta_partition, kafka_delta_offset_committed)
-        VALUES (:#{#summary.id}, :#{#summary.confirmed_balance}, :#{#summary.confirmed_tx_number}, :#{#summary.confirmed_total_received},
-            :#{#summary.version}, :#{#summary.kafka_delta_offset}, :#{#summary.kafka_delta_topic}, :#{#summary.kafka_delta_partition},
-            false)
+        VALUES (
+            :#{#summary.id}, :#{#summary.confirmed_balance}, :#{#summary.confirmed_tx_number},
+            :#{#summary.confirmed_total_received}, :#{#summary.version}, :#{#summary.kafka_delta_offset},
+            :#{#summary.kafka_delta_topic}, :#{#summary.kafka_delta_partition}, false
+            )
         IF NOT EXISTS
         """)
     fun insertIfNotRecord(@Param("summary") summary: CqlBitcoinAddressSummary): Mono<Boolean>

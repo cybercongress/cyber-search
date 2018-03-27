@@ -4,10 +4,19 @@ import fund.cyber.cassandra.configuration.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.configuration.keyspace
 import fund.cyber.cassandra.migration.BlockchainMigrationSettings
 import fund.cyber.cassandra.migration.MigrationSettings
-import fund.cyber.search.configuration.*
+import fund.cyber.search.configuration.CASSANDRA_HOSTS
+import fund.cyber.search.configuration.CASSANDRA_HOSTS_DEFAULT
+import fund.cyber.search.configuration.CASSANDRA_PORT
+import fund.cyber.search.configuration.CASSANDRA_PORT_DEFAULT
+import fund.cyber.search.configuration.CHAIN
+import fund.cyber.search.configuration.env
 import fund.cyber.search.model.chains.BitcoinFamilyChain
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.*
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Condition
+import org.springframework.context.annotation.ConditionContext
+import org.springframework.context.annotation.Conditional
+import org.springframework.context.annotation.Configuration
 import org.springframework.core.type.AnnotatedTypeMetadata
 import org.springframework.data.cassandra.repository.config.EnableReactiveCassandraRepositories
 

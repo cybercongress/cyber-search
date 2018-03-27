@@ -53,8 +53,10 @@ data class CqlEthereumBlock(
 
 @Table("tx_preview_by_block")
 data class CqlEthereumBlockTxPreview(
-        @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED, value = "block_number") val blockNumber: Long,
-        @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED, value = "position_in_block") val positionInBlock: Int,
+        @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED, value = "block_number")
+        val blockNumber: Long,
+        @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED, value = "position_in_block")
+        val positionInBlock: Int,
         val fee: BigDecimal,
         val value: BigDecimal,
         val hash: String,

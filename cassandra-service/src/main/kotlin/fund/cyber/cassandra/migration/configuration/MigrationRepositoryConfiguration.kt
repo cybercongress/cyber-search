@@ -1,10 +1,14 @@
 package fund.cyber.cassandra.migration.configuration
 
 import fund.cyber.cassandra.configuration.CassandraRepositoriesConfiguration
-import fund.cyber.search.configuration.*
+import fund.cyber.search.configuration.CASSANDRA_HOSTS
+import fund.cyber.search.configuration.CASSANDRA_PORT
+import fund.cyber.search.configuration.CASSANDRA_PORT_DEFAULT
+import fund.cyber.search.configuration.CASSANDRA_HOSTS_DEFAULT
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.*
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.data.cassandra.ReactiveSession
 import org.springframework.data.cassandra.config.CassandraSessionFactoryBean
 import org.springframework.data.cassandra.core.ReactiveCassandraOperations

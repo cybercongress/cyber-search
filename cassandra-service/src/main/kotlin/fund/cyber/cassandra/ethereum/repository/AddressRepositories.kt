@@ -1,6 +1,9 @@
 package fund.cyber.cassandra.ethereum.repository
 
-import fund.cyber.cassandra.ethereum.model.*
+import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressMinedBlock
+import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressMinedUncle
+import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressSummary
+import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressTxPreview
 import org.springframework.data.cassandra.core.mapping.MapId
 import org.springframework.data.cassandra.repository.CassandraRepository
 import org.springframework.data.domain.Pageable

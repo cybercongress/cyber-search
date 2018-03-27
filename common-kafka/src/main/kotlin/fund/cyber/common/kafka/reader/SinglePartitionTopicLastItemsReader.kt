@@ -6,6 +6,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.TopicPartition
 import java.util.*
 
+const val CONSUMER_POLL_TIMEOUT = 100L
+const val EMPTY_POLL_MAX_NUMBER = 5
 
 class SinglePartitionTopicLastItemsReader<out K, out V>(
         private val kafkaBrokers: String,
@@ -47,9 +49,9 @@ class SinglePartitionTopicLastItemsReader<out K, out V>(
         while (records.size != numberOfRecordsToRead && lastTopicItemOffset - readOffsetNumber >= 0) {
 
             consumer.seek(partition, lastTopicItemOffset - readOffsetNumber)
-            val consumerRecords = consumer.poll(100)
+            val consumerRecords = consumer.poll(CONSUMER_POLL_TIMEOUT)
 
-            if (consumerRecords.isEmpty && emptyPollNumber < 5) {
+            if (consumerRecords.isEmpty && emptyPollNumber < EMPTY_POLL_MAX_NUMBER) {
                 emptyPollNumber++
                 continue
             }

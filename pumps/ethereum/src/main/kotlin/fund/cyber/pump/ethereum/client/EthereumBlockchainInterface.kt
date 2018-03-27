@@ -59,7 +59,9 @@ class EthereumBlockchainInterface(
 
     private fun downloadUnclesData(ethBlock: EthBlock): List<EthBlock.Block> {
         val unclesFutures = ethBlock.block.uncles.mapIndexed { index, _ ->
-            parityClient.ethGetUncleByBlockHashAndIndex(ethBlock.block.hash, BigInteger.valueOf(index.toLong())).sendAsync()
+            parityClient
+                    .ethGetUncleByBlockHashAndIndex(ethBlock.block.hash, BigInteger.valueOf(index.toLong()))
+                    .sendAsync()
         }
         return unclesFutures.await().map { uncleEthBlock -> uncleEthBlock.block }
     }

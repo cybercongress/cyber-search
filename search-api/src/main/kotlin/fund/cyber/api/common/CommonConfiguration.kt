@@ -1,12 +1,20 @@
 package fund.cyber.api.common
 
-import fund.cyber.search.configuration.*
+import fund.cyber.search.configuration.CASSANDRA_HOSTS
+import fund.cyber.search.configuration.CASSANDRA_HOSTS_DEFAULT
+import fund.cyber.search.configuration.CORS_ALLOWED_ORIGINS
+import fund.cyber.search.configuration.CORS_ALLOWED_ORIGINS_DEFAULT
+import fund.cyber.search.configuration.ELASTIC_CLUSTER_NAME
+import fund.cyber.search.configuration.ELASTIC_CLUSTER_NAME_DEFAULT
+import fund.cyber.search.configuration.ELASTIC_TRANSPORT_PORT
+import fund.cyber.search.configuration.ELASTIC_TRANSPORT_PORT_DEFAULT
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.common.transport.InetSocketTransportAddress
 import org.elasticsearch.transport.client.PreBuiltTransportClient
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.*
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.reactive.CorsWebFilter
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource

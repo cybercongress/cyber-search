@@ -1,7 +1,11 @@
 package fund.cyber.dump.ethereum
 
-import fund.cyber.cassandra.ethereum.model.*
-import fund.cyber.cassandra.ethereum.repository.*
+import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressTxPreview
+import fund.cyber.cassandra.ethereum.model.CqlEthereumBlockTxPreview
+import fund.cyber.cassandra.ethereum.model.CqlEthereumTx
+import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumBlockTxRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumAddressTxRepository
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.events.PumpEvent
