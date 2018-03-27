@@ -42,7 +42,8 @@ interface EthereumUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlEth
         WHERE id = :#{#summary.id}
         IF version = :oldVersion
         """)
-    fun update(@Param("summary") summary: CqlEthereumAddressSummary, @Param("oldVersion") oldVersion: Long): Mono<Boolean>
+    fun update(@Param("summary") summary: CqlEthereumAddressSummary,
+               @Param("oldVersion") oldVersion: Long): Mono<Boolean>
 
     /**
      * Return {@code true} if there is no record for key and insert was successful.
@@ -53,9 +54,10 @@ interface EthereumUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlEth
           confirmed_total_received, tx_number, uncle_number, mined_block_number,
           version, kafka_delta_offset, kafka_delta_topic,
           kafka_delta_partition, kafka_delta_offset_committed)
-        VALUES (:#{#summary.id}, :#{#summary.confirmedBalance}, :#{#summary.contractAddress}, :#{#summary.confirmedTotalReceived},
-            :#{#summary.txNumber}, :#{#summary.minedUncleNumber}, :#{#summary.minedBlockNumber},
-            :#{#summary.version}, :#{#summary.kafkaDeltaOffset}, :#{#summary.kafkaDeltaTopic}, :#{#summary.kafkaDeltaPartition},
+        VALUES (:#{#summary.id}, :#{#summary.confirmedBalance}, :#{#summary.contractAddress},
+            :#{#summary.confirmedTotalReceived}, :#{#summary.txNumber}, :#{#summary.minedUncleNumber},
+            :#{#summary.minedBlockNumber}, :#{#summary.version}, :#{#summary.kafkaDeltaOffset},
+            :#{#summary.kafkaDeltaTopic}, :#{#summary.kafkaDeltaPartition},
             false)
         IF NOT EXISTS
         """)

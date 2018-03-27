@@ -48,9 +48,11 @@ data class EthereumAddressSummaryDelta(
 
     override fun updateSummary(summary: CqlEthereumAddressSummary): CqlEthereumAddressSummary {
         return CqlEthereumAddressSummary(
-                id = summary.id, confirmedBalance = summary.confirmedBalance + this.balanceDelta, contractAddress = summary.contractAddress,
+                id = summary.id, confirmedBalance = summary.confirmedBalance + this.balanceDelta,
+                contractAddress = summary.contractAddress,
                 confirmedTotalReceived = summary.confirmedTotalReceived + this.totalReceivedDelta,
-                txNumber = summary.txNumber + this.txNumberDelta, minedUncleNumber = summary.minedUncleNumber + this.uncleNumberDelta,
+                txNumber = summary.txNumber + this.txNumberDelta,
+                minedUncleNumber = summary.minedUncleNumber + this.uncleNumberDelta,
                 minedBlockNumber = summary.minedBlockNumber + this.minedBlockNumberDelta,
                 kafkaDeltaOffset = this.offset, kafkaDeltaTopic = this.topic,
                 kafkaDeltaPartition = this.partition, version = summary.version + 1
@@ -74,8 +76,8 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumAddressSu
         )
 
         val addressDeltaByOutput = EthereumAddressSummaryDelta(
-                address = (tx.to ?: tx.createdContract)!!, txNumberDelta = 1, minedBlockNumberDelta = 0, uncleNumberDelta = 0,
-                balanceDelta = tx.value, totalReceivedDelta = tx.value,
+                address = (tx.to ?: tx.createdContract)!!, txNumberDelta = 1, minedBlockNumberDelta = 0,
+                uncleNumberDelta = 0, balanceDelta = tx.value, totalReceivedDelta = tx.value,
                 contractAddress = (tx.createdContract != null), topic = record.topic(), partition = record.partition(),
                 offset = record.offset()
         )
@@ -97,7 +99,8 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumAddressSu
 }
 
 @Component
-class EthereumBlockDeltaProcessor : DeltaProcessor<EthereumBlock, CqlEthereumAddressSummary, EthereumAddressSummaryDelta> {
+class EthereumBlockDeltaProcessor
+    : DeltaProcessor<EthereumBlock, CqlEthereumAddressSummary, EthereumAddressSummaryDelta> {
 
     override fun recordToDeltas(record: ConsumerRecord<PumpEvent, EthereumBlock>): List<EthereumAddressSummaryDelta> {
 
@@ -121,7 +124,8 @@ class EthereumBlockDeltaProcessor : DeltaProcessor<EthereumBlock, CqlEthereumAdd
 }
 
 @Component
-class EthereumUncleDeltaProcessor : DeltaProcessor<EthereumUncle, CqlEthereumAddressSummary, EthereumAddressSummaryDelta> {
+class EthereumUncleDeltaProcessor
+    : DeltaProcessor<EthereumUncle, CqlEthereumAddressSummary, EthereumAddressSummaryDelta> {
 
     override fun recordToDeltas(record: ConsumerRecord<PumpEvent, EthereumUncle>): List<EthereumAddressSummaryDelta> {
 
@@ -154,7 +158,8 @@ class EthereumDeltaMerger : DeltaMerger<EthereumAddressSummaryDelta> {
 
         val deltasToApply = deltas.filterNot { delta ->
             existingSummary != null && existingSummary.kafkaDeltaTopic == delta.topic
-                    && existingSummary.kafkaDeltaPartition == delta.partition && delta.offset <= existingSummary.kafkaDeltaOffset
+                    && existingSummary.kafkaDeltaPartition == delta.partition
+                    && delta.offset <= existingSummary.kafkaDeltaOffset
         }
         val balance = deltasToApply.sumByDecimal { delta -> delta.balanceDelta }
         val totalReceived = deltasToApply.sumByDecimal { delta -> delta.totalReceivedDelta }
@@ -166,7 +171,8 @@ class EthereumDeltaMerger : DeltaMerger<EthereumAddressSummaryDelta> {
                 address = first.address, balanceDelta = balance, totalReceivedDelta = totalReceived,
                 txNumberDelta = txNumber, minedBlockNumberDelta = blockNumber, uncleNumberDelta = uncleNumber,
                 contractAddress = deltasToApply.any { delta -> delta.contractAddress ?: false },
-                topic = first.topic, partition = first.partition, offset = deltasToApply.maxBy { it -> it.offset }!!.offset
+                topic = first.topic, partition = first.partition,
+                offset = deltasToApply.maxBy { it -> it.offset }!!.offset
         )
     }
 }

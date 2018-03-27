@@ -19,10 +19,10 @@ class JsonRpcToDaoBitcoinBlockConverter {
         val totalOutputsValue = transactions.flatMap { tx -> tx.outs }.map { out -> out.amount }.sum()
 
         return BitcoinBlock(
-                hash = jsonRpcBlock.hash, size = jsonRpcBlock.size, version = jsonRpcBlock.version, bits = jsonRpcBlock.bits,
-                difficulty = jsonRpcBlock.difficulty.toBigInteger(), nonce = jsonRpcBlock.nonce,
-                time = Instant.ofEpochSecond(jsonRpcBlock.time), weight = jsonRpcBlock.weight,
-                merkleroot = jsonRpcBlock.merkleroot, height = jsonRpcBlock.height,
+                hash = jsonRpcBlock.hash, size = jsonRpcBlock.size, version = jsonRpcBlock.version,
+                bits = jsonRpcBlock.bits, difficulty = jsonRpcBlock.difficulty.toBigInteger(),
+                nonce = jsonRpcBlock.nonce, time = Instant.ofEpochSecond(jsonRpcBlock.time),
+                weight = jsonRpcBlock.weight, merkleroot = jsonRpcBlock.merkleroot, height = jsonRpcBlock.height,
                 txNumber = jsonRpcBlock.tx.size, totalOutputsAmount = totalOutputsValue
         )
     }

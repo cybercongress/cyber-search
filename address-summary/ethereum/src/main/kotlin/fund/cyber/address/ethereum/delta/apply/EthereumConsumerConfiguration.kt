@@ -32,6 +32,8 @@ import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler
 import org.springframework.kafka.listener.config.ContainerProperties
 import org.springframework.transaction.annotation.EnableTransactionManagement
 
+private const val MAX_POLL_RECORDS_CONFIG = 500
+
 @EnableKafka
 @Configuration
 @EnableTransactionManagement
@@ -129,6 +131,6 @@ class EthereumTxConsumerConfiguration {
             ConsumerConfig.GROUP_ID_CONFIG to "ethereum-address-summary-update-process",
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
             ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase(),
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to 500
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to MAX_POLL_RECORDS_CONFIG
     )
 }

@@ -34,8 +34,10 @@ data class CqlEthereumAddressSummary(
 
 @Table("tx_preview_by_address")
 data class CqlEthereumAddressTxPreview(
-        @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED) val address: String,
-        @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = DESCENDING, name = "block_time") val blockTime: Instant,
+        @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+        val address: String,
+        @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = DESCENDING, name = "block_time")
+        val blockTime: Instant,
         @PrimaryKeyColumn(ordinal = 2, type = PrimaryKeyType.CLUSTERED) val hash: String,
         val fee: BigDecimal,
         @Column(forceQuote = true) val from: String,

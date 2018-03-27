@@ -28,7 +28,8 @@ class BlockHandlersConfiguration {
     fun blockByNumber(): RouterFunction<ServerResponse> {
 
         return EthereumFamilyChain.values().map { chain ->
-            val blockRepository = applicationContext.getBean(chain.name + "blockRepository", EthereumBlockRepository::class.java)
+            val blockRepository = applicationContext
+                    .getBean(chain.name + "blockRepository", EthereumBlockRepository::class.java)
 
             val blockByNumber = HandlerFunction { request ->
                 val blockNumber = request.pathVariable("blockNumber").toLong()

@@ -7,6 +7,8 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
 
+const val DIVIDE_SCALE = 18
+
 data class EthereumUncle(
         val hash: String,
         val position: Int,
@@ -23,9 +25,9 @@ fun getUncleReward(chain: EthereumFamilyChain, uncleNumber: Long, blockNumber: L
 
     val blockReward = getBlockReward(chain, blockNumber)
     return if (chain == EthereumFamilyChain.ETHEREUM_CLASSIC) {
-        getBlockReward(chain, blockNumber).divide(decimal32, 18, RoundingMode.FLOOR).stripTrailingZeros()
+        getBlockReward(chain, blockNumber).divide(decimal32, DIVIDE_SCALE, RoundingMode.FLOOR).stripTrailingZeros()
     } else {
         ((uncleNumber.toBigDecimal() + decimal8 - blockNumber.toBigDecimal()) * blockReward)
-                .divide(decimal8, 18, RoundingMode.FLOOR).stripTrailingZeros()
+                .divide(decimal8, DIVIDE_SCALE, RoundingMode.FLOOR).stripTrailingZeros()
     }
 }

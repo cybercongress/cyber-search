@@ -1,9 +1,16 @@
 package fund.cyber.pump.ethereum.client
 
+import fund.cyber.common.DECIMAL_SCALE
+import fund.cyber.common.decimal32
 import fund.cyber.common.hexToLong
 import fund.cyber.common.sum
 import fund.cyber.search.model.chains.EthereumFamilyChain
-import fund.cyber.search.model.ethereum.*
+import fund.cyber.search.model.ethereum.EthereumBlock
+import fund.cyber.search.model.ethereum.EthereumTx
+import fund.cyber.search.model.ethereum.EthereumUncle
+import fund.cyber.search.model.ethereum.getBlockReward
+import fund.cyber.search.model.ethereum.getUncleReward
+import fund.cyber.search.model.ethereum.weiToEthRate
 import org.springframework.stereotype.Component
 import org.web3j.protocol.core.methods.response.EthBlock
 import java.math.BigDecimal
@@ -70,7 +77,7 @@ class ParityToEthereumBundleConverter(
         val number = parityBlock.numberRaw.hexToLong()
         val blockReward = getBlockReward(chain, number)
         val uncleReward = (blockReward * parityBlock.uncles.size.toBigDecimal())
-                .divide(32.toBigDecimal(), 18, RoundingMode.FLOOR).stripTrailingZeros()
+                .divide(decimal32, DECIMAL_SCALE, RoundingMode.FLOOR).stripTrailingZeros()
 
         return EthereumBlock(
                 hash = parityBlock.hash, parentHash = parityBlock.parentHash, number = number,

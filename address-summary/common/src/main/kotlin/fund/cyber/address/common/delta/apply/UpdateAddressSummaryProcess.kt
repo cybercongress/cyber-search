@@ -30,8 +30,25 @@ fun <T> Flux<T>.await(): List<T> {
     return this.collectList().block()!!
 }
 
+fun CqlAddressSummary.hasSameTopicPartitionAs(delta: AddressSummaryDelta<*>) =
+        this.kafkaDeltaTopic == delta.topic && this.kafkaDeltaPartition == delta.partition
+
+fun CqlAddressSummary.hasSameTopicPartitionAs(topic: String, partition: Int) =
+        this.kafkaDeltaTopic == topic && this.kafkaDeltaPartition == partition
+
+fun CqlAddressSummary.notSameTopicPartitionAs(delta: AddressSummaryDelta<*>) =
+        hasSameTopicPartitionAs(delta).not()
+
+fun CqlAddressSummary.committed() = this.kafkaDeltaOffsetCommitted
+
+fun CqlAddressSummary.notCommitted() = committed().not()
+
+@Suppress("MagicNumber")
 private val applicationContext = newFixedThreadPoolContext(8, "Coroutines Concurrent Pool")
 private val log = LoggerFactory.getLogger(UpdateAddressSummaryProcess::class.java)!!
+
+private const val MAX_STORE_ATTEMPTS = 20
+private const val STORE_RETRY_TIMEOUT = 30L
 
 data class UpdateInfo(
         val topic: String,
@@ -92,14 +109,18 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
             deltaStoreTimer.recordCallable {
                 runBlocking {
                     mergedDeltas.values.map { delta ->
-                        async(applicationContext) { store(addressesSummary[delta.address], delta, storeAttempts, previousStates) }
+                        async(applicationContext) {
+                            store(addressesSummary[delta.address], delta, storeAttempts, previousStates)
+                        }
                     }.map { it.await() }
                 }
             }
 
             commitKafkaTimer.recordCallable { consumer.commitSync() }
 
-            val newSummaries = downloadCassandraTimer.recordCallable { addressSummaryStorage.findAllByIdIn(addresses).await() }
+            val newSummaries = downloadCassandraTimer.recordCallable {
+                addressSummaryStorage.findAllByIdIn(addresses).await()
+            }
 
             commitCassandraTimer.recordCallable {
                 runBlocking {
@@ -139,7 +160,9 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
         }
     }
 
-    private suspend fun store(summary: S?, delta: D, storeAttempts: MutableMap<String, Int>, previousStates: MutableMap<String, S?>) {
+    @Suppress("ComplexMethod", "NestedBlockDepth")
+    private suspend fun store(summary: S?, delta: D, storeAttempts: MutableMap<String, Int>,
+                              previousStates: MutableMap<String, S?>) {
 
         previousStates[delta.address] = summary
         if (summary != null) {
@@ -155,7 +178,7 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
             }
 
             if (summary.notCommitted() && summary.notSameTopicPartitionAs(delta)) {
-                if (storeAttempts[delta.address] ?: 0 > 20) {
+                if (storeAttempts[delta.address] ?: 0 > MAX_STORE_ATTEMPTS) {
                     if (summary.currentTopicPartitionWentFurther()) {
                         val result = delta.applyTo(summary)
                         if (!result) {
@@ -166,7 +189,7 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
                         throw AddressLockException()
                     }
                 } else {
-                    delay(30, TimeUnit.MILLISECONDS)
+                    delay(STORE_RETRY_TIMEOUT, TimeUnit.MILLISECONDS)
                     val inc = storeAttempts.getOrPut(delta.address, { 1 }).inc()
                     storeAttempts[delta.address] = inc
                     store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
@@ -185,22 +208,6 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
             addressSummaryStorage.update(this.updateSummary(summary), summary.version).await()!!
 
     private suspend fun getSummaryByDelta(delta: D) = addressSummaryStorage.findById(delta.address).await()
-
-    private fun CqlAddressSummary.hasSameTopicPartitionAs(delta: D) =
-            this.kafkaDeltaTopic == delta.topic && this.kafkaDeltaPartition == delta.partition
-
-    private fun CqlAddressSummary.hasSameTopicPartitionAs(topic: String, partition: Int) =
-            this.kafkaDeltaTopic == topic && this.kafkaDeltaPartition == partition
-
-    private fun CqlAddressSummary.notSameTopicPartitionAs(delta: D) =
-            hasSameTopicPartitionAs(delta).not()
-
-    private fun CqlAddressSummary.committed() = this.kafkaDeltaOffsetCommitted
-
-    private fun CqlAddressSummary.notCommitted() = committed().not()
-
-    private fun CqlAddressSummary.currentTopicPartitionWentFurther() =
-            lastOffsetOf(this.kafkaDeltaTopic, this.kafkaDeltaPartition) > this.kafkaDeltaOffset//todo : = or >= ????
 
     private fun initMonitors(info: UpdateInfo) {
         val tags = Tags.of("topic", info.topic)
@@ -224,6 +231,9 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
                     AtomicLong(info.maxOffset))!!
         }
     }
+
+    private fun CqlAddressSummary.currentTopicPartitionWentFurther() =
+            lastOffsetOf(this.kafkaDeltaTopic, this.kafkaDeltaPartition) > this.kafkaDeltaOffset//todo : = or >= ????
 
     private fun lastOffsetOf(topic: String, partition: Int): Long {
 

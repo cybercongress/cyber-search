@@ -8,9 +8,14 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.common.TopicPartition
+import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.util.concurrent.atomic.AtomicLong
+
+private val log = LoggerFactory.getLogger(LastTopicOffsetMonitoring::class.java)!!
+
+private const val LAST_NETWORK_BLOCK_NUMBER_TIMEOUT = 10 * 1000L
 
 @Component
 class LastTopicOffsetMonitoring(
@@ -28,7 +33,7 @@ class LastTopicOffsetMonitoring(
     private val lastUncleTopicOffsetMonitor = monitoring.gauge("pump_topic_last_offset",
             Tags.of("topic", chain.unclePumpTopic), AtomicLong(lastOffset(chain.unclePumpTopic)))!!
 
-    @Scheduled(fixedRate = 10 * 1000)
+    @Scheduled(fixedRate = LAST_NETWORK_BLOCK_NUMBER_TIMEOUT)
     fun getLastNetworkBlockNumber() {
         try {
             val lastTxTopicOffset = lastOffset(chain.txPumpTopic)
@@ -40,6 +45,7 @@ class LastTopicOffsetMonitoring(
             val lastUncleTopicOffset = lastOffset(chain.unclePumpTopic)
             lastUncleTopicOffsetMonitor.set(lastUncleTopicOffset)
         } catch (e: Exception) {
+            log.error("Error getting last network block number", e)
         }
     }
 

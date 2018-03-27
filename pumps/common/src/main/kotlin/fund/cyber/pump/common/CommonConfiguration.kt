@@ -33,7 +33,8 @@ private val log = LoggerFactory.getLogger(DefaultRetryListenerSupport::class.jav
 
 class DefaultRetryListenerSupport: RetryListenerSupport() {
 
-    override fun <T : Any?, E : Throwable?> onError(context: RetryContext, callback: RetryCallback<T, E>?, throwable: Throwable) {
+    override fun <T : Any?, E : Throwable?> onError(context: RetryContext, callback: RetryCallback<T, E>?,
+                                                    throwable: Throwable) {
         if (context.retryCount == 1) log.error("Error occurred. Start retrying...", throwable)
         super.onError(context, callback, throwable)
     }
@@ -57,7 +58,8 @@ class CommonConfiguration {
 
     @Bean
     fun commonPumpConsumer(): Consumer<Any, Any> {
-        return KafkaConsumer<Any, Any>(consumerProperties(), JsonDeserializer(Any::class.java), JsonDeserializer(Any::class.java))
+        return KafkaConsumer<Any, Any>(consumerProperties(), JsonDeserializer(Any::class.java),
+                JsonDeserializer(Any::class.java))
     }
 
     @Bean

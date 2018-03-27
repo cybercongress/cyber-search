@@ -4,7 +4,10 @@ package fund.cyber.cassandra.bitcoin.model
 
 import fund.cyber.search.model.bitcoin.BitcoinBlock
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
-import org.springframework.data.cassandra.core.mapping.*
+import org.springframework.data.cassandra.core.mapping.PrimaryKey
+import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
+import org.springframework.data.cassandra.core.mapping.Table
+import org.springframework.data.cassandra.core.mapping.UserDefinedType
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
@@ -21,7 +24,8 @@ data class CqlBitcoinTxPreviewIO(
 @Table("tx_preview_by_block")
 data class CqlBitcoinBlockTx(
         @PrimaryKeyColumn(name = "block_number", ordinal = 0, type = PrimaryKeyType.PARTITIONED) val blockNumber: Long,
-        @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED) val index: Int, //specify tx number(order) in block
+        //specify tx number(order) in block
+        @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED) val index: Int,
         val hash: String,
         val fee: BigDecimal,
         val ins: List<CqlBitcoinTxPreviewIO>,
@@ -47,6 +51,7 @@ data class CqlBitcoinBlock(
     constructor(block: BitcoinBlock) : this(
             height = block.height, hash = block.hash, time = block.time, nonce = block.nonce, bits = block.bits,
             merkleroot = block.merkleroot, size = block.size, version = block.version, weight = block.weight,
-            difficulty = block.difficulty, tx_number = block.txNumber, total_outputs_value = block.totalOutputsAmount.toString()
+            difficulty = block.difficulty, tx_number = block.txNumber,
+            total_outputs_value = block.totalOutputsAmount.toString()
     )
 }
