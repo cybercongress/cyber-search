@@ -2,7 +2,7 @@ openapi: 3.0.1
 servers:
   - url: 'http://staging.cyber.fund:32901'
 info:
-  description: Empty description
+  description: Multichain search
   version: 1.0.0
   title: Cyber.Search API
 tags:
