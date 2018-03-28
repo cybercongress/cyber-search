@@ -98,6 +98,20 @@ jobs:
              docker tag build/search-api cybernode/engine-api-chains:$CIRCLE_TAG
              docker push cybernode/engine-api-chains:$CIRCLE_TAG
 
+  deploy_engine_api_chains_docs_image:
+     <<: *defaults
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.11.0-ce
+       - run:
+           name: Search Api Documentation Image
+           command: |
+             docker build -t build/search-api-docs -f ./docs/Dockerfile ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/search-api-docs cybernode/engine-api-chains-docs:$CIRCLE_TAG
+             docker push cybernode/engine-api-chains-docs:$CIRCLE_TAG
+
 workflows:
   version: 2
 
@@ -120,6 +134,10 @@ workflows:
           requires:
             - build_project
       - deploy_engine_api_chains_image:
+          <<: *release_filter
+          requires:
+            - build_project
+      - deploy_engine_api_chains_docs_image:
           <<: *release_filter
           requires:
             - build_project
