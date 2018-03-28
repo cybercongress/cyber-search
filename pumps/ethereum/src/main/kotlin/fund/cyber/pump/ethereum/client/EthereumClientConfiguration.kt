@@ -1,12 +1,8 @@
 package fund.cyber.pump.ethereum.client
 
-import fund.cyber.pump.common.node.ConcurrentPulledBlockchain
-import fund.cyber.pump.common.node.FlowableBlockchainInterface
-import fund.cyber.pump.ethereum.client.genesis.EthereumGenesisDataProvider
 import fund.cyber.search.configuration.CHAIN_NODE_URL
 import fund.cyber.search.configuration.ETHEREUM_CHAIN_NODE_DEFAULT_URL
 import fund.cyber.search.configuration.env
-import io.micrometer.core.instrument.MeterRegistry
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.apache.http.message.BasicHeader
@@ -15,13 +11,16 @@ import org.springframework.context.annotation.Configuration
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.http.HttpService
 
+const val MAX_PER_ROUTE = 16
+const val MAX_TOTAL = 32
+
 @Configuration
 class EthereumClientConfiguration {
 
     private val defaultHttpHeaders = listOf(BasicHeader("Keep-Alive", "timeout=10, max=1024"))
     private val connectionManager = PoolingHttpClientConnectionManager().apply {
-        defaultMaxPerRoute = 16
-        maxTotal = 32
+        defaultMaxPerRoute = MAX_PER_ROUTE
+        maxTotal = MAX_TOTAL
     }
 
     private val endpointUrl = env(CHAIN_NODE_URL, ETHEREUM_CHAIN_NODE_DEFAULT_URL)
@@ -35,17 +34,4 @@ class EthereumClientConfiguration {
 
     @Bean
     fun parityClient() = Web3j.build(HttpService(endpointUrl, httpClient()))!!
-
-
-    @Bean("blockchainInterface")
-    fun blockchainInterface(
-            parityToEthereumBundleConverter: ParityToEthereumBundleConverter,
-            genesisDataProvider: EthereumGenesisDataProvider,
-            monitoring: MeterRegistry
-    ): FlowableBlockchainInterface<EthereumBlockBundle> {
-        val ethereumBlockchainInterface = EthereumBlockchainInterface(
-                parityClient(), parityToEthereumBundleConverter, genesisDataProvider, monitoring
-        )
-        return ConcurrentPulledBlockchain(ethereumBlockchainInterface)
-    }
 }

@@ -104,10 +104,10 @@ class BitcoinDeltaMerger: DeltaMerger<BitcoinAddressSummaryDelta> {
         val existingSummary = currentAddresses[first.address]
 
 
-        // todo: what if deltas to apply is empty? Case: we didn't commit offset range and dropped. Then restored with the same offset range
         val deltasToApply = deltas.filterNot { delta ->
             existingSummary != null && existingSummary.kafkaDeltaTopic == delta.topic
-                    && existingSummary.kafkaDeltaPartition == delta.partition && delta.offset <= existingSummary.kafkaDeltaOffset
+                    && existingSummary.kafkaDeltaPartition == delta.partition
+                    && delta.offset <= existingSummary.kafkaDeltaOffset
         }
         val balance = deltasToApply.sumByDecimal { delta -> delta.balanceDelta }
         val totalReceived = deltasToApply.sumByDecimal { delta -> delta.totalReceivedDelta }

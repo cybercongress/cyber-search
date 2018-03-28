@@ -5,6 +5,9 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 
+const val ETHEREUM_CLASSIC_REWARD_CHANGED_BLOCK_NUMBER = 5000000
+const val ETHEREUM_REWARD_CHANGED_BLOCK_NUMBER = 4370000
+
 data class EthereumBlock(
         val number: Long,                   //parsed from hex
         val hash: String,
@@ -33,8 +36,8 @@ data class EthereumBlock(
 //todo: add properly support of new classic fork
 fun getBlockReward(chain: EthereumFamilyChain, number: Long): BigDecimal {
     return if (chain == EthereumFamilyChain.ETHEREUM_CLASSIC) {
-        if (number < 5000000) BigDecimal("5") else BigDecimal("4")
+        if (number < ETHEREUM_CLASSIC_REWARD_CHANGED_BLOCK_NUMBER) BigDecimal("5") else BigDecimal("4")
     } else {
-        if (number < 4370000) BigDecimal("5") else BigDecimal("3")
+        if (number < ETHEREUM_REWARD_CHANGED_BLOCK_NUMBER) BigDecimal("5") else BigDecimal("3")
     }
 }

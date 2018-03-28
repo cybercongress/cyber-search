@@ -4,7 +4,10 @@ import fund.cyber.cassandra.migration.configuration.MigrationRepositoryConfigura
 import fund.cyber.cassandra.migration.model.CqlSchemaVersion
 import fund.cyber.cassandra.migration.repository.SchemaVersionRepository
 import fund.cyber.common.readAsString
-import fund.cyber.search.configuration.*
+import fund.cyber.search.configuration.CASSANDRA_HOSTS
+import fund.cyber.search.configuration.CASSANDRA_HOSTS_DEFAULT
+import fund.cyber.search.configuration.ELASTIC_HTTP_PORT
+import fund.cyber.search.configuration.ELASTIC_HTTP_PORT_DEFAULT
 import org.apache.http.HttpStatus
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.RequestBuilder
@@ -47,21 +50,23 @@ class ElassandraSchemaMigrationEngine(
         log.info("Executing elassandra schema update")
         log.info("Found ${migrations.size} migrations")
 
-        migrations.filter { it !is EmptyMigration }.groupBy { m -> m.applicationId }.forEach { applicationId, applicationMigrations ->
+        migrations.filter { it !is EmptyMigration }.groupBy { m -> m.applicationId }
+                .forEach { applicationId, applicationMigrations ->
 
-            val executedMigrations = schemaVersionRepository.findAllByApplicationId(applicationId)
-                    .map(CqlSchemaVersion::id).collectList().block() ?: emptyList()
+                    val executedMigrations = schemaVersionRepository
+                            .findAllByApplicationId(applicationId)
+                            .map(CqlSchemaVersion::id).collectList().block() ?: emptyList()
 
-            applicationMigrations
-                    .filter { migration -> !executedMigrations.contains(migration.id) }
-                    .sortedBy { migration -> migration.id.substringBefore("_").toInt() }
-                    .forEach { migration ->
-                        log.info("Executing '$applicationId' application migration to '${migration.id}' id")
-                        executeMigration(migration)
-                        log.info("Succeeded '$applicationId' application migration to '${migration.id}' id")
-                    }
+                    applicationMigrations
+                            .filter { migration -> !executedMigrations.contains(migration.id) }
+                            .sortedBy { migration -> migration.id.substringBefore("_").toInt() }
+                            .forEach { migration ->
+                                log.info("Executing '$applicationId' application migration to '${migration.id}' id")
+                                executeMigration(migration)
+                                log.info("Succeeded '$applicationId' application migration to '${migration.id}' id")
+                            }
 
-        }
+                }
 
         log.info("Elassandra schema update done")
     }
@@ -70,7 +75,9 @@ class ElassandraSchemaMigrationEngine(
     private fun executeMigration(migration: Migration) {
 
         when (migration) {
-            is CassandraMigration -> migration.getStatements().forEach { statement -> cassandraTemplate.reactiveCqlOperations.execute(statement).block() }
+            is CassandraMigration -> migration.getStatements().forEach { statement ->
+                cassandraTemplate.reactiveCqlOperations.execute(statement).block()
+            }
             is ElasticHttpMigration -> {
 
                 val requestWithRelativeUri = migration.getRequest()
@@ -102,6 +109,5 @@ class ElassandraSchemaMigrationEngine(
 
         cassandraTemplate.reactiveCqlOperations.execute(createSchemaVersionCql).block()
     }
-
 
 }

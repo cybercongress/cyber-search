@@ -22,6 +22,7 @@ import org.springframework.kafka.listener.KafkaMessageListenerContainer
 import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler
 import org.springframework.kafka.listener.config.ContainerProperties
 
+private const val AUTO_COMMIT_INTERVAL_MS_CONFIG = 10 * 1000L
 
 //todo add dump of tx, block tx, address tx
 @EnableKafka
@@ -65,7 +66,7 @@ class ApplicationConfiguration {
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to true,
-            ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG to 10 * 1000,
+            ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG to AUTO_COMMIT_INTERVAL_MS_CONFIG,
             ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase()
     )
 }

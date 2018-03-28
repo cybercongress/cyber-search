@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 private val log = LoggerFactory.getLogger(ChainPump::class.java)!!
 
+private const val BLOCK_BUFFER_TIMESPAN = 3L
 
 //todo add chain reorganisation
 @Component
@@ -50,7 +51,7 @@ class ChainPump<T : BlockBundle>(
         val kafkaWriteMonitor = monitoring.timer("pump_bundle_kafka_store")
 
         flowableBlockchainInterface.subscribeBlocks(startBlockNumber)
-                .buffer(3, TimeUnit.SECONDS)
+                .buffer(BLOCK_BUFFER_TIMESPAN, TimeUnit.SECONDS)
                 .blockingSubscribe(
                         { blockBundles ->
                             if (blockBundles.isEmpty()) return@blockingSubscribe

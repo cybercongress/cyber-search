@@ -18,7 +18,9 @@ class DefaultMigrationsLoader(
 
     override fun load(settings: MigrationSettings): List<Migration> {
 
-        return resourceLoader.getResources("classpath*:/$migrationsRootDirectory/${settings.migrationDirectory}/*.*").toList()
+        return resourceLoader
+                .getResources("classpath*:/$migrationsRootDirectory/${settings.migrationDirectory}/*.*")
+                .toList()
                 .map { resource -> createMigration(resource, settings) }
     }
 

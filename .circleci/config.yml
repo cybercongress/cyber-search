@@ -95,7 +95,7 @@ jobs:
            command: |
              docker build -t build/search-api -f ./search-api/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker tag build/address-summary-eth cybernode/engine-api-chains:$CIRCLE_TAG
+             docker tag build/search-api cybernode/engine-api-chains:$CIRCLE_TAG
              docker push cybernode/engine-api-chains:$CIRCLE_TAG
 
 workflows:
@@ -103,7 +103,10 @@ workflows:
 
   search_build:
     jobs:
-      - build_project
+      - build_project:
+          filters:
+            tags:
+              only: /.*/
       - deploy_chain_pumps_ethereum_image:
           <<: *release_filter
           requires:

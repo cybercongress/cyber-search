@@ -20,7 +20,8 @@ data class BitcoinTx(
 
     fun getOutputByNumber(number: Int) = outs.find { out -> out.out == number }!!
 
-    fun allAddressesUsedInTransaction() = ins.flatMap { input -> input.addresses } + outs.flatMap { output -> output.addresses }
+    fun allAddressesUsedInTransaction() = ins.flatMap { input -> input.addresses } +
+            outs.flatMap { output -> output.addresses }
 }
 
 data class BitcoinTxIn(

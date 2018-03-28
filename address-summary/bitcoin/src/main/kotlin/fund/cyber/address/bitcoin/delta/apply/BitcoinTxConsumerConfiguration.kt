@@ -20,10 +20,13 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
-import org.springframework.kafka.listener.*
 import org.springframework.kafka.listener.AbstractMessageListenerContainer.AckMode.BATCH
+import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
+import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler
 import org.springframework.kafka.listener.config.ContainerProperties
 import org.springframework.transaction.annotation.EnableTransactionManagement
+
+private const val MAX_POLL_RECORDS_CONFIG = 10
 
 @EnableKafka
 @Configuration
@@ -74,6 +77,6 @@ class BitcoinTxConsumerConfiguration {
             ConsumerConfig.GROUP_ID_CONFIG to "bitcoin-address-summary-update-process",
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
             ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase(),
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to 10
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to MAX_POLL_RECORDS_CONFIG
     )
 }

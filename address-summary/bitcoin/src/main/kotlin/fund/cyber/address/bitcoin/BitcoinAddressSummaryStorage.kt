@@ -14,15 +14,20 @@ class BitcoinAddressSummaryStorage(
 
     override fun findById(id: String): Mono<CqlBitcoinAddressSummary> = addressSummaryRepository.findById(id)
 
-    override fun findAllByIdIn(ids: Iterable<String>): Flux<CqlBitcoinAddressSummary> = addressSummaryRepository.findAllByIdIn(ids)
+    override fun findAllByIdIn(ids: Iterable<String>): Flux<CqlBitcoinAddressSummary> = addressSummaryRepository
+            .findAllByIdIn(ids)
 
-    override fun update(summary: CqlBitcoinAddressSummary, oldVersion: Long): Mono<Boolean> = addressSummaryRepository.update(summary, oldVersion)
+    override fun update(summary: CqlBitcoinAddressSummary, oldVersion: Long): Mono<Boolean> = addressSummaryRepository
+            .update(summary, oldVersion)
 
-    override fun insertIfNotRecord(summary: CqlBitcoinAddressSummary): Mono<Boolean> = addressSummaryRepository.insertIfNotRecord(summary)
+    override fun insertIfNotRecord(summary: CqlBitcoinAddressSummary): Mono<Boolean> = addressSummaryRepository
+            .insertIfNotRecord(summary)
 
-    override fun commitUpdate(address: String, newVersion: Long): Mono<Boolean> = addressSummaryRepository.commitUpdate(address, newVersion)
+    override fun commitUpdate(address: String, newVersion: Long): Mono<Boolean> = addressSummaryRepository
+            .commitUpdate(address, newVersion)
 
-    override fun update(summary: CqlBitcoinAddressSummary): Mono<CqlBitcoinAddressSummary> = addressSummaryRepository.save(summary)
+    override fun update(summary: CqlBitcoinAddressSummary): Mono<CqlBitcoinAddressSummary> = addressSummaryRepository
+            .save(summary)
 
     override fun remove(address: String): Mono<Void> = addressSummaryRepository.deleteById(address)
 }

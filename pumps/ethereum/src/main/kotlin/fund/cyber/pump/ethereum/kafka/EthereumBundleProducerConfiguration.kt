@@ -54,9 +54,10 @@ class EthereumBundleProducerConfiguration {
 
     @Bean
     fun producerFactory(): ProducerFactory<PumpEvent, Any> {
-        return DefaultKafkaProducerFactory<PumpEvent, Any>(producerConfigs(), JsonSerializer(), JsonSerializer()).apply {
-            setTransactionIdPrefix(chain.name + "_PUMP")
-        }
+        return DefaultKafkaProducerFactory<PumpEvent, Any>(producerConfigs(), JsonSerializer(), JsonSerializer())
+                .apply {
+                    setTransactionIdPrefix(chain.name + "_PUMP")
+                }
     }
 
     @Bean

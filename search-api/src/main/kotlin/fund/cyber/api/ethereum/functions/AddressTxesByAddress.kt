@@ -26,7 +26,7 @@ class AddressTxesByAddress(
         for (i in 1..page) {
             if (slice.hasNext()) {
                 slice = addressTxRepository.findAllByAddress(id, slice.nextPageable())
-            } else return ServerResponse.ok().build()
+            } else return ServerResponse.notFound().build()
         }
         return ServerResponse.ok().body(slice.content.toFlux(), CqlEthereumAddressTxPreview::class.java)
     }

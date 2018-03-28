@@ -14,15 +14,20 @@ class EthereumAddressSummaryStorage(
 
     override fun findById(id: String): Mono<CqlEthereumAddressSummary> = addressSummaryRepository.findById(id)
 
-    override fun findAllByIdIn(ids: Iterable<String>): Flux<CqlEthereumAddressSummary> = addressSummaryRepository.findAllById(ids)
+    override fun findAllByIdIn(ids: Iterable<String>): Flux<CqlEthereumAddressSummary> = addressSummaryRepository
+            .findAllById(ids)
 
-    override fun update(summary: CqlEthereumAddressSummary, oldVersion: Long): Mono<Boolean> = addressSummaryRepository.update(summary, oldVersion)
+    override fun update(summary: CqlEthereumAddressSummary, oldVersion: Long): Mono<Boolean> = addressSummaryRepository
+            .update(summary, oldVersion)
 
-    override fun insertIfNotRecord(summary: CqlEthereumAddressSummary): Mono<Boolean> = addressSummaryRepository.insertIfNotRecord(summary)
+    override fun insertIfNotRecord(summary: CqlEthereumAddressSummary): Mono<Boolean> = addressSummaryRepository
+            .insertIfNotRecord(summary)
 
-    override fun commitUpdate(address: String, newVersion: Long): Mono<Boolean> = addressSummaryRepository.commitUpdate(address, newVersion)
+    override fun commitUpdate(address: String, newVersion: Long): Mono<Boolean> = addressSummaryRepository
+            .commitUpdate(address, newVersion)
 
-    override fun update(summary: CqlEthereumAddressSummary): Mono<CqlEthereumAddressSummary> = addressSummaryRepository.save(summary)
+    override fun update(summary: CqlEthereumAddressSummary): Mono<CqlEthereumAddressSummary> = addressSummaryRepository
+            .save(summary)
 
     override fun remove(address: String): Mono<Void> = addressSummaryRepository.deleteById(address)
 }

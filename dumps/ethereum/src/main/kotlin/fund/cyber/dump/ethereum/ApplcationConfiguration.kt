@@ -1,6 +1,12 @@
 package fund.cyber.dump.ethereum
 
-import fund.cyber.cassandra.ethereum.repository.*
+import fund.cyber.cassandra.ethereum.repository.EthereumAddressMinedBlockRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumAddressTxRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumAddressUncleRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumBlockTxRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
 import fund.cyber.common.kafka.JsonDeserializer
 import fund.cyber.search.configuration.CHAIN
 import fund.cyber.search.configuration.KAFKA_BROKERS
@@ -27,6 +33,8 @@ import org.springframework.kafka.listener.KafkaMessageListenerContainer
 import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler
 import org.springframework.kafka.listener.config.ContainerProperties
 
+private const val POLL_TIMEOUT = 5000L
+private const val AUTO_COMMIT_INTERVAL_MS_CONFIG = 10 * 1000L
 
 @Configuration
 class ApplicationConfiguration {
@@ -77,8 +85,9 @@ class ApplicationConfiguration {
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain().blockPumpTopic).apply {
-            messageListener = BlockDumpProcess(ethereumBlockRepository, ethereumAddressMinedBlockRepository, chain(), monitoring)
-            pollTimeout = 5000
+            messageListener = BlockDumpProcess(ethereumBlockRepository, ethereumAddressMinedBlockRepository, chain(),
+                    monitoring)
+            pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
 
@@ -98,8 +107,9 @@ class ApplicationConfiguration {
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain().txPumpTopic).apply {
-            messageListener = TxDumpProcess(ethereumTxRepository, ethereumBlockTxRepository, ethereumAddressTxRepository, chain(), monitoring)
-            pollTimeout = 5000
+            messageListener = TxDumpProcess(ethereumTxRepository, ethereumBlockTxRepository,
+                    ethereumAddressTxRepository, chain(), monitoring)
+            pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
 
@@ -119,8 +129,9 @@ class ApplicationConfiguration {
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain().unclePumpTopic).apply {
-            messageListener = UncleDumpProcess(ethereumUncleRepository, ethereumAddressUncleRepository, chain(), monitoring)
-            pollTimeout = 5000
+            messageListener = UncleDumpProcess(ethereumUncleRepository, ethereumAddressUncleRepository, chain(),
+                    monitoring)
+            pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
 
@@ -131,9 +142,8 @@ class ApplicationConfiguration {
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to true,
-            ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG to 10 * 1000,
+            ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG to AUTO_COMMIT_INTERVAL_MS_CONFIG,
             ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase()
     )
-
 
 }
