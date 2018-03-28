@@ -105,7 +105,7 @@ jobs:
        - setup_remote_docker:
            version: 17.11.0-ce
        - run:
-           name: Search Api Documentation Image
+           name: Chains Search Api Documentation Image
            command: |
              docker build -t build/search-api-docs -f ./docs/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
