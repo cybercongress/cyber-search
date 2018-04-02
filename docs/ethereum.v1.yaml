@@ -1,0 +1,392 @@
+openapi: 3.0.1
+servers:
+  - url: 'http://staging.cyber.fund:32901'
+info:
+  description: 'Access to Ethereum/Ethereum Classic chain entites. <br /> To choose needed chain we use <code>{chainName}</code> parameter with <code>ethereum</code> or <code>ethereum_classic</code> value in url path.'
+  version: 1.0.0
+  title: Cyber.Search Ethereum API
+tags:
+  - name: ethereum
+    description: Access to Ethereum/Ethereum Classic chain entites
+paths:
+
+  '/{chainName}/block/{blockNumber}':
+    get:
+      tags:
+        - ethereum
+      summary: Find ethereum block by number
+      description: Returns a block
+      operationId: getBlockByNumber
+      parameters:
+        - name: chainName
+          in: path
+          description: Chain name
+          required: true
+          schema:
+            type: string
+            enum:
+              - ethereum
+              - ethereum_classic
+        - name: blockNumber
+          in: path
+          description: Number of the block
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 'Block found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EthereumBlock'
+        '400':
+          description: 'Invalid block number supplied'
+        '404':
+          description: 'Block not found'
+
+
+  '/{chainName}/block/{blockNumber}/transactions':
+    get:
+      tags:
+        - ethereum
+      summary: 'Download block transactions'
+      description: Returns a block transactions
+      operationId: getBlockTransactionsByBlockNumber
+      parameters:
+        - name: chainName
+          in: path
+          description: Chain name
+          required: true
+          schema:
+            type: string
+            enum:
+              - ethereum
+              - ethereum_classic
+        - name: blockNumber
+          in: path
+          description: Number of the block
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: pageSize
+          in: query
+          description: 'Size of the page'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 20
+        - name: page
+          in: query
+          description: 'Result set page number (starts from 0)'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: 'Block transactions found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EthereumBlockTx'
+        '400':
+          description: "Invalid 'blockNumber', 'page' or 'pageSize' parameters"
+        '404':
+          description: 'Block not found'
+
+
+  '/{chainName}/address/{id}':
+    get:
+      tags:
+        - ethereum
+      summary: 'Find ethereum address info by address id'
+      description: 'Returns an address info'
+      operationId: getAddress
+      parameters:
+        - name: chainName
+          in: path
+          description: Chain name
+          required: true
+          schema:
+            type: string
+            enum:
+              - ethereum
+              - ethereum_classic
+        - name: id
+          in: path
+          description: 'Address id'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Address found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EthereumAddress'
+        '400':
+          description: "Invalid id supplied"
+        '404':
+          description: 'Address not found'
+
+  '/{chainName}/address/{id}/transactions':
+    get:
+      tags:
+        - ethereum
+      summary: 'Download address transactions'
+      description: Returns an address transactions sorted by time (most recent first)
+      operationId: getAddressTransactionsByAddressId
+      parameters:
+        - name: chainName
+          in: path
+          description: Chain name
+          required: true
+          schema:
+            type: string
+            enum:
+              - ethereum
+              - ethereum_classic
+        - name: id
+          in: path
+          description: 'Address id'
+          required: true
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          description: 'Size of the page'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 20
+        - name: page
+          in: query
+          description: 'Result set page number (starts from 0)'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: 'Address transactions found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EthereumAddressTx'
+        '400':
+          description: "Invalid 'id', 'page' or 'pageSize' parameters"
+        '404':
+          description: 'Address not found'
+
+  '/{chainName}/tx/{hash}':
+    get:
+      tags:
+        - ethereum
+      summary: Find ethereum transaction by its hash
+      description: Returns a transaction
+      operationId: getTxByHash
+      parameters:
+        - name: chainName
+          in: path
+          description: Chain name
+          required: true
+          schema:
+            type: string
+            enum:
+              - ethereum
+              - ethereum_classic
+        - name: hash
+          in: path
+          description: Hash of the transaction
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Transaction found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EthereumTx'
+        '400':
+          description: 'Invalid transaction hash supplied'
+        '404':
+          description: 'Transaction not found'
+
+components:
+  schemas:
+
+    EthereumBlock:
+      type: object
+      properties:
+        number:
+          type: integer
+          format: int64
+        hash:
+          type: string
+        parent_hash:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        sha3Uncles:
+          type: string
+        logsBloom:
+          type: string
+        transactionsRoot:
+          type: string
+        stateRoot:
+          type: string
+        receiptsRoot:
+          type: string
+        miner:
+          type: string
+        difficulty:
+          type: number
+        totalDifficulty:
+          type: number
+        extraData:
+          type: string
+        size:
+          type: integer
+          format: int64
+        gasLimit:
+          type: integer
+          format: int64
+        gasUsed:
+          type: integer
+          format: int64
+        txNumber:
+          type: integer
+          format: int32
+        uncles:
+          type: array
+          items:
+            type: string
+        blockReward:
+          type: string
+        unclesReward:
+          type: string
+        txFees:
+          type: string
+
+    EthereumBlockTx:
+      type: object
+      properties:
+        blockNumber:
+          type: integer
+          format: int64
+        positionInBlock:
+          type: integer
+          format: int32
+        fee:
+          type: number
+        value:
+          type: number
+        hash:
+          type: string
+        from:
+          type: string
+        to:
+          type: string
+        createsContract:
+          type: boolean
+
+    EthereumAddress:
+      type: object
+      properties:
+        id:
+          type: string
+        confirmedBalance:
+          type: number
+        contractAddress:
+          type: boolean
+        confirmedTotalReceived:
+          type: number
+        txNumber:
+          type: integer
+          format: int32
+        minedUncleNumber:
+          type: integer
+          format: int32
+        version:
+          type: integer
+          format: int64
+        kafkaDeltaOffset:
+          type: integer
+          format: int64
+        kafkaDeltaPartition:
+          type: integer
+          format: int32
+        kafkaDeltaTopic:
+          type: string
+        kafkaDeltaOffsetCommited:
+          type: boolean
+
+    EthereumAddressTx:
+      type: object
+      properties:
+        address:
+          type: string
+        blockTime:
+          type: string
+          format: date-time
+        hash:
+          type: string
+        fee:
+          type: number
+        from:
+          type: string
+        to:
+          type: string
+        value:
+          type: string
+
+    EthereumTx:
+      type: object
+      properties:
+        hash:
+          type: string
+        nonce:
+          type: integer
+          format: int64
+        blockHash:
+          type: string
+        blockNumber:
+          type: integer
+          format: int64
+        blockTime:
+          type: string
+          format: date-time
+        from:
+          type: string
+        to:
+          type: string
+        value:
+          type: string
+        gasPrice:
+          type: number
+        gasLimit:
+          type: integer
+          format: int64
+        gasUsed:
+          type: integer
+          format: int64
+        fee:
+          type: string
+        input:
+          type: string
+        createdContract:
+          type: string

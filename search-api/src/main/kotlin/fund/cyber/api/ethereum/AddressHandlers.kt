@@ -1,7 +1,7 @@
 package fund.cyber.api.ethereum
 
 import fund.cyber.api.common.asSingleRouterFunction
-import fund.cyber.api.ethereum.functions.AddressTxesByAddres
+import fund.cyber.api.ethereum.functions.AddressTxesByAddress
 import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressSummary
 import fund.cyber.cassandra.ethereum.repository.EthereumAddressRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressTxRepository
@@ -28,6 +28,7 @@ class AddressHandlersConfiguration {
     fun addressById(): RouterFunction<ServerResponse> {
 
         return EthereumFamilyChain.values().map { chain ->
+
             val repository = applicationContext
                     .getBean(chain.name + "addressRepository", EthereumAddressRepository::class.java)
 
@@ -44,10 +45,11 @@ class AddressHandlersConfiguration {
     fun addressTxesByAddress(): RouterFunction<ServerResponse> {
 
         return EthereumFamilyChain.values().map { chain ->
+
             val repository = applicationContext.getBean(
                     chain.name + "pageableAddressTxRepository", PageableEthereumAddressTxRepository::class.java
             )
-            val handler = AddressTxesByAddres(repository)
+            val handler = AddressTxesByAddress(repository)
             RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/address/{id}/transactions"), handler)
         }.asSingleRouterFunction()
     }

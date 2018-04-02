@@ -9,7 +9,7 @@ import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
 
-class AddressTxesByAddres(
+class AddressTxesByAddress(
         private val addressTxRepository: PageableEthereumAddressTxRepository
 ) : HandlerFunction<ServerResponse> {
 
