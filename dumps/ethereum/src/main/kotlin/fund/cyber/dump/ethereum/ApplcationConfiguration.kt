@@ -34,7 +34,7 @@ import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler
 import org.springframework.kafka.listener.config.ContainerProperties
 
 private const val POLL_TIMEOUT = 5000L
-private const val AUTO_COMMIT_INTERVAL_MS_CONFIG = 10 * 1000L
+private const val AUTO_COMMIT_INTERVAL_MS_CONFIG = 10 * 1000
 
 @Configuration
 class ApplicationConfiguration {
