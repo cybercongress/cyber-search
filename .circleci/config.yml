@@ -50,12 +50,12 @@ jobs:
        - run:
            name: Build Ethereum Pump Image
            command: |
-             docker build -t build/pump-eth -f ./pumps/ethereum/Dockerfile ./
+             docker build -t build/pump-ethereum -f ./pumps/ethereum/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker tag build/pump-eth cybernode/chain-pump-ethereum:$CIRCLE_TAG
+             docker tag build/pump-ethereum cybernode/chain-pump-ethereum:$CIRCLE_TAG
              docker push cybernode/chain-pump-ethereum:$CIRCLE_TAG
 
-  deploy_chain_dumps_ethereum_image:
+  deploy_chain_dumps_cassandra_ethereum_image:
      <<: *defaults
      steps:
        - checkout
@@ -64,12 +64,12 @@ jobs:
        - run:
            name: Build Ethereum Dump Image
            command: |
-             docker build -t build/dump-eth -f ./dumps/ethereum/Dockerfile ./
+             docker build -t build/dump-cassandra-ethereum -f ./dumps/ethereum/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker tag build/dump-eth cybernode/chain-dump-ethereum:$CIRCLE_TAG
-             docker push cybernode/chain-dump-ethereum:$CIRCLE_TAG
+             docker tag build/dump-cassandra-ethereum cybernode/chain-dump-cassandra-ethereum:$CIRCLE_TAG
+             docker push cybernode/chain-dump-cassandra-ethereum:$CIRCLE_TAG
 
-  deploy_chain_address_ethereum_image:
+  deploy_chain_contract_summary_ethereum_image:
      <<: *defaults
      steps:
        - checkout
@@ -78,13 +78,12 @@ jobs:
        - run:
            name: Build Ethereum Address Summary Image
            command: |
-             docker build -t build/address-summary-eth -f ./address-summary/ethereum/Dockerfile ./
+             docker build -t build/chain-contract-summary-ethereum -f ./address-summary/ethereum/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker tag build/address-summary-eth cybernode/chain-address-ethereum:$CIRCLE_TAG
-             docker push cybernode/chain-address-ethereum:$CIRCLE_TAG
+             docker tag build/chain-contract-summary-ethereum cybernode/chain-contract-summary-ethereum:$CIRCLE_TAG
+             docker push cybernode/chain-contract-summary-ethereum:$CIRCLE_TAG
 
-# Common Images             
-  deploy_engine_api_chains_image:
+  deploy_search_api_image:
      <<: *defaults
      steps:
        - checkout
@@ -95,10 +94,10 @@ jobs:
            command: |
              docker build -t build/search-api -f ./search-api/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker tag build/search-api cybernode/engine-api-chains:$CIRCLE_TAG
-             docker push cybernode/engine-api-chains:$CIRCLE_TAG
+             docker tag build/search-api cybernode/search-api:$CIRCLE_TAG
+             docker push cybernode/search-api:$CIRCLE_TAG
 
-  deploy_engine_api_chains_docs_image:
+  deploy_search_api_docs_image:
      <<: *defaults
      steps:
        - checkout
@@ -109,8 +108,8 @@ jobs:
            command: |
              docker build -t build/search-api-docs -f ./docs/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker tag build/search-api-docs cybernode/engine-api-chains-docs:$CIRCLE_TAG
-             docker push cybernode/engine-api-chains-docs:$CIRCLE_TAG
+             docker tag build/search-api-docs cybernode/search-api-docs:$CIRCLE_TAG
+             docker push cybernode/search-api-docs:$CIRCLE_TAG
 
 workflows:
   version: 2
@@ -125,19 +124,19 @@ workflows:
           <<: *release_filter
           requires:
             - build_project
-      - deploy_chain_dumps_ethereum_image:
+      - deploy_chain_dumps_cassandra_ethereum_image:
           <<: *release_filter
           requires:
             - build_project
-      - deploy_chain_address_ethereum_image:
+      - deploy_chain_contract_summary_ethereum_image:
           <<: *release_filter
           requires:
             - build_project
-      - deploy_engine_api_chains_image:
+      - deploy_search_api_image:
           <<: *release_filter
           requires:
             - build_project
-      - deploy_engine_api_chains_docs_image:
+      - deploy_search_api_docs_image:
           <<: *release_filter
           requires:
             - build_project
