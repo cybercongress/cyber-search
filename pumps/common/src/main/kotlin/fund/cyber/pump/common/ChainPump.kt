@@ -10,6 +10,7 @@ import io.micrometer.core.instrument.DistributionSummary
 import io.micrometer.core.instrument.MeterRegistry
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.DependsOn
 import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
@@ -29,7 +30,8 @@ class ChainPump<T : BlockBundle>(
         private val lastPumpedBundlesProvider: LastPumpedBundlesProvider<T>,
         private val monitoring: MeterRegistry,
         @Value("\${$START_BLOCK_NUMBER:$START_BLOCK_NUMBER_DEFAULT}")
-        private val startBlockNumber: Long
+        private val startBlockNumber: Long,
+        private val applicationContext: ConfigurableApplicationContext
 ) {
 
     fun startPump() {
@@ -65,7 +67,8 @@ class ChainPump<T : BlockBundle>(
                         { error ->
                             if (error !is ChainReindexationException) {
                                 log.error("Error during processing stream", error)
-                                //close context
+                                log.info("Closing application context...")
+                                applicationContext.close()
                             }
                         }
                 )
