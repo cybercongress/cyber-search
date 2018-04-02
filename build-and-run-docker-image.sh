@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-docker build -t build/pump-eth -f ./pumps/ethereum/Dockerfile ./
-docker run -e CHAIN=ETHEREUM -e KAFKA_TRANSACTION_BATCH=1000 --net=host build/pump-eth
+docker build -t build/dump-eth -f ./dumps/ethereum/Dockerfile ./
+docker run -e CHAIN=ETHEREUM --net=host build/dump-eth

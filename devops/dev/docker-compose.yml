@@ -104,8 +104,8 @@ services:
 
   grafana:
     network_mode: host
-    container_name: grafana3
+    container_name: grafana
     restart: on-failure
-    image: grafana/grafana:5.0.0
+    image: grafana/grafana:5.0.4
 #    ports:
 #      - "3000:3000"
