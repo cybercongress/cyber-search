@@ -1,4 +1,4 @@
-FROM swaggerapi/swagger-ui:v3.12.2
+FROM swaggerapi/swagger-ui:v3.12.1
 
 COPY docs/common.v1.yaml /usr/share/nginx/html/
 COPY docs/search.v1.yaml /usr/share/nginx/html/
