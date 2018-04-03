@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 class StackCacheTest {
 
     @Test
-    fun `right secuence`() {
+    fun `right sequence`() {
         val stack = StackCache<Int>(3)
 
         (-2..5).forEach { stack.push(it) }
@@ -43,5 +43,35 @@ class StackCacheTest {
         stack.push(5)
         assertEquals(5, stack.pop())
         assertEquals(null, stack.pop())
+    }
+
+    @Test
+    fun peekTest() {
+        val stack = StackCache<Int>(3)
+
+        (2..5).forEach { stack.push(it) }
+
+        assertEquals(5, stack.peek())
+        assertEquals(5, stack.peek())
+
+        stack.pop()
+
+        assertEquals(4, stack.peek())
+        assertEquals(4, stack.peek())
+
+        stack.pop()
+
+        assertEquals(3, stack.peek())
+        assertEquals(3, stack.peek())
+
+        stack.pop()
+
+        assertEquals(null, stack.pop())
+        assertEquals(null, stack.pop())
+
+        stack.push(6)
+
+        assertEquals(6, stack.peek())
+        assertEquals(6, stack.pop())
     }
 }
