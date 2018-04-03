@@ -29,4 +29,13 @@ class StackCache<T>(
             _elements[--first]
         }
     }
+
+    fun peek(): T? {
+        return if (first == last) {
+            null
+        } else {
+            val index = if (first == 0) max - 1 else first - 1
+            _elements[index]
+        }
+    }
 }

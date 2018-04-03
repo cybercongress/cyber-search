@@ -32,6 +32,9 @@ const val CORS_ALLOWED_ORIGINS_DEFAULT = "search.fund.cyber.fund"
 const val START_BLOCK_NUMBER = "START_BLOCK_NUMBER"
 const val START_BLOCK_NUMBER_DEFAULT = -1L
 
+const val STACK_CACHE_SIZE = "STACK_CACHE_SIZE"
+const val STACK_CACHE_SIZE_DEFAULT = 20
+
 
 inline fun <reified T : Any> env(name: String, default: T): T =
         when (T::class) {

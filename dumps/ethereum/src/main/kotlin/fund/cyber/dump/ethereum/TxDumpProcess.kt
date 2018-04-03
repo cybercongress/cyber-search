@@ -34,23 +34,30 @@ class TxDumpProcess(
 
         log.info("Dumping batch of ${records.size} $chain txs from offset ${records.first().offset()}")
 
-        val txsToSave = records.filter { record -> record.key() == PumpEvent.NEW_BLOCK }
-                .map { record -> record.value() }
-                .map { tx -> CqlEthereumTx(tx) }
+        val recordsToProcess = records.toRecordEventsMap()
+                .filterNotContainsAllEventsOf(listOf(PumpEvent.NEW_BLOCK, PumpEvent.DROPPED_BLOCK))
 
-        txRepository.saveAll(txsToSave).collectList().block()
+        val txsToCommit = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.NEW_BLOCK) }.keys
+        val txsToRevert = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.DROPPED_BLOCK) }.keys
 
-        val txsByBlockToSave = records.filter { record -> record.key() == PumpEvent.NEW_BLOCK }
-                .map { record -> record.value() }
-                .map { tx -> CqlEthereumBlockTxPreview(tx) }
+        txRepository.saveAll(txsToCommit.map { tx -> CqlEthereumTx(tx) }).collectList().block()
+        txRepository.deleteAll(txsToRevert.map { tx -> CqlEthereumTx(tx) }).block()
 
-        blockTxRepository.saveAll(txsByBlockToSave).collectList().block()
+        blockTxRepository.saveAll(txsToCommit.map { tx -> CqlEthereumBlockTxPreview(tx) }).collectList().block()
+        blockTxRepository.deleteAll(txsToRevert.map { tx -> CqlEthereumBlockTxPreview(tx) }).block()
 
-        val txsByAddressToSave = records.filter { record -> record.key() == PumpEvent.NEW_BLOCK }
-                .map { record -> record.value() }
-                .flatMap { tx -> tx.addressesUsedInTransaction().map { it -> CqlEthereumAddressTxPreview(tx, it) } }
+        val txsByAddressToSave = txsToCommit.flatMap { tx ->
+            tx.addressesUsedInTransaction()
+                    .map { it -> CqlEthereumAddressTxPreview(tx, it) }
+        }
+
+        val txsByAddressToRevert = txsToRevert.flatMap { tx ->
+            tx.addressesUsedInTransaction()
+                    .map { it -> CqlEthereumAddressTxPreview(tx, it) }
+        }
 
         addressTxRepository.saveAll(txsByAddressToSave).collectList().block()
+        addressTxRepository.deleteAll(txsByAddressToRevert).block()
 
         if (::topicCurrentOffsetMonitor.isInitialized) {
             topicCurrentOffsetMonitor.set(records.last().offset())

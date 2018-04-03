@@ -34,17 +34,24 @@ class BlockDumpProcess(
         val last = records.last()
         log.info("Dumping batch of ${first.value().number}-${last.value().number} $chain blocks")
 
-        val blocksToSave = records.filter { record -> record.key() == PumpEvent.NEW_BLOCK }
-                .map { record -> record.value() }
-                .map { block -> CqlEthereumBlock(block) }
+        val recordsToProcess = records.toRecordEventsMap()
+                .filterNotContainsAllEventsOf(listOf(PumpEvent.NEW_BLOCK, PumpEvent.DROPPED_BLOCK))
 
-        blockRepository.saveAll(blocksToSave).collectList().block()
+        val blocksToCommit = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.NEW_BLOCK) }.keys
+        val blocksToRevert = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.DROPPED_BLOCK) }.keys
 
-        val blocksByAddressToSave = records.filter { record -> record.key() == PumpEvent.NEW_BLOCK }
-                .map { record -> record.value() }
-                .map { block -> CqlEthereumAddressMinedBlock(block) }
+        blockRepository
+                .saveAll(blocksToCommit.map { block -> CqlEthereumBlock(block) })
+                .collectList().block()
+        blockRepository.deleteAll(blocksToRevert.map { block -> CqlEthereumBlock(block) })
+                .block()
 
-        addressMinedBlockRepository.saveAll(blocksByAddressToSave).collectList().block()
+        addressMinedBlockRepository
+                .saveAll(blocksToCommit.map { block -> CqlEthereumAddressMinedBlock(block) })
+                .collectList().block()
+        addressMinedBlockRepository
+                .deleteAll(blocksToRevert.map { block -> CqlEthereumAddressMinedBlock(block) })
+                .block()
 
         if (::topicCurrentOffsetMonitor.isInitialized) {
             topicCurrentOffsetMonitor.set(records.last().offset())
