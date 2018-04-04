@@ -8,6 +8,8 @@ import fund.cyber.cassandra.ethereum.repository.EthereumBlockTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
 import fund.cyber.common.kafka.JsonDeserializer
+import fund.cyber.common.kafka.defaultConsumerConfig
+import fund.cyber.common.with
 import fund.cyber.search.configuration.CHAIN
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
@@ -138,7 +140,7 @@ class ApplicationConfiguration {
         return KafkaMessageListenerContainer(consumerFactory, containerProperties)
     }
 
-    private fun consumerConfigs(): MutableMap<String, Any> = mutableMapOf(
+    private fun consumerConfigs(): MutableMap<String, Any> = defaultConsumerConfig().with(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to true,

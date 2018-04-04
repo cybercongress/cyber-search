@@ -1,6 +1,8 @@
 package fund.cyber.pump.ethereum.kafka
 
 import fund.cyber.common.kafka.JsonSerializer
+import fund.cyber.common.kafka.defaultProducerConfig
+import fund.cyber.common.with
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
 import fund.cyber.search.model.chains.EthereumFamilyChain
@@ -66,7 +68,7 @@ class EthereumBundleProducerConfiguration {
     }
 
     @Bean
-    fun producerConfigs(): Map<String, Any> = mapOf(
+    fun producerConfigs(): Map<String, Any> = defaultProducerConfig().with(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers
     )
 

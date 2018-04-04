@@ -7,6 +7,8 @@ import fund.cyber.address.ethereum.summary.EthereumDeltaMerger
 import fund.cyber.address.ethereum.summary.EthereumTxDeltaProcessor
 import fund.cyber.address.ethereum.summary.EthereumUncleDeltaProcessor
 import fund.cyber.common.kafka.JsonDeserializer
+import fund.cyber.common.kafka.defaultConsumerConfig
+import fund.cyber.common.with
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
 import fund.cyber.search.model.chains.Chain
@@ -125,7 +127,7 @@ class EthereumTxConsumerConfiguration {
         }
     }
 
-    private fun consumerConfigs(): MutableMap<String, Any> = mutableMapOf(
+    private fun consumerConfigs(): MutableMap<String, Any> = defaultConsumerConfig().with(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
             ConsumerConfig.GROUP_ID_CONFIG to "ethereum-address-summary-update-process",
