@@ -5,6 +5,8 @@ import fund.cyber.common.kafka.JsonDeserializer
 import fund.cyber.address.bitcoin.BitcoinAddressSummaryStorage
 import fund.cyber.address.bitcoin.summary.BitcoinDeltaMerger
 import fund.cyber.address.bitcoin.summary.BitcoinTxDeltaProcessor
+import fund.cyber.common.kafka.defaultConsumerConfig
+import fund.cyber.common.with
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
 import fund.cyber.search.model.bitcoin.BitcoinTx
@@ -71,7 +73,7 @@ class BitcoinTxConsumerConfiguration {
         }
     }
 
-    private fun consumerConfigs(): MutableMap<String, Any> = mutableMapOf(
+    private fun consumerConfigs(): MutableMap<String, Any> = defaultConsumerConfig().with(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
             ConsumerConfig.GROUP_ID_CONFIG to "bitcoin-address-summary-update-process",
