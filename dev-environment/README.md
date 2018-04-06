@@ -17,15 +17,13 @@ docker-compose -f dev-environment/env.yml up -d
 ```
 ### Bootstrap Elassandra with keyspaces(required)
 ```bash
+docker cp dev-environment/elassandra-bootstrap.cql  elassandra-search:/elassandra-bootstrap.cql
 docker exec -it elassandra-search bash
-cqlsh
+cqlsh -f elassandra-bootstrap.cql
 ```
 Then copy paste all content from elassandra-bootstrap.cql to interactive console and press enter. Write twice exit to 
  exit from container shell.
-```bash
-exit
-exit
-```
+
 ### Stop kafka and delete kafka data(cheat sheet)
 ```bash
 docker stop fast-data-dev-search
