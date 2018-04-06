@@ -10,10 +10,10 @@ interface BlockBundleEventGenerator<T : BlockBundle> {
     fun generate(blockBundle: T, history: StackCache<T>): List<Pair<PumpEvent, T>>
 }
 
-private val log = LoggerFactory.getLogger(CommonBlockBundleEventGenerator::class.java)!!
+private val log = LoggerFactory.getLogger(ChainReorganizationBlockBundleEventGenerator::class.java)!!
 
 @Component
-class CommonBlockBundleEventGenerator<T : BlockBundle>(
+class ChainReorganizationBlockBundleEventGenerator<T : BlockBundle>(
         private val blockchainInterface: FlowableBlockchainInterface<T>,
         monitoring: MeterRegistry
 ) : BlockBundleEventGenerator<T> {

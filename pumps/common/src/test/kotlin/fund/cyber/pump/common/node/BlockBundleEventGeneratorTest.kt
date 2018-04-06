@@ -29,7 +29,7 @@ class BlockBundleEventGeneratorTest {
         history.push(blockB)
         history.push(blockC)
 
-        val blockBundleMapper = CommonBlockBundleEventGenerator<TestBlockBundle>(mock(), SimpleMeterRegistry())
+        val blockBundleMapper = ChainReorganizationBlockBundleEventGenerator<TestBlockBundle>(mock(), SimpleMeterRegistry())
 
 
         val result = blockBundleMapper.generate(blockD, history)
@@ -68,7 +68,7 @@ class BlockBundleEventGeneratorTest {
             on { blockBundleByNumber(5) }.thenReturn(blockH)
         }
 
-        val blockBundleMapper = CommonBlockBundleEventGenerator(blockchainInterface, SimpleMeterRegistry())
+        val blockBundleMapper = ChainReorganizationBlockBundleEventGenerator(blockchainInterface, SimpleMeterRegistry())
 
 
         val result = blockBundleMapper.generate(blockK, history)
