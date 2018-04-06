@@ -45,8 +45,8 @@ class UncleDumpProcess(
                 .saveAll(unclesToCommit.map { uncle -> CqlEthereumAddressMinedUncle(uncle) })
                 .collectList().block()
         addressUncleRepository
-                .saveAll(unclesToRevert.map { uncle -> CqlEthereumAddressMinedUncle(uncle) })
-                .collectList().block()
+                .deleteAll(unclesToRevert.map { uncle -> CqlEthereumAddressMinedUncle(uncle) })
+                .block()
 
         if (::topicCurrentOffsetMonitor.isInitialized) {
             topicCurrentOffsetMonitor.set(records.last().offset())

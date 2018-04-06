@@ -18,26 +18,26 @@ import java.time.Instant
 class EthereumTxDeltaProcessorTest {
 
     private val expectedFirstDelta = EthereumAddressSummaryDelta(
-            address = "0x4585c7eaa2cb96d4b59e868929efabeeb8e65b07", balanceDelta = BigDecimal.valueOf(0.800483).negate(),
+            address = "0x4585c7eaa2cb96d4b59e868929efabeeb8e65b07", balanceDelta = BigDecimal("0.800483").negate(),
             contractAddress = false, totalReceivedDelta = BigDecimal.ZERO, txNumberDelta = 1, uncleNumberDelta = 0, minedBlockNumberDelta = 0,
             topic = EthereumFamilyChain.ETHEREUM.txPumpTopic, partition = 0, offset = 0
     )
 
     private val expectedSecondDelta = EthereumAddressSummaryDelta(
-            address = "0x39a629145280fd28b74b878e44d6fed7bd4dffe5", balanceDelta = BigDecimal.valueOf(0.8),
-            contractAddress = false, totalReceivedDelta = BigDecimal.valueOf(0.8), txNumberDelta = 1, uncleNumberDelta = 0, minedBlockNumberDelta = 0,
+            address = "0x39a629145280fd28b74b878e44d6fed7bd4dffe5", balanceDelta = BigDecimal("0.8"),
+            contractAddress = false, totalReceivedDelta = BigDecimal("0.8"), txNumberDelta = 1, uncleNumberDelta = 0, minedBlockNumberDelta = 0,
             topic = EthereumFamilyChain.ETHEREUM.txPumpTopic, partition = 0, offset = 0
     )
 
     private val expectedFirstDroppedDelta = EthereumAddressSummaryDelta(
-            address = "0x4585c7eaa2cb96d4b59e868929efabeeb8e65b07", balanceDelta = BigDecimal.valueOf(0.800483),
+            address = "0x4585c7eaa2cb96d4b59e868929efabeeb8e65b07", balanceDelta = BigDecimal("0.800483"),
             contractAddress = false, totalReceivedDelta = BigDecimal.ZERO, txNumberDelta = -1, uncleNumberDelta = 0, minedBlockNumberDelta = 0,
             topic = EthereumFamilyChain.ETHEREUM.txPumpTopic, partition = 0, offset = 0
     )
 
     private val expectedSecondDroppedDelta = EthereumAddressSummaryDelta(
-            address = "0x39a629145280fd28b74b878e44d6fed7bd4dffe5", balanceDelta = BigDecimal.valueOf(0.8).negate(),
-            contractAddress = false, totalReceivedDelta = BigDecimal.valueOf(0.8).negate(), txNumberDelta = -1, uncleNumberDelta = 0, minedBlockNumberDelta = 0,
+            address = "0x39a629145280fd28b74b878e44d6fed7bd4dffe5", balanceDelta = BigDecimal("0.8").negate(),
+            contractAddress = false, totalReceivedDelta = BigDecimal("0.8").negate(), txNumberDelta = -1, uncleNumberDelta = 0, minedBlockNumberDelta = 0,
             topic = EthereumFamilyChain.ETHEREUM.txPumpTopic, partition = 0, offset = 0
     )
 
@@ -46,8 +46,8 @@ class EthereumTxDeltaProcessorTest {
             nonce = 0, blockHash = "0x97bda148dc1c0181bfca62d0af4443e736a65c8b2909062abd8c8c6aa9e62d85",
             blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
             from = "0x4585c7eaa2cb96d4b59e868929efabeeb8e65b07", to = "0x39a629145280fd28b74b878e44d6fed7bd4dffe5",
-            value = BigDecimal.valueOf(0.8), gasPrice = BigDecimal.valueOf(0.000000023), gasLimit = 21000L,
-            gasUsed = 21000L, fee = BigDecimal.valueOf(0.000483), input = "", createdContract = null
+            value = BigDecimal("0.8"), gasPrice = BigDecimal("0.000000023"), gasLimit = 21000L,
+            gasUsed = 21000L, fee = BigDecimal("0.000483"), input = "", createdContract = null
     )
 
     @Test
