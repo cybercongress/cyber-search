@@ -1,9 +1,9 @@
 # Development environment
 
 ## Prestart
-* Instal Java 10
+* Instal Java 8 JDK
 * Install Docker and Docker Compose
-* Install Intellij Idea Ultimate
+* Install Intellij Idea
 
 ## Run Kafka, Elassandra, Prometheus and Grafana
 ### Start containers(required)
@@ -18,7 +18,13 @@ docker-compose -f dev-environment/env.yml up -d
 ### Bootstrap Elassandra with keyspaces(required)
 ```bash
 docker exec -it elassandra-search bash
-cqlsh  -f ./elassandra-bootstrap.cql
+cqlsh
+```
+Then copy paste all content from elassandra-bootstrap.cql to interactive console and press enter. Write twice exit to 
+ exit from container shell.
+```bash
+exit
+exit
 ```
 ### Stop kafka and delete kafka data(cheat sheet)
 ```bash
@@ -31,7 +37,7 @@ docker stop elassandra-search
 docker rm elassandra-search
 ```
 
-## Start required chain nodes
+## Start required chain nodes(Examples)
 ### Run parity node(cheat sheet)
 ```bash
 sudo  docker run -d -p 8545:8545 --name parity_eth \
