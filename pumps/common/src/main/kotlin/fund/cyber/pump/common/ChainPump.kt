@@ -4,7 +4,7 @@ import fund.cyber.common.StackCache
 import fund.cyber.pump.common.kafka.KafkaBlockBundleProducer
 import fund.cyber.pump.common.kafka.LastPumpedBundlesProvider
 import fund.cyber.pump.common.node.BlockBundle
-import fund.cyber.pump.common.node.BlockBundleMapper
+import fund.cyber.pump.common.node.BlockBundleEventGenerator
 import fund.cyber.pump.common.node.FlowableBlockchainInterface
 import fund.cyber.search.configuration.STACK_CACHE_SIZE
 import fund.cyber.search.configuration.STACK_CACHE_SIZE_DEFAULT
@@ -39,7 +39,7 @@ class ChainPump<T : BlockBundle>(
         private val startBlockNumber: Long,
         @Value("\${$STACK_CACHE_SIZE:$STACK_CACHE_SIZE_DEFAULT}")
         private val stackCacheSize: Int,
-        private val blockBundleMapper: BlockBundleMapper<T>,
+        private val blockBundleEventGenerator: BlockBundleEventGenerator<T>,
         private val applicationContext: ConfigurableApplicationContext
 ) {
 
@@ -64,7 +64,7 @@ class ChainPump<T : BlockBundle>(
         val history = initializeStackCache()
 
         flowableBlockchainInterface.subscribeBlocks(startBlockNumber)
-                .flatMap { blockBundle -> blockBundleMapper.map(blockBundle, history).toFlowable() }
+                .flatMap { blockBundle -> blockBundleEventGenerator.generate(blockBundle, history).toFlowable() }
                 .buffer(BLOCK_BUFFER_TIMESPAN, TimeUnit.SECONDS)
                 .blockingSubscribe(
                         { blockBundleEvents ->

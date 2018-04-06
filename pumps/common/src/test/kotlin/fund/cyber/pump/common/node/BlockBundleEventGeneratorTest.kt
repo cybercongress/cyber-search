@@ -14,7 +14,7 @@ data class TestBlockBundle(
         override val blockSize: Int
 ) : BlockBundle
 
-class BlockBundleMapperTest {
+class BlockBundleEventGeneratorTest {
 
     @Test
     fun normalFlowTest() {
@@ -29,10 +29,10 @@ class BlockBundleMapperTest {
         history.push(blockB)
         history.push(blockC)
 
-        val blockBundleMapper = CommonBlockBundleMapper<TestBlockBundle>(mock(), SimpleMeterRegistry())
+        val blockBundleMapper = CommonBlockBundleEventGenerator<TestBlockBundle>(mock(), SimpleMeterRegistry())
 
 
-        val result = blockBundleMapper.map(blockD, history)
+        val result = blockBundleMapper.generate(blockD, history)
 
         Assertions.assertThat(result.size).isEqualTo(1)
         Assertions.assertThat(result).containsExactly(
@@ -68,10 +68,10 @@ class BlockBundleMapperTest {
             on { blockBundleByNumber(5) }.thenReturn(blockH)
         }
 
-        val blockBundleMapper = CommonBlockBundleMapper(blockchainInterface, SimpleMeterRegistry())
+        val blockBundleMapper = CommonBlockBundleEventGenerator(blockchainInterface, SimpleMeterRegistry())
 
 
-        val result = blockBundleMapper.map(blockK, history)
+        val result = blockBundleMapper.generate(blockK, history)
 
         Assertions.assertThat(result.size).isEqualTo(7)
         Assertions.assertThat(result.filter { pair -> pair.first == PumpEvent.DROPPED_BLOCK }.size).isEqualTo(3)
