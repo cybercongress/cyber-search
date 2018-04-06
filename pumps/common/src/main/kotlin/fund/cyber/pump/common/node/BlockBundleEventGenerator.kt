@@ -6,21 +6,21 @@ import io.micrometer.core.instrument.MeterRegistry
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
-interface BlockBundleMapper<T : BlockBundle> {
-    fun map(blockBundle: T, history: StackCache<T>): List<Pair<PumpEvent, T>>
+interface BlockBundleEventGenerator<T : BlockBundle> {
+    fun generate(blockBundle: T, history: StackCache<T>): List<Pair<PumpEvent, T>>
 }
 
-private val log = LoggerFactory.getLogger(CommonBlockBundleMapper::class.java)!!
+private val log = LoggerFactory.getLogger(CommonBlockBundleEventGenerator::class.java)!!
 
 @Component
-class CommonBlockBundleMapper<T : BlockBundle>(
+class CommonBlockBundleEventGenerator<T : BlockBundle>(
         private val blockchainInterface: FlowableBlockchainInterface<T>,
         monitoring: MeterRegistry
-) : BlockBundleMapper<T> {
+) : BlockBundleEventGenerator<T> {
 
     private val chainReorganizationMonitor = monitoring.counter("pump_chain_reorganization_counter")
 
-    override fun map(blockBundle: T, history: StackCache<T>): List<Pair<PumpEvent, T>> {
+    override fun generate(blockBundle: T, history: StackCache<T>): List<Pair<PumpEvent, T>> {
         val exHash = history.peek()?.hash ?: ""
         if (exHash.isNotEmpty() && blockBundle.parentHash != exHash) {
             log.info("Chain reorganization occurred. Processing involved bundles")
