@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono
 import java.util.concurrent.TimeUnit
 
 const val NINGTHY_FIVE_PERCENT = 0.95
-const val NINE_HUNDRED_NINGTHY_FIVE_PERCENT = 0.95
+const val NINE_HUNDRED_NINGTHY_FIVE_PERCENT = 0.995
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
