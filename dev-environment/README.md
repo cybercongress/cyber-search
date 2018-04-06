@@ -5,11 +5,6 @@
 * Install Docker and Docker Compose
 * Install Intellij Idea Ultimate
 
-### Install Cassandra Tool
-
-* [Download cassandra](http://cassandra.apache.org/download/ )
-* [Add cassandra bin to $PATH](https://stackoverflow.com/questions/29944484/how-to-run-cassandra-cqlsh-from-anywhere)
-
 ## Run Kafka, Elassandra, Prometheus and Grafana
 ### Start containers(required)
 For mac:
@@ -22,6 +17,7 @@ docker-compose -f dev-environment/env.yml up -d
 ```
 ### Bootstrap Elassandra with keyspaces(required)
 ```bash
+docker exec -it elassandra-search bash
 cqlsh  -f ./elassandra-bootstrap.cql
 ```
 ### Stop kafka and delete kafka data(cheat sheet)
