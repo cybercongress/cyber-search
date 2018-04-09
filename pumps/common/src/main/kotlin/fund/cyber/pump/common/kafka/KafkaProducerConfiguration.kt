@@ -1,17 +1,20 @@
-package fund.cyber.pump.ethereum.kafka
+package fund.cyber.pump.common.kafka
 
 import fund.cyber.common.kafka.JsonSerializer
 import fund.cyber.common.kafka.defaultProducerConfig
 import fund.cyber.common.with
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
+import fund.cyber.search.model.chains.Chain
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.blockPumpTopic
 import fund.cyber.search.model.events.txPumpTopic
+import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.AdminClientConfig
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.common.config.TopicConfig
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -23,28 +26,22 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.transaction.KafkaTransactionManager
 import org.springframework.transaction.annotation.EnableTransactionManagement
+import java.util.concurrent.TimeUnit
+import javax.annotation.PostConstruct
 
 @EnableKafka
 @Configuration
 @EnableTransactionManagement
-class EthereumBundleProducerConfiguration {
+class KafkaProducerConfiguration {
 
     @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
     private lateinit var kafkaBrokers: String
 
     @Autowired
-    private lateinit var chain: EthereumFamilyChain
+    private lateinit var chain: Chain
 
-    //todo add topic configuration(retention policy and etc)
-    @Bean
-    fun bitcoinRawTxTopic(): NewTopic {
-        return NewTopic(chain.txPumpTopic, 1, 1)
-    }
-
-    @Bean
-    fun bitcoinRawBlockTopic(): NewTopic {
-        return NewTopic(chain.blockPumpTopic, 1, 1)
-    }
+    @Autowired
+    private lateinit var kafkaTopicNames: List<String>
 
     @Bean
     fun kafkaAdmin(): KafkaAdmin {
@@ -75,5 +72,26 @@ class EthereumBundleProducerConfiguration {
     @Bean
     fun transactionManager(): KafkaTransactionManager<PumpEvent, Any> {
         return KafkaTransactionManager(producerFactory())
+    }
+
+    @Bean
+    fun topicConfigs(): Map<String, String> {
+        return mapOf(
+                TopicConfig.RETENTION_MS_CONFIG to TimeUnit.DAYS.toMillis(14).toString(),
+                TopicConfig.CLEANUP_POLICY_CONFIG to TopicConfig.CLEANUP_POLICY_DELETE
+        )
+    }
+
+    @PostConstruct
+    fun createTopics() {
+        val kafkaClient = AdminClient.create(kafkaAdmin().config)
+
+        val newTopics = mutableListOf<NewTopic>()
+        kafkaTopicNames.forEach { topic ->
+            newTopics.add(NewTopic(topic, 1, 1).configs(topicConfigs()))
+        }
+
+        kafkaClient.createTopics(newTopics)
+        kafkaClient.close()
     }
 }
