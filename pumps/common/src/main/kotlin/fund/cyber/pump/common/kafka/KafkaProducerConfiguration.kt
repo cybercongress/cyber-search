@@ -29,6 +29,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
+private const val CLEANUP_RETENTION_POLICY_TIME_DAYS = 14L
+
 @EnableKafka
 @Configuration
 @EnableTransactionManagement
@@ -77,7 +79,8 @@ class KafkaProducerConfiguration {
     @Bean
     fun topicConfigs(): Map<String, String> {
         return mapOf(
-                TopicConfig.RETENTION_MS_CONFIG to TimeUnit.DAYS.toMillis(14).toString(),
+                TopicConfig.RETENTION_MS_CONFIG to TimeUnit.DAYS.toMillis(CLEANUP_RETENTION_POLICY_TIME_DAYS)
+                        .toString(),
                 TopicConfig.CLEANUP_POLICY_CONFIG to TopicConfig.CLEANUP_POLICY_DELETE
         )
     }
