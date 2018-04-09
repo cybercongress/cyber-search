@@ -32,17 +32,21 @@ class UncleDumpProcess(
 
         log.info("Dumping batch of ${records.size} $chain uncles from offset ${records.first().offset()}")
 
-        val unclesToSave = records.filter { record -> record.key() == PumpEvent.NEW_BLOCK }
-                .map { record -> record.value() }
-                .map { uncle -> CqlEthereumUncle(uncle) }
+        val recordsToProcess = records.toRecordEventsMap()
+                .filterNotContainsAllEventsOf(listOf(PumpEvent.NEW_BLOCK, PumpEvent.DROPPED_BLOCK))
 
-        uncleRepository.saveAll(unclesToSave).collectList().block()
+        val unclesToCommit = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.NEW_BLOCK) }.keys
+        val unclesToRevert = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.DROPPED_BLOCK) }.keys
 
-        val unclesByAddressToSave = records.filter { record -> record.key() == PumpEvent.NEW_BLOCK }
-                .map { record -> record.value() }
-                .map { uncle -> CqlEthereumAddressMinedUncle(uncle) }
+        uncleRepository.saveAll(unclesToCommit.map { uncle -> CqlEthereumUncle(uncle) }).collectList().block()
+        uncleRepository.deleteAll(unclesToRevert.map { uncle -> CqlEthereumUncle(uncle) }).block()
 
-        addressUncleRepository.saveAll(unclesByAddressToSave).collectList().block()
+        addressUncleRepository
+                .saveAll(unclesToCommit.map { uncle -> CqlEthereumAddressMinedUncle(uncle) })
+                .collectList().block()
+        addressUncleRepository
+                .deleteAll(unclesToRevert.map { uncle -> CqlEthereumAddressMinedUncle(uncle) })
+                .block()
 
         if (::topicCurrentOffsetMonitor.isInitialized) {
             topicCurrentOffsetMonitor.set(records.last().offset())

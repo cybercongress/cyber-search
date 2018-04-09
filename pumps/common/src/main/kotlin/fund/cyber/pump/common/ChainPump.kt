@@ -1,13 +1,19 @@
 package fund.cyber.pump.common
 
+import fund.cyber.common.StackCache
 import fund.cyber.pump.common.kafka.KafkaBlockBundleProducer
 import fund.cyber.pump.common.kafka.LastPumpedBundlesProvider
 import fund.cyber.pump.common.node.BlockBundle
+import fund.cyber.pump.common.node.BlockBundleEventGenerator
 import fund.cyber.pump.common.node.FlowableBlockchainInterface
+import fund.cyber.search.configuration.STACK_CACHE_SIZE
+import fund.cyber.search.configuration.STACK_CACHE_SIZE_DEFAULT
 import fund.cyber.search.configuration.START_BLOCK_NUMBER
 import fund.cyber.search.configuration.START_BLOCK_NUMBER_DEFAULT
+import fund.cyber.search.model.events.PumpEvent
 import io.micrometer.core.instrument.DistributionSummary
 import io.micrometer.core.instrument.MeterRegistry
+import io.reactivex.rxkotlin.toFlowable
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ConfigurableApplicationContext
@@ -31,6 +37,9 @@ class ChainPump<T : BlockBundle>(
         private val monitoring: MeterRegistry,
         @Value("\${$START_BLOCK_NUMBER:$START_BLOCK_NUMBER_DEFAULT}")
         private val startBlockNumber: Long,
+        @Value("\${$STACK_CACHE_SIZE:$STACK_CACHE_SIZE_DEFAULT}")
+        private val stackCacheSize: Int,
+        private val blockBundleEventGenerator: BlockBundleEventGenerator<T>,
         private val applicationContext: ConfigurableApplicationContext
 ) {
 
@@ -52,27 +61,35 @@ class ChainPump<T : BlockBundle>(
         val blockSizeMonitor = DistributionSummary.builder("pump_block_size").baseUnit("bytes").register(monitoring)
         val kafkaWriteMonitor = monitoring.timer("pump_bundle_kafka_store")
 
+        val history = initializeStackCache()
+
         flowableBlockchainInterface.subscribeBlocks(startBlockNumber)
+                .flatMap { blockBundle -> blockBundleEventGenerator.generate(blockBundle, history).toFlowable() }
                 .buffer(BLOCK_BUFFER_TIMESPAN, TimeUnit.SECONDS)
                 .blockingSubscribe(
-                        { blockBundles ->
-                            if (blockBundles.isEmpty()) return@blockingSubscribe
-                            blockBundles.forEach { bundle ->
+                        { blockBundleEvents ->
+                            if (blockBundleEvents.isEmpty()) return@blockingSubscribe
+                            blockBundleEvents.forEach { event ->
+                                val bundle = event.second
                                 lastProcessedBlockMonitor.set(bundle.number)
                                 blockSizeMonitor.record(bundle.blockSize.toDouble())
                             }
-                            log.trace("Writing ${blockBundles.first().number}-${blockBundles.last().number} blocks")
-                            kafkaWriteMonitor.recordCallable { kafkaBlockBundleProducer.storeBlockBundle(blockBundles) }
+                            val blocksToWrite = blockBundleEvents.filter { e -> e.first == PumpEvent.NEW_BLOCK }
+                                    .map { e -> e.second }
+                            log.trace("Writing ${blocksToWrite.first().number}-${blocksToWrite.last().number} blocks")
+                            kafkaWriteMonitor.recordCallable {
+                                kafkaBlockBundleProducer.storeBlockBundle(blockBundleEvents)
+                            }
                         },
                         { error ->
-                            if (error !is ChainReindexationException) {
-                                log.error("Error during processing stream", error)
-                                log.info("Closing application context...")
-                                applicationContext.close()
-                            }
+                            log.error("Error during processing stream", error)
+                            log.info("Closing application context...")
+                            applicationContext.close()
                         }
                 )
     }
+
+    private fun initializeStackCache() = StackCache<T>(stackCacheSize)
 
     private fun lastBlockNumber(): Long {
         return if (startBlockNumber == START_BLOCK_NUMBER_DEFAULT)
@@ -81,5 +98,4 @@ class ChainPump<T : BlockBundle>(
             startBlockNumber
     }
 
-    class ChainReindexationException : RuntimeException()
 }

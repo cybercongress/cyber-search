@@ -26,6 +26,7 @@ buildscript {
         junitPlatformVersion = "1.0.3"
         mockitoVersion = "2.1.0"
         mockitoKotlinVersion = "0.7.0"
+        assertjVersion = "3.9.0"
 
         // metrics
         micrometerVersion = "1.0.0"
@@ -151,6 +152,7 @@ subprojects {
             dependency("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
             dependency("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
             dependency("org.mockito:mockito-core:$mockitoVersion")
+            dependency("org.assertj:assertj-core:$assertjVersion")
             dependency("com.nhaarman:mockito-kotlin:$mockitoKotlinVersion") {
                 exclude 'org.jetbrains.kotlin:kotlin-stdlib'
             }
@@ -180,6 +182,7 @@ subprojects {
         testCompile("org.junit.platform:junit-platform-launcher")
         testCompile("org.mockito:mockito-core")
         testCompile("com.nhaarman:mockito-kotlin")
+        testCompile("org.assertj:assertj-core")
         testRuntime("org.junit.jupiter:junit-jupiter-engine")
     }
 }

@@ -15,10 +15,12 @@ class BitcoinBlockBundleProducer(
         private val chain: BitcoinFamilyChain
 ) : KafkaBlockBundleProducer<BitcoinBlockBundle> {
 
-    override fun storeBlockBundle(blockBundles: List<BitcoinBlockBundle>) {
-        blockBundles.forEach { blockBundle ->
-            kafkaTemplate.send(chain.blockPumpTopic, PumpEvent.NEW_BLOCK, blockBundle.block)
-            blockBundle.transactions.forEach { tx -> kafkaTemplate.send(chain.txPumpTopic, PumpEvent.NEW_BLOCK, tx) }
+    override fun storeBlockBundle(blockBundleEvents: List<Pair<PumpEvent, BitcoinBlockBundle>>) {
+        blockBundleEvents.forEach { event ->
+            val eventKey = event.first
+            val blockBundle = event.second
+            kafkaTemplate.send(chain.blockPumpTopic, eventKey, blockBundle.block)
+            blockBundle.transactions.forEach { tx -> kafkaTemplate.send(chain.txPumpTopic, eventKey, tx) }
         }
     }
 }
