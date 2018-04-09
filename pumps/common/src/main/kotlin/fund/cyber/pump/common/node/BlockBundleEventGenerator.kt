@@ -38,17 +38,28 @@ class ChainReorganizationBlockBundleEventGenerator<T : BlockBundle>(
         var newBlocks = listOf(PumpEvent.NEW_BLOCK to tempBlockBundle)
         var revertBlocks = listOf<Pair<PumpEvent, T>>()
 
+        log.info("Starting reorganization...")
+        log.info("New block: {number: ${tempBlockBundle.number}, hash: ${tempBlockBundle.hash}," +
+                " parentHash: ${tempBlockBundle.parentHash}}")
         do {
             if (prevBlockBundle != null) {
                 revertBlocks += PumpEvent.DROPPED_BLOCK to prevBlockBundle
                 tempBlockBundle = blockchainInterface.blockBundleByNumber(tempBlockBundle.number - 1L)
                 newBlocks += PumpEvent.NEW_BLOCK to tempBlockBundle
+
+                log.info("Block to revert: {number: ${prevBlockBundle.number}, hash: ${prevBlockBundle.hash}," +
+                        " parentHash: ${prevBlockBundle.parentHash}}")
+                log.info("New block: {number: ${tempBlockBundle.number}, hash: ${tempBlockBundle.hash}," +
+                        " parentHash: ${tempBlockBundle.parentHash}}")
             }
             prevBlockBundle = history.pop()
         } while (prevBlockBundle?.hash != tempBlockBundle.parentHash)
 
         newBlocks = newBlocks.reversed()
         newBlocks.forEach { history.push(it.second) }
+
+        log.info("Finishing reorganization... Total blocks to revert: ${revertBlocks.size};" +
+                " Total new blocks: ${newBlocks.size}")
 
         return (revertBlocks + newBlocks)
     }
