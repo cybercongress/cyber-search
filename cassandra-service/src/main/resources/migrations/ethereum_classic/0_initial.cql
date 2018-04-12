@@ -31,7 +31,6 @@ CREATE TABLE IF NOT exists ethereum_classic.tx (
     block_hash text,
     block_time timestamp,
     block_number bigint,
-    transaction_index bigint,
     "from" text,
     "to" text,
     value text,
@@ -67,7 +66,7 @@ CREATE TABLE IF NOT exists ethereum_classic.tx_preview_by_block (
     PRIMARY KEY ((block_number),position_in_block)
 );
 
-CREATE TABLE IF NOT exists ethereum_classic.address (
+CREATE TABLE IF NOT exists ethereum_classic.address_summary (
     id text PRIMARY KEY,
     confirmed_balance decimal,
     contract_address boolean,
@@ -106,7 +105,7 @@ CREATE TABLE IF NOT exists ethereum_classic.uncle (
 );
 
 
-CREATE TABLE IF NOT exists ethereum_classic.uncle_by_address (
+CREATE TABLE IF NOT exists ethereum_classic.mined_uncle_by_address (
      hash text,
      position int,
      number bigint,
