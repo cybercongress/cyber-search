@@ -3,6 +3,7 @@ CREATE TABLE IF NOT exists ethereum_classic.block (
     number bigint PRIMARY KEY,
     hash text,
     parent_hash text,
+    nonce bigint,
     timestamp timestamp,
     sha3_uncles text,
     logs_bloom text,
@@ -39,15 +40,15 @@ CREATE TABLE IF NOT exists ethereum_classic.tx (
     gas_used bigint,
     fee text,
     input text,
-    creates text
+    created_contract text
 );
 
 CREATE TABLE IF NOT exists ethereum_classic.tx_preview_by_address (
     address text,
-    fee text,
-    block_time timestamp,
-    block_number bigint,
     hash text,
+    block_time timestamp,
+    fee decimal,
+    block_number bigint,
     "from" text,
     "to" text,
     value text,
@@ -56,15 +57,15 @@ CREATE TABLE IF NOT exists ethereum_classic.tx_preview_by_address (
 
 CREATE TABLE IF NOT exists ethereum_classic.tx_preview_by_block (
     block_number bigint,
-    fee text,
-    value text,
+    position_in_block int,
+    fee decimal,
+    value decimal,
     hash text,
     "from" text,
     "to" text,
     creates_contract boolean,
-    "index" int,
-    PRIMARY KEY ( block_number, "index" )
-) WITH CLUSTERING ORDER BY ( "index" ASC );
+    PRIMARY KEY ((block_number),position_in_block)
+);
 
 CREATE TABLE IF NOT exists ethereum_classic.address (
     id text PRIMARY KEY,
