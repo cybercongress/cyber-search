@@ -1,6 +1,7 @@
 package fund.cyber.api.ethereum
 
 import fund.cyber.api.common.asSingleRouterFunction
+import fund.cyber.api.common.formatHash
 import fund.cyber.cassandra.ethereum.model.CqlEthereumTx
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
 import fund.cyber.search.model.chains.EthereumFamilyChain
@@ -31,9 +32,9 @@ class TxHandlersConfiguration {
             val txRepository = applicationContext.getBean(chain.name + "txRepository", EthereumTxRepository::class.java)
 
             val txByHash = HandlerFunction { request ->
-                val blockNumber = request.pathVariable("hash")
-                val block = txRepository.findById(blockNumber)
-                ServerResponse.ok().body(block, CqlEthereumTx::class.java)
+                val hash = request.pathVariable("hash")
+                val tx = txRepository.findById(hash.formatHash())
+                ServerResponse.ok().body(tx, CqlEthereumTx::class.java)
             }
             RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/tx/{hash}"), txByHash)
         }.asSingleRouterFunction()
