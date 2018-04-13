@@ -16,6 +16,15 @@
     <logger name="org.apache.zookeeper" level="WARN"/>
     <logger name="org.I0Itec" level="WARN"/>
     <logger name="kafka.server" level="WARN"/>
+    <logger name="org.springframework.core.env" level="WARN"/>
+    <logger name="sun.rmi" level="WARN"/>
+    <logger name="javax.management" level="WARN"/>
+    <logger name="org.springframework.kafka.core" level="WARN"/>
+    <logger name="reactor.ipc.netty.http" level="WARN"/>
+    <logger name="org.springframework.boot.actuate" level="WARN"/>
+    <logger name="org.springframework.web.reactive" level="WARN"/>
+    <logger name="org.springframework.http.server" level="WARN"/>
+    <logger name="org.springframework.transaction.support" level="WARN"/>
 
     <root level="${CS_LOG_LEVEL:-INFO}">
         <appender-ref ref="STDOUT"/>

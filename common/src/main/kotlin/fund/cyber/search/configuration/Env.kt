@@ -33,7 +33,7 @@ const val START_BLOCK_NUMBER = "START_BLOCK_NUMBER"
 const val START_BLOCK_NUMBER_DEFAULT = -1L
 
 const val STACK_CACHE_SIZE = "STACK_CACHE_SIZE"
-const val STACK_CACHE_SIZE_DEFAULT = 20
+const val STACK_CACHE_SIZE_DEFAULT = 100
 
 
 inline fun <reified T : Any> env(name: String, default: T): T =
