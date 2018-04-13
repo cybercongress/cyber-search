@@ -1,6 +1,6 @@
 package fund.cyber.api.ethereum.functions
 
-import fund.cyber.api.common.formatHash
+import fund.cyber.api.common.toSearchHashFormat
 import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressTxPreview
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressTxRepository
 import org.springframework.data.cassandra.core.query.CassandraPageRequest
@@ -22,7 +22,7 @@ class AddressTxesByAddress(
         val pageSize = request.queryParam("pageSize").orElse("20").toInt()
 
 
-        var slice = addressTxRepository.findAllByAddress(id.formatHash(), CassandraPageRequest.first(pageSize))
+        var slice = addressTxRepository.findAllByAddress(id.toSearchHashFormat(), CassandraPageRequest.first(pageSize))
 
         for (i in 1..page) {
             if (slice.hasNext()) {
