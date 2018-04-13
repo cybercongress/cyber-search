@@ -1,6 +1,7 @@
 package fund.cyber.api.ethereum
 
 import fund.cyber.api.common.asSingleRouterFunction
+import fund.cyber.api.common.formatHash
 import fund.cyber.api.ethereum.functions.AddressTxesByAddress
 import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressSummary
 import fund.cyber.cassandra.ethereum.repository.EthereumAddressRepository
@@ -34,7 +35,7 @@ class AddressHandlersConfiguration {
 
             val blockByNumber = HandlerFunction { request ->
                 val addressId = request.pathVariable("id")
-                val address = repository.findById(addressId)
+                val address = repository.findById(addressId.formatHash())
                 ServerResponse.ok().body(address, CqlEthereumAddressSummary::class.java)
             }
             RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/address/{id}"), blockByNumber)
