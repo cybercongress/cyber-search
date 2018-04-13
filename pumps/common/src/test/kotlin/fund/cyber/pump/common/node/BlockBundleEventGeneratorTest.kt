@@ -89,4 +89,39 @@ class BlockBundleEventGeneratorTest {
 
     }
 
+    @Test
+    @Suppress("LongMethod")
+    fun chainReorganizationEmptyStackTest() {
+        val blockA = TestBlockBundle("a", "", 1, 1)
+        val blockB = TestBlockBundle("b", "a", 2, 1)
+        val blockC = TestBlockBundle("c", "b", 3, 1)
+        val blockD = TestBlockBundle("d", "c", 4, 1)
+        val blockE = TestBlockBundle("e", "d", 5, 1)
+        val blockF = TestBlockBundle("f", "b", 3, 1)
+        val blockG = TestBlockBundle("g", "f", 4, 1)
+        val blockH = TestBlockBundle("h", "g", 5, 1)
+        val blockK = TestBlockBundle("k", "h", 6, 1)
+
+        val history = StackCache<TestBlockBundle>(2)
+
+        history.push(blockA)
+        history.push(blockB)
+        history.push(blockC)
+        history.push(blockD)
+        history.push(blockE)
+
+        val blockchainInterface = mock<FlowableBlockchainInterface<TestBlockBundle>> {
+            on { blockBundleByNumber(3) }.thenReturn(blockF)
+            on { blockBundleByNumber(4) }.thenReturn(blockG)
+            on { blockBundleByNumber(5) }.thenReturn(blockH)
+        }
+
+        val blockBundleMapper = ChainReorganizationBlockBundleEventGenerator(blockchainInterface, SimpleMeterRegistry())
+
+        Assertions
+                .assertThatExceptionOfType(HistoryStackIsEmptyException::class.java)
+                .isThrownBy { blockBundleMapper.generate(blockK, history) }
+
+    }
+
 }

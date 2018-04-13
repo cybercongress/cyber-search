@@ -52,7 +52,12 @@ class ChainReorganizationBlockBundleEventGenerator<T : BlockBundle>(
                 log.info("New block: {number: ${tempBlockBundle.number}, hash: ${tempBlockBundle.hash}," +
                         " parentHash: ${tempBlockBundle.parentHash}}")
             }
+
             prevBlockBundle = history.pop()
+            if (prevBlockBundle == null) {
+                throw HistoryStackIsEmptyException("History stack is empty while chain reorganization is not" +
+                        " finished yet! Please adjust stack capacity and try again.")
+            }
         } while (prevBlockBundle?.hash != tempBlockBundle.parentHash)
 
         newBlocks = newBlocks.reversed()
@@ -64,3 +69,5 @@ class ChainReorganizationBlockBundleEventGenerator<T : BlockBundle>(
         return (revertBlocks + newBlocks)
     }
 }
+
+class HistoryStackIsEmptyException(message: String) : Exception(message)
