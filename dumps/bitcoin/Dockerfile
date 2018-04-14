@@ -2,9 +2,9 @@
 FROM openjdk:10-jdk-slim AS build
 COPY ./ /build
 WORKDIR /build
-RUN ./gradlew clean :pumps:bitcoin:assemble
+RUN ./gradlew clean :dumps:bitcoin:assemble
 
 # Container with application
 FROM openjdk:10-jre-slim
-COPY --from=build /build/pumps/bitcoin/build/libs /cyberapp/bin
+COPY --from=build /build/dumps/bitcoin/build/libs /cyberapp/bin
 ENTRYPOINT exec java $JAVA_OPTS -jar /cyberapp/bin/bitcoin.jar

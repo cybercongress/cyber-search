@@ -1,7 +1,7 @@
 
 CREATE TYPE IF NOT EXISTS bitcoin.tx_preview_io (
     addresses FROZEN < list < text > >,
-    amount text
+    amount decimal
 );
 
 CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_address (
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_block (
 
 CREATE TYPE IF NOT EXISTS bitcoin.tx_out (
     addresses FROZEN < list < text > >,
-    amount text,
+    amount decimal,
     asm text,
     out int,
     required_signatures int
@@ -37,9 +37,9 @@ CREATE TYPE IF NOT EXISTS bitcoin.tx_out (
 
 CREATE TYPE IF NOT EXISTS bitcoin.tx_in (
     addresses FROZEN < list < text > >,
-    amount text,
+    amount decimal,
     asm text,
-    tx_id text,
+    tx_hash text,
     tx_out int
 );
 

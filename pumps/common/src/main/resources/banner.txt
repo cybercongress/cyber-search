@@ -1,24 +1,6 @@
-
-
-   SSSSSSSSSSSSSSS                                                                               hhhhhhh                  PPPPPPPPPPPPPPPPP
- SS:::::::::::::::S                                                                              h:::::h                  P::::::::::::::::P
-S:::::SSSSSS::::::S                                                                              h:::::h                  P::::::PPPPPP:::::P
-S:::::S     SSSSSSS                                                                              h:::::h                  PP:::::P     P:::::P
-S:::::S                eeeeeeeeeeee      aaaaaaaaaaaaa   rrrrr   rrrrrrrrr       cccccccccccccccc h::::h hhhhh              P::::P     P:::::Puuuuuu    uuuuuu     mmmmmmm    mmmmmmm   ppppp   ppppppppp
-S:::::S              ee::::::::::::ee    a::::::::::::a  r::::rrr:::::::::r    cc:::::::::::::::c h::::hh:::::hhh           P::::P     P:::::Pu::::u    u::::u   mm:::::::m  m:::::::mm p::::ppp:::::::::p
- S::::SSSS          e::::::eeeee:::::ee  aaaaaaaaa:::::a r:::::::::::::::::r  c:::::::::::::::::c h::::::::::::::hh         P::::PPPPPP:::::P u::::u    u::::u  m::::::::::mm::::::::::mp:::::::::::::::::p
-  SS::::::SSSSS    e::::::e     e:::::e           a::::a rr::::::rrrrr::::::rc:::::::cccccc:::::c h:::::::hhh::::::h        P:::::::::::::PP  u::::u    u::::u  m::::::::::::::::::::::mpp::::::ppppp::::::p
-    SSS::::::::SS  e:::::::eeeee::::::e    aaaaaaa:::::a  r:::::r     r:::::rc::::::c     ccccccc h::::::h   h::::::h       P::::PPPPPPPPP    u::::u    u::::u  m:::::mmm::::::mmm:::::m p:::::p     p:::::p
-       SSSSSS::::S e:::::::::::::::::e   aa::::::::::::a  r:::::r     rrrrrrrc:::::c              h:::::h     h:::::h       P::::P            u::::u    u::::u  m::::m   m::::m   m::::m p:::::p     p:::::p
-            S:::::Se::::::eeeeeeeeeee   a::::aaaa::::::a  r:::::r            c:::::c              h:::::h     h:::::h       P::::P            u::::u    u::::u  m::::m   m::::m   m::::m p:::::p     p:::::p
-            S:::::Se:::::::e           a::::a    a:::::a  r:::::r            c::::::c     ccccccc h:::::h     h:::::h       P::::P            u:::::uuuu:::::u  m::::m   m::::m   m::::m p:::::p    p::::::p
-SSSSSSS     S:::::Se::::::::e          a::::a    a:::::a  r:::::r            c:::::::cccccc:::::c h:::::h     h:::::h     PP::::::PP          u:::::::::::::::uum::::m   m::::m   m::::m p:::::ppppp:::::::p
-S::::::SSSSSS:::::S e::::::::eeeeeeee  a:::::aaaa::::::a  r:::::r             c:::::::::::::::::c h:::::h     h:::::h     P::::::::P           u:::::::::::::::um::::m   m::::m   m::::m p::::::::::::::::p
-S:::::::::::::::SS   ee:::::::::::::e   a::::::::::aa:::a r:::::r              cc:::::::::::::::c h:::::h     h:::::h     P::::::::P            uu::::::::uu:::um::::m   m::::m   m::::m p::::::::::::::pp
- SSSSSSSSSSSSSSS       eeeeeeeeeeeeee    aaaaaaaaaa  aaaa rrrrrrr                cccccccccccccccc hhhhhhh     hhhhhhh     PPPPPPPPPP              uuuuuuuu  uuuummmmmm   mmmmmm   mmmmmm p::::::pppppppp
-                                                                                                                                                                                         p:::::p
-                                                                                                                                                                                         p:::::p
-                                                                                                                                                                                        p:::::::p
-                                                                                                                                                                                        p:::::::p
-                                                                                                                                                                                        p:::::::p
-                                                                                                                                                                                        ppppppppp
+  ____
+ |  _ \   _   _   _ __ ___    _ __
+ | |_) | | | | | | '_ ` _ \  | '_ \
+ |  __/  | |_| | | | | | | | | |_) |
+ |_|      \__,_| |_| |_| |_| | .__/
+                             |_|

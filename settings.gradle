@@ -10,6 +10,7 @@ include "pumps:common"
 include "pumps:bitcoin"
 include "pumps:ethereum"
 
+include "dumps:common"
 include "dumps:bitcoin"
 include "dumps:ethereum"
 

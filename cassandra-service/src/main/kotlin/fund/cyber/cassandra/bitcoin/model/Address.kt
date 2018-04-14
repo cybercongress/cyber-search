@@ -1,6 +1,7 @@
 package fund.cyber.cassandra.bitcoin.model
 
 import fund.cyber.cassandra.common.CqlAddressSummary
+import fund.cyber.search.model.bitcoin.BitcoinTx
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType.CLUSTERED
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType.PARTITIONED
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
@@ -35,4 +36,11 @@ data class CqlBitcoinAddressTx(
         val block_number: Long,
         val ins: List<CqlBitcoinTxPreviewIO>,
         val outs: List<CqlBitcoinTxPreviewIO>
-) : CqlBitcoinItem
+) : CqlBitcoinItem {
+
+    constructor(address: String, tx: BitcoinTx) : this(
+            address = address, block_time = tx.blockTime, hash = tx.blockHash, fee = tx.fee,
+            block_number = tx.blockNumber, ins = tx.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) },
+            outs = tx.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
+    )
+}

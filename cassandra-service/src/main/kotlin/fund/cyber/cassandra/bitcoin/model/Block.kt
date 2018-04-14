@@ -3,6 +3,9 @@
 package fund.cyber.cassandra.bitcoin.model
 
 import fund.cyber.search.model.bitcoin.BitcoinBlock
+import fund.cyber.search.model.bitcoin.BitcoinTx
+import fund.cyber.search.model.bitcoin.BitcoinTxIn
+import fund.cyber.search.model.bitcoin.BitcoinTxOut
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
@@ -18,8 +21,17 @@ interface CqlBitcoinItem
 @UserDefinedType("tx_preview_io")
 data class CqlBitcoinTxPreviewIO(
         val addresses: List<String>,
-        val amount: String
-)
+        val amount: BigDecimal
+) {
+
+    constructor(txIn: BitcoinTxIn) : this(
+            addresses = txIn.addresses, amount = txIn.amount
+    )
+
+    constructor(txOut: BitcoinTxOut) : this(
+            addresses = txOut.addresses, amount = txOut.amount
+    )
+}
 
 @Table("tx_preview_by_block")
 data class CqlBitcoinBlockTx(
@@ -30,7 +42,14 @@ data class CqlBitcoinBlockTx(
         val fee: BigDecimal,
         val ins: List<CqlBitcoinTxPreviewIO>,
         val outs: List<CqlBitcoinTxPreviewIO>
-) : CqlBitcoinItem
+) : CqlBitcoinItem {
+
+    constructor(tx: BitcoinTx) : this(
+            blockNumber = tx.blockNumber, index = 0 /*todo: calculate value in pump*/, hash = tx.hash, fee = tx.fee,
+            ins = tx.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) },
+            outs = tx.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
+    )
+}
 
 @Table("block")
 data class CqlBitcoinBlock(

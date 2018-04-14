@@ -1,6 +1,7 @@
-project(":dumps:bitcoin") {
+project(":dumps:common") {
 
-    apply plugin: "org.springframework.boot"
+    apply plugin: "io.spring.dependency-management"
+    jar.archiveName = "common-pumps"
 
     dependencies {
 
@@ -8,7 +9,7 @@ project(":dumps:bitcoin") {
         compile project(":common-kafka")
         compile project(":cassandra-service")
 
-        compile "org.springframework.boot:spring-boot-starter"
+        compile 'org.springframework.boot:spring-boot-starter'
 
         compile 'org.springframework.boot:spring-boot-starter-webflux'
         compile 'org.springframework.boot:spring-boot-starter-reactor-netty'
@@ -18,6 +19,15 @@ project(":dumps:bitcoin") {
     }
 }
 
+project(":dumps:bitcoin") {
+
+    apply plugin: "org.springframework.boot"
+
+    dependencies {
+
+        compile project(":dumps:common")
+    }
+}
 
 project(":dumps:ethereum") {
 
@@ -25,16 +35,6 @@ project(":dumps:ethereum") {
 
     dependencies {
 
-        compile project(":common")
-        compile project(":common-kafka")
-        compile project(":cassandra-service")
-
-        compile "org.springframework.boot:spring-boot-starter"
-
-        compile 'org.springframework.boot:spring-boot-starter-webflux'
-        compile 'org.springframework.boot:spring-boot-starter-reactor-netty'
-        compile 'org.springframework.boot:spring-boot-starter-actuator'
-        compile 'io.micrometer:micrometer-registry-prometheus'
-        compile 'io.micrometer:micrometer-core'
+        compile project(":dumps:common")
     }
 }
