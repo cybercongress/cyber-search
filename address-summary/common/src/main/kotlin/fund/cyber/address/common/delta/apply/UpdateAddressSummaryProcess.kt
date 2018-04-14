@@ -87,6 +87,9 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, R>>, consumer: Consumer<*, *>) {
 
         val info = UpdateInfo(records.sortedBy { record -> record.offset() })
+
+        log.info("Processing records for topic: ${info.topic}; partition ${info.partition} from ${info.minOffset}" +
+                " to ${info.maxOffset} offset.")
         val storeAttempts: MutableMap<String, Int> = mutableMapOf()
         val previousStates: MutableMap<String, S?> = mutableMapOf()
         initMonitors(info)

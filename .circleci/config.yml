@@ -80,7 +80,7 @@ jobs:
        - setup_remote_docker:
            version: 17.11.0-ce
        - run:
-           name: Build Ethereum Address Summary Image
+           name: Build Ethereum Contract Summary Image
            command: |
              docker build -t build/chain-contract-summary-ethereum -f ./address-summary/ethereum/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
@@ -121,6 +121,22 @@ jobs:
              docker push cybernode/chain-dump-bitcoin:$CIRCLE_TAG
              docker tag build/dump-bitcoin cybernode/chain-dump-bitcoin:latest
              docker push cybernode/chain-dump-bitcoin:latest
+
+  deploy_chain_contract_summary_bitcoin_image:
+     <<: *defaults
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.11.0-ce
+       - run:
+           name: Build Bitcoin Contract Summary Image
+           command: |
+             docker build -t build/chain-contract-summary-bitcoin -f ./address-summary/bitcoin/Dockerfile ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/chain-contract-summary-bitcoin cybernode/chain-contract-summary-bitcoin:$CIRCLE_TAG
+             docker push cybernode/chain-contract-summary-bitcoin:$CIRCLE_TAG
+             docker tag build/chain-contract-summary-bitcoin cybernode/chain-contract-summary-bitcoin:latest
+             docker push cybernode/chain-contract-summary-bitcoin:latest
 
 
 # Common images
