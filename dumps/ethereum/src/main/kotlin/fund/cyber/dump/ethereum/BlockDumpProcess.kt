@@ -4,6 +4,8 @@ import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressMinedBlock
 import fund.cyber.cassandra.ethereum.model.CqlEthereumBlock
 import fund.cyber.cassandra.ethereum.repository.EthereumAddressMinedBlockRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
+import fund.cyber.dump.common.filterNotContainsAllEventsOf
+import fund.cyber.dump.common.toRecordEventsMap
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.events.PumpEvent

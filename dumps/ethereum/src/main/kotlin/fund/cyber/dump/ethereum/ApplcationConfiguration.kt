@@ -10,10 +10,8 @@ import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
 import fund.cyber.common.kafka.JsonDeserializer
 import fund.cyber.common.kafka.defaultConsumerConfig
 import fund.cyber.common.with
-import fund.cyber.search.configuration.CHAIN
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
-import fund.cyber.search.configuration.env
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
@@ -27,7 +25,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.requests.IsolationLevel
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
@@ -39,7 +36,9 @@ private const val POLL_TIMEOUT = 5000L
 private const val AUTO_COMMIT_INTERVAL_MS_CONFIG = 10 * 1000
 
 @Configuration
-class ApplicationConfiguration {
+class ApplicationConfiguration(
+        private val chain: EthereumFamilyChain
+) {
 
     @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
     private lateinit var kafkaBrokers: String
@@ -62,18 +61,6 @@ class ApplicationConfiguration {
     @Autowired
     lateinit var monitoring: MeterRegistry
 
-
-    @Bean
-    fun chain(): EthereumFamilyChain {
-        val chainAsString = env(CHAIN, "")
-        return EthereumFamilyChain.valueOf(chainAsString)
-    }
-
-    @Bean
-    fun metricsCommonTags(): MeterRegistryCustomizer<MeterRegistry> {
-        return MeterRegistryCustomizer { registry -> registry.config().commonTags("chain", chain().name) }
-    }
-
     @Bean
     fun blocksListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, EthereumBlock> {
 
@@ -86,8 +73,8 @@ class ApplicationConfiguration {
         )
 
         //todo add to error handler exponential wait before retries
-        val containerProperties = ContainerProperties(chain().blockPumpTopic).apply {
-            messageListener = BlockDumpProcess(ethereumBlockRepository, ethereumAddressMinedBlockRepository, chain(),
+        val containerProperties = ContainerProperties(chain.blockPumpTopic).apply {
+            messageListener = BlockDumpProcess(ethereumBlockRepository, ethereumAddressMinedBlockRepository, chain,
                     monitoring)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
@@ -108,9 +95,9 @@ class ApplicationConfiguration {
         )
 
         //todo add to error handler exponential wait before retries
-        val containerProperties = ContainerProperties(chain().txPumpTopic).apply {
+        val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
             messageListener = TxDumpProcess(ethereumTxRepository, ethereumBlockTxRepository,
-                    ethereumAddressTxRepository, chain(), monitoring)
+                    ethereumAddressTxRepository, chain, monitoring)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
@@ -130,8 +117,8 @@ class ApplicationConfiguration {
         )
 
         //todo add to error handler exponential wait before retries
-        val containerProperties = ContainerProperties(chain().unclePumpTopic).apply {
-            messageListener = UncleDumpProcess(ethereumUncleRepository, ethereumAddressUncleRepository, chain(),
+        val containerProperties = ContainerProperties(chain.unclePumpTopic).apply {
+            messageListener = UncleDumpProcess(ethereumUncleRepository, ethereumAddressUncleRepository, chain,
                     monitoring)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())

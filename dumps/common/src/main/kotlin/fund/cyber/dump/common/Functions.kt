@@ -1,4 +1,4 @@
-package fund.cyber.dump.ethereum
+package fund.cyber.dump.common
 
 import fund.cyber.search.model.events.PumpEvent
 import org.apache.kafka.clients.consumer.ConsumerRecord

@@ -106,6 +106,22 @@ jobs:
              docker tag build/pump-bitcoin cybernode/chain-pump-bitcoin:latest
              docker push cybernode/chain-pump-bitcoin:latest
 
+  deploy_chain_dumps_bitcoin_image:
+     <<: *defaults
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.11.0-ce
+       - run:
+           name: Build Bitcoin Dump Image
+           command: |
+             docker build -t build/dump-bitcoin -f ./dumps/bitcoin/Dockerfile ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/dump-bitcoin cybernode/chain-dump-bitcoin:$CIRCLE_TAG
+             docker push cybernode/chain-dump-bitcoin:$CIRCLE_TAG
+             docker tag build/dump-bitcoin cybernode/chain-dump-bitcoin:latest
+             docker push cybernode/chain-dump-bitcoin:latest
+
 
 # Common images
   deploy_search_api_image:
@@ -162,6 +178,10 @@ workflows:
           requires:
             - build_project
       - deploy_chain_pumps_bitcoin_image:
+          <<: *release_filter
+          requires:
+            - build_project
+      - deploy_chain_dumps_bitcoin_image:
           <<: *release_filter
           requires:
             - build_project

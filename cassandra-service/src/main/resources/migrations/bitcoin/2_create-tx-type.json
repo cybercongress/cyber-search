@@ -34,6 +34,12 @@
           "include_in_all": false,
           "cql_collection": "singleton"
         },
+        "total_input": {
+          "type": "keyword",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
+        },
         "total_output": {
           "type": "keyword",
           "index": "no",

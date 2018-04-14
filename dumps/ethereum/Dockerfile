@@ -7,4 +7,4 @@ RUN ./gradlew clean :dumps:ethereum:assemble
 # Container with application
 FROM openjdk:10-jre-slim
 COPY --from=build /build/dumps/ethereum/build/libs /cyberapp/bin
-ENTRYPOINT ["java", "-jar", "/cyberapp/bin/ethereum.jar"]
+ENTRYPOINT exec java $JAVA_OPTS -jar /cyberapp/bin/ethereum.jar
