@@ -31,9 +31,9 @@ data class BitcoinAddressSummaryDelta(
 
     override fun createSummary(): CqlBitcoinAddressSummary {
         return CqlBitcoinAddressSummary(
-                id = this.address, confirmed_balance = this.balanceDelta,
-                confirmed_tx_number = this.txNumberDelta,
-                confirmed_total_received = this.totalReceivedDelta,
+                id = this.address, confirmedBalance = this.balanceDelta,
+                confirmedTxNumber = this.txNumberDelta,
+                confirmedTotalReceived = this.totalReceivedDelta,
                 kafkaDeltaOffset = this.offset, kafkaDeltaTopic = this.topic,
                 kafkaDeltaPartition = this.partition, version = 0
         )
@@ -41,9 +41,9 @@ data class BitcoinAddressSummaryDelta(
 
     override fun updateSummary(summary: CqlBitcoinAddressSummary): CqlBitcoinAddressSummary {
         return CqlBitcoinAddressSummary(
-                id = summary.id, confirmed_balance = summary.confirmed_balance + this.balanceDelta,
-                confirmed_tx_number = summary.confirmed_tx_number + this.txNumberDelta,
-                confirmed_total_received = summary.confirmed_total_received + this.totalReceivedDelta,
+                id = summary.id, confirmedBalance = summary.confirmedBalance + this.balanceDelta,
+                confirmedTxNumber = summary.confirmedTxNumber + this.txNumberDelta,
+                confirmedTotalReceived = summary.confirmedTotalReceived + this.totalReceivedDelta,
                 kafkaDeltaOffset = this.offset, kafkaDeltaTopic = this.topic,
                 kafkaDeltaPartition = this.partition, version = summary.version + 1
         )

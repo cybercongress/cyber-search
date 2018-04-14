@@ -4,6 +4,7 @@ import fund.cyber.cassandra.common.CqlAddressSummary
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType.CLUSTERED
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType.PARTITIONED
+import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
@@ -14,15 +15,15 @@ import java.time.Instant
 data class CqlBitcoinAddressSummary(
 
         @PrimaryKey override val id: String,
-        val confirmed_balance: BigDecimal,
-        val confirmed_total_received: BigDecimal,
-        val confirmed_tx_number: Int,
+        @Column("confirmed_balance") val confirmedBalance: BigDecimal,
+        @Column("confirmed_total_received") val confirmedTotalReceived: BigDecimal,
+        @Column("confirmed_tx_number") val confirmedTxNumber: Int,
         override val version: Long,
-        override val kafkaDeltaOffset: Long,
-        override val kafkaDeltaPartition: Int,
-        override val kafkaDeltaTopic: String,
-        override val kafkaDeltaOffsetCommitted: Boolean = false,
-        val unconfirmed_tx_values: Map<String, BigDecimal> = emptyMap()
+        @Column("kafka_delta_offset") override val kafkaDeltaOffset: Long,
+        @Column("kafka_delta_partition") override val kafkaDeltaPartition: Int,
+        @Column("kafka_delta_topic") override val kafkaDeltaTopic: String,
+        @Column("kafka_delta_offset_committed") override val kafkaDeltaOffsetCommitted: Boolean = false,
+        @Column("unconfirmed_tx_values") val unconfirmedTxValues: Map<String, BigDecimal> = emptyMap()
 ) : CqlBitcoinItem, CqlAddressSummary
 
 
