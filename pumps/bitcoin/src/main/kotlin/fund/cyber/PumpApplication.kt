@@ -1,4 +1,4 @@
-package fund.cyber.pump
+package fund.cyber
 
 import fund.cyber.pump.common.ChainPump
 import fund.cyber.search.configuration.CHAIN
@@ -18,14 +18,17 @@ class BitcoinPumpApplication {
         val chainAsString = env(CHAIN, "")
         return BitcoinFamilyChain.valueOf(chainAsString)
     }
-}
 
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
 
-fun main(args: Array<String>) {
+            val application = SpringApplication(BitcoinPumpApplication::class.java)
+            application.setRegisterShutdownHook(false)
+            val applicationContext = application.run(*args)
 
-    val application = SpringApplication(BitcoinPumpApplication::class.java)
-    application.setRegisterShutdownHook(false)
-    val applicationContext = application.run(*args)
-    val pump = applicationContext.getBean(ChainPump::class.java)
-    pump.startPump()
+            val pump = applicationContext.getBean(ChainPump::class.java)
+            pump.startPump()
+        }
+    }
 }

@@ -7,4 +7,4 @@ RUN ./gradlew clean :pumps:bitcoin:assemble
 # Container with application
 FROM openjdk:9-jre-slim
 COPY --from=build /build/pumps/bitcoin/build/libs /cyberapp/bin
-ENTRYPOINT ["java", "-jar", "/cyberapp/bin/bitcoin.jar"]
+ENTRYPOINT exec java $JAVA_OPTS -jar /cyberapp/bin/bitcoin.jar
