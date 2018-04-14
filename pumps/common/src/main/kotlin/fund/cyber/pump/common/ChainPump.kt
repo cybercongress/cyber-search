@@ -27,7 +27,6 @@ private val log = LoggerFactory.getLogger(ChainPump::class.java)!!
 
 private const val BLOCK_BUFFER_TIMESPAN = 3L
 
-//todo add chain reorganisation
 @Component
 @DependsOn(value = ["kafkaBlockBundleProducer"])  // to resolve generics at runtime
 class ChainPump<T : BlockBundle>(

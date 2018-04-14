@@ -6,10 +6,7 @@ import fund.cyber.common.with
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
 import fund.cyber.search.model.chains.Chain
-import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.events.PumpEvent
-import fund.cyber.search.model.events.blockPumpTopic
-import fund.cyber.search.model.events.txPumpTopic
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.AdminClientConfig
 import org.apache.kafka.clients.admin.NewTopic

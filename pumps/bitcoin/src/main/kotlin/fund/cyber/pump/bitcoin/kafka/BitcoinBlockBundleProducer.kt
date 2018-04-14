@@ -8,6 +8,7 @@ import fund.cyber.search.model.events.blockPumpTopic
 import fund.cyber.search.model.events.txPumpTopic
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 @Component("kafkaBlockBundleProducer")
 class BitcoinBlockBundleProducer(
@@ -15,6 +16,7 @@ class BitcoinBlockBundleProducer(
         private val chain: BitcoinFamilyChain
 ) : KafkaBlockBundleProducer<BitcoinBlockBundle> {
 
+    @Transactional
     override fun storeBlockBundle(blockBundleEvents: List<Pair<PumpEvent, BitcoinBlockBundle>>) {
         blockBundleEvents.forEach { event ->
             val eventKey = event.first

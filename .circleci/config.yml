@@ -89,6 +89,25 @@ jobs:
              docker tag build/chain-contract-summary-ethereum cybernode/chain-contract-summary-ethereum:latest
              docker push cybernode/chain-contract-summary-ethereum:latest
 
+# Bitcoin images
+  deploy_chain_pumps_bitcoin_image:
+     <<: *defaults
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.11.0-ce
+       - run:
+           name: Build Bitcoin Pump Image
+           command: |
+             docker build -t build/pump-bitcoin -f ./pumps/bitcoin/Dockerfile ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/pump-bitcoin cybernode/chain-pump-bitcoin:$CIRCLE_TAG
+             docker push cybernode/chain-pump-bitcoin:$CIRCLE_TAG
+             docker tag build/pump-bitcoin cybernode/chain-pump-bitcoin:latest
+             docker push cybernode/chain-pump-bitcoin:latest
+
+
+# Common images
   deploy_search_api_image:
      <<: *defaults
      steps:
@@ -139,6 +158,10 @@ workflows:
           requires:
             - build_project
       - deploy_chain_contract_summary_ethereum_image:
+          <<: *release_filter
+          requires:
+            - build_project
+      - deploy_chain_pumps_bitcoin_image:
           <<: *release_filter
           requires:
             - build_project
