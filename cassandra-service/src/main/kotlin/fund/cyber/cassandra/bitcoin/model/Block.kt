@@ -7,6 +7,7 @@ import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.bitcoin.BitcoinTxIn
 import fund.cyber.search.model.bitcoin.BitcoinTxOut
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
+import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
@@ -45,7 +46,7 @@ data class CqlBitcoinBlockTx(
 ) : CqlBitcoinItem {
 
     constructor(tx: BitcoinTx) : this(
-            blockNumber = tx.blockNumber, index = 0 /*todo: calculate value in pump*/, hash = tx.hash, fee = tx.fee,
+            blockNumber = tx.blockNumber, index = tx.index, hash = tx.hash, fee = tx.fee,
             ins = tx.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) },
             outs = tx.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
     )
@@ -55,6 +56,10 @@ data class CqlBitcoinBlockTx(
 data class CqlBitcoinBlock(
         @PrimaryKey val height: Long,
         val hash: String,
+        val miner: String,
+        @Column("block_reward") val blockReward: BigDecimal,
+        @Column("tx_fees") val txFees: BigDecimal,
+        @Column("coinbase_data") val coinbaseData: String,
         val time: Instant,
         val nonce: Long,
         val merkleroot: String,
@@ -68,9 +73,10 @@ data class CqlBitcoinBlock(
 ) : CqlBitcoinItem {
 
     constructor(block: BitcoinBlock) : this(
-            height = block.height, hash = block.hash, time = block.time, nonce = block.nonce, bits = block.bits,
-            merkleroot = block.merkleroot, size = block.size, version = block.version, weight = block.weight,
-            difficulty = block.difficulty, tx_number = block.txNumber,
+            height = block.height, hash = block.hash, miner = block.miner, blockReward = block.blockReward,
+            txFees = block.txFees, coinbaseData = block.coinbaseData, time = block.time, nonce = block.nonce,
+            bits = block.bits, merkleroot = block.merkleroot, size = block.size, version = block.version,
+            weight = block.weight, difficulty = block.difficulty, tx_number = block.txNumber,
             total_outputs_value = block.totalOutputsAmount.toString()
     )
 }

@@ -1,6 +1,8 @@
 package fund.cyber.dump.bitcoin
 
+import fund.cyber.cassandra.bitcoin.model.CqlBitcoinAddressMinedBlock
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlock
+import fund.cyber.cassandra.bitcoin.repository.BitcoinAddressMinedBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.dump.common.filterNotContainsAllEventsOf
 import fund.cyber.dump.common.toRecordEventsMap
@@ -18,6 +20,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 class BlockDumpProcess(
         private val blockRepository: BitcoinBlockRepository,
+        private val addressMinedBlockRepository: BitcoinAddressMinedBlockRepository,
         private val chain: BitcoinFamilyChain,
         private val monitoring: MeterRegistry
 ) : BatchMessageListener<PumpEvent, BitcoinBlock> {
@@ -42,6 +45,12 @@ class BlockDumpProcess(
                 .saveAll(blocksToCommit.map { block -> CqlBitcoinBlock(block) })
                 .collectList().block()
         blockRepository.deleteAll(blocksToRevert.map { block -> CqlBitcoinBlock(block) })
+                .block()
+
+        addressMinedBlockRepository
+                .saveAll(blocksToCommit.map { block -> CqlBitcoinAddressMinedBlock(block) })
+                .collectList().block()
+        addressMinedBlockRepository.deleteAll(blocksToRevert.map { block -> CqlBitcoinAddressMinedBlock(block) })
                 .block()
 
         if (::topicCurrentOffsetMonitor.isInitialized) {

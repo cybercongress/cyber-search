@@ -30,6 +30,7 @@ interface BitcoinUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlBitc
         SET confirmed_balance = :#{#summary.confirmedBalance},
             confirmed_tx_number = :#{#summary.confirmedTxNumber},
             confirmed_total_received = :#{#summary.confirmedTotalReceived},
+            last_activity_date = :#{#summary.lastActivityDate},
             kafka_delta_offset = :#{#summary.kafkaDeltaOffset},
             kafka_delta_topic = :#{#summary.kafkaDeltaTopic},
             kafka_delta_partition = :#{#summary.kafkaDeltaPartition},
@@ -47,11 +48,12 @@ interface BitcoinUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlBitc
     @Consistency(value = ConsistencyLevel.QUORUM)
     @Query("""
         INSERT INTO address_summary (id, confirmed_balance, confirmed_tx_number,
-          confirmed_total_received, version, kafka_delta_offset, kafka_delta_topic,
-          kafka_delta_partition, kafka_delta_offset_committed)
+          confirmed_total_received, first_activity_date, last_activity_date, version, kafka_delta_offset,
+          kafka_delta_topic, kafka_delta_partition, kafka_delta_offset_committed)
         VALUES (
             :#{#summary.id}, :#{#summary.confirmedBalance}, :#{#summary.confirmedTxNumber},
-            :#{#summary.confirmedTotalReceived}, :#{#summary.version}, :#{#summary.kafkaDeltaOffset},
+            :#{#summary.confirmedTotalReceived}, :#{#summary.firstActivityDate}, :#{#summary.lastActivityDate},
+            :#{#summary.version}, :#{#summary.kafkaDeltaOffset},
             :#{#summary.kafkaDeltaTopic}, :#{#summary.kafkaDeltaPartition}, false
             )
         IF NOT EXISTS

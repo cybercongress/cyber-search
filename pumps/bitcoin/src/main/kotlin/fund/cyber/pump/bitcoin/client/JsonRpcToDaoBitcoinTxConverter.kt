@@ -44,8 +44,8 @@ class JsonRpcToDaoBitcoinTxConverter {
         val inputsByIds = inputs.associateBy { tx -> tx.txid }.toMutableMap()
 
         return jsonRpcBlock.rawtx
-                .map { btcdTransaction ->
-                    convertToDaoTransaction(btcdTransaction, inputsByIds, jsonRpcBlock)
+                .mapIndexed { index, btcdTransaction ->
+                    convertToDaoTransaction(btcdTransaction, inputsByIds, jsonRpcBlock, index)
                 }
     }
 
@@ -58,7 +58,7 @@ class JsonRpcToDaoBitcoinTxConverter {
      */
     fun convertToDaoTransaction(
             jsonRpcTransaction: JsonRpcBitcoinTransaction, inputsByIds: Map<String, JsonRpcBitcoinTransaction>,
-            jsonRpcBlock: JsonRpcBitcoinBlock): BitcoinTx {
+            jsonRpcBlock: JsonRpcBitcoinBlock, txIndex: Int): BitcoinTx {
 
         val firstInput = jsonRpcTransaction.vin.first()
 
@@ -74,7 +74,7 @@ class JsonRpcToDaoBitcoinTxConverter {
         val totalOutput = outputs.map { input -> input.amount }.sum()
 
         return BitcoinTx(
-                hash = jsonRpcTransaction.txid, blockNumber = jsonRpcBlock.height,
+                hash = jsonRpcTransaction.txid, blockNumber = jsonRpcBlock.height, index = txIndex,
                 ins = ins, outs = outputs, totalInputsAmount = totalInput, totalOutputsAmount = totalOutput,
                 fee = totalInput - totalOutput, size = jsonRpcTransaction.size,
                 blockTime = Instant.ofEpochSecond(jsonRpcBlock.time), blockHash = jsonRpcBlock.hash
@@ -95,7 +95,7 @@ class JsonRpcToDaoBitcoinTxConverter {
         val outputs = jsonRpcTransaction.vout.map(this::convertToDaoTransactionOutput)
 
         return BitcoinTx(
-                hash = jsonRpcTransaction.txid, blockNumber = jsonRpcBlock.height,
+                hash = jsonRpcTransaction.txid, blockNumber = jsonRpcBlock.height, index = 0,
                 coinbase = firstInput.coinbase, blockHash = jsonRpcBlock.hash,
                 blockTime = Instant.ofEpochSecond(jsonRpcBlock.time),
                 ins = emptyList(), outs = outputs, size = jsonRpcTransaction.size,

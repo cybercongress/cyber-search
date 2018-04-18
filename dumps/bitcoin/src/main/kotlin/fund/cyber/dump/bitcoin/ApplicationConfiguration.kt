@@ -1,5 +1,6 @@
 package fund.cyber.dump.bitcoin
 
+import fund.cyber.cassandra.bitcoin.repository.BitcoinAddressMinedBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinAddressTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockTxRepository
@@ -44,6 +45,8 @@ class ApplicationConfiguration(
     @Autowired
     lateinit var blockRepository: BitcoinBlockRepository
     @Autowired
+    lateinit var addressMinedBlockRepository: BitcoinAddressMinedBlockRepository
+    @Autowired
     lateinit var txRepository: BitcoinTxRepository
     @Autowired
     lateinit var addressTxRepository: BitcoinAddressTxRepository
@@ -65,7 +68,7 @@ class ApplicationConfiguration(
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain.blockPumpTopic).apply {
-            messageListener = BlockDumpProcess(blockRepository, chain, monitoring)
+            messageListener = BlockDumpProcess(blockRepository, addressMinedBlockRepository, chain, monitoring)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }

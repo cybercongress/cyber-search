@@ -26,7 +26,7 @@ val expectedDaoCoinbaseTx = BitcoinTx(
         totalOutputsAmount = BigDecimal("50"), totalInputsAmount = ZERO, ins = emptyList(),
         blockNumber = 100000, outs = listOf(expectedDaoCoinbaseTxOut),
         blockTime = Instant.ofEpochSecond(1293623863),
-        blockHash = "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506"
+        blockHash = "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506", index = 0
 )
 
 
@@ -58,7 +58,7 @@ val expectedRegularTx = BitcoinTx(
         ins = listOf(expectedFirstTxInput, expectedSecondTxInput),
         outs = listOf(expectedFirstTxOut, expectedSecondTxOut),
         blockNumber = 100000, blockTime = Instant.ofEpochSecond(1293623863),
-        blockHash = "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506"
+        blockHash = "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506", index = 1
 )
 
 
@@ -77,7 +77,8 @@ class BtcdToDaoTxConverterTest {
 
 
         val daoCoinbaseTx = JsonRpcToDaoBitcoinTxConverter().convertToDaoTransaction(
-                jsonRpcBlock = btcdBlock, jsonRpcTransaction = btcdBlock.rawtx.first(), inputsByIds = emptyMap()
+                jsonRpcBlock = btcdBlock, jsonRpcTransaction = btcdBlock.rawtx.first(), inputsByIds = emptyMap(),
+                txIndex = 0
         )
 
         Assertions.assertEquals(expectedDaoCoinbaseTx, daoCoinbaseTx)
@@ -128,7 +129,8 @@ class BtcdToDaoTxConverterTest {
         ).associateBy { tx -> tx.txid }
 
         val regularTx = JsonRpcToDaoBitcoinTxConverter().convertToDaoTransaction(
-                jsonRpcBlock = btcdBlock, jsonRpcTransaction = btcdBlock.rawtx[1], inputsByIds = daoInputTxById
+                jsonRpcBlock = btcdBlock, jsonRpcTransaction = btcdBlock.rawtx[1], inputsByIds = daoInputTxById,
+                txIndex = 1
         )
 
         Assertions.assertEquals(expectedRegularTx, regularTx)
