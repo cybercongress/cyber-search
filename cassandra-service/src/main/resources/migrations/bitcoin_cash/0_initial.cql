@@ -1,7 +1,7 @@
 
 CREATE TYPE IF NOT EXISTS bitcoin_cash.tx_preview_io (
     addresses FROZEN < list < text > >,
-    amount text
+    amount decimal
 );
 
 CREATE TABLE IF NOT EXISTS bitcoin_cash.tx_preview_by_address (
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS bitcoin_cash.tx_preview_by_block (
 
 CREATE TYPE IF NOT EXISTS bitcoin_cash.tx_out (
     addresses FROZEN < list < text > >,
-    amount text,
+    amount decimal,
     asm text,
     out int,
     required_signatures int
@@ -37,9 +37,9 @@ CREATE TYPE IF NOT EXISTS bitcoin_cash.tx_out (
 
 CREATE TYPE IF NOT EXISTS bitcoin_cash.tx_in (
     addresses FROZEN < list < text > >,
-    amount text,
+    amount decimal,
     asm text,
-    tx_id text,
+    tx_hash text,
     tx_out int
 );
 
@@ -62,6 +62,10 @@ CREATE TABLE IF NOT EXISTS bitcoin_cash.tx (
 CREATE TABLE IF NOT EXISTS bitcoin_cash.block (
      hash text,
      height bigint PRIMARY KEY,
+     miner text,
+     block_reward decimal,
+     tx_fees decimal,
+     coinbase_data text,
      time timestamp,
      nonce bigint,
      merkleroot text,
@@ -74,6 +78,15 @@ CREATE TABLE IF NOT EXISTS bitcoin_cash.block (
      difficulty varint
 );
 
+CREATE TABLE IF NOT exists bitcoin_cash.mined_block_by_address (
+    miner text,
+    block_number bigint,
+    block_time timestamp,
+    block_reward decimal,
+    tx_fees decimal,
+    tx_number int,
+    PRIMARY KEY (miner, block_number)
+)  WITH CLUSTERING ORDER BY ( block_number DESC );
 
 
 CREATE TABLE IF NOT EXISTS bitcoin_cash.address_summary (
@@ -82,6 +95,8 @@ CREATE TABLE IF NOT EXISTS bitcoin_cash.address_summary (
     confirmed_total_received decimal,
     confirmed_tx_number int,
     unconfirmed_tx_values map<text,decimal>,
+    first_activity_date timestamp,
+    last_activity_date timestamp,
     version bigint,
     kafka_delta_offset bigint,
     kafka_delta_partition int,
