@@ -5,7 +5,6 @@ import fund.cyber.search.model.bitcoin.BitcoinBlock
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinBlock
 import fund.cyber.search.model.bitcoin.getBlockReward
-import java.math.BigDecimal
 import java.time.Instant
 
 
