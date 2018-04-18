@@ -70,7 +70,8 @@ class BitcoinGenesisDataFileProvider(
                 txFees = BigDecimal.ZERO, coinbaseData = transactions.first().coinbase?:"",
                 bits = blockBundle.block.bits, difficulty = blockBundle.block.difficulty,
                 nonce = blockBundle.block.nonce, time = blockBundle.block.time,
-                weight = blockBundle.block.weight, merkleroot = blockBundle.block.merkleroot, height = blockBundle.block.height,
+                weight = blockBundle.block.weight, merkleroot = blockBundle.block.merkleroot,
+                height = blockBundle.block.height,
                 txNumber = transactions.size, totalOutputsAmount = totalOutputsValue
         )
 
