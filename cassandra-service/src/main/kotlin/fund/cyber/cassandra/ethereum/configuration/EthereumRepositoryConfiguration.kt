@@ -7,6 +7,9 @@ import fund.cyber.cassandra.configuration.keyspace
 import fund.cyber.cassandra.ethereum.repository.EthereumAddressRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
+import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressMinedBlockRepository
+import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressMinedUncleRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressTxRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumBlockTxRepository
 import fund.cyber.cassandra.migration.BlockchainMigrationSettings
@@ -104,7 +107,7 @@ private class EthereumFamilyChainCondition : Condition {
 }
 
 
-@Component("cassandra-repositories")
+@Component("ethereum-cassandra-repositories")
 @Conditional(NoChainCondition::class)
 class EthereumRepositoriesConfiguration : InitializingBean {
 
@@ -144,6 +147,12 @@ class EthereumRepositoriesConfiguration : InitializingBean {
 
             val addressRepository = reactiveRepositoryFactory.getRepository(EthereumAddressRepository::class.java)
             val addressTxRepository = repositoryFactory.getRepository(PageableEthereumAddressTxRepository::class.java)
+            val addressUncleRepository = repositoryFactory
+                    .getRepository(PageableEthereumAddressMinedUncleRepository::class.java)
+            val addressBlockRepository = repositoryFactory
+                    .getRepository(PageableEthereumAddressMinedBlockRepository::class.java)
+
+            val uncleRepository = reactiveRepositoryFactory.getRepository(EthereumUncleRepository::class.java)
 
             // register repositories
             beanFactory.registerSingleton(chain.name + "blockRepository", blockRepository)
@@ -153,6 +162,10 @@ class EthereumRepositoriesConfiguration : InitializingBean {
 
             beanFactory.registerSingleton(chain.name + "addressRepository", addressRepository)
             beanFactory.registerSingleton(chain.name + "pageableAddressTxRepository", addressTxRepository)
+            beanFactory.registerSingleton(chain.name + "pageableAddressBlockRepository", addressBlockRepository)
+            beanFactory.registerSingleton(chain.name + "pageableAddressUncleRepository", addressUncleRepository)
+
+            beanFactory.registerSingleton(chain.name + "uncleRepository", uncleRepository)
         }
     }
 

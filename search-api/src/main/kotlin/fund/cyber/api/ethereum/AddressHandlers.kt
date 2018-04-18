@@ -2,9 +2,13 @@ package fund.cyber.api.ethereum
 
 import fund.cyber.api.common.asSingleRouterFunction
 import fund.cyber.api.common.toSearchHashFormat
+import fund.cyber.api.ethereum.functions.AddressBlocksByAddress
 import fund.cyber.api.ethereum.functions.AddressTxesByAddress
+import fund.cyber.api.ethereum.functions.AddressUnclesByAddress
 import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressSummary
 import fund.cyber.cassandra.ethereum.repository.EthereumAddressRepository
+import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressMinedBlockRepository
+import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressMinedUncleRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressTxRepository
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,14 +23,14 @@ import org.springframework.web.reactive.function.server.RouterFunctions
 import org.springframework.web.reactive.function.server.ServerResponse
 
 @Configuration
-@DependsOn("cassandra-repositories")
-class AddressHandlersConfiguration {
+@DependsOn("ethereum-cassandra-repositories")
+class EthereumAddressHandlersConfiguration {
 
     @Autowired
     private lateinit var applicationContext: GenericApplicationContext
 
     @Bean
-    fun addressById(): RouterFunction<ServerResponse> {
+    fun ethereumAddressById(): RouterFunction<ServerResponse> {
 
         return EthereumFamilyChain.values().map { chain ->
 
@@ -43,7 +47,7 @@ class AddressHandlersConfiguration {
     }
 
     @Bean
-    fun addressTxesByAddress(): RouterFunction<ServerResponse> {
+    fun ethereumAddressTxesByAddress(): RouterFunction<ServerResponse> {
 
         return EthereumFamilyChain.values().map { chain ->
 
@@ -52,6 +56,34 @@ class AddressHandlersConfiguration {
             )
             val handler = AddressTxesByAddress(repository)
             RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/address/{id}/transactions"), handler)
+        }.asSingleRouterFunction()
+    }
+
+    @Bean
+    fun ethereumAddressBlocksByAddress(): RouterFunction<ServerResponse> {
+
+        return EthereumFamilyChain.values().map { chain ->
+
+            val repository = applicationContext.getBean(
+                    chain.name + "pageableAddressBlockRepository",
+                    PageableEthereumAddressMinedBlockRepository::class.java
+            )
+            val handler = AddressBlocksByAddress(repository)
+            RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/address/{id}/blocks"), handler)
+        }.asSingleRouterFunction()
+    }
+
+    @Bean
+    fun ethereumAddressUnclesByAddress(): RouterFunction<ServerResponse> {
+
+        return EthereumFamilyChain.values().map { chain ->
+
+            val repository = applicationContext.getBean(
+                    chain.name + "pageableAddressUncleRepository",
+                    PageableEthereumAddressMinedUncleRepository::class.java
+            )
+            val handler = AddressUnclesByAddress(repository)
+            RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/address/{id}/uncles"), handler)
         }.asSingleRouterFunction()
     }
 }

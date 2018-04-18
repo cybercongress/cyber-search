@@ -2,15 +2,15 @@ openapi: 3.0.1
 servers:
   - url: 'http://staging.cyber.fund:32901'
 info:
-  description: Empty description
+  description: 'Access to Bitcoin/Bitcoin Cash chain entites. <br /> To choose needed chain we use <code>{chainName}</code> parameter with <code>bitcoin</code> or <code>bitcoin_cash</code> value in url path.'
   version: 1.0.0
   title: Cyber.Search Bitcoin API
 tags:
   - name: bitcoin
-    description: Access to Bitcoin chain entites
+    description: Access to Bitcoin/Bitcoin Cash chain entites
 paths:
 
-  '/bitcoin/block/{blockNumber}':
+  '/{chainName}/block/{blockNumber}':
     get:
       tags:
         - bitcoin
@@ -18,6 +18,15 @@ paths:
       description: Returns a block
       operationId: getBlockByNumber
       parameters:
+        - name: chainName
+          in: path
+          description: Chain name
+          required: true
+          schema:
+            type: string
+            enum:
+              - bitcoin
+              - bitcoin_cash
         - name: blockNumber
           in: path
           description: Number of the block
@@ -37,15 +46,23 @@ paths:
         '404':
           description: 'Block not found'
 
-
-  '/bitcoin/block/{blockNumber}/transactions':
+  '/{chainName}/block/{blockNumber}/transactions':
     get:
       tags:
         - bitcoin
       summary: 'Download block transactions'
       description: Returns a block transactions
-      operationId: getBlockByNumber
+      operationId: getBlockTransactionsBlockNumber
       parameters:
+        - name: chainName
+          in: path
+          description: Chain name
+          required: true
+          schema:
+            type: string
+            enum:
+              - bitcoin
+              - bitcoin_cash
         - name: blockNumber
           in: path
           description: Number of the block
@@ -83,37 +100,80 @@ paths:
         '404':
           description: 'Block not found'
 
+  '/{chainName}/address/{id}':
+    get:
+      tags:
+        - bitcoin
+      summary: 'Find bitcoin address info by address id'
+      description: 'Returns an address info'
+      operationId: getAddress
+      parameters:
+        - name: chainName
+          in: path
+          description: Chain name
+          required: true
+          schema:
+            type: string
+            enum:
+              - bitcoin
+              - bitcoin_classic
+        - name: id
+          in: path
+          description: 'Address id'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Address found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BitcoinAddress'
+        '400':
+          description: "Invalid id supplied"
+        '404':
+          description: 'Address not found'
 
-  '/bitcoin/address/{address}/transactions':
+  '/{chainName}/address/{id}/transactions':
     get:
       tags:
         - bitcoin
       summary: 'Download address transactions'
-      description: 'Returns address transactions sorted by time (most recent first)'
-      operationId: getAddressResentTransactons
+      description: Returns an address transactions sorted by time (most recent first)
+      operationId: getAddressTransactionsByAddressId
       parameters:
-        - name: address
+        - name: chainName
           in: path
-          description: 'Given address'
+          description: Chain name
           required: true
           schema:
             type: string
-        - name: count
+            enum:
+              - bitcoin
+              - bitcoin_classic
+        - name: id
+          in: path
+          description: 'Address id'
+          required: true
+          schema:
+            type: string
+        - name: pageSize
           in: query
-          description: 'How many transactions to load (max value for all rest transactions)'
+          description: 'Size of the page'
           required: false
           schema:
             type: integer
-            format: int64
+            format: int32
             minimum: 0
             default: 20
-        - name: offset
+        - name: page
           in: query
-          description: 'Tx offset in address list (sorted by time, most recent first)'
+          description: 'Result set page number (starts from 0)'
           required: false
           schema:
             type: integer
-            format: int64
+            format: int32
             minimum: 0
             default: 0
       responses:
@@ -124,9 +184,98 @@ paths:
               schema:
                 $ref: '#/components/schemas/BitcoinAddressTx'
         '400':
-          description: "Invalid 'address', 'count' or 'offset' parameters"
+          description: "Invalid 'id', 'page' or 'pageSize' parameters"
         '404':
           description: 'Address not found'
+
+  '/{chainName}/address/{id}/blocks':
+    get:
+      tags:
+        - bitcoin
+      summary: 'Download address blocks'
+      description: Returns an address blocks sorted by time (most recent first)
+      operationId: getAddressBlocksByAddressId
+      parameters:
+        - name: chainName
+          in: path
+          description: Chain name
+          required: true
+          schema:
+            type: string
+            enum:
+              - bitcoin
+              - bitcoin_classic
+        - name: id
+          in: path
+          description: 'Address id'
+          required: true
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          description: 'Size of the page'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 20
+        - name: page
+          in: query
+          description: 'Result set page number (starts from 0)'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: 'Address blocks found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BitcoinAddressBlock'
+        '400':
+          description: "Invalid 'id', 'page' or 'pageSize' parameters"
+        '404':
+          description: 'Address not found'
+
+
+  '/{chainName}/tx/{hash}':
+    get:
+      tags:
+        - bitcoin
+      summary: Find bitcoin transaction by its hash
+      description: Returns a transaction
+      operationId: getTxByHash
+      parameters:
+        - name: chainName
+          in: path
+          description: Chain name
+          required: true
+          schema:
+            type: string
+            enum:
+              - bitcoin
+              - bitcoin_classic
+        - name: hash
+          in: path
+          description: Hash of the transaction
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Transaction found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BitcoinTx'
+        '400':
+          description: 'Invalid transaction hash supplied'
+        '404':
+          description: 'Transaction not found'
 
 
 components:
@@ -148,24 +297,16 @@ components:
         tx_number:
           type: integer
           format: int32
+        total_inputs_value:
+          type: string
         total_outputs_value:
           type: string
-
-    BitcoinTxPreviewIO:
-       type: object
-       properties:
-         addresses:
-          type: array
-          items:
-            type: string
-         amount:
-           type: string
 
 
     BitcoinTxPreview:
       type: object
       properties:
-        txid:
+        hash:
           type: string
         block_hash:
           type: string
@@ -177,6 +318,8 @@ components:
           format: date-time
         fee:
           type: string
+        total_input:
+          type: string
         total_output:
           type: string
 
@@ -184,7 +327,6 @@ components:
 
     BitcoinBlock:
       allOf:
-        - $ref: '#/components/schemas/BitcoinBlockPreview'
         - type: object
           properties:
             hash:
@@ -192,6 +334,14 @@ components:
             height:
               type: integer
               format: int64
+            miner:
+              type: string
+            blockReward:
+              type: number
+            txFees:
+              type: number
+            coinbaseData:
+              type: string
             time:
               type: string
               format: date-time
@@ -218,19 +368,18 @@ components:
               format: int32
             total_outputs_value:
               type: string
-            transactionPreviews:
-              type: array
-              items:
-                $ref: "#/components/schemas/BitcoinBlockTx"
 
     BitcoinBlockTx:
       type: object
       properties:
-        hash:
-          type: string
-        block_number:
+        blockNumber:
           type: integer
           format: int64
+        index:
+          type: integer
+          format: int32
+        hash:
+          type: string
         fee:
           type: string
         ins:
@@ -243,6 +392,93 @@ components:
             $ref: "#/components/schemas/BitcoinTxPreviewIO"
 
 
+    BitcoinTxPreviewIO:
+       type: object
+       properties:
+         addresses:
+          type: array
+          items:
+            type: string
+         amount:
+           type: string
+
+
+    BitcoinAddress:
+       type: object
+       properties:
+         id:
+           type: string
+         confirmedBalance:
+           type: number
+         confirmedTotalReceived:
+           type: number
+         confirmedTxNumber:
+           type: integer
+           format: int32
+         firstActivityDate:
+           type: string
+           format: date-time
+         lastActivityDate:
+           type: string
+           format: date-time
+         version:
+           type: integer
+           format: int64
+         kafkaDeltaOffset:
+           type: integer
+           format: int64
+         kafkaDeltaPartition:
+           type: integer
+           format: int32
+         kafkaDeltaTopic:
+           type: string
+         kafkaDeltaOffsetCommited:
+           type: boolean
+
+
+    BitcoinAddressTx:
+       type: object
+       properties:
+         hash:
+           type: string
+         block_number:
+           type: integer
+           format: int64
+         block_time:
+           type: string
+           format: date-time
+         fee:
+           type: number
+         ins:
+           type: array
+           items:
+             $ref: "#/components/schemas/BitcoinTxPreviewIO"
+         outs:
+           type: array
+           items:
+             $ref: "#/components/schemas/BitcoinTxPreviewIO"
+
+
+    BitcoinAddressBlock:
+      type: object
+      properties:
+        miner:
+          type: string
+        blockNumber:
+          type: integer
+          format: int64
+        blockTime:
+          type: string
+          format: date-time
+        blockReward:
+          type: number
+        txFees:
+          type: number
+        txNumber:
+          type: integer
+          format: int32
+
+
     BitcoinTx:
       allOf:
         - $ref: '#/components/schemas/BitcoinTxPreview'
@@ -253,10 +489,16 @@ components:
             size:
               type: integer
               format: int32
-            total_input:
-              type: string
             merkleroot:
               type: string
+            ins:
+              type: array
+              items:
+                $ref: "#/components/schemas/BitcoinTxIn"
+            outs:
+              type: array
+              items:
+                $ref: "#/components/schemas/BitcoinTxOut"
 
     BitcoinTxIn:
        type: object
@@ -269,7 +511,7 @@ components:
            type: string
          asm:
            type: string
-         tx_id:
+         tx_hash:
            type: string
          tx_out:
            type: integer
@@ -286,31 +528,9 @@ components:
            type: string
          asm:
            type: string
-         tx_id:
-           type: string
-         tx_out:
+         out:
            type: integer
            format: int32
-
-
-    BitcoinContractTx:
-      type: object
-      properties:
-        hash:
-          type: string
-        block_number:
-          type: integer
-          format: int64
-        block_time:
-          type: string
-          format: date-time
-        fee:
-          type: number
-        ins:
-          type: array
-          items:
-            $ref: "#/components/schemas/BitcoinTxPreviewIO"
-        outs:
-          type: array
-          items:
-            $ref: "#/components/schemas/BitcoinTxPreviewIO"
+         required_signatures:
+           type: integer
+           format: int32

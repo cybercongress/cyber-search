@@ -33,7 +33,7 @@ data class CqlBitcoinAddressSummary(
 
 
 @Table("tx_preview_by_address")
-data class CqlBitcoinAddressTx(
+data class CqlBitcoinAddressTxPreview(
 
         @PrimaryKeyColumn(ordinal = 0, type = PARTITIONED) val address: String,
         @PrimaryKeyColumn(ordinal = 1, type = CLUSTERED) val block_time: Instant,

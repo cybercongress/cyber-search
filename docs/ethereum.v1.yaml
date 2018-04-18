@@ -190,6 +190,112 @@ paths:
         '404':
           description: 'Address not found'
 
+  '/{chainName}/address/{id}/blocks':
+    get:
+      tags:
+        - ethereum
+      summary: 'Download address blocks'
+      description: Returns an address blocks sorted by time (most recent first)
+      operationId: getAddressBlocksByAddressId
+      parameters:
+        - name: chainName
+          in: path
+          description: Chain name
+          required: true
+          schema:
+            type: string
+            enum:
+              - ethereum
+              - ethereum_classic
+        - name: id
+          in: path
+          description: 'Address id'
+          required: true
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          description: 'Size of the page'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 20
+        - name: page
+          in: query
+          description: 'Result set page number (starts from 0)'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: 'Address blocks found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EthereumAddressBlock'
+        '400':
+          description: "Invalid 'id', 'page' or 'pageSize' parameters"
+        '404':
+          description: 'Address not found'
+
+  '/{chainName}/address/{id}/uncles':
+    get:
+      tags:
+        - ethereum
+      summary: 'Download address uncles'
+      description: Returns an address uncles sorted by time (most recent first)
+      operationId: getAddressUnclesByAddressId
+      parameters:
+        - name: chainName
+          in: path
+          description: Chain name
+          required: true
+          schema:
+            type: string
+            enum:
+              - ethereum
+              - ethereum_classic
+        - name: id
+          in: path
+          description: 'Address id'
+          required: true
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          description: 'Size of the page'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 20
+        - name: page
+          in: query
+          description: 'Result set page number (starts from 0)'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: 'Address uncles found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EthereumAddressUncle'
+        '400':
+          description: "Invalid 'id', 'page' or 'pageSize' parameters"
+        '404':
+          description: 'Address not found'
+
   '/{chainName}/tx/{hash}':
     get:
       tags:
@@ -224,6 +330,41 @@ paths:
           description: 'Invalid transaction hash supplied'
         '404':
           description: 'Transaction not found'
+
+  '/{chainName}/uncle/{hash}':
+    get:
+      tags:
+        - ethereum
+      summary: Find ethereum uncle by its hash
+      description: Returns an uncle
+      operationId: getUncleByHash
+      parameters:
+        - name: chainName
+          in: path
+          description: Chain name
+          required: true
+          schema:
+            type: string
+            enum:
+              - ethereum
+              - ethereum_classic
+        - name: hash
+          in: path
+          description: Hash of the uncle
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Uncle found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EthereumUncle'
+        '400':
+          description: 'Invalid uncle hash supplied'
+        '404':
+          description: 'Uncle not found'
 
 components:
   schemas:
@@ -354,6 +495,54 @@ components:
         value:
           type: string
 
+    EthereumAddressBlock:
+      type: object
+      properties:
+        miner:
+          type: string
+        blockNumber:
+          type: integer
+          format: int64
+        blockTime:
+          type: string
+          format: date-time
+        blockReward:
+          type: number
+        unclesReward:
+          type: number
+        txFees:
+          type: number
+        txNumber:
+          type: integer
+          format: int32
+
+    EthereumAddressUncle:
+      type: object
+      properties:
+        miner:
+          type: string
+        blockNumber:
+          type: integer
+          format: int64
+        hash:
+          type: string
+        position:
+          type: integer
+          format: int32
+        number:
+          type: integer
+          format: int64
+        timestamp:
+          type: string
+          format: date-time
+        blockTime:
+          type: string
+          format: date-time
+        blockHash:
+          type: string
+        uncleReward:
+          type: number
+
     EthereumTx:
       type: object
       properties:
@@ -390,3 +579,30 @@ components:
           type: string
         createdContract:
           type: string
+
+    EthereumUncle:
+      type: object
+      properties:
+        hash:
+          type: string
+        position:
+          type: integer
+          format: int32
+        number:
+          type: integer
+          format: int64
+        timestamp:
+          type: string
+          format: date-time
+        blockNumber:
+          type: integer
+          format: int64
+        blockTime:
+          type: string
+          format: date-time
+        blockHash:
+          type: string
+        miner:
+          type: string
+        uncleReward:
+          type: number
