@@ -1,6 +1,7 @@
 package fund.cyber.cassandra.bitcoin.configuration
 
 import com.datastax.driver.core.Cluster
+import com.datastax.driver.extras.codecs.jdk8.InstantCodec
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
 import fund.cyber.cassandra.common.NoChainCondition
@@ -30,6 +31,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata
 import org.springframework.data.cassandra.ReactiveSession
 import org.springframework.data.cassandra.config.CassandraEntityClassScanner
 import org.springframework.data.cassandra.config.CassandraSessionFactoryBean
+import org.springframework.data.cassandra.config.ClusterBuilderConfigurer
 import org.springframework.data.cassandra.config.SchemaAction
 import org.springframework.data.cassandra.core.CassandraTemplate
 import org.springframework.data.cassandra.core.ReactiveCassandraOperations
@@ -82,6 +84,12 @@ class BitcoinRepositoryConfiguration(
         return DefaultBridgedReactiveSession(session.`object`)
     }
 
+    override fun getClusterBuilderConfigurer(): ClusterBuilderConfigurer? {
+        return ClusterBuilderConfigurer { clusterBuilder ->
+            clusterBuilder.configuration.codecRegistry.register(InstantCodec.instance)
+            return@ClusterBuilderConfigurer clusterBuilder
+        }
+    }
 
     @Bean("bitcoinSession")
     override fun session(): CassandraSessionFactoryBean {

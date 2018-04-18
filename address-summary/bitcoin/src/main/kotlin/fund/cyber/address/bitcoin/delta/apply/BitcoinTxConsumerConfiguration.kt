@@ -28,7 +28,7 @@ import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler
 import org.springframework.kafka.listener.config.ContainerProperties
 import org.springframework.transaction.annotation.EnableTransactionManagement
 
-private const val MAX_POLL_RECORDS_CONFIG = 10
+private const val MAX_POLL_RECORDS_CONFIG = 500
 
 @EnableKafka
 @Configuration

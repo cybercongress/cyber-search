@@ -3,8 +3,10 @@ package fund.cyber.pump.bitcoin.client.genesis
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import fund.cyber.common.sum
 import fund.cyber.pump.bitcoin.client.BitcoinBlockBundle
 import fund.cyber.pump.common.genesis.GenesisDataProvider
+import fund.cyber.search.model.bitcoin.BitcoinBlock
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.bitcoin.BitcoinTxIn
 import fund.cyber.search.model.bitcoin.BitcoinTxOut
@@ -35,15 +37,15 @@ class BitcoinGenesisDataFileProvider(
                         BitcoinGenesisFile::class.java
                 )
 
-        val transactions = genesis.transactions.map {
-            val ins = it.ins.map {
+        val transactions = genesis.transactions.mapIndexed { index, tx ->
+            val ins = tx.ins.map {
                 BitcoinTxIn(
                         addresses = it.addresses, amount = it.amount,
                         asm = it.asm, txHash = it.txHash, txOut = it.txOut
                 )
             }
 
-            val outs = it.outs.map {
+            val outs = tx.outs.map {
                 BitcoinTxOut(
                         addresses = it.addresses, amount = it.amount, asm = "",
                         out = 0, requiredSignatures = 0
@@ -51,16 +53,30 @@ class BitcoinGenesisDataFileProvider(
             }
 
             BitcoinTx(
-                    hash = it.hash, blockNumber =  it.blockNumber, blockHash = it.blockHash,
-                    coinbase =  it.coinbase, blockTime = Instant.ofEpochSecond(it.blockTime),
-                    size = it.size, fee = it.fee, totalInputsAmount = it.totalInputsAmount,
-                    totalOutputsAmount = it.totalOutputsAmount, ins = ins, outs = outs
+                    hash = tx.hash, blockNumber =  tx.blockNumber, blockHash = tx.blockHash,
+                    coinbase =  tx.coinbase, blockTime = Instant.ofEpochSecond(tx.blockTime),
+                    size = tx.size, fee = tx.fee, totalInputsAmount = tx.totalInputsAmount,
+                    totalOutputsAmount = tx.totalOutputsAmount, ins = ins, outs = outs, index = index
             )
         }
 
+        val totalOutputsValue = transactions.flatMap { tx -> tx.outs }.map { out -> out.amount }.sum()
+        val miner = transactions.first().outs.first().addresses.first()
+
+        val block = BitcoinBlock(
+                hash = blockBundle.block.hash, size = blockBundle.block.size,
+                miner =  miner,
+                version = blockBundle.block.version, blockReward = blockBundle.block.blockReward,
+                txFees = BigDecimal.ZERO, coinbaseData = transactions.first().coinbase?:"",
+                bits = blockBundle.block.bits, difficulty = blockBundle.block.difficulty,
+                nonce = blockBundle.block.nonce, time = blockBundle.block.time,
+                weight = blockBundle.block.weight, merkleroot = blockBundle.block.merkleroot, height = blockBundle.block.height,
+                txNumber = transactions.size, totalOutputsAmount = totalOutputsValue
+        )
+
         return BitcoinBlockBundle(
                 hash = blockBundle.hash, parentHash = blockBundle.parentHash, blockSize = blockBundle.blockSize,
-                transactions = transactions, block = blockBundle.block, number = blockBundle.number
+                transactions = transactions, block = block, number = blockBundle.number
         )
     }
 

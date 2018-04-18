@@ -12,12 +12,14 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.math.BigDecimal.ZERO
+import java.time.Instant
 
 data class BitcoinAddressSummaryDelta(
         override val address: String,
         val balanceDelta: BigDecimal,
         val totalReceivedDelta: BigDecimal,
         val txNumberDelta: Int,
+        val time: Instant,
         override val topic: String,
         override val partition: Int,
         override val offset: Long
@@ -26,7 +28,7 @@ data class BitcoinAddressSummaryDelta(
     fun revertedDelta(): BitcoinAddressSummaryDelta = BitcoinAddressSummaryDelta(
             address = address, balanceDelta = -balanceDelta, txNumberDelta = -txNumberDelta,
             totalReceivedDelta = -totalReceivedDelta, topic = topic,
-            partition = partition, offset = offset
+            partition = partition, offset = offset, time = time
     )
 
     override fun createSummary(): CqlBitcoinAddressSummary {
@@ -34,6 +36,7 @@ data class BitcoinAddressSummaryDelta(
                 id = this.address, confirmedBalance = this.balanceDelta,
                 confirmedTxNumber = this.txNumberDelta,
                 confirmedTotalReceived = this.totalReceivedDelta,
+                firstActivityDate = this.time, lastActivityDate = this.time,
                 kafkaDeltaOffset = this.offset, kafkaDeltaTopic = this.topic,
                 kafkaDeltaPartition = this.partition, version = 0
         )
@@ -43,6 +46,7 @@ data class BitcoinAddressSummaryDelta(
         return CqlBitcoinAddressSummary(
                 id = summary.id, confirmedBalance = summary.confirmedBalance + this.balanceDelta,
                 confirmedTxNumber = summary.confirmedTxNumber + this.txNumberDelta,
+                firstActivityDate = summary.firstActivityDate, lastActivityDate = time,
                 confirmedTotalReceived = summary.confirmedTotalReceived + this.totalReceivedDelta,
                 kafkaDeltaOffset = this.offset, kafkaDeltaTopic = this.topic,
                 kafkaDeltaPartition = this.partition, version = summary.version + 1
@@ -63,7 +67,7 @@ class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinAddressSumma
                 BitcoinAddressSummaryDelta(
                         address = address, balanceDelta = -input.amount, txNumberDelta = 1,
                         totalReceivedDelta = ZERO, topic = record.topic(), partition = record.partition(),
-                        offset = record.offset()
+                        offset = record.offset(), time = tx.blockTime
                 )
             }
         }
@@ -73,7 +77,7 @@ class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinAddressSumma
                 BitcoinAddressSummaryDelta(
                         address = address, balanceDelta = output.amount, txNumberDelta = 1,
                         totalReceivedDelta = output.amount, topic = record.topic(), partition = record.partition(),
-                        offset = record.offset()
+                        offset = record.offset(), time = tx.blockTime
                 )
             }
         }
@@ -116,7 +120,8 @@ class BitcoinDeltaMerger: DeltaMerger<BitcoinAddressSummaryDelta> {
         return if (deltasToApply.isEmpty()) null else BitcoinAddressSummaryDelta(
                 address = first.address, balanceDelta = balance, txNumberDelta = txNumber,
                 totalReceivedDelta = totalReceived, topic = first.topic, partition = first.partition,
-                offset = deltasToApply.maxBy { it -> it.offset }!!.offset
+                offset = deltasToApply.maxBy { it -> it.offset }!!.offset,
+                time = deltasToApply.sortedByDescending { it -> it.time }.first().time
         )
     }
 }

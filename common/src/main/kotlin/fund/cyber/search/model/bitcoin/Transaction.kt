@@ -8,6 +8,7 @@ data class BitcoinTx(
         val hash: String,
         val blockNumber: Long,
         val blockHash: String,
+        val index: Int,
         val coinbase: String? = null,
         val blockTime: Instant,
         val size: Int,
