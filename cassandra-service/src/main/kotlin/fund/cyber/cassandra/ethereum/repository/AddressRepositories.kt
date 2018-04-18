@@ -18,7 +18,14 @@ interface EthereumAddressMinedBlockRepository : ReactiveCrudRepository<CqlEthere
 
 interface EthereumAddressUncleRepository : ReactiveCrudRepository<CqlEthereumAddressMinedUncle, MapId>
 
-
 interface PageableEthereumAddressTxRepository : CassandraRepository<CqlEthereumAddressTxPreview, MapId> {
     fun findAllByAddress(address: String, page: Pageable): Slice<CqlEthereumAddressTxPreview>
+}
+
+interface PageableEthereumAddressMinedBlockRepository : CassandraRepository<CqlEthereumAddressMinedBlock, MapId> {
+    fun findAllByMiner(miner: String, page: Pageable): Slice<CqlEthereumAddressMinedBlock>
+}
+
+interface PageableEthereumAddressMinedUncleRepository : CassandraRepository<CqlEthereumAddressMinedUncle, MapId> {
+    fun findAllByMiner(miner: String, page: Pageable): Slice<CqlEthereumAddressMinedUncle>
 }

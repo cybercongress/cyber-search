@@ -2,8 +2,12 @@ package fund.cyber.cassandra.bitcoin.configuration
 
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.extras.codecs.jdk8.InstantCodec
+import fund.cyber.cassandra.bitcoin.repository.BitcoinAddressSummaryRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
+import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinAddressMinedBlockRepository
+import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinAddressTxRepository
+import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinBlockTxRepository
 import fund.cyber.cassandra.common.NoChainCondition
 import fund.cyber.cassandra.configuration.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.configuration.keyspace
@@ -110,7 +114,7 @@ private class BitcoinFamilyChainCondition : Condition {
 }
 
 
-@Component("cassandra-repositories")
+@Component("bitcoin-cassandra-repositories")
 @Conditional(NoChainCondition::class)
 class BitcoinRepositoriesConfiguration : InitializingBean {
 
@@ -144,14 +148,25 @@ class BitcoinRepositoriesConfiguration : InitializingBean {
 
             // create repositories
             val blockRepository = reactiveRepositoryFactory.getRepository(BitcoinBlockRepository::class.java)
+            val blockTxRepository = repositoryFactory.getRepository(PageableBitcoinBlockTxRepository::class.java)
 
             val txRepository = reactiveRepositoryFactory.getRepository(BitcoinTxRepository::class.java)
+
+            val addressRepository = reactiveRepositoryFactory.getRepository(BitcoinAddressSummaryRepository::class.java)
+            val addressTxRepository = repositoryFactory.getRepository(PageableBitcoinAddressTxRepository::class.java)
+            val addressBlockRepository = repositoryFactory
+                    .getRepository(PageableBitcoinAddressMinedBlockRepository::class.java)
 
 
             // register repositories
             beanFactory.registerSingleton(chain.name + "blockRepository", blockRepository)
+            beanFactory.registerSingleton(chain.name + "pageableBlockTxRepository", blockTxRepository)
 
             beanFactory.registerSingleton(chain.name + "txRepository", txRepository)
+
+            beanFactory.registerSingleton(chain.name + "addressRepository", addressRepository)
+            beanFactory.registerSingleton(chain.name + "pageableAddressTxRepository", addressTxRepository)
+            beanFactory.registerSingleton(chain.name + "pageableAddressBlockRepository", addressBlockRepository)
         }
     }
 

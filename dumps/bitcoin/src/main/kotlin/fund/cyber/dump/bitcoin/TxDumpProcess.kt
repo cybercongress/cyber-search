@@ -1,7 +1,7 @@
 package fund.cyber.dump.bitcoin
 
-import fund.cyber.cassandra.bitcoin.model.CqlBitcoinAddressTx
-import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlockTx
+import fund.cyber.cassandra.bitcoin.model.CqlBitcoinAddressTxPreview
+import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlockTxPreview
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTx
 import fund.cyber.cassandra.bitcoin.repository.BitcoinAddressTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockTxRepository
@@ -50,19 +50,19 @@ class TxDumpProcess(
 
         addressTxRepository
                 .saveAll(txsToCommit.flatMap { tx ->
-                    tx.allAddressesUsedInTransaction().map { address -> CqlBitcoinAddressTx(address, tx) }
+                    tx.allAddressesUsedInTransaction().map { address -> CqlBitcoinAddressTxPreview(address, tx) }
                 })
                 .collectList().block()
         addressTxRepository
                 .deleteAll(txsToRevert.flatMap { tx ->
-                    tx.allAddressesUsedInTransaction().map { address -> CqlBitcoinAddressTx(address, tx) }
+                    tx.allAddressesUsedInTransaction().map { address -> CqlBitcoinAddressTxPreview(address, tx) }
                 })
                 .block()
 
         blockTxRepository
-                .saveAll(txsToCommit.map { tx -> CqlBitcoinBlockTx(tx) })
+                .saveAll(txsToCommit.map { tx -> CqlBitcoinBlockTxPreview(tx) })
                 .collectList().block()
-        blockTxRepository.deleteAll(txsToRevert.map { tx -> CqlBitcoinBlockTx(tx) })
+        blockTxRepository.deleteAll(txsToRevert.map { tx -> CqlBitcoinBlockTxPreview(tx) })
                 .block()
         if (::topicCurrentOffsetMonitor.isInitialized) {
             topicCurrentOffsetMonitor.set(records.last().offset())

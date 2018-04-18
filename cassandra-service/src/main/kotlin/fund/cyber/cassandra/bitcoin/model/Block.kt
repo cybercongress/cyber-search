@@ -35,7 +35,7 @@ data class CqlBitcoinTxPreviewIO(
 }
 
 @Table("tx_preview_by_block")
-data class CqlBitcoinBlockTx(
+data class CqlBitcoinBlockTxPreview(
         @PrimaryKeyColumn(name = "block_number", ordinal = 0, type = PrimaryKeyType.PARTITIONED) val blockNumber: Long,
         //specify tx number(order) in block
         @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED) val index: Int,

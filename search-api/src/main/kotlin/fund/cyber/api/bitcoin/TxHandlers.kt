@@ -1,42 +1,40 @@
-package fund.cyber.api.ethereum
+package fund.cyber.api.bitcoin
 
 import fund.cyber.api.common.asSingleRouterFunction
-import fund.cyber.api.common.toSearchHashFormat
-import fund.cyber.cassandra.ethereum.model.CqlEthereumTx
-import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
-import fund.cyber.search.model.chains.EthereumFamilyChain
+import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTx
+import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
+import fund.cyber.search.model.chains.BitcoinFamilyChain
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.DependsOn
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.web.reactive.function.server.HandlerFunction
-import org.springframework.web.reactive.function.server.RequestPredicates
+import org.springframework.web.reactive.function.server.RequestPredicates.path
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.RouterFunctions
 import org.springframework.web.reactive.function.server.ServerResponse
 
-
 @Configuration
-@DependsOn("ethereum-cassandra-repositories")
-class EthereumTxHandlersConfiguration {
+@DependsOn("bitcoin-cassandra-repositories")
+class BitcoinTxHandlersConfiguration {
 
     @Autowired
     private lateinit var applicationContext: GenericApplicationContext
 
     @Bean
-    fun ethereumTxByHash(): RouterFunction<ServerResponse> {
+    fun bitcoinTxByHash(): RouterFunction<ServerResponse> {
 
-        return EthereumFamilyChain.values().map { chain ->
+        return BitcoinFamilyChain.values().map { chain ->
 
-            val txRepository = applicationContext.getBean(chain.name + "txRepository", EthereumTxRepository::class.java)
+            val txRepository = applicationContext.getBean(chain.name + "txRepository", BitcoinTxRepository::class.java)
 
             val txByHash = HandlerFunction { request ->
                 val hash = request.pathVariable("hash")
-                val tx = txRepository.findById(hash.toSearchHashFormat())
-                ServerResponse.ok().body(tx, CqlEthereumTx::class.java)
+                val tx = txRepository.findById(hash)
+                ServerResponse.ok().body(tx, CqlBitcoinTx::class.java)
             }
-            RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/tx/{hash}"), txByHash)
+            RouterFunctions.route(path("/${chain.lowerCaseName}/tx/{hash}"), txByHash)
         }.asSingleRouterFunction()
     }
 }

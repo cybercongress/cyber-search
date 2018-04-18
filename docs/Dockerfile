@@ -7,6 +7,7 @@ COPY docs/ethereum.v1.yaml /usr/share/nginx/html/
 
 ENV API_URLS='[                                              \
     {name:"Search API", url:"search.v1.yaml"},               \
-    {name:"Ethereum API", url:"ethereum.v1.yaml"}            \
+    {name:"Ethereum API", url:"ethereum.v1.yaml"},            \
+    {name:"Bitcoin API", url:"bitcoin.v1.yaml"}            \
 ]'
 
