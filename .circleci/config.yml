@@ -106,7 +106,7 @@ jobs:
              docker tag build/pump-bitcoin cybernode/chain-pump-bitcoin:latest
              docker push cybernode/chain-pump-bitcoin:latest
 
-  deploy_chain_dumps_bitcoin_image:
+  deploy_chain_dumps_cassandra_bitcoin_image:
      <<: *defaults
      steps:
        - checkout
@@ -115,12 +115,12 @@ jobs:
        - run:
            name: Build Bitcoin Dump Image
            command: |
-             docker build -t build/dump-bitcoin -f ./dumps/bitcoin/Dockerfile ./
+             docker build -t build/dump-cassandra-bitcoin -f ./dumps/bitcoin/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker tag build/dump-bitcoin cybernode/chain-dump-bitcoin:$CIRCLE_TAG
-             docker push cybernode/chain-dump-bitcoin:$CIRCLE_TAG
-             docker tag build/dump-bitcoin cybernode/chain-dump-bitcoin:latest
-             docker push cybernode/chain-dump-bitcoin:latest
+             docker tag build/dump-cassandra-bitcoin cybernode/chain-dump-cassandra-bitcoin:$CIRCLE_TAG
+             docker push cybernode/chain-dump-cassandra-bitcoin:$CIRCLE_TAG
+             docker tag build/dump-cassandra-bitcoin cybernode/chain-dump-cassandra-bitcoin:latest
+             docker push cybernode/chain-dump-cassandra-bitcoin:latest
 
   deploy_chain_contract_summary_bitcoin_image:
      <<: *defaults
@@ -197,7 +197,11 @@ workflows:
           <<: *release_filter
           requires:
             - build_project
-      - deploy_chain_dumps_bitcoin_image:
+      - deploy_chain_dumps_cassandra_bitcoin_image:
+          <<: *release_filter
+          requires:
+            - build_project
+      - deploy_chain_contract_summary_bitcoin_image:
           <<: *release_filter
           requires:
             - build_project
