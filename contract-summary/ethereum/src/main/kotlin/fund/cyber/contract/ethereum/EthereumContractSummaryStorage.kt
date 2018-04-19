@@ -17,8 +17,8 @@ class EthereumContractSummaryStorage(
     override fun findAllByIdIn(ids: Iterable<String>): Flux<CqlEthereumContractSummary> = contractSummaryRepository
             .findAllById(ids)
 
-    override fun update(summary: CqlEthereumContractSummary, oldVersion: Long): Mono<Boolean> = contractSummaryRepository
-            .update(summary, oldVersion)
+    override fun update(summary: CqlEthereumContractSummary, oldVersion: Long): Mono<Boolean>
+            = contractSummaryRepository.update(summary, oldVersion)
 
     override fun insertIfNotRecord(summary: CqlEthereumContractSummary): Mono<Boolean> = contractSummaryRepository
             .insertIfNotRecord(summary)
@@ -26,8 +26,8 @@ class EthereumContractSummaryStorage(
     override fun commitUpdate(contract: String, newVersion: Long): Mono<Boolean> = contractSummaryRepository
             .commitUpdate(contract, newVersion)
 
-    override fun update(summary: CqlEthereumContractSummary): Mono<CqlEthereumContractSummary> = contractSummaryRepository
-            .save(summary)
+    override fun update(summary: CqlEthereumContractSummary): Mono<CqlEthereumContractSummary>
+            = contractSummaryRepository.save(summary)
 
     override fun remove(contract: String): Mono<Void> = contractSummaryRepository.deleteById(contract)
 }

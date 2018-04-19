@@ -81,7 +81,8 @@ class ParityToEthereumBundleConverter(
 
         return EthereumBlock(
                 hash = parityBlock.hash, parentHash = parityBlock.parentHash, number = number,
-                minerContractHash = parityBlock.miner, difficulty = parityBlock.difficulty, size = parityBlock.sizeRaw.hexToLong(),
+                minerContractHash = parityBlock.miner, difficulty = parityBlock.difficulty,
+                size = parityBlock.sizeRaw.hexToLong(),
                 extraData = parityBlock.extraData, totalDifficulty = parityBlock.totalDifficulty,
                 gasLimit = parityBlock.gasLimitRaw.hexToLong(), gasUsed = parityBlock.gasUsedRaw.hexToLong(),
                 timestamp = Instant.ofEpochSecond(parityBlock.timestampRaw.hexToLong()),

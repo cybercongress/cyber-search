@@ -39,8 +39,8 @@ data class EthereumContractSummaryDelta(
 
     override fun createSummary(): CqlEthereumContractSummary {
         return CqlEthereumContractSummary(
-                hash = this.contract, confirmedBalance = this.balanceDelta.toString(), smartContract = this.smartContract
-                ?: false,
+                hash = this.contract, confirmedBalance = this.balanceDelta.toString(),
+                smartContract = this.smartContract ?: false,
                 confirmedTotalReceived = this.totalReceivedDelta.toString(), txNumber = this.txNumberDelta,
                 minedUncleNumber = this.uncleNumberDelta, minedBlockNumber = this.minedBlockNumberDelta,
                 kafkaDeltaOffset = this.offset, kafkaDeltaTopic = this.topic,
@@ -77,15 +77,15 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumContractS
         val contractDeltaByInput = EthereumContractSummaryDelta(
                 contract = tx.from, txNumberDelta = 1, minedBlockNumberDelta = 0, uncleNumberDelta = 0,
                 balanceDelta = tx.value.negate() - tx.fee, totalReceivedDelta = BigDecimal.ZERO,
-                smartContract = (tx.createdSmartContract != null), topic = record.topic(), partition = record.partition(),
-                offset = record.offset(), time = tx.blockTime
+                smartContract = (tx.createdSmartContract != null), topic = record.topic(),
+                partition = record.partition(), offset = record.offset(), time = tx.blockTime
         )
 
         val contractDeltaByOutput = EthereumContractSummaryDelta(
                 contract = (tx.to ?: tx.createdSmartContract)!!, txNumberDelta = 1, minedBlockNumberDelta = 0,
                 uncleNumberDelta = 0, balanceDelta = tx.value, totalReceivedDelta = tx.value,
-                smartContract = (tx.createdSmartContract != null), topic = record.topic(), partition = record.partition(),
-                offset = record.offset(), time = tx.blockTime
+                smartContract = (tx.createdSmartContract != null), topic = record.topic(),
+                partition = record.partition(), offset = record.offset(), time = tx.blockTime
         )
 
         return listOf(contractDeltaByInput, contractDeltaByOutput)

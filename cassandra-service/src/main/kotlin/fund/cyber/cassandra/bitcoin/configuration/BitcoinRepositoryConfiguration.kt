@@ -158,7 +158,8 @@ class BitcoinRepositoriesConfiguration : InitializingBean {
 
             val txRepository = reactiveRepositoryFactory.getRepository(BitcoinTxRepository::class.java)
 
-            val contractRepository = reactiveRepositoryFactory.getRepository(BitcoinContractSummaryRepository::class.java)
+            val contractRepository = reactiveRepositoryFactory
+                    .getRepository(BitcoinContractSummaryRepository::class.java)
             val contractTxRepository = repositoryFactory.getRepository(PageableBitcoinContractTxRepository::class.java)
             val contractBlockRepository = repositoryFactory
                     .getRepository(PageableBitcoinContractMinedBlockRepository::class.java)

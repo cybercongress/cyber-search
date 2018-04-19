@@ -55,7 +55,8 @@ class EthereumContractHandlersConfiguration {
                     chain.name + "pageableContractTxRepository", PageableEthereumContractTxRepository::class.java
             )
             val handler = ContractTxesByHash(repository)
-            RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/contract/{hash}/transactions"), handler)
+            RouterFunctions
+                    .route(RequestPredicates.path("/${chain.lowerCaseName}/contract/{hash}/transactions"), handler)
         }.asSingleRouterFunction()
     }
 

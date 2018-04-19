@@ -73,10 +73,10 @@ data class CqlBitcoinBlock(
 ) : CqlBitcoinItem {
 
     constructor(block: BitcoinBlock) : this(
-            number = block.height, hash = block.hash, minerContractHash = block.minerContractHash, blockReward = block.blockReward,
-            txFees = block.txFees, coinbaseData = block.coinbaseData, timestamp = block.time, nonce = block.nonce,
-            bits = block.bits, merkleroot = block.merkleroot, size = block.size, version = block.version,
-            weight = block.weight, difficulty = block.difficulty, txNumber = block.txNumber,
-            totalOutputsValue = block.totalOutputsAmount.toString()
+            number = block.height, hash = block.hash, minerContractHash = block.minerContractHash,
+            blockReward = block.blockReward, txFees = block.txFees, coinbaseData = block.coinbaseData,
+            timestamp = block.time, nonce = block.nonce, bits = block.bits, merkleroot = block.merkleroot,
+            size = block.size, version = block.version, weight = block.weight, difficulty = block.difficulty,
+            txNumber = block.txNumber, totalOutputsValue = block.totalOutputsAmount.toString()
     )
 }
