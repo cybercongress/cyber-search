@@ -35,7 +35,7 @@ class EthereumUncleDeltaProcessorTest {
 
     private val uncle = EthereumUncle(
             hash = "0xebeec27b1dc1f01bd6502a2c4ea62d58041d1f6fa6a5d1e18ec552dfd17558c3", position = 0,
-            number = 5386263, timestamp = Instant.now(), blockNumber = 5386266, blockTime = Instant.now(),
+            number = 5386263, timestamp = Instant.ofEpochMilli(100000), blockNumber = 5386266, blockTime = Instant.ofEpochMilli(100000),
             blockHash = "0xa27c04a1f42b2e5264e5cfb0cd1ca6fb84c360cbef63ea1b171906b1018e16dd",
             miner = "0xea674fdde714fd979de3edf0f56aa9716b898ec8", uncleReward = BigDecimal("1.875")
     )
