@@ -1,6 +1,7 @@
 package fund.cyber.cassandra.ethereum.configuration
 
 import com.datastax.driver.core.Cluster
+import com.datastax.driver.extras.codecs.jdk8.InstantCodec
 import fund.cyber.cassandra.common.NoChainCondition
 import fund.cyber.cassandra.configuration.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.configuration.keyspace
@@ -36,6 +37,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata
 import org.springframework.data.cassandra.ReactiveSession
 import org.springframework.data.cassandra.config.CassandraEntityClassScanner
 import org.springframework.data.cassandra.config.CassandraSessionFactoryBean
+import org.springframework.data.cassandra.config.ClusterBuilderConfigurer
 import org.springframework.data.cassandra.config.SchemaAction
 import org.springframework.data.cassandra.core.CassandraTemplate
 import org.springframework.data.cassandra.core.ReactiveCassandraOperations
@@ -88,6 +90,12 @@ class EthereumRepositoryConfiguration(
         return DefaultBridgedReactiveSession(session.`object`)
     }
 
+    override fun getClusterBuilderConfigurer(): ClusterBuilderConfigurer? {
+        return ClusterBuilderConfigurer { clusterBuilder ->
+            clusterBuilder.configuration.codecRegistry.register(InstantCodec.instance)
+            return@ClusterBuilderConfigurer clusterBuilder
+        }
+    }
 
     @Bean("ethereumSession")
     override fun session(): CassandraSessionFactoryBean {

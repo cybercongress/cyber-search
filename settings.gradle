@@ -2,9 +2,9 @@ include "common"
 include "common-kafka"
 include "cassandra-service"
 
-include "address-summary:common"
-include "address-summary:bitcoin"
-include "address-summary:ethereum"
+include "contract-summary:common"
+include "contract-summary:bitcoin"
+include "contract-summary:ethereum"
 
 include "pumps:common"
 include "pumps:bitcoin"

@@ -10,7 +10,7 @@
           "include_in_all": true,
           "cql_collection": "singleton"
         },
-        "contract_address": {
+        "smart_contract": {
           "type": "boolean",
           "index": "no",
           "include_in_all": false,

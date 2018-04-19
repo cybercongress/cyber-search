@@ -29,7 +29,7 @@ interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEt
     @Query("""
         UPDATE contract_summary
         SET confirmed_balance = :#{#summary.confirmedBalance},
-            contract_address = :#{#summary.contractAddress},
+            contract_address = :#{#summary.smartContract},
             confirmed_total_received = :#{#summary.confirmedTotalReceived},
             tx_number = :#{#summary.txNumber},
             uncle_number = :#{#summary.minedUncleNumber},
@@ -54,7 +54,7 @@ interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEt
           confirmed_total_received, tx_number, uncle_number, mined_block_number,
           version, kafka_delta_offset, kafka_delta_topic,
           kafka_delta_partition, kafka_delta_offset_committed)
-        VALUES (:#{#summary.hash}, :#{#summary.confirmedBalance}, :#{#summary.contractAddress},
+        VALUES (:#{#summary.hash}, :#{#summary.confirmedBalance}, :#{#summary.smartContract},
             :#{#summary.confirmedTotalReceived}, :#{#summary.txNumber}, :#{#summary.minedUncleNumber},
             :#{#summary.minedBlockNumber}, :#{#summary.version}, :#{#summary.kafkaDeltaOffset},
             :#{#summary.kafkaDeltaTopic}, :#{#summary.kafkaDeltaPartition},
