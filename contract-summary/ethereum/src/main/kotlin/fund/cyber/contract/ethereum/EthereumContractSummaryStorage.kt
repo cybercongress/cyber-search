@@ -15,7 +15,7 @@ class EthereumContractSummaryStorage(
     override fun findById(id: String): Mono<CqlEthereumContractSummary> = contractSummaryRepository.findByHash(id)
 
     override fun findAllByIdIn(ids: Iterable<String>): Flux<CqlEthereumContractSummary> = contractSummaryRepository
-            .findAllById(ids)
+            .findAllByHashIn(ids)
 
     override fun update(summary: CqlEthereumContractSummary, oldVersion: Long): Mono<Boolean>
             = contractSummaryRepository.update(summary, oldVersion)
