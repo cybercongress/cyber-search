@@ -1,5 +1,7 @@
 package fund.cyber.search.configuration
 
+const val DEV_ENVIRONMENT = "DEV_ENVIRONMENT"
+
 const val CHAIN = "CHAIN"
 const val CHAIN_NODE_URL = "CHAIN_NODE_URL"
 const val BITCOIN_CHAIN_NODE_DEFAULT_URL = "http://cyber:cyber@127.0.0.1:8332"

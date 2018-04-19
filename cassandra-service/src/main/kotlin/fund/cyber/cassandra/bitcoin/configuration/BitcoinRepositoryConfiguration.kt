@@ -9,6 +9,7 @@ import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractMinedBlock
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinBlockTxRepository
 import fund.cyber.cassandra.common.NoChainCondition
+import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.configuration.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.configuration.keyspace
 import fund.cyber.cassandra.migration.BlockchainMigrationSettings
@@ -41,6 +42,7 @@ import org.springframework.data.cassandra.core.CassandraTemplate
 import org.springframework.data.cassandra.core.ReactiveCassandraOperations
 import org.springframework.data.cassandra.core.ReactiveCassandraTemplate
 import org.springframework.data.cassandra.core.convert.MappingCassandraConverter
+import org.springframework.data.cassandra.core.cql.keyspace.CreateKeyspaceSpecification
 import org.springframework.data.cassandra.core.cql.session.DefaultBridgedReactiveSession
 import org.springframework.data.cassandra.core.cql.session.DefaultReactiveSessionFactory
 import org.springframework.data.cassandra.core.mapping.CassandraMappingContext
@@ -68,6 +70,10 @@ class BitcoinRepositoryConfiguration(
 
     override fun getKeyspaceName(): String = chain.keyspace
     override fun getEntityBasePackages(): Array<String> = arrayOf("fund.cyber.cassandra.bitcoin.model")
+
+    override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
+        return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chain.lowerCaseName))
+    }
 
     @Bean
     fun migrationSettings(): MigrationSettings {

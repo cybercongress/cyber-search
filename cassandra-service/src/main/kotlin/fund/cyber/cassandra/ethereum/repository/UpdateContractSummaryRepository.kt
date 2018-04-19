@@ -16,16 +16,16 @@ import reactor.core.publisher.Mono
  */
 interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEthereumContractSummary, String> {
 
-    @Consistency(value = ConsistencyLevel.QUORUM)
+    @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
     override fun findById(id: String): Mono<CqlEthereumContractSummary>
 
-    @Consistency(value = ConsistencyLevel.QUORUM)
+    @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
     fun findAllByIdIn(ids: Iterable<String>): Flux<CqlEthereumContractSummary>
 
     /**
      * Return {@code true} if update was successful.
      */
-    @Consistency(value = ConsistencyLevel.QUORUM)
+    @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
     @Query("""
         UPDATE contract_summary
         SET confirmed_balance = :#{#summary.confirmedBalance},
@@ -48,7 +48,7 @@ interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEt
     /**
      * Return {@code true} if there is no record for key and insert was successful.
      */
-    @Consistency(value = ConsistencyLevel.QUORUM)
+    @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
     @Query("""
         INSERT INTO contract_summary (hash, confirmed_balance, smart_contract,
           confirmed_total_received, tx_number, uncle_number, mined_block_number,
@@ -63,7 +63,7 @@ interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEt
         """)
     fun insertIfNotRecord(@Param("summary") summary: CqlEthereumContractSummary): Mono<Boolean>
 
-    @Consistency(value = ConsistencyLevel.QUORUM)
+    @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
     @Query("""
         UPDATE contract_summary
         SET kafka_delta_offset_committed = true,

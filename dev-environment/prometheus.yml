@@ -1,9 +1,9 @@
 global:
-  scrape_interval: 5s
-  scrape_timeout: 5s
-  evaluation_interval: 5s
+  scrape_interval: 15s
+  scrape_timeout: 15s
+  evaluation_interval: 15s
 scrape_configs:
   - job_name: 'search-monitoring'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['localhost:8080','localhost:8081','host.docker.internal:8080','host.docker.internal:8081']
+      - targets: ['localhost:8080','host.docker.internal:8080']
