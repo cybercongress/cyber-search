@@ -2,6 +2,7 @@ package fund.cyber.cassandra.configuration
 
 import com.datastax.driver.core.HostDistance
 import com.datastax.driver.core.PoolingOptions
+import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.migration.DefaultMigrationsLoader
 import fund.cyber.search.model.chains.Chain
 import org.apache.http.impl.client.HttpClients
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Primary
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.data.cassandra.ReactiveSession
 import org.springframework.data.cassandra.config.AbstractReactiveCassandraConfiguration
+import org.springframework.data.cassandra.core.cql.keyspace.CreateKeyspaceSpecification
 
 
 const val MAX_CONCURRENT_REQUESTS = 8182
@@ -37,6 +39,10 @@ abstract class CassandraRepositoriesConfiguration(
     @Primary
     override fun reactiveSession(): ReactiveSession {
         return super.reactiveSession()
+    }
+
+    override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
+        return listOf(defaultKeyspaceSpecification("cyber_system"))
     }
 }
 
