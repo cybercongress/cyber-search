@@ -72,7 +72,7 @@ class EthereumGenesisDataFileProvider(
                 size = blockBundle.block.size,
                 extraData = blockBundle.block.extraData, totalDifficulty = blockBundle.block.totalDifficulty,
                 gasLimit = blockBundle.block.gasLimit, gasUsed = blockBundle.block.gasUsed,
-                timestamp = blockBundle.block.timestamp,
+                timestamp = Instant.parse("2015-07-30T15:26:13Z"),
                 logsBloom = blockBundle.block.logsBloom, transactionsRoot = blockBundle.block.transactionsRoot,
                 receiptsRoot = blockBundle.block.receiptsRoot, stateRoot = blockBundle.block.stateRoot,
                 sha3Uncles = blockBundle.block.sha3Uncles, uncles = blockBundle.block.uncles,

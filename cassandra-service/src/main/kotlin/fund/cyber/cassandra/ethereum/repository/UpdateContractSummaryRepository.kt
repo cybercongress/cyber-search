@@ -34,6 +34,7 @@ interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEt
             tx_number = :#{#summary.txNumber},
             uncle_number = :#{#summary.minedUncleNumber},
             mined_block_number = :#{#summary.minedBlockNumber},
+            last_activity_date = :#{#summary.lastActivityDate},
             kafka_delta_offset = :#{#summary.kafkaDeltaOffset},
             kafka_delta_topic = :#{#summary.kafkaDeltaTopic},
             kafka_delta_partition = :#{#summary.kafkaDeltaPartition},
@@ -52,11 +53,12 @@ interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEt
     @Query("""
         INSERT INTO contract_summary (hash, confirmed_balance, smart_contract,
           confirmed_total_received, tx_number, uncle_number, mined_block_number,
-          version, kafka_delta_offset, kafka_delta_topic,
+          first_activity_date, last_activity_date, version, kafka_delta_offset, kafka_delta_topic,
           kafka_delta_partition, kafka_delta_offset_committed)
         VALUES (:#{#summary.hash}, :#{#summary.confirmedBalance}, :#{#summary.smartContract},
             :#{#summary.confirmedTotalReceived}, :#{#summary.txNumber}, :#{#summary.minedUncleNumber},
-            :#{#summary.minedBlockNumber}, :#{#summary.version}, :#{#summary.kafkaDeltaOffset},
+            :#{#summary.minedBlockNumber}, :#{#summary.firstActivityDate}, :#{#summary.lastActivityDate},
+            :#{#summary.version}, :#{#summary.kafkaDeltaOffset},
             :#{#summary.kafkaDeltaTopic}, :#{#summary.kafkaDeltaPartition},
             false)
         IF NOT EXISTS
