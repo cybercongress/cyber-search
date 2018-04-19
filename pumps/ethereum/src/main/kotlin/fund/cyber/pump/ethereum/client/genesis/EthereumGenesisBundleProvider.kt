@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import fund.cyber.pump.common.genesis.GenesisDataProvider
 import fund.cyber.pump.ethereum.client.EthereumBlockBundle
 import fund.cyber.search.model.chains.Chain
+import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.weiToEthRate
 import org.springframework.stereotype.Component
@@ -64,9 +65,25 @@ class EthereumGenesisDataFileProvider(
                 }
                 .flatten()
 
+        val block = EthereumBlock(
+                hash = blockBundle.block.hash, parentHash = blockBundle.block.parentHash,
+                number = blockBundle.block.number,
+                minerContractHash = blockBundle.block.minerContractHash, difficulty = blockBundle.block.difficulty,
+                size = blockBundle.block.size,
+                extraData = blockBundle.block.extraData, totalDifficulty = blockBundle.block.totalDifficulty,
+                gasLimit = blockBundle.block.gasLimit, gasUsed = blockBundle.block.gasUsed,
+                timestamp = blockBundle.block.timestamp,
+                logsBloom = blockBundle.block.logsBloom, transactionsRoot = blockBundle.block.transactionsRoot,
+                receiptsRoot = blockBundle.block.receiptsRoot, stateRoot = blockBundle.block.stateRoot,
+                sha3Uncles = blockBundle.block.sha3Uncles, uncles = blockBundle.block.uncles,
+                txNumber = txs.size, nonce = blockBundle.block.nonce,
+                txFees = blockBundle.block.txFees, blockReward = blockBundle.block.blockReward,
+                unclesReward = blockBundle.block.blockReward
+        )
+
         return EthereumBlockBundle(
                 hash = blockBundle.hash, parentHash = blockBundle.parentHash,
-                txes = txs, block = blockBundle.block, number = blockBundle.number,
+                txes = txs, block = block, number = blockBundle.number,
                 uncles = blockBundle.uncles, blockSize = blockBundle.blockSize
         )
     }

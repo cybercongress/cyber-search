@@ -6,8 +6,8 @@ buildscript {
         jacksonVersion = "2.9.2"
         kafkaVersion = "1.0.0"
         springKafkaVersion = "2.1.4.RELEASE"
-        cassandraVersion = "3.3.2"
-        springCassandraVersion = "2.0.5.RELEASE"
+        cassandraVersion = "3.5.0"
+        springCassandraVersion = "2.0.6.RELEASE"
         /* todo migrate to web3j 3.+*/
         web3jVersion = "2.3.1"
         rxkotlinVersion = "2.2.0"
