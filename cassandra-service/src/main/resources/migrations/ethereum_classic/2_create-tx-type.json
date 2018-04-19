@@ -22,7 +22,7 @@
           "include_in_all": false,
           "cql_collection": "singleton"
         },
-        "timestamp": {
+        "block_time": {
           "type": "date",
           "index": "no",
           "include_in_all": false,
@@ -35,6 +35,18 @@
           "cql_collection": "singleton"
         },
         "value": {
+          "type": "keyword",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
+        },
+        "from": {
+          "type": "keyword",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
+        },
+        "to": {
           "type": "keyword",
           "index": "no",
           "include_in_all": false,

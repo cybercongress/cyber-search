@@ -3,8 +3,8 @@ package fund.cyber.address.ethereum.summary
 import fund.cyber.address.common.delta.AddressSummaryDelta
 import fund.cyber.address.common.delta.DeltaMerger
 import fund.cyber.address.common.delta.DeltaProcessor
-import fund.cyber.cassandra.common.CqlAddressSummary
-import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressSummary
+import fund.cyber.cassandra.common.CqlContractSummary
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractSummary
 import fund.cyber.common.sumByDecimal
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
@@ -25,7 +25,7 @@ data class EthereumAddressSummaryDelta(
         override val topic: String,
         override val partition: Int,
         override val offset: Long
-) : AddressSummaryDelta<CqlEthereumAddressSummary> {
+) : AddressSummaryDelta<CqlEthereumContractSummary> {
 
     fun revertedDelta(): EthereumAddressSummaryDelta = EthereumAddressSummaryDelta(
             address = address, balanceDelta = -balanceDelta,
@@ -35,9 +35,9 @@ data class EthereumAddressSummaryDelta(
             offset = offset
     )
 
-    override fun createSummary(): CqlEthereumAddressSummary {
-        return CqlEthereumAddressSummary(
-                id = this.address, confirmedBalance = this.balanceDelta, contractAddress = this.contractAddress
+    override fun createSummary(): CqlEthereumContractSummary {
+        return CqlEthereumContractSummary(
+                hash = this.address, confirmedBalance = this.balanceDelta, contractAddress = this.contractAddress
                 ?: false,
                 confirmedTotalReceived = this.totalReceivedDelta, txNumber = this.txNumberDelta,
                 minedUncleNumber = this.uncleNumberDelta, minedBlockNumber = this.minedBlockNumberDelta,
@@ -46,9 +46,9 @@ data class EthereumAddressSummaryDelta(
         )
     }
 
-    override fun updateSummary(summary: CqlEthereumAddressSummary): CqlEthereumAddressSummary {
-        return CqlEthereumAddressSummary(
-                id = summary.id, confirmedBalance = summary.confirmedBalance + this.balanceDelta,
+    override fun updateSummary(summary: CqlEthereumContractSummary): CqlEthereumContractSummary {
+        return CqlEthereumContractSummary(
+                hash = summary.hash, confirmedBalance = summary.confirmedBalance + this.balanceDelta,
                 contractAddress = summary.contractAddress,
                 confirmedTotalReceived = summary.confirmedTotalReceived + this.totalReceivedDelta,
                 txNumber = summary.txNumber + this.txNumberDelta,
@@ -61,7 +61,7 @@ data class EthereumAddressSummaryDelta(
 }
 
 @Component
-class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumAddressSummary, EthereumAddressSummaryDelta> {
+class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumContractSummary, EthereumAddressSummaryDelta> {
 
     override fun recordToDeltas(record: ConsumerRecord<PumpEvent, EthereumTx>): List<EthereumAddressSummaryDelta> {
 
@@ -100,7 +100,7 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumAddressSu
 
 @Component
 class EthereumBlockDeltaProcessor
-    : DeltaProcessor<EthereumBlock, CqlEthereumAddressSummary, EthereumAddressSummaryDelta> {
+    : DeltaProcessor<EthereumBlock, CqlEthereumContractSummary, EthereumAddressSummaryDelta> {
 
     override fun recordToDeltas(record: ConsumerRecord<PumpEvent, EthereumBlock>): List<EthereumAddressSummaryDelta> {
 
@@ -125,7 +125,7 @@ class EthereumBlockDeltaProcessor
 
 @Component
 class EthereumUncleDeltaProcessor
-    : DeltaProcessor<EthereumUncle, CqlEthereumAddressSummary, EthereumAddressSummaryDelta> {
+    : DeltaProcessor<EthereumUncle, CqlEthereumContractSummary, EthereumAddressSummaryDelta> {
 
     override fun recordToDeltas(record: ConsumerRecord<PumpEvent, EthereumUncle>): List<EthereumAddressSummaryDelta> {
 
@@ -150,7 +150,7 @@ class EthereumUncleDeltaProcessor
 class EthereumDeltaMerger : DeltaMerger<EthereumAddressSummaryDelta> {
 
     override fun mergeDeltas(deltas: Iterable<EthereumAddressSummaryDelta>,
-                             currentAddresses: Map<String, CqlAddressSummary>): EthereumAddressSummaryDelta? {
+                             currentAddresses: Map<String, CqlContractSummary>): EthereumAddressSummaryDelta? {
 
         val first = deltas.first()
         val existingSummary = currentAddresses[first.address]

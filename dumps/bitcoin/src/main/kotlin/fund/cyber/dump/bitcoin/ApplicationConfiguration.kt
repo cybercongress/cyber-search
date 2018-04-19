@@ -1,7 +1,7 @@
 package fund.cyber.dump.bitcoin
 
-import fund.cyber.cassandra.bitcoin.repository.BitcoinAddressMinedBlockRepository
-import fund.cyber.cassandra.bitcoin.repository.BitcoinAddressTxRepository
+import fund.cyber.cassandra.bitcoin.repository.BitcoinContractMinedBlockRepository
+import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
@@ -45,11 +45,11 @@ class ApplicationConfiguration(
     @Autowired
     lateinit var blockRepository: BitcoinBlockRepository
     @Autowired
-    lateinit var addressMinedBlockRepository: BitcoinAddressMinedBlockRepository
+    lateinit var contractMinedBlockRepository: BitcoinContractMinedBlockRepository
     @Autowired
     lateinit var txRepository: BitcoinTxRepository
     @Autowired
-    lateinit var addressTxRepository: BitcoinAddressTxRepository
+    lateinit var contractTxRepository: BitcoinContractTxRepository
     @Autowired
     lateinit var blockTxRepository: BitcoinBlockTxRepository
     @Autowired
@@ -68,7 +68,7 @@ class ApplicationConfiguration(
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain.blockPumpTopic).apply {
-            messageListener = BlockDumpProcess(blockRepository, addressMinedBlockRepository, chain, monitoring)
+            messageListener = BlockDumpProcess(blockRepository, contractMinedBlockRepository, chain, monitoring)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
@@ -89,7 +89,7 @@ class ApplicationConfiguration(
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
-            messageListener = TxDumpProcess(txRepository, addressTxRepository, blockTxRepository, chain, monitoring)
+            messageListener = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository, chain, monitoring)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }

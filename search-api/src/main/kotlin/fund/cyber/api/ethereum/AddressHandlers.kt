@@ -5,11 +5,11 @@ import fund.cyber.api.common.toSearchHashFormat
 import fund.cyber.api.ethereum.functions.AddressBlocksByAddress
 import fund.cyber.api.ethereum.functions.AddressTxesByAddress
 import fund.cyber.api.ethereum.functions.AddressUnclesByAddress
-import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressSummary
-import fund.cyber.cassandra.ethereum.repository.EthereumAddressRepository
-import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressMinedBlockRepository
-import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressMinedUncleRepository
-import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressTxRepository
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractSummary
+import fund.cyber.cassandra.ethereum.repository.EthereumContractRepository
+import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractMinedBlockRepository
+import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractMinedUncleRepository
+import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractTxRepository
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -35,14 +35,14 @@ class EthereumAddressHandlersConfiguration {
         return EthereumFamilyChain.values().map { chain ->
 
             val repository = applicationContext
-                    .getBean(chain.name + "addressRepository", EthereumAddressRepository::class.java)
+                    .getBean(chain.name + "addressRepository", EthereumContractRepository::class.java)
 
             val blockByNumber = HandlerFunction { request ->
-                val addressId = request.pathVariable("id")
+                val addressId = request.pathVariable("hash")
                 val address = repository.findById(addressId.toSearchHashFormat())
-                ServerResponse.ok().body(address, CqlEthereumAddressSummary::class.java)
+                ServerResponse.ok().body(address, CqlEthereumContractSummary::class.java)
             }
-            RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/address/{id}"), blockByNumber)
+            RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/address/{hash}"), blockByNumber)
         }.asSingleRouterFunction()
     }
 
@@ -52,10 +52,10 @@ class EthereumAddressHandlersConfiguration {
         return EthereumFamilyChain.values().map { chain ->
 
             val repository = applicationContext.getBean(
-                    chain.name + "pageableAddressTxRepository", PageableEthereumAddressTxRepository::class.java
+                    chain.name + "pageableAddressTxRepository", PageableEthereumContractTxRepository::class.java
             )
             val handler = AddressTxesByAddress(repository)
-            RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/address/{id}/transactions"), handler)
+            RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/address/{hash}/transactions"), handler)
         }.asSingleRouterFunction()
     }
 
@@ -66,10 +66,10 @@ class EthereumAddressHandlersConfiguration {
 
             val repository = applicationContext.getBean(
                     chain.name + "pageableAddressBlockRepository",
-                    PageableEthereumAddressMinedBlockRepository::class.java
+                    PageableEthereumContractMinedBlockRepository::class.java
             )
             val handler = AddressBlocksByAddress(repository)
-            RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/address/{id}/blocks"), handler)
+            RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/address/{hash}/blocks"), handler)
         }.asSingleRouterFunction()
     }
 
@@ -80,10 +80,10 @@ class EthereumAddressHandlersConfiguration {
 
             val repository = applicationContext.getBean(
                     chain.name + "pageableAddressUncleRepository",
-                    PageableEthereumAddressMinedUncleRepository::class.java
+                    PageableEthereumContractMinedUncleRepository::class.java
             )
             val handler = AddressUnclesByAddress(repository)
-            RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/address/{id}/uncles"), handler)
+            RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/address/{hash}/uncles"), handler)
         }.asSingleRouterFunction()
     }
 }

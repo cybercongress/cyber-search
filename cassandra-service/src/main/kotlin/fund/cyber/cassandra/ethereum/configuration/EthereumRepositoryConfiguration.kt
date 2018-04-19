@@ -4,13 +4,13 @@ import com.datastax.driver.core.Cluster
 import fund.cyber.cassandra.common.NoChainCondition
 import fund.cyber.cassandra.configuration.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.configuration.keyspace
-import fund.cyber.cassandra.ethereum.repository.EthereumAddressRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
-import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressMinedBlockRepository
-import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressMinedUncleRepository
-import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressTxRepository
+import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractMinedBlockRepository
+import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractMinedUncleRepository
+import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractTxRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumBlockTxRepository
 import fund.cyber.cassandra.migration.BlockchainMigrationSettings
 import fund.cyber.cassandra.migration.MigrationSettings
@@ -145,12 +145,12 @@ class EthereumRepositoriesConfiguration : InitializingBean {
 
             val txRepository = reactiveRepositoryFactory.getRepository(EthereumTxRepository::class.java)
 
-            val addressRepository = reactiveRepositoryFactory.getRepository(EthereumAddressRepository::class.java)
-            val addressTxRepository = repositoryFactory.getRepository(PageableEthereumAddressTxRepository::class.java)
-            val addressUncleRepository = repositoryFactory
-                    .getRepository(PageableEthereumAddressMinedUncleRepository::class.java)
-            val addressBlockRepository = repositoryFactory
-                    .getRepository(PageableEthereumAddressMinedBlockRepository::class.java)
+            val contractRepository = reactiveRepositoryFactory.getRepository(EthereumContractRepository::class.java)
+            val contractTxRepository = repositoryFactory.getRepository(PageableEthereumContractTxRepository::class.java)
+            val contractUncleRepository = repositoryFactory
+                    .getRepository(PageableEthereumContractMinedUncleRepository::class.java)
+            val contractBlockRepository = repositoryFactory
+                    .getRepository(PageableEthereumContractMinedBlockRepository::class.java)
 
             val uncleRepository = reactiveRepositoryFactory.getRepository(EthereumUncleRepository::class.java)
 
@@ -160,10 +160,10 @@ class EthereumRepositoriesConfiguration : InitializingBean {
 
             beanFactory.registerSingleton(chain.name + "txRepository", txRepository)
 
-            beanFactory.registerSingleton(chain.name + "addressRepository", addressRepository)
-            beanFactory.registerSingleton(chain.name + "pageableAddressTxRepository", addressTxRepository)
-            beanFactory.registerSingleton(chain.name + "pageableAddressBlockRepository", addressBlockRepository)
-            beanFactory.registerSingleton(chain.name + "pageableAddressUncleRepository", addressUncleRepository)
+            beanFactory.registerSingleton(chain.name + "contractRepository", contractRepository)
+            beanFactory.registerSingleton(chain.name + "pageableContractTxRepository", contractTxRepository)
+            beanFactory.registerSingleton(chain.name + "pageableContractBlockRepository", contractBlockRepository)
+            beanFactory.registerSingleton(chain.name + "pageableContractUncleRepository", contractUncleRepository)
 
             beanFactory.registerSingleton(chain.name + "uncleRepository", uncleRepository)
         }

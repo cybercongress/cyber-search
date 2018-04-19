@@ -2,11 +2,11 @@ package fund.cyber.cassandra.bitcoin.configuration
 
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.extras.codecs.jdk8.InstantCodec
-import fund.cyber.cassandra.bitcoin.repository.BitcoinAddressSummaryRepository
+import fund.cyber.cassandra.bitcoin.repository.BitcoinContractSummaryRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
-import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinAddressMinedBlockRepository
-import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinAddressTxRepository
+import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractMinedBlockRepository
+import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinBlockTxRepository
 import fund.cyber.cassandra.common.NoChainCondition
 import fund.cyber.cassandra.configuration.CassandraRepositoriesConfiguration
@@ -152,10 +152,10 @@ class BitcoinRepositoriesConfiguration : InitializingBean {
 
             val txRepository = reactiveRepositoryFactory.getRepository(BitcoinTxRepository::class.java)
 
-            val addressRepository = reactiveRepositoryFactory.getRepository(BitcoinAddressSummaryRepository::class.java)
-            val addressTxRepository = repositoryFactory.getRepository(PageableBitcoinAddressTxRepository::class.java)
-            val addressBlockRepository = repositoryFactory
-                    .getRepository(PageableBitcoinAddressMinedBlockRepository::class.java)
+            val contractRepository = reactiveRepositoryFactory.getRepository(BitcoinContractSummaryRepository::class.java)
+            val contractTxRepository = repositoryFactory.getRepository(PageableBitcoinContractTxRepository::class.java)
+            val contractBlockRepository = repositoryFactory
+                    .getRepository(PageableBitcoinContractMinedBlockRepository::class.java)
 
 
             // register repositories
@@ -164,9 +164,9 @@ class BitcoinRepositoriesConfiguration : InitializingBean {
 
             beanFactory.registerSingleton(chain.name + "txRepository", txRepository)
 
-            beanFactory.registerSingleton(chain.name + "addressRepository", addressRepository)
-            beanFactory.registerSingleton(chain.name + "pageableAddressTxRepository", addressTxRepository)
-            beanFactory.registerSingleton(chain.name + "pageableAddressBlockRepository", addressBlockRepository)
+            beanFactory.registerSingleton(chain.name + "contractRepository", contractRepository)
+            beanFactory.registerSingleton(chain.name + "pageableContractTxRepository", contractTxRepository)
+            beanFactory.registerSingleton(chain.name + "pageableContractBlockRepository", contractBlockRepository)
         }
     }
 

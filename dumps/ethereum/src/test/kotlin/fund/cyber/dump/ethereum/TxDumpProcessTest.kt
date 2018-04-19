@@ -4,10 +4,10 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
-import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressTxPreview
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractTxPreview
 import fund.cyber.cassandra.ethereum.model.CqlEthereumBlockTxPreview
 import fund.cyber.cassandra.ethereum.model.CqlEthereumTx
-import fund.cyber.cassandra.ethereum.repository.EthereumAddressTxRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
 import fund.cyber.search.model.chains.EthereumFamilyChain
@@ -120,9 +120,9 @@ class TxDumpProcessTest {
             on { saveAll(any<Iterable<CqlEthereumBlockTxPreview>>()) }.thenReturn(Flux.empty())
             on { deleteAll(any<Iterable<CqlEthereumBlockTxPreview>>()) }.thenReturn(Mono.empty())
         }
-        val addressTxRepository = mock<EthereumAddressTxRepository> {
-            on { saveAll(any<Iterable<CqlEthereumAddressTxPreview>>()) }.thenReturn(Flux.empty())
-            on { deleteAll(any<Iterable<CqlEthereumAddressTxPreview>>()) }.thenReturn(Mono.empty())
+        val addressTxRepository = mock<EthereumContractTxRepository> {
+            on { saveAll(any<Iterable<CqlEthereumContractTxPreview>>()) }.thenReturn(Flux.empty())
+            on { deleteAll(any<Iterable<CqlEthereumContractTxPreview>>()) }.thenReturn(Mono.empty())
         }
 
         val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, addressTxRepository,
@@ -147,14 +147,14 @@ class TxDumpProcessTest {
                 .saveAll(
                         listOf(txD, txE, txG, txI)
                                 .flatMap { tx ->
-                                    tx.addressesUsedInTransaction().map { it -> CqlEthereumAddressTxPreview(tx, it) }
+                                    tx.addressesUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) }
                                 }
                 )
         verify(addressTxRepository, times(1))
                 .deleteAll(
                         listOf(txF, txC)
                                 .flatMap { tx ->
-                                    tx.addressesUsedInTransaction().map { it -> CqlEthereumAddressTxPreview(tx, it) }
+                                    tx.addressesUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) }
                                 }
                 )
 

@@ -1,7 +1,7 @@
 package fund.cyber.cassandra.ethereum.repository
 
 import com.datastax.driver.core.ConsistencyLevel
-import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressSummary
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractSummary
 import org.springframework.data.cassandra.repository.Consistency
 import org.springframework.data.cassandra.repository.Query
 import org.springframework.data.repository.query.Param
@@ -12,22 +12,22 @@ import reactor.core.publisher.Mono
 
 //todo write small tests for query consistency with object fields.
 /**
- * To archive atomic updates of address summaries we should use CAS, two-phase commit, serial reads and quorum writes.
+ * To archive atomic updates of contract summaries we should use CAS, two-phase commit, serial reads and quorum writes.
  */
-interface EthereumUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlEthereumAddressSummary, String> {
+interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEthereumContractSummary, String> {
 
     @Consistency(value = ConsistencyLevel.QUORUM)
-    override fun findById(id: String): Mono<CqlEthereumAddressSummary>
+    override fun findById(id: String): Mono<CqlEthereumContractSummary>
 
     @Consistency(value = ConsistencyLevel.QUORUM)
-    fun findAllByIdIn(ids: Iterable<String>): Flux<CqlEthereumAddressSummary>
+    fun findAllByIdIn(ids: Iterable<String>): Flux<CqlEthereumContractSummary>
 
     /**
      * Return {@code true} if update was successful.
      */
     @Consistency(value = ConsistencyLevel.QUORUM)
     @Query("""
-        UPDATE address_summary
+        UPDATE contract_summary
         SET confirmed_balance = :#{#summary.confirmedBalance},
             contract_address = :#{#summary.contractAddress},
             confirmed_total_received = :#{#summary.confirmedTotalReceived},
@@ -39,10 +39,10 @@ interface EthereumUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlEth
             kafka_delta_partition = :#{#summary.kafkaDeltaPartition},
             version = :#{#summary.version},
             kafka_delta_offset_committed = false
-        WHERE id = :#{#summary.id}
+        WHERE hash = :#{#summary.hash}
         IF version = :oldVersion
         """)
-    fun update(@Param("summary") summary: CqlEthereumAddressSummary,
+    fun update(@Param("summary") summary: CqlEthereumContractSummary,
                @Param("oldVersion") oldVersion: Long): Mono<Boolean>
 
     /**
@@ -50,25 +50,25 @@ interface EthereumUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlEth
      */
     @Consistency(value = ConsistencyLevel.QUORUM)
     @Query("""
-        INSERT INTO address_summary (id, confirmed_balance, contract_address,
+        INSERT INTO contract_summary (hash, confirmed_balance, contract_address,
           confirmed_total_received, tx_number, uncle_number, mined_block_number,
           version, kafka_delta_offset, kafka_delta_topic,
           kafka_delta_partition, kafka_delta_offset_committed)
-        VALUES (:#{#summary.id}, :#{#summary.confirmedBalance}, :#{#summary.contractAddress},
+        VALUES (:#{#summary.hash}, :#{#summary.confirmedBalance}, :#{#summary.contractAddress},
             :#{#summary.confirmedTotalReceived}, :#{#summary.txNumber}, :#{#summary.minedUncleNumber},
             :#{#summary.minedBlockNumber}, :#{#summary.version}, :#{#summary.kafkaDeltaOffset},
             :#{#summary.kafkaDeltaTopic}, :#{#summary.kafkaDeltaPartition},
             false)
         IF NOT EXISTS
         """)
-    fun insertIfNotRecord(@Param("summary") summary: CqlEthereumAddressSummary): Mono<Boolean>
+    fun insertIfNotRecord(@Param("summary") summary: CqlEthereumContractSummary): Mono<Boolean>
 
     @Consistency(value = ConsistencyLevel.QUORUM)
     @Query("""
-        UPDATE address_summary
+        UPDATE contract_summary
         SET kafka_delta_offset_committed = true,
             version = :newVersion
-        WHERE id = :address
+        WHERE hash = :contract
         """)
-    fun commitUpdate(@Param("address") address: String, @Param("newVersion") newVersion: Long): Mono<Boolean>
+    fun commitUpdate(@Param("contract") contract: String, @Param("newVersion") newVersion: Long): Mono<Boolean>
 }

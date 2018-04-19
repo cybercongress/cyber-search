@@ -1,6 +1,6 @@
 {
   "method": "PUT",
-  "url": "/ethereum.address_summary/",
+  "url": "/ethereum.contract_summary/",
   "data": {
     "settings": {
       "keyspace": "ethereum"

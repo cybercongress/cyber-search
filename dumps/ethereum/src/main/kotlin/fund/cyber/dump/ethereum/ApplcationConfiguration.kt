@@ -1,8 +1,8 @@
 package fund.cyber.dump.ethereum
 
-import fund.cyber.cassandra.ethereum.repository.EthereumAddressMinedBlockRepository
-import fund.cyber.cassandra.ethereum.repository.EthereumAddressTxRepository
-import fund.cyber.cassandra.ethereum.repository.EthereumAddressUncleRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractMinedBlockRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractUncleRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
@@ -47,17 +47,17 @@ class ApplicationConfiguration(
     @Autowired
     lateinit var ethereumBlockRepository: EthereumBlockRepository
     @Autowired
-    lateinit var ethereumAddressMinedBlockRepository: EthereumAddressMinedBlockRepository
+    lateinit var ethereumContractMinedBlockRepository: EthereumContractMinedBlockRepository
     @Autowired
     lateinit var ethereumTxRepository: EthereumTxRepository
     @Autowired
     lateinit var ethereumBlockTxRepository: EthereumBlockTxRepository
     @Autowired
-    lateinit var ethereumAddressTxRepository: EthereumAddressTxRepository
+    lateinit var ethereumContractTxRepository: EthereumContractTxRepository
     @Autowired
     lateinit var ethereumUncleRepository: EthereumUncleRepository
     @Autowired
-    lateinit var ethereumAddressUncleRepository: EthereumAddressUncleRepository
+    lateinit var ethereumContractUncleRepository: EthereumContractUncleRepository
     @Autowired
     lateinit var monitoring: MeterRegistry
 
@@ -74,7 +74,7 @@ class ApplicationConfiguration(
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain.blockPumpTopic).apply {
-            messageListener = BlockDumpProcess(ethereumBlockRepository, ethereumAddressMinedBlockRepository, chain,
+            messageListener = BlockDumpProcess(ethereumBlockRepository, ethereumContractMinedBlockRepository, chain,
                     monitoring)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
@@ -97,7 +97,7 @@ class ApplicationConfiguration(
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
             messageListener = TxDumpProcess(ethereumTxRepository, ethereumBlockTxRepository,
-                    ethereumAddressTxRepository, chain, monitoring)
+                    ethereumContractTxRepository, chain, monitoring)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
@@ -118,7 +118,7 @@ class ApplicationConfiguration(
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain.unclePumpTopic).apply {
-            messageListener = UncleDumpProcess(ethereumUncleRepository, ethereumAddressUncleRepository, chain,
+            messageListener = UncleDumpProcess(ethereumUncleRepository, ethereumContractUncleRepository, chain,
                     monitoring)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())

@@ -10,7 +10,7 @@ CREATE TABLE IF NOT exists ethereum.block (
     transactions_root text,
     state_root text,
     receipts_root text,
-    miner text,
+    miner_contract_hash text,
     difficulty varint,
     total_difficulty varint,
     extra_data text,
@@ -42,8 +42,8 @@ CREATE TABLE IF NOT exists ethereum.tx (
     created_contract text
 );
 
-CREATE TABLE IF NOT exists ethereum.tx_preview_by_address (
-    address text,
+CREATE TABLE IF NOT exists ethereum.tx_preview_by_contract (
+    contract_hash text,
     hash text,
     block_time timestamp,
     fee decimal,
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT exists ethereum.tx_preview_by_address (
     "from" text,
     "to" text,
     value text,
-    PRIMARY KEY (address, block_time, hash)
+    PRIMARY KEY (contract_hash, block_time, hash)
 )  WITH CLUSTERING ORDER BY ( block_time DESC );
 
 CREATE TABLE IF NOT exists ethereum.tx_preview_by_block (
@@ -67,14 +67,16 @@ CREATE TABLE IF NOT exists ethereum.tx_preview_by_block (
 );
 
 
-CREATE TABLE IF NOT exists ethereum.address_summary (
-    id text PRIMARY KEY,
+CREATE TABLE IF NOT exists ethereum.contract_summary (
+    hash text PRIMARY KEY,
     confirmed_balance decimal,
     contract_address boolean,
     confirmed_total_received decimal,
     tx_number int,
     uncle_number int,
     mined_block_number int,
+    first_activity_date timestamp,
+    last_activity_date timestamp,
     version bigint,
     kafka_delta_offset bigint,
     kafka_delta_partition int,
@@ -82,15 +84,15 @@ CREATE TABLE IF NOT exists ethereum.address_summary (
     kafka_delta_offset_committed boolean
 );
 
-CREATE TABLE IF NOT exists ethereum.mined_block_by_address (
-    miner text,
+CREATE TABLE IF NOT exists ethereum.mined_block_by_contract (
+    miner_contract_hash text,
     block_number bigint,
     block_time timestamp,
     block_reward decimal,
     uncles_reward decimal,
     tx_fees decimal,
     tx_number int,
-    PRIMARY KEY (miner, block_number)
+    PRIMARY KEY (miner_contract_hash, block_number)
 )  WITH CLUSTERING ORDER BY ( block_number DESC );
 
 
@@ -107,7 +109,7 @@ CREATE TABLE IF NOT exists ethereum.uncle (
 );
 
 
-CREATE TABLE IF NOT exists ethereum.mined_uncle_by_address (
+CREATE TABLE IF NOT exists ethereum.mined_uncle_by_contract (
      hash text,
      position int,
      number bigint,
@@ -115,7 +117,7 @@ CREATE TABLE IF NOT exists ethereum.mined_uncle_by_address (
      block_number bigint,
      block_time timestamp,
      block_hash text,
-     miner text,
+     miner_contract_hash text,
      uncle_reward text,
-     PRIMARY KEY (miner, block_number)
+     PRIMARY KEY (miner_contract_hash, block_number)
 )  WITH CLUSTERING ORDER BY ( block_number DESC );

@@ -1,8 +1,8 @@
 package fund.cyber.api.ethereum.functions
 
 import fund.cyber.api.common.toSearchHashFormat
-import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressMinedBlock
-import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressMinedBlockRepository
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedBlock
+import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractMinedBlockRepository
 import org.springframework.data.cassandra.core.query.CassandraPageRequest
 import org.springframework.web.reactive.function.server.HandlerFunction
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -11,25 +11,25 @@ import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
 
 class AddressBlocksByAddress(
-        private val addressMinedBlockRepository: PageableEthereumAddressMinedBlockRepository
+        private val contractMinedBlockRepository: PageableEthereumContractMinedBlockRepository
 ) : HandlerFunction<ServerResponse> {
 
 
     override fun handle(request: ServerRequest): Mono<ServerResponse> {
 
-        val id = request.pathVariable("id")
+        val id = request.pathVariable("hash")
         val page = request.queryParam("page").orElse("0").toInt()
         val pageSize = request.queryParam("pageSize").orElse("20").toInt()
 
 
-        var slice = addressMinedBlockRepository
-                .findAllByMiner(id.toSearchHashFormat(), CassandraPageRequest.first(pageSize))
+        var slice = contractMinedBlockRepository
+                .findAllByMinerContractHash(id.toSearchHashFormat(), CassandraPageRequest.first(pageSize))
 
         for (i in 1..page) {
             if (slice.hasNext()) {
-                slice = addressMinedBlockRepository.findAllByMiner(id, slice.nextPageable())
+                slice = contractMinedBlockRepository.findAllByMinerContractHash(id, slice.nextPageable())
             } else return ServerResponse.notFound().build()
         }
-        return ServerResponse.ok().body(slice.content.toFlux(), CqlEthereumAddressMinedBlock::class.java)
+        return ServerResponse.ok().body(slice.content.toFlux(), CqlEthereumContractMinedBlock::class.java)
     }
 }

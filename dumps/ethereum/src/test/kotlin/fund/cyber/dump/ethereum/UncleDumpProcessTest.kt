@@ -4,9 +4,9 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
-import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressMinedUncle
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedUncle
 import fund.cyber.cassandra.ethereum.model.CqlEthereumUncle
-import fund.cyber.cassandra.ethereum.repository.EthereumAddressUncleRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractUncleRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumUncle
@@ -85,9 +85,9 @@ class UncleDumpProcessTest {
             on { saveAll(any<Iterable<CqlEthereumUncle>>()) }.thenReturn(Flux.empty())
             on { deleteAll(any<Iterable<CqlEthereumUncle>>()) }.thenReturn(Mono.empty())
         }
-        val addressUncleRepository = mock<EthereumAddressUncleRepository> {
-            on { saveAll(any<Iterable<CqlEthereumAddressMinedUncle>>()) }.thenReturn(Flux.empty())
-            on { deleteAll(any<Iterable<CqlEthereumAddressMinedUncle>>()) }.thenReturn(Mono.empty())
+        val addressUncleRepository = mock<EthereumContractUncleRepository> {
+            on { saveAll(any<Iterable<CqlEthereumContractMinedUncle>>()) }.thenReturn(Flux.empty())
+            on { deleteAll(any<Iterable<CqlEthereumContractMinedUncle>>()) }.thenReturn(Mono.empty())
         }
 
         val blockDumpProcess = UncleDumpProcess(uncleRepository, addressUncleRepository, EthereumFamilyChain.ETHEREUM,
@@ -103,10 +103,10 @@ class UncleDumpProcessTest {
                 .deleteAll(listOf(CqlEthereumUncle(uncleF), CqlEthereumUncle(uncleC)))
 
         verify(addressUncleRepository, times(1))
-                .saveAll(listOf(CqlEthereumAddressMinedUncle(uncleD), CqlEthereumAddressMinedUncle(uncleE),
-                        CqlEthereumAddressMinedUncle(uncleG), CqlEthereumAddressMinedUncle(uncleI)))
+                .saveAll(listOf(CqlEthereumContractMinedUncle(uncleD), CqlEthereumContractMinedUncle(uncleE),
+                        CqlEthereumContractMinedUncle(uncleG), CqlEthereumContractMinedUncle(uncleI)))
         verify(addressUncleRepository, times(1))
-                .deleteAll(listOf(CqlEthereumAddressMinedUncle(uncleF), CqlEthereumAddressMinedUncle(uncleC)))
+                .deleteAll(listOf(CqlEthereumContractMinedUncle(uncleF), CqlEthereumContractMinedUncle(uncleC)))
 
 
     }

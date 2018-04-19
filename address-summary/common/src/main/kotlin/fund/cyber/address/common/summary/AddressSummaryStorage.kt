@@ -1,10 +1,10 @@
 package fund.cyber.address.common.summary
 
-import fund.cyber.cassandra.common.CqlAddressSummary
+import fund.cyber.cassandra.common.CqlContractSummary
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-interface AddressSummaryStorage<S: CqlAddressSummary> {
+interface AddressSummaryStorage<S: CqlContractSummary> {
     fun findById(id: String): Mono<S>
     fun findAllByIdIn(ids: Iterable<String>): Flux<S>
     fun update(summary: S, oldVersion: Long): Mono<Boolean>

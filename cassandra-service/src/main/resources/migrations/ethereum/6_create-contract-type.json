@@ -1,10 +1,10 @@
 {
   "method": "PUT",
-  "url": "/ethereum_classic.address_summary/_mapping/address_summary",
+  "url": "/ethereum.contract_summary/_mapping/contract_summary",
   "data": {
-    "address_summary": {
+    "contract_summary": {
       "properties": {
-        "id": {
+        "hash": {
           "type": "keyword",
           "index": "no",
           "include_in_all": true,
@@ -30,6 +30,12 @@
         },
         "total_received": {
           "type": "keyword",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
+        },
+        "first_activity_date": {
+          "type": "date",
           "index": "no",
           "include_in_all": false,
           "cql_collection": "singleton"

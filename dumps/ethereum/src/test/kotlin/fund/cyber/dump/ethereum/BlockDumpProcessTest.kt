@@ -4,9 +4,9 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
-import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressMinedBlock
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedBlock
 import fund.cyber.cassandra.ethereum.model.CqlEthereumBlock
-import fund.cyber.cassandra.ethereum.repository.EthereumAddressMinedBlockRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractMinedBlockRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumBlock
@@ -143,9 +143,9 @@ class BlockDumpProcessTest {
             on { saveAll(any<Iterable<CqlEthereumBlock>>()) }.thenReturn(Flux.empty())
             on { deleteAll(any<Iterable<CqlEthereumBlock>>()) }.thenReturn(Mono.empty())
         }
-        val addressMinedBlockRepository = mock<EthereumAddressMinedBlockRepository> {
-            on { saveAll(any<Iterable<CqlEthereumAddressMinedBlock>>()) }.thenReturn(Flux.empty())
-            on { deleteAll(any<Iterable<CqlEthereumAddressMinedBlock>>()) }.thenReturn(Mono.empty())
+        val addressMinedBlockRepository = mock<EthereumContractMinedBlockRepository> {
+            on { saveAll(any<Iterable<CqlEthereumContractMinedBlock>>()) }.thenReturn(Flux.empty())
+            on { deleteAll(any<Iterable<CqlEthereumContractMinedBlock>>()) }.thenReturn(Mono.empty())
         }
 
         val blockDumpProcess = BlockDumpProcess(blockRepository, addressMinedBlockRepository,
@@ -161,10 +161,10 @@ class BlockDumpProcessTest {
                 .deleteAll(listOf(CqlEthereumBlock(blockF), CqlEthereumBlock(blockC)))
 
         verify(addressMinedBlockRepository, times(1))
-                .saveAll(listOf(CqlEthereumAddressMinedBlock(blockD), CqlEthereumAddressMinedBlock(blockE),
-                        CqlEthereumAddressMinedBlock(blockG), CqlEthereumAddressMinedBlock(blockI)))
+                .saveAll(listOf(CqlEthereumContractMinedBlock(blockD), CqlEthereumContractMinedBlock(blockE),
+                        CqlEthereumContractMinedBlock(blockG), CqlEthereumContractMinedBlock(blockI)))
         verify(addressMinedBlockRepository, times(1))
-                .deleteAll(listOf(CqlEthereumAddressMinedBlock(blockF), CqlEthereumAddressMinedBlock(blockC)))
+                .deleteAll(listOf(CqlEthereumContractMinedBlock(blockF), CqlEthereumContractMinedBlock(blockC)))
 
 
     }

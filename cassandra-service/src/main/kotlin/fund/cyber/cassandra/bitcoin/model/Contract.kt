@@ -1,6 +1,6 @@
 package fund.cyber.cassandra.bitcoin.model
 
-import fund.cyber.cassandra.common.CqlAddressSummary
+import fund.cyber.cassandra.common.CqlContractSummary
 import fund.cyber.search.model.bitcoin.BitcoinBlock
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import org.springframework.data.cassandra.core.cql.Ordering.DESCENDING
@@ -14,10 +14,10 @@ import org.springframework.data.cassandra.core.mapping.Table
 import java.math.BigDecimal
 import java.time.Instant
 
-@Table("address_summary")
-data class CqlBitcoinAddressSummary(
+@Table("contract_summary")
+data class CqlBitcoinContractSummary(
 
-        @PrimaryKey override val id: String,
+        @PrimaryKey override val hash: String,
         @Column("confirmed_balance") val confirmedBalance: BigDecimal,
         @Column("confirmed_total_received") val confirmedTotalReceived: BigDecimal,
         @Column("confirmed_tx_number") val confirmedTxNumber: Int,
@@ -29,31 +29,32 @@ data class CqlBitcoinAddressSummary(
         @Column("kafka_delta_topic") override val kafkaDeltaTopic: String,
         @Column("kafka_delta_offset_committed") override val kafkaDeltaOffsetCommitted: Boolean = false,
         @Column("unconfirmed_tx_values") val unconfirmedTxValues: Map<String, BigDecimal> = emptyMap()
-) : CqlBitcoinItem, CqlAddressSummary
+) : CqlBitcoinItem, CqlContractSummary
 
 
-@Table("tx_preview_by_address")
-data class CqlBitcoinAddressTxPreview(
+@Table("tx_preview_by_contract")
+data class CqlBitcoinContractTxPreview(
 
-        @PrimaryKeyColumn(ordinal = 0, type = PARTITIONED) val address: String,
-        @PrimaryKeyColumn(ordinal = 1, type = CLUSTERED) val block_time: Instant,
+        @PrimaryKeyColumn(ordinal = 0, type = PARTITIONED, value = "contract_hash") val contractHash: String,
+        @PrimaryKeyColumn(ordinal = 1, type = CLUSTERED, value = "block_time") val blockTime: Instant,
         @PrimaryKeyColumn(ordinal = 2, type = CLUSTERED) val hash: String,
         val fee: BigDecimal,
-        val block_number: Long,
+        @Column("block_number") val blockNumber: Long,
         val ins: List<CqlBitcoinTxPreviewIO>,
         val outs: List<CqlBitcoinTxPreviewIO>
 ) : CqlBitcoinItem {
 
-    constructor(address: String, tx: BitcoinTx) : this(
-            address = address, block_time = tx.blockTime, hash = tx.blockHash, fee = tx.fee,
-            block_number = tx.blockNumber, ins = tx.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) },
+    constructor(contract: String, tx: BitcoinTx) : this(
+            contractHash = contract, blockTime = tx.blockTime, hash = tx.blockHash, fee = tx.fee,
+            blockNumber = tx.blockNumber, ins = tx.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) },
             outs = tx.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
     )
 }
 
-@Table("mined_block_by_address")
-data class CqlBitcoinAddressMinedBlock(
-        @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED) val miner: String,
+@Table("mined_block_by_contract")
+data class CqlBitcoinContractMinedBlock(
+        @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED, value = "miner_contract_hash")
+        val minerContractHash: String,
         @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED, value = "block_number", ordering = DESCENDING)
         val blockNumber: Long,
         @Column("block_time") val blockTime: Instant,
@@ -63,7 +64,7 @@ data class CqlBitcoinAddressMinedBlock(
 ) : CqlBitcoinItem {
 
     constructor(block: BitcoinBlock) : this(
-            miner = block.miner, blockNumber = block.height, blockTime = block.time,
+            minerContractHash = block.miner, blockNumber = block.height, blockTime = block.time,
             blockReward = block.blockReward, txFees = block.txFees, txNumber = block.txNumber
     )
 }

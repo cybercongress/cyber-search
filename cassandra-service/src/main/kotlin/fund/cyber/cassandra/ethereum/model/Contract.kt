@@ -2,7 +2,7 @@
 
 package fund.cyber.cassandra.ethereum.model
 
-import fund.cyber.cassandra.common.CqlAddressSummary
+import fund.cyber.cassandra.common.CqlContractSummary
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
@@ -15,27 +15,29 @@ import org.springframework.data.cassandra.core.mapping.Table
 import java.math.BigDecimal
 import java.time.Instant
 
-@Table("address_summary")
-data class CqlEthereumAddressSummary(
-        @PrimaryKey override val id: String,
+@Table("contract_summary")
+data class CqlEthereumContractSummary(
+        @PrimaryKey override val hash: String,
         @Column("confirmed_balance") val confirmedBalance: BigDecimal,
-        @Column("contract_address") val contractAddress: Boolean,
+        @Column("contract_address") val contractAddress: Boolean, //todo: rename
         @Column("confirmed_total_received") val confirmedTotalReceived: BigDecimal,
         @Column("tx_number") val txNumber: Int,
         @Column("uncle_number") val minedUncleNumber: Int,
         @Column("mined_block_number") val minedBlockNumber: Int,
+        @Column("first_activity_date") val firstActivityDate: Instant,
+        @Column("last_activity_date") val lastActivityDate: Instant,
         override val version: Long,
         @Column("kafka_delta_offset") override val kafkaDeltaOffset: Long,
         @Column("kafka_delta_partition") override val kafkaDeltaPartition: Int,
         @Column("kafka_delta_topic") override val kafkaDeltaTopic: String,
         @Column("kafka_delta_offset_committed") override val kafkaDeltaOffsetCommitted: Boolean = false
-) : CqlEthereumItem, CqlAddressSummary
+) : CqlEthereumItem, CqlContractSummary
 
 
-@Table("tx_preview_by_address")
-data class CqlEthereumAddressTxPreview(
+@Table("tx_preview_by_contract")
+data class CqlEthereumContractTxPreview(
         @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-        val address: String,
+        @Column("contract_hash") val contractHash: String,
         @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = DESCENDING, name = "block_time")
         val blockTime: Instant,
         @PrimaryKeyColumn(ordinal = 2, type = PrimaryKeyType.CLUSTERED) val hash: String,
@@ -46,16 +48,17 @@ data class CqlEthereumAddressTxPreview(
 ) : CqlEthereumItem {
 
     //both 'to' or 'createdContract' can't be null at same time
-    constructor(tx: EthereumTx, address: String) : this(
-            hash = tx.hash, address = address, blockTime = tx.blockTime,
+    constructor(tx: EthereumTx, contractHash: String) : this(
+            hash = tx.hash, contractHash = contractHash, blockTime = tx.blockTime,
             from = tx.from, to = (tx.to ?: tx.createdContract)!!,
             value = tx.value.toString(), fee = tx.fee
     )
 }
 
-@Table("mined_block_by_address")
-data class CqlEthereumAddressMinedBlock(
-        @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED) val miner: String,
+@Table("mined_block_by_contract")
+data class CqlEthereumContractMinedBlock(
+        @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED, value = "miner_contract_hash")
+        val minerContractHash: String,
         @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED, value = "block_number", ordering = DESCENDING)
         val blockNumber: Long,
         @Column("block_time") val blockTime: Instant,
@@ -65,15 +68,16 @@ data class CqlEthereumAddressMinedBlock(
         @Column("tx_number") val txNumber: Int
 ) : CqlEthereumItem {
     constructor(block: EthereumBlock) : this(
-            miner = block.miner, blockNumber = block.number, blockTime = block.timestamp,
+            minerContractHash = block.miner, blockNumber = block.number, blockTime = block.timestamp,
             blockReward = block.blockReward, unclesReward = block.unclesReward,
             txFees = block.txFees, txNumber = block.txNumber
     )
 }
 
-@Table("mined_uncle_by_address")
-data class CqlEthereumAddressMinedUncle(
-        @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED) val miner: String,
+@Table("mined_uncle_by_contract")
+data class CqlEthereumContractMinedUncle(
+        @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED, value = "miner_contract_hash")
+        val minerContractHash: String,
         @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED, value = "block_number", ordering = DESCENDING)
         val blockNumber: Long,
         val hash: String,
@@ -88,6 +92,6 @@ data class CqlEthereumAddressMinedUncle(
             hash = uncle.hash, position = uncle.position,
             number = uncle.number, timestamp = uncle.timestamp,
             blockNumber = uncle.blockNumber, blockTime = uncle.blockTime, blockHash = uncle.blockHash,
-            miner = uncle.miner, uncleReward = uncle.uncleReward.toString()
+            minerContractHash = uncle.miner, uncleReward = uncle.uncleReward.toString()
     )
 }

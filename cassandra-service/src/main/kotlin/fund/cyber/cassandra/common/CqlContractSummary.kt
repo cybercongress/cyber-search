@@ -1,8 +1,8 @@
 package fund.cyber.cassandra.common
 
 
-interface CqlAddressSummary {
-    val id: String
+interface CqlContractSummary {
+    val hash: String
     val version: Long
     val kafkaDeltaOffset: Long
     val kafkaDeltaPartition: Int

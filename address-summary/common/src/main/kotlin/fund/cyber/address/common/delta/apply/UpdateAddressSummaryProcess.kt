@@ -4,7 +4,7 @@ import fund.cyber.address.common.delta.AddressSummaryDelta
 import fund.cyber.address.common.delta.DeltaMerger
 import fund.cyber.address.common.delta.DeltaProcessor
 import fund.cyber.address.common.summary.AddressSummaryStorage
-import fund.cyber.cassandra.common.CqlAddressSummary
+import fund.cyber.cassandra.common.CqlContractSummary
 import fund.cyber.common.kafka.reader.SinglePartitionTopicLastItemsReader
 import fund.cyber.search.model.events.PumpEvent
 import io.micrometer.core.instrument.Counter
@@ -30,18 +30,18 @@ fun <T> Flux<T>.await(): List<T> {
     return this.collectList().block()!!
 }
 
-fun CqlAddressSummary.hasSameTopicPartitionAs(delta: AddressSummaryDelta<*>) =
+fun CqlContractSummary.hasSameTopicPartitionAs(delta: AddressSummaryDelta<*>) =
         this.kafkaDeltaTopic == delta.topic && this.kafkaDeltaPartition == delta.partition
 
-fun CqlAddressSummary.hasSameTopicPartitionAs(topic: String, partition: Int) =
+fun CqlContractSummary.hasSameTopicPartitionAs(topic: String, partition: Int) =
         this.kafkaDeltaTopic == topic && this.kafkaDeltaPartition == partition
 
-fun CqlAddressSummary.notSameTopicPartitionAs(delta: AddressSummaryDelta<*>) =
+fun CqlContractSummary.notSameTopicPartitionAs(delta: AddressSummaryDelta<*>) =
         hasSameTopicPartitionAs(delta).not()
 
-fun CqlAddressSummary.committed() = this.kafkaDeltaOffsetCommitted
+fun CqlContractSummary.committed() = this.kafkaDeltaOffsetCommitted
 
-fun CqlAddressSummary.notCommitted() = committed().not()
+fun CqlContractSummary.notCommitted() = committed().not()
 
 @Suppress("MagicNumber")
 private val applicationContext = newFixedThreadPoolContext(8, "Coroutines Concurrent Pool")
@@ -69,7 +69,7 @@ data class UpdateInfo(
  * */
 //todo add tests
 //todo add deadlock catcher
-class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDelta<S>>(
+class UpdateAddressSummaryProcess<R, S : CqlContractSummary, D : AddressSummaryDelta<S>>(
         private val addressSummaryStorage: AddressSummaryStorage<S>,
         private val deltaProcessor: DeltaProcessor<R, S, D>,
         private val deltaMerger: DeltaMerger<D>,
@@ -97,7 +97,7 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
         val addresses = deltaProcessor.affectedAddresses(records)
 
         val addressesSummary = addressSummaryStorage.findAllByIdIn(addresses)
-                .await().groupBy { a -> a.id }.map { (k, v) -> k to v.first() }.toMap()
+                .await().groupBy { a -> a.hash }.map { (k, v) -> k to v.first() }.toMap()
 
         val deltas = records.flatMap { record -> deltaProcessor.recordToDeltas(record) }
 
@@ -129,7 +129,7 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
                 runBlocking {
                     newSummaries.map { summary ->
                         async(applicationContext) {
-                            addressSummaryStorage.commitUpdate(summary.id, summary.version + 1).await()
+                            addressSummaryStorage.commitUpdate(summary.hash, summary.version + 1).await()
                         }
                     }.map { it.await() }
                 }
@@ -153,11 +153,11 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
         addressSummaryStorage.findAllByIdIn(addresses).await().forEach { summary ->
             if (summary.notCommitted() && summary.hasSameTopicPartitionAs(info.topic, info.partition)
                     && summary.kafkaDeltaOffset in info.minOffset..info.maxOffset) {
-                val previousState = previousStates[summary.id]
+                val previousState = previousStates[summary.hash]
                 if (previousState != null) {
                     addressSummaryStorage.update(previousState)
                 } else {
-                    addressSummaryStorage.remove(summary.id)
+                    addressSummaryStorage.remove(summary.hash)
                 }
             }
         }
@@ -235,7 +235,7 @@ class UpdateAddressSummaryProcess<R, S : CqlAddressSummary, D : AddressSummaryDe
         }
     }
 
-    private fun CqlAddressSummary.currentTopicPartitionWentFurther() =
+    private fun CqlContractSummary.currentTopicPartitionWentFurther() =
             lastOffsetOf(this.kafkaDeltaTopic, this.kafkaDeltaPartition) > this.kafkaDeltaOffset//todo : = or >= ????
 
     private fun lastOffsetOf(topic: String, partition: Int): Long {

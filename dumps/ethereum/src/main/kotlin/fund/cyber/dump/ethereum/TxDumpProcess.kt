@@ -1,11 +1,11 @@
 package fund.cyber.dump.ethereum
 
-import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressTxPreview
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractTxPreview
 import fund.cyber.cassandra.ethereum.model.CqlEthereumBlockTxPreview
 import fund.cyber.cassandra.ethereum.model.CqlEthereumTx
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockTxRepository
-import fund.cyber.cassandra.ethereum.repository.EthereumAddressTxRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
 import fund.cyber.dump.common.filterNotContainsAllEventsOf
 import fund.cyber.dump.common.toRecordEventsMap
 import fund.cyber.search.model.chains.EthereumFamilyChain
@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong
 class TxDumpProcess(
         private val txRepository: EthereumTxRepository,
         private val blockTxRepository: EthereumBlockTxRepository,
-        private val addressTxRepository: EthereumAddressTxRepository,
+        private val contractTxRepository: EthereumContractTxRepository,
         private val chain: EthereumFamilyChain,
         private val monitoring: MeterRegistry
 ) : BatchMessageListener<PumpEvent, EthereumTx> {
@@ -50,16 +50,16 @@ class TxDumpProcess(
 
         val txsByAddressToSave = txsToCommit.flatMap { tx ->
             tx.addressesUsedInTransaction()
-                    .map { it -> CqlEthereumAddressTxPreview(tx, it) }
+                    .map { it -> CqlEthereumContractTxPreview(tx, it) }
         }
 
         val txsByAddressToRevert = txsToRevert.flatMap { tx ->
             tx.addressesUsedInTransaction()
-                    .map { it -> CqlEthereumAddressTxPreview(tx, it) }
+                    .map { it -> CqlEthereumContractTxPreview(tx, it) }
         }
 
-        addressTxRepository.saveAll(txsByAddressToSave).collectList().block()
-        addressTxRepository.deleteAll(txsByAddressToRevert).block()
+        contractTxRepository.saveAll(txsByAddressToSave).collectList().block()
+        contractTxRepository.deleteAll(txsByAddressToRevert).block()
 
         if (::topicCurrentOffsetMonitor.isInitialized) {
             topicCurrentOffsetMonitor.set(records.last().offset())

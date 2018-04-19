@@ -3,10 +3,10 @@ package fund.cyber.api.bitcoin
 import fund.cyber.api.common.asSingleRouterFunction
 import fund.cyber.api.bitcoin.functions.AddressBlocksByAddress
 import fund.cyber.api.bitcoin.functions.AddressTxesByAddress
-import fund.cyber.cassandra.bitcoin.model.CqlBitcoinAddressSummary
-import fund.cyber.cassandra.bitcoin.repository.BitcoinAddressSummaryRepository
-import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinAddressMinedBlockRepository
-import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinAddressTxRepository
+import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractSummary
+import fund.cyber.cassandra.bitcoin.repository.BitcoinContractSummaryRepository
+import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractMinedBlockRepository
+import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractTxRepository
 import fund.cyber.search.model.chains.BitcoinFamilyChain
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -32,14 +32,14 @@ class BitcoinAddressHandlersConfiguration {
         return BitcoinFamilyChain.values().map { chain ->
 
             val repository = applicationContext
-                    .getBean(chain.name + "addressRepository", BitcoinAddressSummaryRepository::class.java)
+                    .getBean(chain.name + "addressRepository", BitcoinContractSummaryRepository::class.java)
 
             val blockByNumber = HandlerFunction { request ->
-                val addressId = request.pathVariable("id")
+                val addressId = request.pathVariable("hash")
                 val address = repository.findById(addressId)
-                ServerResponse.ok().body(address, CqlBitcoinAddressSummary::class.java)
+                ServerResponse.ok().body(address, CqlBitcoinContractSummary::class.java)
             }
-            RouterFunctions.route(path("/${chain.lowerCaseName}/address/{id}"), blockByNumber)
+            RouterFunctions.route(path("/${chain.lowerCaseName}/address/{hash}"), blockByNumber)
         }.asSingleRouterFunction()
     }
 
@@ -49,10 +49,10 @@ class BitcoinAddressHandlersConfiguration {
         return BitcoinFamilyChain.values().map { chain ->
 
             val repository = applicationContext.getBean(
-                    chain.name + "pageableAddressTxRepository", PageableBitcoinAddressTxRepository::class.java
+                    chain.name + "pageableAddressTxRepository", PageableBitcoinContractTxRepository::class.java
             )
             val handler = AddressTxesByAddress(repository)
-            RouterFunctions.route(path("/${chain.lowerCaseName}/address/{id}/transactions"), handler)
+            RouterFunctions.route(path("/${chain.lowerCaseName}/address/{hash}/transactions"), handler)
         }.asSingleRouterFunction()
     }
 
@@ -63,10 +63,10 @@ class BitcoinAddressHandlersConfiguration {
 
             val repository = applicationContext.getBean(
                     chain.name + "pageableAddressBlockRepository",
-                    PageableBitcoinAddressMinedBlockRepository::class.java
+                    PageableBitcoinContractMinedBlockRepository::class.java
             )
             val handler = AddressBlocksByAddress(repository)
-            RouterFunctions.route(path("/${chain.lowerCaseName}/address/{id}/blocks"), handler)
+            RouterFunctions.route(path("/${chain.lowerCaseName}/address/{hash}/blocks"), handler)
         }.asSingleRouterFunction()
     }
 }

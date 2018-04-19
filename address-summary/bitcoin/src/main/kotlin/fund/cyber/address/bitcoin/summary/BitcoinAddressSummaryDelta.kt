@@ -3,8 +3,8 @@ package fund.cyber.address.bitcoin.summary
 import fund.cyber.address.common.delta.AddressSummaryDelta
 import fund.cyber.address.common.delta.DeltaMerger
 import fund.cyber.address.common.delta.DeltaProcessor
-import fund.cyber.cassandra.bitcoin.model.CqlBitcoinAddressSummary
-import fund.cyber.cassandra.common.CqlAddressSummary
+import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractSummary
+import fund.cyber.cassandra.common.CqlContractSummary
 import fund.cyber.common.sumByDecimal
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.events.PumpEvent
@@ -23,7 +23,7 @@ data class BitcoinAddressSummaryDelta(
         override val topic: String,
         override val partition: Int,
         override val offset: Long
-) : AddressSummaryDelta<CqlBitcoinAddressSummary> {
+) : AddressSummaryDelta<CqlBitcoinContractSummary> {
 
     fun revertedDelta(): BitcoinAddressSummaryDelta = BitcoinAddressSummaryDelta(
             address = address, balanceDelta = -balanceDelta, txNumberDelta = -txNumberDelta,
@@ -31,9 +31,9 @@ data class BitcoinAddressSummaryDelta(
             partition = partition, offset = offset, time = time
     )
 
-    override fun createSummary(): CqlBitcoinAddressSummary {
-        return CqlBitcoinAddressSummary(
-                id = this.address, confirmedBalance = this.balanceDelta,
+    override fun createSummary(): CqlBitcoinContractSummary {
+        return CqlBitcoinContractSummary(
+                hash = this.address, confirmedBalance = this.balanceDelta,
                 confirmedTxNumber = this.txNumberDelta,
                 confirmedTotalReceived = this.totalReceivedDelta,
                 firstActivityDate = this.time, lastActivityDate = this.time,
@@ -42,9 +42,9 @@ data class BitcoinAddressSummaryDelta(
         )
     }
 
-    override fun updateSummary(summary: CqlBitcoinAddressSummary): CqlBitcoinAddressSummary {
-        return CqlBitcoinAddressSummary(
-                id = summary.id, confirmedBalance = summary.confirmedBalance + this.balanceDelta,
+    override fun updateSummary(summary: CqlBitcoinContractSummary): CqlBitcoinContractSummary {
+        return CqlBitcoinContractSummary(
+                hash = summary.hash, confirmedBalance = summary.confirmedBalance + this.balanceDelta,
                 confirmedTxNumber = summary.confirmedTxNumber + this.txNumberDelta,
                 firstActivityDate = summary.firstActivityDate, lastActivityDate = time,
                 confirmedTotalReceived = summary.confirmedTotalReceived + this.totalReceivedDelta,
@@ -56,7 +56,7 @@ data class BitcoinAddressSummaryDelta(
 
 //todo: txNumberDelta should be 1 if address both in ins and outs
 @Component
-class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinAddressSummary, BitcoinAddressSummaryDelta> {
+class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinContractSummary, BitcoinAddressSummaryDelta> {
 
     override fun recordToDeltas(record: ConsumerRecord<PumpEvent, BitcoinTx>): List<BitcoinAddressSummaryDelta> {
         val tx = record.value()
@@ -102,7 +102,7 @@ class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinAddressSumma
 class BitcoinDeltaMerger: DeltaMerger<BitcoinAddressSummaryDelta> {
 
     override fun mergeDeltas(deltas: Iterable<BitcoinAddressSummaryDelta>,
-                             currentAddresses: Map<String, CqlAddressSummary>): BitcoinAddressSummaryDelta? {
+                             currentAddresses: Map<String, CqlContractSummary>): BitcoinAddressSummaryDelta? {
 
         val first = deltas.first()
         val existingSummary = currentAddresses[first.address]
