@@ -1,6 +1,6 @@
 openapi: 3.0.1
 servers:
-  - url: 'http://staging.cyber.fund:32901'
+  - url: 'http://api.cybersearch.io'
 info:
   description: Multichain search
   version: 1.0.0
@@ -41,6 +41,32 @@ paths:
             format: int32
             minimum: 0
             default: 20
+        - name: chains
+          in: query
+          description: Chains to search through
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - bitcoin
+                - bitcoin_cash
+                - ethereum
+                - ethereum_classic
+        - name: types
+          in: query
+          description: Types to search through
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - tx
+                - block
+                - uncle
+                - address_summary
       responses:
         '200':
           description: 'Successful search'

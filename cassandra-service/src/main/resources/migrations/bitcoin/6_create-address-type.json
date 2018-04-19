@@ -1,8 +1,8 @@
 {
   "method": "PUT",
-  "url": "/bitcoin.address/_mapping/address",
+  "url": "/bitcoin.address_summary/_mapping/address_summary",
   "data": {
-    "address": {
+    "address_summary": {
       "properties": {
         "id": {
           "type": "keyword",

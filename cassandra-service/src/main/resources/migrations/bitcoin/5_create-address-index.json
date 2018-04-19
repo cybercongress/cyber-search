@@ -1,6 +1,6 @@
 {
   "method": "PUT",
-  "url": "/bitcoin.address/",
+  "url": "/bitcoin.address_summary/",
   "data": {
     "settings": {
       "keyspace": "bitcoin"
