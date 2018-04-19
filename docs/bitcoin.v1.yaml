@@ -100,13 +100,13 @@ paths:
         '404':
           description: 'Block not found'
 
-  '/{chainName}/address/{id}':
+  '/{chainName}/contract/{hash}':
     get:
       tags:
         - bitcoin
-      summary: 'Find bitcoin address info by address id'
-      description: 'Returns an address info'
-      operationId: getAddress
+      summary: 'Find bitcoin contract info by contract hash'
+      description: 'Returns an contract info'
+      operationId: getContract
       parameters:
         - name: chainName
           in: path
@@ -117,31 +117,31 @@ paths:
             enum:
               - bitcoin
               - bitcoin_classic
-        - name: id
+        - name: hash
           in: path
-          description: 'Address id'
+          description: 'Contract hash'
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: 'Address found'
+          description: 'Contract found'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BitcoinAddress'
+                $ref: '#/components/schemas/BitcoinContract'
         '400':
-          description: "Invalid id supplied"
+          description: "Invalid hash supplied"
         '404':
-          description: 'Address not found'
+          description: 'Contract not found'
 
-  '/{chainName}/address/{id}/transactions':
+  '/{chainName}/contract/{hash}/transactions':
     get:
       tags:
         - bitcoin
-      summary: 'Download address transactions'
-      description: Returns an address transactions sorted by time (most recent first)
-      operationId: getAddressTransactionsByAddressId
+      summary: 'Download contract transactions'
+      description: Returns an contract transactions sorted by time (most recent first)
+      operationId: getContractTransactionsByContractHash
       parameters:
         - name: chainName
           in: path
@@ -152,9 +152,9 @@ paths:
             enum:
               - bitcoin
               - bitcoin_classic
-        - name: id
+        - name: hash
           in: path
-          description: 'Address id'
+          description: 'Contract hash'
           required: true
           schema:
             type: string
@@ -178,23 +178,23 @@ paths:
             default: 0
       responses:
         '200':
-          description: 'Address transactions found'
+          description: 'Contract transactions found'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BitcoinAddressTx'
+                $ref: '#/components/schemas/BitcoinContractTx'
         '400':
-          description: "Invalid 'id', 'page' or 'pageSize' parameters"
+          description: "Invalid 'hash', 'page' or 'pageSize' parameters"
         '404':
-          description: 'Address not found'
+          description: 'Contract not found'
 
-  '/{chainName}/address/{id}/blocks':
+  '/{chainName}/contract/{hash}/blocks':
     get:
       tags:
         - bitcoin
-      summary: 'Download address blocks'
-      description: Returns an address blocks sorted by time (most recent first)
-      operationId: getAddressBlocksByAddressId
+      summary: 'Download contract blocks'
+      description: Returns an contract blocks sorted by time (most recent first)
+      operationId: getContractBlocksByContractHash
       parameters:
         - name: chainName
           in: path
@@ -205,9 +205,9 @@ paths:
             enum:
               - bitcoin
               - bitcoin_classic
-        - name: id
+        - name: hash
           in: path
-          description: 'Address id'
+          description: 'Contract hash'
           required: true
           schema:
             type: string
@@ -231,15 +231,15 @@ paths:
             default: 0
       responses:
         '200':
-          description: 'Address blocks found'
+          description: 'Contract blocks found'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BitcoinAddressBlock'
+                $ref: '#/components/schemas/BitcoinContractBlock'
         '400':
-          description: "Invalid 'id', 'page' or 'pageSize' parameters"
+          description: "Invalid 'hash', 'page' or 'pageSize' parameters"
         '404':
-          description: 'Address not found'
+          description: 'Contract not found'
 
 
   '/{chainName}/tx/{hash}':
@@ -294,12 +294,12 @@ components:
         time:
           type: string
           format: date-time
-        tx_number:
+        txNumber:
           type: integer
           format: int32
-        total_inputs_value:
+        totalInputsValue:
           type: string
-        total_outputs_value:
+        totalOutputsValue:
           type: string
 
 
@@ -308,19 +308,19 @@ components:
       properties:
         hash:
           type: string
-        block_hash:
+        blockHash:
           type: string
-        block_number:
+        blockNumber:
           type: integer
           format: int64
-        block_time:
+        blockTime:
           type: string
           format: date-time
         fee:
           type: string
-        total_input:
+        totalInput:
           type: string
-        total_output:
+        totalOutput:
           type: string
 
 # Raw API Entities
@@ -334,7 +334,7 @@ components:
             height:
               type: integer
               format: int64
-            miner:
+            minerContractHash:
               type: string
             blockReward:
               type: number
@@ -363,10 +363,10 @@ components:
               type: string
             difficulty:
               type: number
-            tx_number:
+            txNumber:
               type: integer
               format: int32
-            total_outputs_value:
+            totalOutputsValue:
               type: string
 
     BitcoinBlockTx:
@@ -395,7 +395,7 @@ components:
     BitcoinTxPreviewIO:
        type: object
        properties:
-         addresses:
+         contracts:
           type: array
           items:
             type: string
@@ -403,10 +403,10 @@ components:
            type: string
 
 
-    BitcoinAddress:
+    BitcoinContract:
        type: object
        properties:
-         id:
+         hash:
            type: string
          confirmedBalance:
            type: number
@@ -436,15 +436,17 @@ components:
            type: boolean
 
 
-    BitcoinAddressTx:
+    BitcoinContractTx:
        type: object
        properties:
          hash:
            type: string
-         block_number:
+         contractHash:
+           type: string
+         blockNumber:
            type: integer
            format: int64
-         block_time:
+         blockTime:
            type: string
            format: date-time
          fee:
@@ -459,10 +461,10 @@ components:
              $ref: "#/components/schemas/BitcoinTxPreviewIO"
 
 
-    BitcoinAddressBlock:
+    BitcoinContractBlock:
       type: object
       properties:
-        miner:
+        minerContractHash:
           type: string
         blockNumber:
           type: integer
@@ -503,7 +505,7 @@ components:
     BitcoinTxIn:
        type: object
        properties:
-         addresses:
+         contracts:
           type: array
           items:
             type: string
@@ -520,7 +522,7 @@ components:
     BitcoinTxOut:
        type: object
        properties:
-         addresses:
+         contracts:
           type: array
           items:
             type: string

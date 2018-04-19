@@ -10,23 +10,24 @@ import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
 
-class AddressTxesByAddress(
+class ContractTxesByHash(
         private val contractTxRepository: PageableEthereumContractTxRepository
 ) : HandlerFunction<ServerResponse> {
 
 
     override fun handle(request: ServerRequest): Mono<ServerResponse> {
 
-        val id = request.pathVariable("hash")
+        val hash = request.pathVariable("hash")
         val page = request.queryParam("page").orElse("0").toInt()
         val pageSize = request.queryParam("pageSize").orElse("20").toInt()
 
 
-        var slice = contractTxRepository.findAllByContractHash(id.toSearchHashFormat(), CassandraPageRequest.first(pageSize))
+        var slice = contractTxRepository
+                .findAllByContractHash(hash.toSearchHashFormat(), CassandraPageRequest.first(pageSize))
 
         for (i in 1..page) {
             if (slice.hasNext()) {
-                slice = contractTxRepository.findAllByContractHash(id, slice.nextPageable())
+                slice = contractTxRepository.findAllByContractHash(hash, slice.nextPageable())
             } else return ServerResponse.notFound().build()
         }
         return ServerResponse.ok().body(slice.content.toFlux(), CqlEthereumContractTxPreview::class.java)
