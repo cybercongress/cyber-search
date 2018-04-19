@@ -49,12 +49,12 @@ class TxDumpProcess(
         blockTxRepository.deleteAll(txsToRevert.map { tx -> CqlEthereumBlockTxPreview(tx) }).block()
 
         val txsByContractHashToSave = txsToCommit.flatMap { tx ->
-            tx.addressesUsedInTransaction()
+            tx.contractsUsedInTransaction()
                     .map { it -> CqlEthereumContractTxPreview(tx, it) }
         }
 
         val txsByContractHashToRevert = txsToRevert.flatMap { tx ->
-            tx.addressesUsedInTransaction()
+            tx.contractsUsedInTransaction()
                     .map { it -> CqlEthereumContractTxPreview(tx, it) }
         }
 

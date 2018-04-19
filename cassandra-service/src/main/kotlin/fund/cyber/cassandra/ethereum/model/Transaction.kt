@@ -35,5 +35,5 @@ data class CqlEthereumTx(
 
     )
 
-    fun addressesUsedInTransaction() = listOfNotNull(from, to, createdContract)
+    fun contractsUsedInTransaction() = listOfNotNull(from, to, createdContract)
 }

@@ -37,7 +37,7 @@ data class CqlBitcoinTx(
 
     fun getOutputByNumber(number: Int) = outs.find { out -> out.out == number }!!
 
-    fun allAddressesUsedInTransaction() = ins.flatMap { input -> input.contracts } +
+    fun allContractsUsedInTransaction() = ins.flatMap { input -> input.contracts } +
             outs.flatMap { output -> output.contracts }
 }
 

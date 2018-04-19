@@ -29,7 +29,7 @@ interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEt
     @Query("""
         UPDATE contract_summary
         SET confirmed_balance = :#{#summary.confirmedBalance},
-            contract_address = :#{#summary.smartContract},
+            smart_contract = :#{#summary.smartContract},
             confirmed_total_received = :#{#summary.confirmedTotalReceived},
             tx_number = :#{#summary.txNumber},
             uncle_number = :#{#summary.minedUncleNumber},
@@ -50,7 +50,7 @@ interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEt
      */
     @Consistency(value = ConsistencyLevel.QUORUM)
     @Query("""
-        INSERT INTO contract_summary (hash, confirmed_balance, contract_address,
+        INSERT INTO contract_summary (hash, confirmed_balance, smart_contract,
           confirmed_total_received, tx_number, uncle_number, mined_block_number,
           version, kafka_delta_offset, kafka_delta_topic,
           kafka_delta_partition, kafka_delta_offset_committed)

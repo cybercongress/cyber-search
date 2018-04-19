@@ -9,7 +9,7 @@ interface ContractSummaryStorage<S: CqlContractSummary> {
     fun findAllByIdIn(ids: Iterable<String>): Flux<S>
     fun update(summary: S, oldVersion: Long): Mono<Boolean>
     fun insertIfNotRecord(summary: S): Mono<Boolean>
-    fun commitUpdate(address: String, newVersion: Long): Mono<Boolean>
+    fun commitUpdate(contract: String, newVersion: Long): Mono<Boolean>
     fun update(summary: S): Mono<S>
-    fun remove(address: String): Mono<Void>
+    fun remove(contract: String): Mono<Void>
 }

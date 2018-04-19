@@ -40,14 +40,14 @@ class BitcoinGenesisDataFileProvider(
         val transactions = genesis.transactions.mapIndexed { index, tx ->
             val ins = tx.ins.map {
                 BitcoinTxIn(
-                        contracts = it.addresses, amount = it.amount,
+                        contracts = it.contracts, amount = it.amount,
                         asm = it.asm, txHash = it.txHash, txOut = it.txOut
                 )
             }
 
             val outs = tx.outs.map {
                 BitcoinTxOut(
-                        contracts = it.addresses, amount = it.amount, asm = "",
+                        contracts = it.contracts, amount = it.amount, asm = "",
                         out = 0, requiredSignatures = 0
                 )
             }
@@ -102,7 +102,7 @@ data class Tx(
 )
 
 data class TxIn(
-        val addresses: List<String>,
+        val contracts: List<String>,
         val amount: BigDecimal,
         val asm: String,
         val txHash: String,
@@ -110,6 +110,6 @@ data class TxIn(
 )
 
 data class TxOut(
-        val addresses: List<String>,
+        val contracts: List<String>,
         val amount: BigDecimal
 )

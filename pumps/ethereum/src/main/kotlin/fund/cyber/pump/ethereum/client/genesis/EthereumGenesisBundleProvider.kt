@@ -39,17 +39,17 @@ class EthereumGenesisDataFileProvider(
                 .filter { (_, value) -> value.balance != null }
                 .mapIndexed { index, entry ->
 
-                    val addressId = entry.key
+                    val contractHash = entry.key
                     val balance = entry.value.balance
 
                     val tx = EthereumTx(
-                            hash = "GENESIS_$addressId",
+                            hash = "GENESIS_$contractHash",
                             nonce = 42,
                             blockHash = "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3",
                             blockNumber = 0,
                             positionInBlock = index,
                             from = "",
-                            to = addressId,
+                            to = contractHash,
                             value = BigDecimal(balance!!).multiply(weiToEthRate),
                             gasPrice = BigDecimal.ZERO,
                             gasUsed = 0,

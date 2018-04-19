@@ -147,14 +147,14 @@ class TxDumpProcessTest {
                 .saveAll(
                         listOf(txD, txE, txG, txI)
                                 .flatMap { tx ->
-                                    tx.addressesUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) }
+                                    tx.contractsUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) }
                                 }
                 )
         verify(contractTxRepository, times(1))
                 .deleteAll(
                         listOf(txF, txC)
                                 .flatMap { tx ->
-                                    tx.addressesUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) }
+                                    tx.contractsUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) }
                                 }
                 )
 
