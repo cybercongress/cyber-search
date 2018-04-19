@@ -2,35 +2,20 @@ package fund.cyber.cassandra.ethereum.configuration
 
 import com.datastax.driver.core.Cluster
 import fund.cyber.cassandra.common.NoChainCondition
+import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.configuration.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.configuration.keyspace
-import fund.cyber.cassandra.ethereum.repository.EthereumAddressRepository
-import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
-import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
-import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
-import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressMinedBlockRepository
-import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressMinedUncleRepository
-import fund.cyber.cassandra.ethereum.repository.PageableEthereumAddressTxRepository
-import fund.cyber.cassandra.ethereum.repository.PageableEthereumBlockTxRepository
+import fund.cyber.cassandra.ethereum.repository.*
 import fund.cyber.cassandra.migration.BlockchainMigrationSettings
 import fund.cyber.cassandra.migration.MigrationSettings
-import fund.cyber.search.configuration.CASSANDRA_HOSTS
-import fund.cyber.search.configuration.CASSANDRA_HOSTS_DEFAULT
-import fund.cyber.search.configuration.CASSANDRA_PORT
-import fund.cyber.search.configuration.CASSANDRA_PORT_DEFAULT
-import fund.cyber.search.configuration.CHAIN
-import fund.cyber.search.configuration.env
+import fund.cyber.search.configuration.*
 import fund.cyber.search.model.chains.Chain
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Condition
-import org.springframework.context.annotation.ConditionContext
-import org.springframework.context.annotation.Conditional
-import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.*
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.core.type.AnnotatedTypeMetadata
 import org.springframework.data.cassandra.ReactiveSession
@@ -41,6 +26,7 @@ import org.springframework.data.cassandra.core.CassandraTemplate
 import org.springframework.data.cassandra.core.ReactiveCassandraOperations
 import org.springframework.data.cassandra.core.ReactiveCassandraTemplate
 import org.springframework.data.cassandra.core.convert.MappingCassandraConverter
+import org.springframework.data.cassandra.core.cql.keyspace.CreateKeyspaceSpecification
 import org.springframework.data.cassandra.core.cql.session.DefaultBridgedReactiveSession
 import org.springframework.data.cassandra.core.cql.session.DefaultReactiveSessionFactory
 import org.springframework.data.cassandra.core.mapping.CassandraMappingContext
@@ -68,6 +54,10 @@ class EthereumRepositoryConfiguration(
 
     override fun getKeyspaceName(): String = chain.keyspace
     override fun getEntityBasePackages(): Array<String> = arrayOf("fund.cyber.cassandra.ethereum.model")
+
+    override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
+        return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chain.lowerCaseName))
+    }
 
     @Bean
     fun migrationSettings(): MigrationSettings {
