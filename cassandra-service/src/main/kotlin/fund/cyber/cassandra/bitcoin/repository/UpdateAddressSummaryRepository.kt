@@ -15,16 +15,16 @@ import reactor.core.publisher.Mono
  */
 interface BitcoinUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlBitcoinAddressSummary, String> {
 
-    @Consistency(value = ConsistencyLevel.SERIAL)
+    @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
     override fun findById(id: String): Mono<CqlBitcoinAddressSummary>
 
-    @Consistency(value = ConsistencyLevel.SERIAL)
+    @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
     fun findAllByIdIn(ids: Iterable<String>): Flux<CqlBitcoinAddressSummary>
 
     /**
      * Return {@code true} if update was successful.
      */
-    @Consistency(value = ConsistencyLevel.QUORUM)
+    @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
     @Query("""
         UPDATE address_summary
         SET confirmed_balance = :#{#summary.confirmedBalance},
@@ -45,7 +45,7 @@ interface BitcoinUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlBitc
     /**
      * Return {@code true} if there is no record for key and insert was successful.
      */
-    @Consistency(value = ConsistencyLevel.QUORUM)
+    @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
     @Query("""
         INSERT INTO address_summary (id, confirmed_balance, confirmed_tx_number,
           confirmed_total_received, first_activity_date, last_activity_date, version, kafka_delta_offset,
@@ -60,7 +60,7 @@ interface BitcoinUpdateAddressSummaryRepository : ReactiveCrudRepository<CqlBitc
         """)
     fun insertIfNotRecord(@Param("summary") summary: CqlBitcoinAddressSummary): Mono<Boolean>
 
-    @Consistency(value = ConsistencyLevel.QUORUM)
+    @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
     @Query("""
         UPDATE address_summary
         SET kafka_delta_offset_committed = true,
