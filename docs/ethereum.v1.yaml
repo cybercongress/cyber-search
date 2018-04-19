@@ -1,6 +1,6 @@
 openapi: 3.0.1
 servers:
-  - url: 'http://staging.cyber.fund:32901'
+  - url: 'http://api.cybersearch.io'
 info:
   description: 'Access to Ethereum/Ethereum Classic chain entites. <br /> To choose needed chain we use <code>{chainName}</code> parameter with <code>ethereum</code> or <code>ethereum_classic</code> value in url path.'
   version: 1.0.0
