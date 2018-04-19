@@ -57,7 +57,7 @@ class ParityToEthereumBundleConverter(
                             hash = parityTx.hash, blockHash = parityBlock.hash,
                             blockNumber = parityBlock.numberRaw.hexToLong(),
                             blockTime = Instant.ofEpochSecond(parityBlock.timestampRaw.hexToLong()),
-                            createdContract = parityTx.creates, input = parityTx.input,
+                            createdSmartContract = parityTx.creates, input = parityTx.input,
                             positionInBlock = index, gasLimit = parityBlock.gasLimitRaw.hexToLong(),
                             gasUsed = parityTx.transactionIndexRaw.hexToLong(),
                             gasPrice = BigDecimal(parityTx.gasPrice) * weiToEthRate,
@@ -81,7 +81,7 @@ class ParityToEthereumBundleConverter(
 
         return EthereumBlock(
                 hash = parityBlock.hash, parentHash = parityBlock.parentHash, number = number,
-                miner = parityBlock.miner, difficulty = parityBlock.difficulty, size = parityBlock.sizeRaw.hexToLong(),
+                minerContractHash = parityBlock.miner, difficulty = parityBlock.difficulty, size = parityBlock.sizeRaw.hexToLong(),
                 extraData = parityBlock.extraData, totalDifficulty = parityBlock.totalDifficulty,
                 gasLimit = parityBlock.gasLimitRaw.hexToLong(), gasUsed = parityBlock.gasUsedRaw.hexToLong(),
                 timestamp = Instant.ofEpochSecond(parityBlock.timestampRaw.hexToLong()),

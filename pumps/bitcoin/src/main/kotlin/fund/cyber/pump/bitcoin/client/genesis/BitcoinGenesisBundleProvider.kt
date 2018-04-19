@@ -40,14 +40,14 @@ class BitcoinGenesisDataFileProvider(
         val transactions = genesis.transactions.mapIndexed { index, tx ->
             val ins = tx.ins.map {
                 BitcoinTxIn(
-                        addresses = it.addresses, amount = it.amount,
+                        contracts = it.addresses, amount = it.amount,
                         asm = it.asm, txHash = it.txHash, txOut = it.txOut
                 )
             }
 
             val outs = tx.outs.map {
                 BitcoinTxOut(
-                        addresses = it.addresses, amount = it.amount, asm = "",
+                        contracts = it.addresses, amount = it.amount, asm = "",
                         out = 0, requiredSignatures = 0
                 )
             }
@@ -61,11 +61,11 @@ class BitcoinGenesisDataFileProvider(
         }
 
         val totalOutputsValue = transactions.flatMap { tx -> tx.outs }.map { out -> out.amount }.sum()
-        val miner = transactions.first().outs.first().addresses.first()
+        val miner = transactions.first().outs.first().contracts.first()
 
         val block = BitcoinBlock(
                 hash = blockBundle.block.hash, size = blockBundle.block.size,
-                miner =  miner,
+                minerContractHash =  miner,
                 version = blockBundle.block.version, blockReward = blockBundle.block.blockReward,
                 txFees = BigDecimal.ZERO, coinbaseData = transactions.first().coinbase?:"",
                 bits = blockBundle.block.bits, difficulty = blockBundle.block.difficulty,

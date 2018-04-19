@@ -24,7 +24,7 @@ class JsonRpcToDaoBitcoinBlockConverter {
 
         return BitcoinBlock(
                 hash = jsonRpcBlock.hash, size = jsonRpcBlock.size,
-                miner = coinbaseTxMinerOutput?.addresses?.first()?:"",
+                minerContractHash = coinbaseTxMinerOutput?.contracts?.first()?:"",
                 version = jsonRpcBlock.version, blockReward = getBlockReward(jsonRpcBlock.height),
                 txFees = transactions.map { tx -> tx.fee }.sum(), coinbaseData = coinbaseTx?.coinbase?:"",
                 bits = jsonRpcBlock.bits, difficulty = jsonRpcBlock.difficulty.toBigInteger(),

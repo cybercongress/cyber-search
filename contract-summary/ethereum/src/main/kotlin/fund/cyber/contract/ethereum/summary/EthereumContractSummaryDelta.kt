@@ -75,14 +75,14 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumContractS
         val contractDeltaByInput = EthereumContractSummaryDelta(
                 contract = tx.from, txNumberDelta = 1, minedBlockNumberDelta = 0, uncleNumberDelta = 0,
                 balanceDelta = tx.value.negate() - tx.fee, totalReceivedDelta = BigDecimal.ZERO,
-                smartContract = (tx.createdContract != null), topic = record.topic(), partition = record.partition(),
+                smartContract = (tx.createdSmartContract != null), topic = record.topic(), partition = record.partition(),
                 offset = record.offset(), time = tx.blockTime
         )
 
         val contractDeltaByOutput = EthereumContractSummaryDelta(
-                contract = (tx.to ?: tx.createdContract)!!, txNumberDelta = 1, minedBlockNumberDelta = 0,
+                contract = (tx.to ?: tx.createdSmartContract)!!, txNumberDelta = 1, minedBlockNumberDelta = 0,
                 uncleNumberDelta = 0, balanceDelta = tx.value, totalReceivedDelta = tx.value,
-                smartContract = (tx.createdContract != null), topic = record.topic(), partition = record.partition(),
+                smartContract = (tx.createdSmartContract != null), topic = record.topic(), partition = record.partition(),
                 offset = record.offset(), time = tx.blockTime
         )
 
@@ -93,7 +93,7 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumContractS
     override fun affectedContracts(records: List<ConsumerRecord<PumpEvent, EthereumTx>>): Set<String> {
         val allContracts: List<String> = records.flatMap { record ->
             val inContract = record.value().from
-            val outContract = (record.value().to ?: record.value().createdContract)!!
+            val outContract = (record.value().to ?: record.value().createdSmartContract)!!
             return@flatMap listOf(inContract, outContract)
         }
 
@@ -114,7 +114,7 @@ class EthereumBlockDeltaProcessor
         val finalReward = block.blockReward + block.txFees + block.unclesReward
 
         val delta = EthereumContractSummaryDelta(
-                contract = block.miner, balanceDelta = finalReward, totalReceivedDelta = finalReward,
+                contract = block.minerContractHash, balanceDelta = finalReward, totalReceivedDelta = finalReward,
                 txNumberDelta = 0, minedBlockNumberDelta = 1, uncleNumberDelta = 0,
                 smartContract = null, topic = record.topic(), partition = record.partition(), offset = record.offset(),
                 time = block.timestamp
@@ -123,7 +123,7 @@ class EthereumBlockDeltaProcessor
     }
 
     override fun affectedContracts(records: List<ConsumerRecord<PumpEvent, EthereumBlock>>): Set<String> {
-        return records.map { record -> record.value().miner }.toSet()
+        return records.map { record -> record.value().minerContractHash }.toSet()
     }
 
 }

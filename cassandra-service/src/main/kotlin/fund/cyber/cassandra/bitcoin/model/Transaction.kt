@@ -51,7 +51,7 @@ data class CqlBitcoinTxIn(
 ) {
 
     constructor(txIn: BitcoinTxIn) : this(
-            contracts = txIn.addresses, amount = txIn.amount, asm = txIn.asm,
+            contracts = txIn.contracts, amount = txIn.amount, asm = txIn.asm,
             txHash = txIn.txHash, txOut = txIn.txOut
     )
 }
@@ -66,7 +66,7 @@ data class CqlBitcoinTxOut(
 ) {
 
     constructor(txOut: BitcoinTxOut) : this (
-            contracts = txOut.addresses, amount = txOut.amount, asm = txOut.asm,
+            contracts = txOut.contracts, amount = txOut.amount, asm = txOut.asm,
             out = txOut.out, requiredSignatures = txOut.requiredSignatures
     )
 }

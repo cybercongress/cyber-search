@@ -43,7 +43,7 @@ data class CqlEthereumBlock(
     constructor(block: EthereumBlock) : this(
             number = block.number, hash = block.hash, parent_hash = block.parentHash, timestamp = block.timestamp,
             sha3Uncles = block.sha3Uncles, logsBloom = block.logsBloom, transactionsRoot = block.transactionsRoot,
-            stateRoot = block.stateRoot, receiptsRoot = block.receiptsRoot, minerContractHash = block.miner,
+            stateRoot = block.stateRoot, receiptsRoot = block.receiptsRoot, minerContractHash = block.minerContractHash,
             difficulty = block.difficulty, totalDifficulty = block.totalDifficulty, extraData = block.extraData,
             size = block.size, gasLimit = block.gasLimit, gasUsed = block.gasUsed, txNumber = block.txNumber,
             uncles = block.uncles, blockReward = block.blockReward.toString(),
@@ -65,11 +65,11 @@ data class CqlEthereumBlockTxPreview(
         @Column("creates_contract") val createsContract: Boolean
 ) : CqlEthereumItem {
 
-    //both 'to' or 'createdContract' can't be null at same time
+    //both 'to' or 'createdSmartContract' can't be null at same time
     constructor(tx: EthereumTx) : this(
             blockNumber = tx.blockNumber, hash = tx.hash, positionInBlock = tx.positionInBlock,
             fee = tx.fee, value = tx.value,
-            from = tx.from, to = (tx.to ?: tx.createdContract)!!,
-            createsContract = tx.createdContract != null
+            from = tx.from, to = (tx.to ?: tx.createdSmartContract)!!,
+            createsContract = tx.createdSmartContract != null
     )
 }

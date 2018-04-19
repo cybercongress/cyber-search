@@ -23,7 +23,8 @@ class EthereumBlockDeltaProcessorTest {
             balanceDelta = BigDecimal("5.089262252548096035"),
             smartContract = null, totalReceivedDelta = BigDecimal("5.089262252548096035"), txNumberDelta = 0,
             uncleNumberDelta = 0, minedBlockNumberDelta = 1,
-            topic = EthereumFamilyChain.ETHEREUM.blockPumpTopic, partition = 0, offset = 0
+            topic = EthereumFamilyChain.ETHEREUM.blockPumpTopic, partition = 0, offset = 0,
+            time = Instant.ofEpochMilli(100000)
     )
 
     private val expectedDroppedDelta = EthereumContractSummaryDelta(
@@ -31,13 +32,14 @@ class EthereumBlockDeltaProcessorTest {
             balanceDelta = BigDecimal("5.089262252548096035").negate(),
             smartContract = null, totalReceivedDelta = BigDecimal("5.089262252548096035").negate(),
             txNumberDelta = 0, uncleNumberDelta = 0, minedBlockNumberDelta = -1,
-            topic = EthereumFamilyChain.ETHEREUM.blockPumpTopic, partition = 0, offset = 0
+            topic = EthereumFamilyChain.ETHEREUM.blockPumpTopic, partition = 0, offset = 0,
+            time = Instant.ofEpochMilli(100000)
     )
 
     private val block = EthereumBlock(
             hash = " 0xa27c04a1f42b2e5264e5cfb0cd1ca6fb84c360cbef63ea1b171906b1018e16dd", number = 5386266,
             parentHash = "0x020d890a97901cae61e76d5375051b90ca8e5814a6ce775caecebac6f14d9236",
-            txNumber = 158, miner = "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+            txNumber = 158, minerContractHash = "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
             difficulty = BigInteger("3076132037691991"),
             totalDifficulty = BigInteger("3468611771897182658973"), size = 23681,
             unclesReward = BigDecimal("1.875"), blockReward = BigDecimal("3"),

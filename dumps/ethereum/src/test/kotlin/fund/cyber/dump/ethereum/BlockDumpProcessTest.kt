@@ -33,7 +33,7 @@ class BlockDumpProcessTest {
         val blockC = EthereumBlock(
                 hash = "C", number = 2,
                 parentHash = "B",
-                txNumber = 158, miner = "miner3",
+                txNumber = 158, minerContractHash = "miner3",
                 difficulty = BigInteger("0"),
                 totalDifficulty = BigInteger("0"), size = 0,
                 unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
@@ -46,7 +46,7 @@ class BlockDumpProcessTest {
         val blockD = EthereumBlock(
                 hash = "D", number = 2,
                 parentHash = "B",
-                txNumber = 158, miner = "miner4",
+                txNumber = 158, minerContractHash = "miner4",
                 difficulty = BigInteger("0"),
                 totalDifficulty = BigInteger("0"), size = 0,
                 unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
@@ -59,7 +59,7 @@ class BlockDumpProcessTest {
         val blockE = EthereumBlock(
                 hash = "E", number = 3,
                 parentHash = "D",
-                txNumber = 158, miner = "miner5",
+                txNumber = 158, minerContractHash = "miner5",
                 difficulty = BigInteger("0"),
                 totalDifficulty = BigInteger("0"), size = 0,
                 unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
@@ -72,7 +72,7 @@ class BlockDumpProcessTest {
         val blockF = EthereumBlock(
                 hash = "F", number = 3,
                 parentHash = "C",
-                txNumber = 158, miner = "miner6",
+                txNumber = 158, minerContractHash = "miner6",
                 difficulty = BigInteger("0"),
                 totalDifficulty = BigInteger("0"), size = 0,
                 unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
@@ -85,7 +85,7 @@ class BlockDumpProcessTest {
         val blockG = EthereumBlock(
                 hash = "G", number = 4,
                 parentHash = "E",
-                txNumber = 158, miner = "miner7",
+                txNumber = 158, minerContractHash = "miner7",
                 difficulty = BigInteger("0"),
                 totalDifficulty = BigInteger("0"), size = 0,
                 unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
@@ -98,7 +98,7 @@ class BlockDumpProcessTest {
         val blockH = EthereumBlock(
                 hash = "H", number = 4,
                 parentHash = "F",
-                txNumber = 158, miner = "miner8",
+                txNumber = 158, minerContractHash = "miner8",
                 difficulty = BigInteger("0"),
                 totalDifficulty = BigInteger("0"), size = 0,
                 unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
@@ -111,7 +111,7 @@ class BlockDumpProcessTest {
         val blockI = EthereumBlock(
                 hash = "I", number = 5,
                 parentHash = "G",
-                txNumber = 158, miner = "miner9",
+                txNumber = 158, minerContractHash = "miner9",
                 difficulty = BigInteger("0"),
                 totalDifficulty = BigInteger("0"), size = 0,
                 unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
@@ -143,12 +143,12 @@ class BlockDumpProcessTest {
             on { saveAll(any<Iterable<CqlEthereumBlock>>()) }.thenReturn(Flux.empty())
             on { deleteAll(any<Iterable<CqlEthereumBlock>>()) }.thenReturn(Mono.empty())
         }
-        val addressMinedBlockRepository = mock<EthereumContractMinedBlockRepository> {
+        val contractMinedBlockRepository = mock<EthereumContractMinedBlockRepository> {
             on { saveAll(any<Iterable<CqlEthereumContractMinedBlock>>()) }.thenReturn(Flux.empty())
             on { deleteAll(any<Iterable<CqlEthereumContractMinedBlock>>()) }.thenReturn(Mono.empty())
         }
 
-        val blockDumpProcess = BlockDumpProcess(blockRepository, addressMinedBlockRepository,
+        val blockDumpProcess = BlockDumpProcess(blockRepository, contractMinedBlockRepository,
                 EthereumFamilyChain.ETHEREUM, SimpleMeterRegistry())
 
         blockDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8))
@@ -160,10 +160,10 @@ class BlockDumpProcessTest {
         verify(blockRepository, times(1))
                 .deleteAll(listOf(CqlEthereumBlock(blockF), CqlEthereumBlock(blockC)))
 
-        verify(addressMinedBlockRepository, times(1))
+        verify(contractMinedBlockRepository, times(1))
                 .saveAll(listOf(CqlEthereumContractMinedBlock(blockD), CqlEthereumContractMinedBlock(blockE),
                         CqlEthereumContractMinedBlock(blockG), CqlEthereumContractMinedBlock(blockI)))
-        verify(addressMinedBlockRepository, times(1))
+        verify(contractMinedBlockRepository, times(1))
                 .deleteAll(listOf(CqlEthereumContractMinedBlock(blockF), CqlEthereumContractMinedBlock(blockC)))
 
 

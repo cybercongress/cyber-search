@@ -63,7 +63,7 @@ class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinContractSumm
         val event = record.key()
 
         val contractsDeltasByIns = tx.ins.flatMap { input ->
-            input.addresses.map { contract ->
+            input.contracts.map { contract ->
                 BitcoinContractSummaryDelta(
                         contract = contract, balanceDelta = -input.amount, txNumberDelta = 1,
                         totalReceivedDelta = ZERO, topic = record.topic(), partition = record.partition(),
@@ -73,7 +73,7 @@ class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinContractSumm
         }
 
         val contractsDeltasByOuts = tx.outs.flatMap { output ->
-            output.addresses.map { contract ->
+            output.contracts.map { contract ->
                 BitcoinContractSummaryDelta(
                         contract = contract, balanceDelta = output.amount, txNumberDelta = 1,
                         totalReceivedDelta = output.amount, topic = record.topic(), partition = record.partition(),
@@ -88,8 +88,8 @@ class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinContractSumm
 
     override fun affectedContracts(records: List<ConsumerRecord<PumpEvent, BitcoinTx>>): Set<String> {
         val allContracts: List<String> = records.flatMap { record ->
-            val inContracts = record.value().ins.flatMap { input -> input.addresses }
-            val outContracts = record.value().outs.flatMap { output -> output.addresses }
+            val inContracts = record.value().ins.flatMap { input -> input.contracts }
+            val outContracts = record.value().outs.flatMap { output -> output.contracts }
             return@flatMap inContracts + outContracts
         }
 

@@ -20,25 +20,29 @@ class EthereumTxDeltaProcessorTest {
     private val expectedFirstDelta = EthereumContractSummaryDelta(
             contract = "0x4585c7eaa2cb96d4b59e868929efabeeb8e65b07", balanceDelta = BigDecimal("0.800483").negate(),
             smartContract = false, totalReceivedDelta = BigDecimal.ZERO, txNumberDelta = 1, uncleNumberDelta = 0, minedBlockNumberDelta = 0,
-            topic = EthereumFamilyChain.ETHEREUM.txPumpTopic, partition = 0, offset = 0
+            topic = EthereumFamilyChain.ETHEREUM.txPumpTopic, partition = 0, offset = 0,
+            time = Instant.ofEpochMilli(100000)
     )
 
     private val expectedSecondDelta = EthereumContractSummaryDelta(
             contract = "0x39a629145280fd28b74b878e44d6fed7bd4dffe5", balanceDelta = BigDecimal("0.8"),
             smartContract = false, totalReceivedDelta = BigDecimal("0.8"), txNumberDelta = 1, uncleNumberDelta = 0, minedBlockNumberDelta = 0,
-            topic = EthereumFamilyChain.ETHEREUM.txPumpTopic, partition = 0, offset = 0
+            topic = EthereumFamilyChain.ETHEREUM.txPumpTopic, partition = 0, offset = 0,
+            time = Instant.ofEpochMilli(100000)
     )
 
     private val expectedFirstDroppedDelta = EthereumContractSummaryDelta(
             contract = "0x4585c7eaa2cb96d4b59e868929efabeeb8e65b07", balanceDelta = BigDecimal("0.800483"),
             smartContract = false, totalReceivedDelta = BigDecimal.ZERO, txNumberDelta = -1, uncleNumberDelta = 0, minedBlockNumberDelta = 0,
-            topic = EthereumFamilyChain.ETHEREUM.txPumpTopic, partition = 0, offset = 0
+            topic = EthereumFamilyChain.ETHEREUM.txPumpTopic, partition = 0, offset = 0,
+            time = Instant.ofEpochMilli(100000)
     )
 
     private val expectedSecondDroppedDelta = EthereumContractSummaryDelta(
             contract = "0x39a629145280fd28b74b878e44d6fed7bd4dffe5", balanceDelta = BigDecimal("0.8").negate(),
             smartContract = false, totalReceivedDelta = BigDecimal("0.8").negate(), txNumberDelta = -1, uncleNumberDelta = 0, minedBlockNumberDelta = 0,
-            topic = EthereumFamilyChain.ETHEREUM.txPumpTopic, partition = 0, offset = 0
+            topic = EthereumFamilyChain.ETHEREUM.txPumpTopic, partition = 0, offset = 0,
+            time = Instant.ofEpochMilli(100000)
     )
 
     private val tx = EthereumTx(
@@ -47,7 +51,7 @@ class EthereumTxDeltaProcessorTest {
             blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
             from = "0x4585c7eaa2cb96d4b59e868929efabeeb8e65b07", to = "0x39a629145280fd28b74b878e44d6fed7bd4dffe5",
             value = BigDecimal("0.8"), gasPrice = BigDecimal("0.000000023"), gasLimit = 21000L,
-            gasUsed = 21000L, fee = BigDecimal("0.000483"), input = "", createdContract = null
+            gasUsed = 21000L, fee = BigDecimal("0.000483"), input = "", createdSmartContract = null
     )
 
     @Test

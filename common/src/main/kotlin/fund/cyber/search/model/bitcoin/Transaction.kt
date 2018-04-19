@@ -21,12 +21,12 @@ data class BitcoinTx(
 
     fun getOutputByNumber(number: Int) = outs.find { out -> out.out == number }!!
 
-    fun allAddressesUsedInTransaction() = ins.flatMap { input -> input.addresses } +
-            outs.flatMap { output -> output.addresses }
+    fun allContractsUsedInTransaction() = ins.flatMap { input -> input.contracts } +
+            outs.flatMap { output -> output.contracts }
 }
 
 data class BitcoinTxIn(
-        val addresses: List<String>,
+        val contracts: List<String>,
         val amount: BigDecimal,
         val asm: String,
         val txHash: String,
@@ -34,7 +34,7 @@ data class BitcoinTxIn(
 )
 
 data class BitcoinTxOut(
-        val addresses: List<String>,
+        val contracts: List<String>,
         val amount: BigDecimal,
         val asm: String,
         val out: Int,

@@ -50,12 +50,12 @@ class TxDumpProcess(
 
         contractTxRepository
                 .saveAll(txsToCommit.flatMap { tx ->
-                    tx.allAddressesUsedInTransaction().map { address -> CqlBitcoinContractTxPreview(address, tx) }
+                    tx.allContractsUsedInTransaction().map { address -> CqlBitcoinContractTxPreview(address, tx) }
                 })
                 .collectList().block()
         contractTxRepository
                 .deleteAll(txsToRevert.flatMap { tx ->
-                    tx.allAddressesUsedInTransaction().map { address -> CqlBitcoinContractTxPreview(address, tx) }
+                    tx.allContractsUsedInTransaction().map { address -> CqlBitcoinContractTxPreview(address, tx) }
                 })
                 .block()
 

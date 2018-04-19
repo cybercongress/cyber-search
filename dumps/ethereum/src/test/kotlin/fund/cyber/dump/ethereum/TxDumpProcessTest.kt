@@ -37,7 +37,7 @@ class TxDumpProcessTest {
                 blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
                 from = "a", to = "b",
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
-                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdContract = null
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
 
         val txD = EthereumTx(
@@ -46,7 +46,7 @@ class TxDumpProcessTest {
                 blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
                 from = "a", to = "b",
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
-                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdContract = null
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
 
         val txE = EthereumTx(
@@ -55,7 +55,7 @@ class TxDumpProcessTest {
                 blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
                 from = "a", to = "b",
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
-                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdContract = null
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
 
         val txF = EthereumTx(
@@ -64,7 +64,7 @@ class TxDumpProcessTest {
                 blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
                 from = "a", to = "b",
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
-                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdContract = null
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
 
         val txG = EthereumTx(
@@ -73,7 +73,7 @@ class TxDumpProcessTest {
                 blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
                 from = "a", to = "b",
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
-                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdContract = null
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
 
         val txH = EthereumTx(
@@ -82,7 +82,7 @@ class TxDumpProcessTest {
                 blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
                 from = "a", to = "b",
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
-                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdContract = null
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
 
         val txI = EthereumTx(
@@ -91,7 +91,7 @@ class TxDumpProcessTest {
                 blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
                 from = "a", to = "b",
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
-                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdContract = null
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
 
 
@@ -120,12 +120,12 @@ class TxDumpProcessTest {
             on { saveAll(any<Iterable<CqlEthereumBlockTxPreview>>()) }.thenReturn(Flux.empty())
             on { deleteAll(any<Iterable<CqlEthereumBlockTxPreview>>()) }.thenReturn(Mono.empty())
         }
-        val addressTxRepository = mock<EthereumContractTxRepository> {
+        val contractTxRepository = mock<EthereumContractTxRepository> {
             on { saveAll(any<Iterable<CqlEthereumContractTxPreview>>()) }.thenReturn(Flux.empty())
             on { deleteAll(any<Iterable<CqlEthereumContractTxPreview>>()) }.thenReturn(Mono.empty())
         }
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, addressTxRepository,
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository,
                 EthereumFamilyChain.ETHEREUM, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8))
@@ -143,14 +143,14 @@ class TxDumpProcessTest {
         verify(blockTxRepository, times(1))
                 .deleteAll(listOf(CqlEthereumBlockTxPreview(txF), CqlEthereumBlockTxPreview(txC)))
 
-        verify(addressTxRepository, times(1))
+        verify(contractTxRepository, times(1))
                 .saveAll(
                         listOf(txD, txE, txG, txI)
                                 .flatMap { tx ->
                                     tx.addressesUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) }
                                 }
                 )
-        verify(addressTxRepository, times(1))
+        verify(contractTxRepository, times(1))
                 .deleteAll(
                         listOf(txF, txC)
                                 .flatMap { tx ->

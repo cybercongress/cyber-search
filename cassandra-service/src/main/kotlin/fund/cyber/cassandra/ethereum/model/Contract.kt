@@ -47,10 +47,10 @@ data class CqlEthereumContractTxPreview(
         val value: String
 ) : CqlEthereumItem {
 
-    //both 'to' or 'createdContract' can't be null at same time
+    //both 'to' or 'createdSmartContract' can't be null at same time
     constructor(tx: EthereumTx, contractHash: String) : this(
             hash = tx.hash, contractHash = contractHash, blockTime = tx.blockTime,
-            from = tx.from, to = (tx.to ?: tx.createdContract)!!,
+            from = tx.from, to = (tx.to ?: tx.createdSmartContract)!!,
             value = tx.value.toString(), fee = tx.fee
     )
 }
@@ -68,7 +68,7 @@ data class CqlEthereumContractMinedBlock(
         @Column("tx_number") val txNumber: Int
 ) : CqlEthereumItem {
     constructor(block: EthereumBlock) : this(
-            minerContractHash = block.miner, blockNumber = block.number, blockTime = block.timestamp,
+            minerContractHash = block.minerContractHash, blockNumber = block.number, blockTime = block.timestamp,
             blockReward = block.blockReward, unclesReward = block.unclesReward,
             txFees = block.txFees, txNumber = block.txNumber
     )

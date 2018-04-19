@@ -21,14 +21,16 @@ class EthereumUncleDeltaProcessorTest {
             contract = "0xea674fdde714fd979de3edf0f56aa9716b898ec8", balanceDelta = BigDecimal("1.875"),
             smartContract = null, totalReceivedDelta = BigDecimal("1.875"), txNumberDelta = 0,
             uncleNumberDelta = 1, minedBlockNumberDelta = 0,
-            topic = EthereumFamilyChain.ETHEREUM.unclePumpTopic, partition = 0, offset = 0
+            topic = EthereumFamilyChain.ETHEREUM.unclePumpTopic, partition = 0, offset = 0,
+            time = Instant.ofEpochMilli(100000)
     )
 
     private val expectedDroppedDelta = EthereumContractSummaryDelta(
             contract = "0xea674fdde714fd979de3edf0f56aa9716b898ec8", balanceDelta = BigDecimal("1.875").negate(),
             smartContract = null, totalReceivedDelta = BigDecimal("1.875").negate(), txNumberDelta = 0,
             uncleNumberDelta = -1, minedBlockNumberDelta = 0,
-            topic = EthereumFamilyChain.ETHEREUM.unclePumpTopic, partition = 0, offset = 0
+            topic = EthereumFamilyChain.ETHEREUM.unclePumpTopic, partition = 0, offset = 0,
+            time = Instant.ofEpochMilli(100000)
     )
 
     private val uncle = EthereumUncle(

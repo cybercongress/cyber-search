@@ -26,11 +26,11 @@ data class CqlBitcoinTxPreviewIO(
 ) {
 
     constructor(txIn: BitcoinTxIn) : this(
-            contracts = txIn.addresses, amount = txIn.amount
+            contracts = txIn.contracts, amount = txIn.amount
     )
 
     constructor(txOut: BitcoinTxOut) : this(
-            contracts = txOut.addresses, amount = txOut.amount
+            contracts = txOut.contracts, amount = txOut.amount
     )
 }
 
@@ -73,7 +73,7 @@ data class CqlBitcoinBlock(
 ) : CqlBitcoinItem {
 
     constructor(block: BitcoinBlock) : this(
-            number = block.height, hash = block.hash, minerContractHash = block.miner, blockReward = block.blockReward,
+            number = block.height, hash = block.hash, minerContractHash = block.minerContractHash, blockReward = block.blockReward,
             txFees = block.txFees, coinbaseData = block.coinbaseData, timestamp = block.time, nonce = block.nonce,
             bits = block.bits, merkleroot = block.merkleroot, size = block.size, version = block.version,
             weight = block.weight, difficulty = block.difficulty, txNumber = block.txNumber,

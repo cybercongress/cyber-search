@@ -48,18 +48,18 @@ class TxDumpProcess(
         blockTxRepository.saveAll(txsToCommit.map { tx -> CqlEthereumBlockTxPreview(tx) }).collectList().block()
         blockTxRepository.deleteAll(txsToRevert.map { tx -> CqlEthereumBlockTxPreview(tx) }).block()
 
-        val txsByAddressToSave = txsToCommit.flatMap { tx ->
+        val txsByContractHashToSave = txsToCommit.flatMap { tx ->
             tx.addressesUsedInTransaction()
                     .map { it -> CqlEthereumContractTxPreview(tx, it) }
         }
 
-        val txsByAddressToRevert = txsToRevert.flatMap { tx ->
+        val txsByContractHashToRevert = txsToRevert.flatMap { tx ->
             tx.addressesUsedInTransaction()
                     .map { it -> CqlEthereumContractTxPreview(tx, it) }
         }
 
-        contractTxRepository.saveAll(txsByAddressToSave).collectList().block()
-        contractTxRepository.deleteAll(txsByAddressToRevert).block()
+        contractTxRepository.saveAll(txsByContractHashToSave).collectList().block()
+        contractTxRepository.deleteAll(txsByContractHashToRevert).block()
 
         if (::topicCurrentOffsetMonitor.isInitialized) {
             topicCurrentOffsetMonitor.set(records.last().offset())

@@ -64,7 +64,7 @@ data class CqlBitcoinContractMinedBlock(
 ) : CqlBitcoinItem {
 
     constructor(block: BitcoinBlock) : this(
-            minerContractHash = block.miner, blockNumber = block.height, blockTime = block.time,
+            minerContractHash = block.minerContractHash, blockNumber = block.height, blockTime = block.time,
             blockReward = block.blockReward, txFees = block.txFees, txNumber = block.txNumber
     )
 }
