@@ -68,9 +68,9 @@ CREATE TABLE IF NOT exists ethereum_classic.tx_preview_by_block (
 
 CREATE TABLE IF NOT exists ethereum_classic.contract_summary (
     hash text PRIMARY KEY,
-    confirmed_balance decimal,
+    confirmed_balance text,
     smart_contract boolean,
-    confirmed_total_received decimal,
+    confirmed_total_received text,
     tx_number int,
     uncle_number int,
     mined_block_number int,

@@ -18,9 +18,9 @@ import java.time.Instant
 @Table("contract_summary")
 data class CqlEthereumContractSummary(
         @PrimaryKey override val hash: String,
-        @Column("confirmed_balance") val confirmedBalance: BigDecimal,
+        @Column("confirmed_balance") val confirmedBalance: String,
         @Column("smart_contract") val smartContract: Boolean,
-        @Column("confirmed_total_received") val confirmedTotalReceived: BigDecimal,
+        @Column("confirmed_total_received") val confirmedTotalReceived: String,
         @Column("tx_number") val txNumber: Int,
         @Column("uncle_number") val minedUncleNumber: Int,
         @Column("mined_block_number") val minedBlockNumber: Int,

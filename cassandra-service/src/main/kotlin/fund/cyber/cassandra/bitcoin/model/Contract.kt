@@ -18,8 +18,8 @@ import java.time.Instant
 data class CqlBitcoinContractSummary(
 
         @PrimaryKey override val hash: String,
-        @Column("confirmed_balance") val confirmedBalance: BigDecimal,
-        @Column("confirmed_total_received") val confirmedTotalReceived: BigDecimal,
+        @Column("confirmed_balance") val confirmedBalance: String,
+        @Column("confirmed_total_received") val confirmedTotalReceived: String,
         @Column("confirmed_tx_number") val confirmedTxNumber: Int,
         @Column("first_activity_date") val firstActivityDate: Instant,
         @Column("last_activity_date") val lastActivityDate: Instant,

@@ -39,9 +39,9 @@ data class EthereumContractSummaryDelta(
 
     override fun createSummary(): CqlEthereumContractSummary {
         return CqlEthereumContractSummary(
-                hash = this.contract, confirmedBalance = this.balanceDelta, smartContract = this.smartContract
+                hash = this.contract, confirmedBalance = this.balanceDelta.toString(), smartContract = this.smartContract
                 ?: false,
-                confirmedTotalReceived = this.totalReceivedDelta, txNumber = this.txNumberDelta,
+                confirmedTotalReceived = this.totalReceivedDelta.toString(), txNumber = this.txNumberDelta,
                 minedUncleNumber = this.uncleNumberDelta, minedBlockNumber = this.minedBlockNumberDelta,
                 kafkaDeltaOffset = this.offset, kafkaDeltaTopic = this.topic,
                 kafkaDeltaPartition = this.partition, version = 0,
@@ -51,9 +51,11 @@ data class EthereumContractSummaryDelta(
 
     override fun updateSummary(summary: CqlEthereumContractSummary): CqlEthereumContractSummary {
         return CqlEthereumContractSummary(
-                hash = summary.hash, confirmedBalance = summary.confirmedBalance + this.balanceDelta,
+                hash = summary.hash,
+                confirmedBalance = (BigDecimal(summary.confirmedBalance) + this.balanceDelta).toString(),
                 smartContract = summary.smartContract,
-                confirmedTotalReceived = summary.confirmedTotalReceived + this.totalReceivedDelta,
+                confirmedTotalReceived = (BigDecimal(summary.confirmedTotalReceived) + this.totalReceivedDelta)
+                        .toString(),
                 txNumber = summary.txNumber + this.txNumberDelta,
                 minedUncleNumber = summary.minedUncleNumber + this.uncleNumberDelta,
                 minedBlockNumber = summary.minedBlockNumber + this.minedBlockNumberDelta,

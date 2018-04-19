@@ -22,6 +22,12 @@
           "include_in_all": false,
           "cql_collection": "singleton"
         },
+        "confirmed_total_received": {
+          "type": "keyword",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
+        },
         "first_activity_date": {
           "type": "date",
           "index": "no",

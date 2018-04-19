@@ -33,9 +33,9 @@ data class BitcoinContractSummaryDelta(
 
     override fun createSummary(): CqlBitcoinContractSummary {
         return CqlBitcoinContractSummary(
-                hash = this.contract, confirmedBalance = this.balanceDelta,
+                hash = this.contract, confirmedBalance = this.balanceDelta.toString(),
                 confirmedTxNumber = this.txNumberDelta,
-                confirmedTotalReceived = this.totalReceivedDelta,
+                confirmedTotalReceived = this.totalReceivedDelta.toString(),
                 firstActivityDate = this.time, lastActivityDate = this.time,
                 kafkaDeltaOffset = this.offset, kafkaDeltaTopic = this.topic,
                 kafkaDeltaPartition = this.partition, version = 0
@@ -44,10 +44,12 @@ data class BitcoinContractSummaryDelta(
 
     override fun updateSummary(summary: CqlBitcoinContractSummary): CqlBitcoinContractSummary {
         return CqlBitcoinContractSummary(
-                hash = summary.hash, confirmedBalance = summary.confirmedBalance + this.balanceDelta,
+                hash = summary.hash,
+                confirmedBalance = (BigDecimal(summary.confirmedBalance) + this.balanceDelta).toString(),
                 confirmedTxNumber = summary.confirmedTxNumber + this.txNumberDelta,
                 firstActivityDate = summary.firstActivityDate, lastActivityDate = time,
-                confirmedTotalReceived = summary.confirmedTotalReceived + this.totalReceivedDelta,
+                confirmedTotalReceived = (BigDecimal(summary.confirmedTotalReceived) + this.totalReceivedDelta)
+                        .toString(),
                 kafkaDeltaOffset = this.offset, kafkaDeltaTopic = this.topic,
                 kafkaDeltaPartition = this.partition, version = summary.version + 1
         )

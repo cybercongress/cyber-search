@@ -12,7 +12,7 @@ class EthereumContractSummaryStorage(
         private val contractSummaryRepository: EthereumUpdateContractSummaryRepository
 ) : ContractSummaryStorage<CqlEthereumContractSummary> {
 
-    override fun findById(id: String): Mono<CqlEthereumContractSummary> = contractSummaryRepository.findById(id)
+    override fun findById(id: String): Mono<CqlEthereumContractSummary> = contractSummaryRepository.findByHash(id)
 
     override fun findAllByIdIn(ids: Iterable<String>): Flux<CqlEthereumContractSummary> = contractSummaryRepository
             .findAllById(ids)

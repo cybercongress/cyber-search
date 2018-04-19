@@ -23,5 +23,5 @@ data class EthereumTx(
         val createdSmartContract: String?            //creates contract hash
 ) {
     fun contractsUsedInTransaction() = listOfNotNull(from, to, createdSmartContract)
-            .filter { contract -> !contract.isEmpty() }
+            .filter { contract -> contract.isNotEmpty() }
 }

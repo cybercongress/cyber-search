@@ -17,10 +17,10 @@ import reactor.core.publisher.Mono
 interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEthereumContractSummary, String> {
 
     @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
-    override fun findById(id: String): Mono<CqlEthereumContractSummary>
+    fun findByHash(hash: String): Mono<CqlEthereumContractSummary>
 
     @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
-    fun findAllByIdIn(ids: Iterable<String>): Flux<CqlEthereumContractSummary>
+    fun findAllByHashIn(hashes: Iterable<String>): Flux<CqlEthereumContractSummary>
 
     /**
      * Return {@code true} if update was successful.

@@ -91,8 +91,8 @@ CREATE TABLE IF NOT exists bitcoin_cash.mined_block_by_contract (
 
 CREATE TABLE IF NOT EXISTS bitcoin_cash.contract_summary (
     hash text PRIMARY KEY,
-    confirmed_balance decimal,
-    confirmed_total_received decimal,
+    confirmed_balance text,
+    confirmed_total_received text,
     confirmed_tx_number int,
     unconfirmed_tx_values map<text,decimal>,
     first_activity_date timestamp,

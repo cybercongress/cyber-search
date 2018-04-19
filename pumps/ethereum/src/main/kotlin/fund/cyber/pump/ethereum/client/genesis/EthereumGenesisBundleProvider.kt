@@ -49,7 +49,7 @@ class EthereumGenesisDataFileProvider(
                             blockNumber = 0,
                             positionInBlock = index,
                             from = "",
-                            to = contractHash,
+                            to = "0x$contractHash",
                             value = BigDecimal(balance!!).multiply(weiToEthRate),
                             gasPrice = BigDecimal.ZERO,
                             gasUsed = 0,

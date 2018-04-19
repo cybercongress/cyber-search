@@ -22,13 +22,13 @@
           "include_in_all": false,
           "cql_collection": "singleton"
         },
-        "balance": {
+        "confirmed_balance": {
           "type": "keyword",
           "index": "no",
           "include_in_all": false,
           "cql_collection": "singleton"
         },
-        "total_received": {
+        "confirmed_total_received": {
           "type": "keyword",
           "index": "no",
           "include_in_all": false,
