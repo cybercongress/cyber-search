@@ -2,9 +2,9 @@ package fund.cyber.api.ethereum
 
 import fund.cyber.api.common.asSingleRouterFunction
 import fund.cyber.api.common.toSearchHashFormat
+import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
 import fund.cyber.cassandra.ethereum.model.CqlEthereumTx
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
-import fund.cyber.search.model.chains.EthereumFamilyChain
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -27,16 +27,17 @@ class EthereumTxHandlersConfiguration {
     @Bean
     fun ethereumTxByHash(): RouterFunction<ServerResponse> {
 
-        return EthereumFamilyChain.values().map { chain ->
+        return applicationContext.getBeanNamesForType(EthereumTxRepository::class.java).map { beanName ->
+            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
 
-            val txRepository = applicationContext.getBean(chain.name + "txRepository", EthereumTxRepository::class.java)
+            val txRepository = applicationContext.getBean(beanName, EthereumTxRepository::class.java)
 
             val txByHash = HandlerFunction { request ->
                 val hash = request.pathVariable("hash")
                 val tx = txRepository.findById(hash.toSearchHashFormat())
                 ServerResponse.ok().body(tx, CqlEthereumTx::class.java)
             }
-            RouterFunctions.route(RequestPredicates.path("/${chain.lowerCaseName}/tx/{hash}"), txByHash)
+            RouterFunctions.route(RequestPredicates.path("/${chainName.toLowerCase()}/tx/{hash}"), txByHash)
         }.asSingleRouterFunction()
     }
 }

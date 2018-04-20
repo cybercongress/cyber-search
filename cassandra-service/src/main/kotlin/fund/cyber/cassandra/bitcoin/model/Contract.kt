@@ -45,7 +45,7 @@ data class CqlBitcoinContractTxPreview(
 ) : CqlBitcoinItem {
 
     constructor(contract: String, tx: BitcoinTx) : this(
-            contractHash = contract, blockTime = tx.blockTime, hash = tx.blockHash, fee = tx.fee,
+            contractHash = contract, blockTime = tx.blockTime, hash = tx.hash, fee = tx.fee,
             blockNumber = tx.blockNumber, ins = tx.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) },
             outs = tx.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
     )

@@ -3,7 +3,7 @@ package fund.cyber.api.bitcoin
 import fund.cyber.api.common.asSingleRouterFunction
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTx
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
-import fund.cyber.search.model.chains.BitcoinFamilyChain
+import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -25,16 +25,17 @@ class BitcoinTxHandlersConfiguration {
     @Bean
     fun bitcoinTxByHash(): RouterFunction<ServerResponse> {
 
-        return BitcoinFamilyChain.values().map { chain ->
+        return applicationContext.getBeanNamesForType(BitcoinTxRepository::class.java).map { beanName ->
+            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
 
-            val txRepository = applicationContext.getBean(chain.name + "txRepository", BitcoinTxRepository::class.java)
+            val txRepository = applicationContext.getBean(beanName, BitcoinTxRepository::class.java)
 
             val txByHash = HandlerFunction { request ->
                 val hash = request.pathVariable("hash")
                 val tx = txRepository.findById(hash)
                 ServerResponse.ok().body(tx, CqlBitcoinTx::class.java)
             }
-            RouterFunctions.route(path("/${chain.lowerCaseName}/tx/{hash}"), txByHash)
+            RouterFunctions.route(path("/${chainName.toLowerCase()}/tx/{hash}"), txByHash)
         }.asSingleRouterFunction()
     }
 }

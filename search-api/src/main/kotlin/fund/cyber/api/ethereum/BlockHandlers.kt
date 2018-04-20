@@ -2,10 +2,10 @@ package fund.cyber.api.ethereum
 
 import fund.cyber.api.common.asSingleRouterFunction
 import fund.cyber.api.ethereum.functions.BlockTxesByBlockNumber
+import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
 import fund.cyber.cassandra.ethereum.model.CqlEthereumBlock
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumBlockTxRepository
-import fund.cyber.search.model.chains.EthereumFamilyChain
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.RouterFunctions
@@ -27,28 +27,29 @@ class EthereumBlockHandlersConfiguration {
     @Bean
     fun ethereumBlockByNumber(): RouterFunction<ServerResponse> {
 
-        return EthereumFamilyChain.values().map { chain ->
-            val blockRepository = applicationContext
-                    .getBean(chain.name + "blockRepository", EthereumBlockRepository::class.java)
+        return applicationContext.getBeanNamesForType(EthereumBlockRepository::class.java).map { beanName ->
+            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
+
+            val blockRepository = applicationContext.getBean(beanName, EthereumBlockRepository::class.java)
 
             val blockByNumber = HandlerFunction { request ->
                 val blockNumber = request.pathVariable("blockNumber").toLong()
                 val block = blockRepository.findById(blockNumber)
                 ServerResponse.ok().body(block, CqlEthereumBlock::class.java)
             }
-            RouterFunctions.route(path("/${chain.lowerCaseName}/block/{blockNumber}"), blockByNumber)
+            RouterFunctions.route(path("/${chainName.toLowerCase()}/block/{blockNumber}"), blockByNumber)
         }.asSingleRouterFunction()
     }
 
     @Bean
     fun ethereumBlockTxesByNumber(): RouterFunction<ServerResponse> {
 
-        return EthereumFamilyChain.values().map { chain ->
-            val repository = applicationContext.getBean(
-                    chain.name + "pageableBlockTxRepository", PageableEthereumBlockTxRepository::class.java
-            )
+        return applicationContext.getBeanNamesForType(PageableEthereumBlockTxRepository::class.java).map { beanName ->
+            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
+
+            val repository = applicationContext.getBean(beanName, PageableEthereumBlockTxRepository::class.java)
             val handler = BlockTxesByBlockNumber(repository)
-            RouterFunctions.route(path("/${chain.lowerCaseName}/block/{blockNumber}/transactions"), handler)
+            RouterFunctions.route(path("/${chainName.toLowerCase()}/block/{blockNumber}/transactions"), handler)
         }.asSingleRouterFunction()
     }
 }
