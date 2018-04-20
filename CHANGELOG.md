@@ -39,7 +39,7 @@ and this project adheres to [Semantic Visioning](http://semver.org/spec/v2.0.0.h
 - [#67](/../../issues/67) Pump stuck after exception
 
 
-[Unreleased]: https://github.com/cybercongress/cyber-search/compare/0.3.0...HEAD
-[0.1.0]: https://github.com/cybercongress/cyber-search/compare/0.1.0...0.1.0
-[0.2.0]: https://github.com/cybercongress/cyber-search/compare/0.1.0...0.2.0
-[0.3.0]: https://github.com/cybercongress/cyber-search/compare/0.2.0...0.3.0
+[Unreleased]: https://github.com/cybercongress/cyber-search/master
+[0.1.0]: https://github.com/cybercongress/cyber-search/releases/tag/0.1.0
+[0.2.0]: https://github.com/cybercongress/cyber-search/releases/tag/0.2.0
+[0.3.0]: https://github.com/cybercongress/cyber-search/releases/tag/0.3.0
