@@ -1,9 +1,9 @@
 package fund.cyber.dump.bitcoin
 
-import fund.cyber.cassandra.bitcoin.model.CqlBitcoinAddressTxPreview
+import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractTxPreview
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlockTxPreview
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTx
-import fund.cyber.cassandra.bitcoin.repository.BitcoinAddressTxRepository
+import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
 import fund.cyber.dump.common.filterNotContainsAllEventsOf
@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 class TxDumpProcess(
         private val txRepository: BitcoinTxRepository,
-        private val addressTxRepository: BitcoinAddressTxRepository,
+        private val contractTxRepository: BitcoinContractTxRepository,
         private val blockTxRepository: BitcoinBlockTxRepository,
         private val chain: BitcoinFamilyChain,
         private val monitoring: MeterRegistry
@@ -48,14 +48,14 @@ class TxDumpProcess(
         txRepository.deleteAll(txsToRevert.map { tx -> CqlBitcoinTx(tx) })
                 .block()
 
-        addressTxRepository
+        contractTxRepository
                 .saveAll(txsToCommit.flatMap { tx ->
-                    tx.allAddressesUsedInTransaction().map { address -> CqlBitcoinAddressTxPreview(address, tx) }
+                    tx.allContractsUsedInTransaction().map { contract -> CqlBitcoinContractTxPreview(contract, tx) }
                 })
                 .collectList().block()
-        addressTxRepository
+        contractTxRepository
                 .deleteAll(txsToRevert.flatMap { tx ->
-                    tx.allAddressesUsedInTransaction().map { address -> CqlBitcoinAddressTxPreview(address, tx) }
+                    tx.allContractsUsedInTransaction().map { contract -> CqlBitcoinContractTxPreview(contract, tx) }
                 })
                 .block()
 

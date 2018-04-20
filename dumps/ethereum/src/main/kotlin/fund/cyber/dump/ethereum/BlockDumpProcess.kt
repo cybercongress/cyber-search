@@ -1,8 +1,8 @@
 package fund.cyber.dump.ethereum
 
-import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressMinedBlock
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedBlock
 import fund.cyber.cassandra.ethereum.model.CqlEthereumBlock
-import fund.cyber.cassandra.ethereum.repository.EthereumAddressMinedBlockRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractMinedBlockRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
 import fund.cyber.dump.common.filterNotContainsAllEventsOf
 import fund.cyber.dump.common.toRecordEventsMap
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 class BlockDumpProcess(
         private val blockRepository: EthereumBlockRepository,
-        private val addressMinedBlockRepository: EthereumAddressMinedBlockRepository,
+        private val contractMinedBlockRepository: EthereumContractMinedBlockRepository,
         private val chain: EthereumFamilyChain,
         private val monitoring: MeterRegistry
 ) : BatchMessageListener<PumpEvent, EthereumBlock> {
@@ -48,11 +48,11 @@ class BlockDumpProcess(
         blockRepository.deleteAll(blocksToRevert.map { block -> CqlEthereumBlock(block) })
                 .block()
 
-        addressMinedBlockRepository
-                .saveAll(blocksToCommit.map { block -> CqlEthereumAddressMinedBlock(block) })
+        contractMinedBlockRepository
+                .saveAll(blocksToCommit.map { block -> CqlEthereumContractMinedBlock(block) })
                 .collectList().block()
-        addressMinedBlockRepository
-                .deleteAll(blocksToRevert.map { block -> CqlEthereumAddressMinedBlock(block) })
+        contractMinedBlockRepository
+                .deleteAll(blocksToRevert.map { block -> CqlEthereumContractMinedBlock(block) })
                 .block()
 
         if (::topicCurrentOffsetMonitor.isInitialized) {

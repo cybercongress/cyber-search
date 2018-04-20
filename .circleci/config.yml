@@ -82,7 +82,7 @@ jobs:
        - run:
            name: Build Ethereum Contract Summary Image
            command: |
-             docker build -t build/chain-contract-summary-ethereum -f ./address-summary/ethereum/Dockerfile ./
+             docker build -t build/chain-contract-summary-ethereum -f ./contract-summary/ethereum/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
              docker tag build/chain-contract-summary-ethereum cybernode/chain-contract-summary-ethereum:$CIRCLE_TAG
              docker push cybernode/chain-contract-summary-ethereum:$CIRCLE_TAG
@@ -131,7 +131,7 @@ jobs:
        - run:
            name: Build Bitcoin Contract Summary Image
            command: |
-             docker build -t build/chain-contract-summary-bitcoin -f ./address-summary/bitcoin/Dockerfile ./
+             docker build -t build/chain-contract-summary-bitcoin -f ./contract-summary/bitcoin/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
              docker tag build/chain-contract-summary-bitcoin cybernode/chain-contract-summary-bitcoin:$CIRCLE_TAG
              docker push cybernode/chain-contract-summary-bitcoin:$CIRCLE_TAG

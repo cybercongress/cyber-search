@@ -15,7 +15,7 @@ import java.time.Instant
 
 /*---------------Coinbase transaction-----------------------------------------------------*/
 val expectedDaoCoinbaseTxOut = BitcoinTxOut(
-        addresses = listOf("1HWqMzw1jfpXb3xyuUZ4uWXY4tqL2cW47J"), amount = BigDecimal("50"),
+        contracts = listOf("1HWqMzw1jfpXb3xyuUZ4uWXY4tqL2cW47J"), amount = BigDecimal("50"),
         asm = "041b0e8c2567c12536aa13357b79a073dc4444acb83c4ec7a0e2f99dd7457516c5817242da796924ca4e99947d087fedf9ce467cb9f7c6287078f801df276fdf84 OP_CHECKSIG",
         out = 0, requiredSignatures = 1
 )
@@ -33,22 +33,22 @@ val expectedDaoCoinbaseTx = BitcoinTx(
 /*---------------Regular transaction-----------------------------------------------------*/
 
 val expectedFirstTxInput = BitcoinTxIn(
-        addresses = listOf("1HWqMzw1jfpXb3xyuUZ4uWXY4tqL2cW47J"), amount = BigDecimal("0.1"), asm = "3046",
+        contracts = listOf("1HWqMzw1jfpXb3xyuUZ4uWXY4tqL2cW47J"), amount = BigDecimal("0.1"), asm = "3046",
         txHash = "83a157f3fd88ac7907c05fc55e271dc4acdc5605d187d646604ca8c0e9382e03", txOut = 1
 )
 
 val expectedSecondTxInput = BitcoinTxIn(
-        addresses = listOf("1HWqMzw1jfpXb3xyuUZ4uWXY4tqL2cW47J"), amount = BigDecimal("50"), asm = "3046",
+        contracts = listOf("1HWqMzw1jfpXb3xyuUZ4uWXY4tqL2cW47J"), amount = BigDecimal("50"), asm = "3046",
         txHash = "8c14f0db3df150123e6f3dbbf30f8b955a8249b62ac1d1ff16284aefa3d06d87", txOut = 0
 )
 
 val expectedFirstTxOut = BitcoinTxOut(
-        addresses = listOf("1JqDybm2nWTENrHvMyafbSXXtTk5Uv5QAn"), amount = BigDecimal("5.56"),
+        contracts = listOf("1JqDybm2nWTENrHvMyafbSXXtTk5Uv5QAn"), amount = BigDecimal("5.56"),
         asm = "OP_DUP OP_HASH160 OP_CHECKSIG", out = 0, requiredSignatures = 1
 )
 
 val expectedSecondTxOut = BitcoinTxOut(
-        addresses = listOf("1EYTGtG4LnFfiMvjJdsU7GMGCQvsRSjYhx"), amount = BigDecimal("44.44"),
+        contracts = listOf("1EYTGtG4LnFfiMvjJdsU7GMGCQvsRSjYhx"), amount = BigDecimal("44.44"),
         asm = "OP_DUP OP_HASH160 OP_CHECKSIG", out = 1, requiredSignatures = 1
 )
 

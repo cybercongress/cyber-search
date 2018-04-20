@@ -4,9 +4,9 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
-import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressMinedUncle
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedUncle
 import fund.cyber.cassandra.ethereum.model.CqlEthereumUncle
-import fund.cyber.cassandra.ethereum.repository.EthereumAddressUncleRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractUncleRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumUncle
@@ -31,36 +31,36 @@ class UncleDumpProcessTest {
 
         val uncleC = EthereumUncle(
                 hash = "C", position = 0, number = 0, timestamp = Instant.now(), blockNumber = 0,
-                blockTime = Instant.now(), blockHash = "C", miner = "miner", uncleReward = BigDecimal("0")
+                blockTime = Instant.now(), blockHash = "C", miner = "minerContractHash", uncleReward = BigDecimal("0")
         )
 
         val uncleD = EthereumUncle(
                 hash = "D", position = 0, number = 0, timestamp = Instant.now(), blockNumber = 0,
-                blockTime = Instant.now(), blockHash = "D", miner = "miner", uncleReward = BigDecimal("0")
+                blockTime = Instant.now(), blockHash = "D", miner = "minerContractHash", uncleReward = BigDecimal("0")
         )
 
         val uncleE = EthereumUncle(
                 hash = "E", position = 0, number = 0, timestamp = Instant.now(), blockNumber = 0,
-                blockTime = Instant.now(), blockHash = "E", miner = "miner", uncleReward = BigDecimal("0")
+                blockTime = Instant.now(), blockHash = "E", miner = "minerContractHash", uncleReward = BigDecimal("0")
         )
 
         val uncleF = EthereumUncle(
                 hash = "F", position = 0, number = 0, timestamp = Instant.now(), blockNumber = 0,
-                blockTime = Instant.now(), blockHash = "F", miner = "miner", uncleReward = BigDecimal("0")
+                blockTime = Instant.now(), blockHash = "F", miner = "minerContractHash", uncleReward = BigDecimal("0")
         )
         val uncleG = EthereumUncle(
                 hash = "G", position = 0, number = 0, timestamp = Instant.now(), blockNumber = 0,
-                blockTime = Instant.now(), blockHash = "G", miner = "miner", uncleReward = BigDecimal("0")
+                blockTime = Instant.now(), blockHash = "G", miner = "minerContractHash", uncleReward = BigDecimal("0")
         )
 
         val uncleH = EthereumUncle(
                 hash = "H", position = 0, number = 0, timestamp = Instant.now(), blockNumber = 0,
-                blockTime = Instant.now(), blockHash = "H", miner = "miner", uncleReward = BigDecimal("0")
+                blockTime = Instant.now(), blockHash = "H", miner = "minerContractHash", uncleReward = BigDecimal("0")
         )
 
         val uncleI = EthereumUncle(
                 hash = "I", position = 0, number = 0, timestamp = Instant.now(), blockNumber = 0,
-                blockTime = Instant.now(), blockHash = "I", miner = "miner", uncleReward = BigDecimal("0")
+                blockTime = Instant.now(), blockHash = "I", miner = "minerContractHash", uncleReward = BigDecimal("0")
         )
 
 
@@ -85,12 +85,12 @@ class UncleDumpProcessTest {
             on { saveAll(any<Iterable<CqlEthereumUncle>>()) }.thenReturn(Flux.empty())
             on { deleteAll(any<Iterable<CqlEthereumUncle>>()) }.thenReturn(Mono.empty())
         }
-        val addressUncleRepository = mock<EthereumAddressUncleRepository> {
-            on { saveAll(any<Iterable<CqlEthereumAddressMinedUncle>>()) }.thenReturn(Flux.empty())
-            on { deleteAll(any<Iterable<CqlEthereumAddressMinedUncle>>()) }.thenReturn(Mono.empty())
+        val contractUncleRepository = mock<EthereumContractUncleRepository> {
+            on { saveAll(any<Iterable<CqlEthereumContractMinedUncle>>()) }.thenReturn(Flux.empty())
+            on { deleteAll(any<Iterable<CqlEthereumContractMinedUncle>>()) }.thenReturn(Mono.empty())
         }
 
-        val blockDumpProcess = UncleDumpProcess(uncleRepository, addressUncleRepository, EthereumFamilyChain.ETHEREUM,
+        val blockDumpProcess = UncleDumpProcess(uncleRepository, contractUncleRepository, EthereumFamilyChain.ETHEREUM,
                 SimpleMeterRegistry())
 
         blockDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8))
@@ -102,11 +102,11 @@ class UncleDumpProcessTest {
         verify(uncleRepository, times(1))
                 .deleteAll(listOf(CqlEthereumUncle(uncleF), CqlEthereumUncle(uncleC)))
 
-        verify(addressUncleRepository, times(1))
-                .saveAll(listOf(CqlEthereumAddressMinedUncle(uncleD), CqlEthereumAddressMinedUncle(uncleE),
-                        CqlEthereumAddressMinedUncle(uncleG), CqlEthereumAddressMinedUncle(uncleI)))
-        verify(addressUncleRepository, times(1))
-                .deleteAll(listOf(CqlEthereumAddressMinedUncle(uncleF), CqlEthereumAddressMinedUncle(uncleC)))
+        verify(contractUncleRepository, times(1))
+                .saveAll(listOf(CqlEthereumContractMinedUncle(uncleD), CqlEthereumContractMinedUncle(uncleE),
+                        CqlEthereumContractMinedUncle(uncleG), CqlEthereumContractMinedUncle(uncleI)))
+        verify(contractUncleRepository, times(1))
+                .deleteAll(listOf(CqlEthereumContractMinedUncle(uncleF), CqlEthereumContractMinedUncle(uncleC)))
 
 
     }

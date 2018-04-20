@@ -1,9 +1,9 @@
 package fund.cyber.dump.ethereum
 
-import fund.cyber.cassandra.ethereum.model.CqlEthereumAddressMinedUncle
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedUncle
 import fund.cyber.cassandra.ethereum.model.CqlEthereumUncle
 import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
-import fund.cyber.cassandra.ethereum.repository.EthereumAddressUncleRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractUncleRepository
 import fund.cyber.dump.common.filterNotContainsAllEventsOf
 import fund.cyber.dump.common.toRecordEventsMap
 import fund.cyber.search.model.chains.EthereumFamilyChain
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 class UncleDumpProcess(
         private val uncleRepository: EthereumUncleRepository,
-        private val addressUncleRepository: EthereumAddressUncleRepository,
+        private val contractUncleRepository: EthereumContractUncleRepository,
         private val chain: EthereumFamilyChain,
         private val monitoring: MeterRegistry
 ) : BatchMessageListener<PumpEvent, EthereumUncle> {
@@ -43,11 +43,11 @@ class UncleDumpProcess(
         uncleRepository.saveAll(unclesToCommit.map { uncle -> CqlEthereumUncle(uncle) }).collectList().block()
         uncleRepository.deleteAll(unclesToRevert.map { uncle -> CqlEthereumUncle(uncle) }).block()
 
-        addressUncleRepository
-                .saveAll(unclesToCommit.map { uncle -> CqlEthereumAddressMinedUncle(uncle) })
+        contractUncleRepository
+                .saveAll(unclesToCommit.map { uncle -> CqlEthereumContractMinedUncle(uncle) })
                 .collectList().block()
-        addressUncleRepository
-                .deleteAll(unclesToRevert.map { uncle -> CqlEthereumAddressMinedUncle(uncle) })
+        contractUncleRepository
+                .deleteAll(unclesToRevert.map { uncle -> CqlEthereumContractMinedUncle(uncle) })
                 .block()
 
         if (::topicCurrentOffsetMonitor.isInitialized) {

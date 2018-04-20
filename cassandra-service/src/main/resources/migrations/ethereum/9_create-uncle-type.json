@@ -39,6 +39,12 @@
           "index": "no",
           "include_in_all": false,
           "cql_collection": "singleton"
+        },
+        "position": {
+          "type": "integer",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
         }
       }
     }

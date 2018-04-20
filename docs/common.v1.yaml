@@ -16,3 +16,4 @@ components:
           - block
           - tx
           - contract_summary
+          - uncle

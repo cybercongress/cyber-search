@@ -1,0 +1,46 @@
+{
+  "method": "PUT",
+  "url": "/ethereum_classic.contract_summary/_mapping/contract_summary",
+  "data": {
+    "contract_summary": {
+      "properties": {
+        "hash": {
+          "type": "keyword",
+          "index": "no",
+          "include_in_all": true,
+          "cql_collection": "singleton"
+        },
+        "smart_contract": {
+          "type": "boolean",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
+        },
+        "tx_number": {
+          "type": "integer",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
+        },
+        "confirmed_balance": {
+          "type": "keyword",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
+        },
+        "confirmed_total_received": {
+          "type": "keyword",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
+        },
+        "first_activity_date": {
+          "type": "date",
+          "index": "no",
+          "include_in_all": false,
+          "cql_collection": "singleton"
+        }
+      }
+    }
+  }
+}

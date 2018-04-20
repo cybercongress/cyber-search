@@ -31,9 +31,9 @@ data class CqlEthereumTx(
             hash = tx.hash, nonce = tx.nonce, blockHash = tx.blockHash, blockNumber = tx.blockNumber,
             blockTime = tx.blockTime, from = tx.from, to = tx.to,
             value = tx.value.toString(), gasPrice = tx.gasPrice, gasLimit = tx.gasLimit, gasUsed = tx.gasUsed,
-            fee = tx.fee.toString(), input = tx.input, createdContract = tx.createdContract
+            fee = tx.fee.toString(), input = tx.input, createdContract = tx.createdSmartContract
 
     )
 
-    fun addressesUsedInTransaction() = listOfNotNull(from, to, createdContract)
+    fun contractsUsedInTransaction() = listOfNotNull(from, to, createdContract)
 }

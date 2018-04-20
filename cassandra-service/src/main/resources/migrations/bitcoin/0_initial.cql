@@ -1,18 +1,18 @@
 
 CREATE TYPE IF NOT EXISTS bitcoin.tx_preview_io (
-    addresses FROZEN < list < text > >,
+    contracts FROZEN < list < text > >,
     amount decimal
 );
 
-CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_address (
-    address text,
+CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_contract (
+    contract_hash text,
     fee decimal,
     block_number bigint,
     block_time timestamp,
     hash text,
     ins FROZEN < list < bitcoin.tx_preview_io > >,
     outs FROZEN < list < bitcoin.tx_preview_io > >,
-    PRIMARY KEY ( address, block_time, hash )
+    PRIMARY KEY ( contract_hash, block_time, hash )
 ) WITH CLUSTERING ORDER BY ( block_time DESC );
 
 CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_block (
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_block (
 
 
 CREATE TYPE IF NOT EXISTS bitcoin.tx_out (
-    addresses FROZEN < list < text > >,
+    contracts FROZEN < list < text > >,
     amount decimal,
     asm text,
     out int,
@@ -36,7 +36,7 @@ CREATE TYPE IF NOT EXISTS bitcoin.tx_out (
 );
 
 CREATE TYPE IF NOT EXISTS bitcoin.tx_in (
-    addresses FROZEN < list < text > >,
+    contracts FROZEN < list < text > >,
     amount decimal,
     asm text,
     tx_hash text,
@@ -61,12 +61,12 @@ CREATE TABLE IF NOT EXISTS bitcoin.tx (
 
 CREATE TABLE IF NOT EXISTS bitcoin.block (
      hash text,
-     height bigint PRIMARY KEY,
-     miner text,
+     number bigint PRIMARY KEY,
+     miner_contract_hash text,
      block_reward decimal,
      tx_fees decimal,
      coinbase_data text,
-     time timestamp,
+     timestamp timestamp,
      nonce bigint,
      merkleroot text,
      size int,
@@ -78,21 +78,21 @@ CREATE TABLE IF NOT EXISTS bitcoin.block (
      difficulty varint
 );
 
-CREATE TABLE IF NOT exists bitcoin.mined_block_by_address (
-    miner text,
+CREATE TABLE IF NOT exists bitcoin.mined_block_by_contract (
+    miner_contract_hash text,
     block_number bigint,
     block_time timestamp,
     block_reward decimal,
     tx_fees decimal,
     tx_number int,
-    PRIMARY KEY (miner, block_number)
+    PRIMARY KEY (miner_contract_hash, block_number)
 )  WITH CLUSTERING ORDER BY ( block_number DESC );
 
 
-CREATE TABLE IF NOT EXISTS bitcoin.address_summary (
-    id text PRIMARY KEY,
-    confirmed_balance decimal,
-    confirmed_total_received decimal,
+CREATE TABLE IF NOT EXISTS bitcoin.contract_summary (
+    hash text PRIMARY KEY,
+    confirmed_balance text,
+    confirmed_total_received text,
     confirmed_tx_number int,
     unconfirmed_tx_values map<text,decimal>,
     first_activity_date timestamp,

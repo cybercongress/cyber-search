@@ -1,8 +1,8 @@
 package fund.cyber.dump.bitcoin
 
-import fund.cyber.cassandra.bitcoin.model.CqlBitcoinAddressMinedBlock
+import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractMinedBlock
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlock
-import fund.cyber.cassandra.bitcoin.repository.BitcoinAddressMinedBlockRepository
+import fund.cyber.cassandra.bitcoin.repository.BitcoinContractMinedBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.dump.common.filterNotContainsAllEventsOf
 import fund.cyber.dump.common.toRecordEventsMap
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 class BlockDumpProcess(
         private val blockRepository: BitcoinBlockRepository,
-        private val addressMinedBlockRepository: BitcoinAddressMinedBlockRepository,
+        private val contractMinedBlockRepository: BitcoinContractMinedBlockRepository,
         private val chain: BitcoinFamilyChain,
         private val monitoring: MeterRegistry
 ) : BatchMessageListener<PumpEvent, BitcoinBlock> {
@@ -47,10 +47,10 @@ class BlockDumpProcess(
         blockRepository.deleteAll(blocksToRevert.map { block -> CqlBitcoinBlock(block) })
                 .block()
 
-        addressMinedBlockRepository
-                .saveAll(blocksToCommit.map { block -> CqlBitcoinAddressMinedBlock(block) })
+        contractMinedBlockRepository
+                .saveAll(blocksToCommit.map { block -> CqlBitcoinContractMinedBlock(block) })
                 .collectList().block()
-        addressMinedBlockRepository.deleteAll(blocksToRevert.map { block -> CqlBitcoinAddressMinedBlock(block) })
+        contractMinedBlockRepository.deleteAll(blocksToRevert.map { block -> CqlBitcoinContractMinedBlock(block) })
                 .block()
 
         if (::topicCurrentOffsetMonitor.isInitialized) {

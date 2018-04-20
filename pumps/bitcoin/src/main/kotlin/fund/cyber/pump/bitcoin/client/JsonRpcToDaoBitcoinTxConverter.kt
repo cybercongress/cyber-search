@@ -18,17 +18,17 @@ private val log = LoggerFactory.getLogger(JsonRpcToDaoBitcoinTxConverter::class.
 
 /**
  * Bitcoin transaction consists from several "inputs" and "outputs" (for example: 5 inputs, 3 outputs).
- * So in single transaction, you can send tokens to several addresses (several outputs).
+ * So in single transaction, you can send tokens to several contracts (several outputs).
  *
  * @see <a href="https://en.bitcoin.it/wiki/Transaction">Bitcoin Official Wiki</a>
  *
  *
  * Default json rpc bitcoin api for transactions has next properties:
- *  * Each output contains information about "value" and "address" to send bitcoin tokens.
+ *  * Each output contains information about "value" and "contract" to send bitcoin tokens.
  *  * Each input contains information only about previous transaction hash and output index.
  *
- * So, to get input address and value, you should find transaction by hash (included in input), get output by index
- *  and read address and value fields.
+ * So, to get input contract and value, you should find transaction by hash (included in input), get output by index
+ *  and read contract and value fields.
  */
 class JsonRpcToDaoBitcoinTxConverter {
 
@@ -106,9 +106,9 @@ class JsonRpcToDaoBitcoinTxConverter {
 
     /**
      * Converts given json rpc transaction inputs to dao transaction inputs.
-     * Json rpc input do not contains info about address and amount, just transaction hash and output number.
+     * Json rpc input do not contains info about contract and amount, just transaction hash and output number.
      *
-     * Dao input contains info about address and amount. So to fulfill missing fields,
+     * Dao input contains info about contract and amount. So to fulfill missing fields,
      *   we should use earlier transactions outputs defined by transaction hash and output number.
      *
      * @param txIns json rpc transaction inputs
@@ -122,7 +122,7 @@ class JsonRpcToDaoBitcoinTxConverter {
             log.trace("looking for $txid transaction and output $vout")
             val daoTxOut = inputsByIds[txid]!!.getOutputByNumber(vout)
             BitcoinTxIn(
-                    addresses = daoTxOut.scriptPubKey.addresses, amount = daoTxOut.value,
+                    contracts = daoTxOut.scriptPubKey.addresses, amount = daoTxOut.value,
                     asm = scriptSig.asm, txHash = txid, txOut = vout
             )
         }
@@ -131,7 +131,7 @@ class JsonRpcToDaoBitcoinTxConverter {
     private fun convertToDaoTransactionOutput(jsonRpcTxOut: JsonRpcBitcoinTransactionOutput): BitcoinTxOut {
 
         return BitcoinTxOut(
-                addresses = jsonRpcTxOut.scriptPubKey.addresses,
+                contracts = jsonRpcTxOut.scriptPubKey.addresses,
                 amount = jsonRpcTxOut.value, out = jsonRpcTxOut.n, asm = jsonRpcTxOut.scriptPubKey.asm,
                 requiredSignatures = jsonRpcTxOut.scriptPubKey.reqSigs
         )

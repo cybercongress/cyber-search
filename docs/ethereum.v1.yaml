@@ -102,13 +102,13 @@ paths:
           description: 'Block not found'
 
 
-  '/{chainName}/address/{id}':
+  '/{chainName}/contract/{hash}':
     get:
       tags:
         - ethereum
-      summary: 'Find ethereum address info by address id'
-      description: 'Returns an address info'
-      operationId: getAddress
+      summary: 'Find ethereum contract info by contract hash'
+      description: 'Returns an contract info'
+      operationId: getContract
       parameters:
         - name: chainName
           in: path
@@ -119,31 +119,31 @@ paths:
             enum:
               - ethereum
               - ethereum_classic
-        - name: id
+        - name: hash
           in: path
-          description: 'Address id'
+          description: 'Contract hash'
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: 'Address found'
+          description: 'Contract found'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EthereumAddress'
+                $ref: '#/components/schemas/EthereumContract'
         '400':
-          description: "Invalid id supplied"
+          description: "Invalid hash supplied"
         '404':
-          description: 'Address not found'
+          description: 'Contract not found'
 
-  '/{chainName}/address/{id}/transactions':
+  '/{chainName}/contract/{hash}/transactions':
     get:
       tags:
         - ethereum
-      summary: 'Download address transactions'
-      description: Returns an address transactions sorted by time (most recent first)
-      operationId: getAddressTransactionsByAddressId
+      summary: 'Download contract transactions'
+      description: Returns an contract transactions sorted by time (most recent first)
+      operationId: getContractTransactionsByContractHash
       parameters:
         - name: chainName
           in: path
@@ -154,9 +154,9 @@ paths:
             enum:
               - ethereum
               - ethereum_classic
-        - name: id
+        - name: hash
           in: path
-          description: 'Address id'
+          description: 'Contract hash'
           required: true
           schema:
             type: string
@@ -180,23 +180,23 @@ paths:
             default: 0
       responses:
         '200':
-          description: 'Address transactions found'
+          description: 'Contract transactions found'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EthereumAddressTx'
+                $ref: '#/components/schemas/EthereumContractTx'
         '400':
-          description: "Invalid 'id', 'page' or 'pageSize' parameters"
+          description: "Invalid 'hash', 'page' or 'pageSize' parameters"
         '404':
-          description: 'Address not found'
+          description: 'Contract not found'
 
-  '/{chainName}/address/{id}/blocks':
+  '/{chainName}/contract/{hash}/blocks':
     get:
       tags:
         - ethereum
-      summary: 'Download address blocks'
-      description: Returns an address blocks sorted by time (most recent first)
-      operationId: getAddressBlocksByAddressId
+      summary: 'Download contract blocks'
+      description: Returns an contract blocks sorted by time (most recent first)
+      operationId: getContractBlocksByContractHash
       parameters:
         - name: chainName
           in: path
@@ -207,9 +207,9 @@ paths:
             enum:
               - ethereum
               - ethereum_classic
-        - name: id
+        - name: hash
           in: path
-          description: 'Address id'
+          description: 'Contract hash'
           required: true
           schema:
             type: string
@@ -233,23 +233,23 @@ paths:
             default: 0
       responses:
         '200':
-          description: 'Address blocks found'
+          description: 'Contract blocks found'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EthereumAddressBlock'
+                $ref: '#/components/schemas/EthereumContractBlock'
         '400':
-          description: "Invalid 'id', 'page' or 'pageSize' parameters"
+          description: "Invalid 'hash', 'page' or 'pageSize' parameters"
         '404':
-          description: 'Address not found'
+          description: 'Contract not found'
 
-  '/{chainName}/address/{id}/uncles':
+  '/{chainName}/contract/{hash}/uncles':
     get:
       tags:
         - ethereum
-      summary: 'Download address uncles'
-      description: Returns an address uncles sorted by time (most recent first)
-      operationId: getAddressUnclesByAddressId
+      summary: 'Download contract uncles'
+      description: Returns an contract uncles sorted by time (most recent first)
+      operationId: getContractUnclesByContractHash
       parameters:
         - name: chainName
           in: path
@@ -260,9 +260,9 @@ paths:
             enum:
               - ethereum
               - ethereum_classic
-        - name: id
+        - name: hash
           in: path
-          description: 'Address id'
+          description: 'Contract hash'
           required: true
           schema:
             type: string
@@ -286,15 +286,15 @@ paths:
             default: 0
       responses:
         '200':
-          description: 'Address uncles found'
+          description: 'Contract uncles found'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EthereumAddressUncle'
+                $ref: '#/components/schemas/EthereumContractUncle'
         '400':
-          description: "Invalid 'id', 'page' or 'pageSize' parameters"
+          description: "Invalid 'hash', 'page' or 'pageSize' parameters"
         '404':
-          description: 'Address not found'
+          description: 'Contract not found'
 
   '/{chainName}/tx/{hash}':
     get:
@@ -445,14 +445,14 @@ components:
         createsContract:
           type: boolean
 
-    EthereumAddress:
+    EthereumContract:
       type: object
       properties:
-        id:
+        hash:
           type: string
         confirmedBalance:
           type: number
-        contractAddress:
+        smartContract:
           type: boolean
         confirmedTotalReceived:
           type: number
@@ -462,6 +462,12 @@ components:
         minedUncleNumber:
           type: integer
           format: int32
+        firstActivityDate:
+          type: string
+          format: date-time
+        lastActivityDate:
+          type: string
+          format: date-time
         version:
           type: integer
           format: int64
@@ -476,10 +482,10 @@ components:
         kafkaDeltaOffsetCommited:
           type: boolean
 
-    EthereumAddressTx:
+    EthereumContractTx:
       type: object
       properties:
-        address:
+        contractHash:
           type: string
         blockTime:
           type: string
@@ -495,10 +501,10 @@ components:
         value:
           type: string
 
-    EthereumAddressBlock:
+    EthereumContractBlock:
       type: object
       properties:
-        miner:
+        minerContractHash:
           type: string
         blockNumber:
           type: integer
@@ -516,10 +522,10 @@ components:
           type: integer
           format: int32
 
-    EthereumAddressUncle:
+    EthereumContractUncle:
       type: object
       properties:
-        miner:
+        minerContractHash:
           type: string
         blockNumber:
           type: integer

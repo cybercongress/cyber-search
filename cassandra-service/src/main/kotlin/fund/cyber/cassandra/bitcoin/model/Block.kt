@@ -21,16 +21,16 @@ interface CqlBitcoinItem
 
 @UserDefinedType("tx_preview_io")
 data class CqlBitcoinTxPreviewIO(
-        val addresses: List<String>,
+        val contracts: List<String>,
         val amount: BigDecimal
 ) {
 
     constructor(txIn: BitcoinTxIn) : this(
-            addresses = txIn.addresses, amount = txIn.amount
+            contracts = txIn.contracts, amount = txIn.amount
     )
 
     constructor(txOut: BitcoinTxOut) : this(
-            addresses = txOut.addresses, amount = txOut.amount
+            contracts = txOut.contracts, amount = txOut.amount
     )
 }
 
@@ -54,13 +54,13 @@ data class CqlBitcoinBlockTxPreview(
 
 @Table("block")
 data class CqlBitcoinBlock(
-        @PrimaryKey val height: Long,
+        @PrimaryKey val number: Long,
         val hash: String,
-        val miner: String,
+        @Column("miner_contract_hash") val minerContractHash: String,
         @Column("block_reward") val blockReward: BigDecimal,
         @Column("tx_fees") val txFees: BigDecimal,
         @Column("coinbase_data") val coinbaseData: String,
-        val time: Instant,
+        val timestamp: Instant,
         val nonce: Long,
         val merkleroot: String,
         val size: Int,
@@ -68,15 +68,15 @@ data class CqlBitcoinBlock(
         val weight: Int,
         val bits: String,
         val difficulty: BigInteger,
-        val tx_number: Int,
-        val total_outputs_value: String
+        @Column("tx_number") val txNumber: Int,
+        @Column("total_outputs_value") val totalOutputsValue: String
 ) : CqlBitcoinItem {
 
     constructor(block: BitcoinBlock) : this(
-            height = block.height, hash = block.hash, miner = block.miner, blockReward = block.blockReward,
-            txFees = block.txFees, coinbaseData = block.coinbaseData, time = block.time, nonce = block.nonce,
-            bits = block.bits, merkleroot = block.merkleroot, size = block.size, version = block.version,
-            weight = block.weight, difficulty = block.difficulty, tx_number = block.txNumber,
-            total_outputs_value = block.totalOutputsAmount.toString()
+            number = block.height, hash = block.hash, minerContractHash = block.minerContractHash,
+            blockReward = block.blockReward, txFees = block.txFees, coinbaseData = block.coinbaseData,
+            timestamp = block.time, nonce = block.nonce, bits = block.bits, merkleroot = block.merkleroot,
+            size = block.size, version = block.version, weight = block.weight, difficulty = block.difficulty,
+            txNumber = block.txNumber, totalOutputsValue = block.totalOutputsAmount.toString()
     )
 }
