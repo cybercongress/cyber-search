@@ -13,6 +13,10 @@ Search engine backend and API.
 * [Docker Images](https://hub.docker.com/r/cybernode/)
 * [Kubernetes Descriptors](https://github.com/cybercongress/cybernode/tree/master/kubernetes-definitions/search)
 
+## Changelog
+
+Stay tuned with our [Changelog](./CHANGELOG.md).
+
 ## Issues
 
 If you have any problems with or questions about search, please contact us through a 
@@ -21,4 +25,5 @@ If you have any problems with or questions about search, please contact us throu
 ## Contribute
 
 You are invited to contribute new features, fixes, or updates, large or small; We are always thrilled to receive pull 
- requests, and do our best to process them as fast as We can.
+ requests, and do our best to process them as fast as We can. You can find detailed information in our 
+ [contribution guide](./CONTRIBUTING.md)
