@@ -1,6 +1,6 @@
 # Cyber Search [![CircleCI](https://img.shields.io/circleci/project/github/cybercongress/cyber-search.svg?longCache=true&style=flat-square)](https://circleci.com/gh/cybercongress/cyber-search) [![Latest Release](https://img.shields.io/github/release/cybercongress/cyber-search.svg?longCache=true&style=flat-square)](https://circleci.com/gh/cybercongress/cyber-search/releases) [![GitHub license](https://img.shields.io/github/license/cybercongress/cyber-search.svg?style=flat-square&longCache=true)](https://github.com/cybercongress/cyber-search/blob/master/LICENSE) [![GitHub contributors](https://img.shields.io/github/contributors/cybercongress/cyber-search.svg?style=flat-square&longCache=true)](https://github.com/cybercongress/cyber-search)
 
-Project status: beta Not all planned features are completed. The API, spec, status and other user facing objects may change.
+Project status: **beta**. Not all planned features are completed. The API, spec, status and other user facing objects may change.
 
 Search engine backend and API.
 
@@ -13,10 +13,6 @@ Search engine backend and API.
 * [Docker Images](https://hub.docker.com/r/cybernode/)
 * [Kubernetes Descriptors](https://github.com/cybercongress/cybernode/tree/master/kubernetes-definitions/search)
 
-## Changelog
-
-Stay tuned with our [Changelog](./CHANGELOG.md).
-
 ## Issues
 
 If you have any problems with or questions about search, please contact us through a 
@@ -26,4 +22,8 @@ If you have any problems with or questions about search, please contact us throu
 
 You are invited to contribute new features, fixes, or updates, large or small; We are always thrilled to receive pull 
  requests, and do our best to process them as fast as We can. You can find detailed information in our 
- [contribution guide](./CONTRIBUTING.md)
+ [contribution guide](./CONTRIBUTING.md).
+ 
+## Changelog
+
+Stay tuned with our [Changelog](./CHANGELOG.md).
