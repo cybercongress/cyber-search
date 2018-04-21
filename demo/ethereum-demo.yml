@@ -52,7 +52,7 @@ services:
     image: cybernode/chain-pump-ethereum:latest
     environment:
       CHAIN: ETHEREUM
-      CHAIN_NODE_URL: https://mainnet.infura.io/XXXXXXX
+      CHAIN_NODE_URL: https://mainnet.infura.io/GMVKMsZ5obvCbSIJFrfU
       KAFKA_BROKERS: eth-demo-fast-data-dev-search:9092
 
   dump:
