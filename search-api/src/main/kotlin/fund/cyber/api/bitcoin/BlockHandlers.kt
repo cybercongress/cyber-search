@@ -7,12 +7,10 @@ import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinBlockTxRepository
 import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.AutoConfigureBefore
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.DependsOn
 import org.springframework.context.support.GenericApplicationContext
-import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration
 import org.springframework.web.reactive.function.server.HandlerFunction
 import org.springframework.web.reactive.function.server.RequestPredicates.path
 import org.springframework.web.reactive.function.server.RouterFunction
@@ -21,7 +19,6 @@ import org.springframework.web.reactive.function.server.ServerResponse
 
 @Configuration
 @DependsOn("bitcoin-cassandra-repositories")
-@AutoConfigureBefore(DelegatingWebFluxConfiguration::class)
 class BitcoinBlockHandlersConfiguration {
 
     @Autowired
