@@ -19,7 +19,8 @@ interface BitcoinUpdateContractSummaryRepository : ReactiveCrudRepository<CqlBit
     fun findByHash(hash: String): Mono<CqlBitcoinContractSummary>
 
     @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
-    fun findAllByHashIn(hashes: Iterable<String>): Flux<CqlBitcoinContractSummary>
+    fun findAllByHashIn(hashes: Iterable<String>): Flux<CqlBitcoinContractSummary> = Flux.fromIterable(hashes)
+        .flatMap { hash -> findByHash(hash) }
 
     /**
      * Return {@code true} if update was successful.

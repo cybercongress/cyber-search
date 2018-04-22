@@ -31,13 +31,13 @@ fun <T> Flux<T>.await(): List<T> {
 }
 
 fun CqlContractSummary.hasSameTopicPartitionAs(delta: ContractSummaryDelta<*>) =
-        this.kafkaDeltaTopic == delta.topic && this.kafkaDeltaPartition == delta.partition
+    this.kafkaDeltaTopic == delta.topic && this.kafkaDeltaPartition == delta.partition
 
 fun CqlContractSummary.hasSameTopicPartitionAs(topic: String, partition: Int) =
-        this.kafkaDeltaTopic == topic && this.kafkaDeltaPartition == partition
+    this.kafkaDeltaTopic == topic && this.kafkaDeltaPartition == partition
 
 fun CqlContractSummary.notSameTopicPartitionAs(delta: ContractSummaryDelta<*>) =
-        hasSameTopicPartitionAs(delta).not()
+    hasSameTopicPartitionAs(delta).not()
 
 fun CqlContractSummary.committed() = this.kafkaDeltaOffsetCommitted
 
@@ -51,14 +51,14 @@ private const val MAX_STORE_ATTEMPTS = 20
 private const val STORE_RETRY_TIMEOUT = 30L
 
 data class UpdateInfo(
-        val topic: String,
-        val partition: Int,
-        val minOffset: Long,
-        val maxOffset: Long
+    val topic: String,
+    val partition: Int,
+    val minOffset: Long,
+    val maxOffset: Long
 ) {
     constructor(records: List<ConsumerRecord<*, *>>) : this(
-            topic = records.first().topic(), partition = records.first().partition(),
-            minOffset = records.first().offset(), maxOffset = records.last().offset()
+        topic = records.first().topic(), partition = records.first().partition(),
+        minOffset = records.first().offset(), maxOffset = records.last().offset()
     )
 }
 
@@ -83,29 +83,34 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
     private lateinit var commitCassandraTimer: Timer
     private lateinit var downloadCassandraTimer: Timer
     private lateinit var currentOffsetMonitor: AtomicLong
+    private lateinit var recordsProcessingTimer: Timer
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, R>>, consumer: Consumer<*, *>) {
-
         val info = UpdateInfo(records.sortedBy { record -> record.offset() })
+        initMonitors(info)
+        recordsProcessingTimer.recordCallable { processRecords(records, consumer, info) }
+    }
+
+    private fun processRecords(records: List<ConsumerRecord<PumpEvent, R>>, consumer: Consumer<*, *>,
+                               info: UpdateInfo) {
 
         log.info("Processing records for topic: ${info.topic}; partition ${info.partition} from ${info.minOffset}" +
-                " to ${info.maxOffset} offset.")
+            " to ${info.maxOffset} offset.")
         val storeAttempts: MutableMap<String, Int> = mutableMapOf()
         val previousStates: MutableMap<String, S?> = mutableMapOf()
-        initMonitors(info)
 
         val contracts = deltaProcessor.affectedContracts(records)
 
         val contractsSummary = contractSummaryStorage.findAllByIdIn(contracts)
-                .await().groupBy { a -> a.hash }.map { (k, v) -> k to v.first() }.toMap()
+            .await().groupBy { a -> a.hash }.map { (k, v) -> k to v.first() }.toMap()
 
         val deltas = records.flatMap { record -> deltaProcessor.recordToDeltas(record) }
 
         val mergedDeltas = deltas.groupBy { delta -> delta.contract }
-                .filterKeys { contract -> contract.isNotEmpty() }
-                .mapValues { contractDeltas -> deltaMerger.mergeDeltas(contractDeltas.value, contractsSummary) }
-                .filterValues { value -> value != null }
-                .map { entry -> entry.key to entry.value!! }.toMap()
+            .filterKeys { contract -> contract.isNotEmpty() }
+            .mapValues { contractDeltas -> deltaMerger.mergeDeltas(contractDeltas.value, contractsSummary) }
+            .filterValues { value -> value != null }
+            .map { entry -> entry.key to entry.value!! }.toMap()
 
         try {
 
@@ -140,11 +145,11 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
         } catch (e: ContractLockException) {
 
             log.debug("Possible contract lock for ${info.topic} topic," +
-                    " ${info.partition} partition, offset: ${info.minOffset}-${info.maxOffset}. Reverting changes...")
+                " ${info.partition} partition, offset: ${info.minOffset}-${info.maxOffset}. Reverting changes...")
             applyLockMonitor.increment()
             revertChanges(contracts, previousStates, info)
             log.debug("Changes for ${info.topic} topic, ${info.partition} partition," +
-                    " offset: ${info.minOffset}-${info.maxOffset} reverted!")
+                " offset: ${info.minOffset}-${info.maxOffset} reverted!")
         }
     }
 
@@ -152,7 +157,7 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
 
         contractSummaryStorage.findAllByIdIn(contracts).await().forEach { summary ->
             if (summary.notCommitted() && summary.hasSameTopicPartitionAs(info.topic, info.partition)
-                    && summary.kafkaDeltaOffset in info.minOffset..info.maxOffset) {
+                && summary.kafkaDeltaOffset in info.minOffset..info.maxOffset) {
                 val previousState = previousStates[summary.hash]
                 if (previousState != null) {
                     contractSummaryStorage.update(previousState)
@@ -208,7 +213,7 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
     }
 
     private suspend fun D.applyTo(summary: S): Boolean =
-            contractSummaryStorage.update(this.updateSummary(summary), summary.version).await()!!
+        contractSummaryStorage.update(this.updateSummary(summary), summary.version).await()!!
 
     private suspend fun getSummaryByDelta(delta: D) = contractSummaryStorage.findById(delta.contract).await()
 
@@ -231,18 +236,21 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
         }
         if (!(::currentOffsetMonitor.isInitialized)) {
             currentOffsetMonitor = monitoring.gauge("contract_summary_topic_current_offset", tags,
-                    AtomicLong(info.maxOffset))!!
+                AtomicLong(info.maxOffset))!!
+        }
+        if (!(::recordsProcessingTimer.isInitialized)) {
+            recordsProcessingTimer = monitoring.timer("contract_summary_records_processing", tags)
         }
     }
 
     private fun CqlContractSummary.currentTopicPartitionWentFurther() =
-            lastOffsetOf(this.kafkaDeltaTopic, this.kafkaDeltaPartition) > this.kafkaDeltaOffset//todo : = or >= ????
+        lastOffsetOf(this.kafkaDeltaTopic, this.kafkaDeltaPartition) > this.kafkaDeltaOffset//todo : = or >= ????
 
     private fun lastOffsetOf(topic: String, partition: Int): Long {
 
         val reader = SinglePartitionTopicLastItemsReader(
-                kafkaBrokers = kafkaBrokers, topic = topic,
-                keyClass = Any::class.java, valueClass = Any::class.java
+            kafkaBrokers = kafkaBrokers, topic = topic,
+            keyClass = Any::class.java, valueClass = Any::class.java
         )
         return reader.readLastOffset(partition)
     }
