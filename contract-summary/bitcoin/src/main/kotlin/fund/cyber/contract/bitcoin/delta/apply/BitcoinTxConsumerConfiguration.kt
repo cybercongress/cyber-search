@@ -29,6 +29,8 @@ import org.springframework.kafka.listener.config.ContainerProperties
 import org.springframework.transaction.annotation.EnableTransactionManagement
 
 private const val MAX_POLL_RECORDS_CONFIG = 500
+private const val MAX_POLL_INTERVAL_MS_CONFIG = 20000
+private const val SESSION_TIMEOUT_MS_CONFIG = 30000
 
 @EnableKafka
 @Configuration
@@ -79,6 +81,8 @@ class BitcoinTxConsumerConfiguration {
             ConsumerConfig.GROUP_ID_CONFIG to "bitcoin-contract-summary-update-process",
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
             ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase(),
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to MAX_POLL_RECORDS_CONFIG
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to MAX_POLL_RECORDS_CONFIG,
+            ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to MAX_POLL_INTERVAL_MS_CONFIG,
+            ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG to SESSION_TIMEOUT_MS_CONFIG
     )
 }

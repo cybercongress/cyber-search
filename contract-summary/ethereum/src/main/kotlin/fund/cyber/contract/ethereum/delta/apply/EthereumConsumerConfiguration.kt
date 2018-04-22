@@ -35,6 +35,8 @@ import org.springframework.kafka.listener.config.ContainerProperties
 import org.springframework.transaction.annotation.EnableTransactionManagement
 
 private const val MAX_POLL_RECORDS_CONFIG = 500
+private const val MAX_POLL_INTERVAL_MS_CONFIG = 20000
+private const val SESSION_TIMEOUT_MS_CONFIG = 30000
 
 @EnableKafka
 @Configuration
@@ -71,13 +73,13 @@ class EthereumTxConsumerConfiguration {
     fun txListenerContainer(): ConcurrentMessageListenerContainer<PumpEvent, EthereumTx> {
 
         val consumerFactory = DefaultKafkaConsumerFactory(
-                consumerConfigs(), JsonDeserializer(PumpEvent::class.java), JsonDeserializer(EthereumTx::class.java)
+            consumerConfigs(), JsonDeserializer(PumpEvent::class.java), JsonDeserializer(EthereumTx::class.java)
         )
 
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
             messageListener = UpdateContractSummaryProcess(contractSummaryStorage, txDeltaProcessor, deltaMerger,
-                    monitoring, kafkaBrokers)
+                monitoring, kafkaBrokers)
             isAckOnError = false
             ackMode = AbstractMessageListenerContainer.AckMode.BATCH
         }
@@ -91,13 +93,13 @@ class EthereumTxConsumerConfiguration {
     fun blockListenerContainer(): ConcurrentMessageListenerContainer<PumpEvent, EthereumBlock> {
 
         val consumerFactory = DefaultKafkaConsumerFactory(
-                consumerConfigs(), JsonDeserializer(PumpEvent::class.java), JsonDeserializer(EthereumBlock::class.java)
+            consumerConfigs(), JsonDeserializer(PumpEvent::class.java), JsonDeserializer(EthereumBlock::class.java)
         )
 
         val containerProperties = ContainerProperties(chain.blockPumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
             messageListener = UpdateContractSummaryProcess(contractSummaryStorage, blockDeltaProcessor, deltaMerger,
-                    monitoring, kafkaBrokers)
+                monitoring, kafkaBrokers)
             isAckOnError = false
             ackMode = AbstractMessageListenerContainer.AckMode.BATCH
         }
@@ -111,13 +113,13 @@ class EthereumTxConsumerConfiguration {
     fun uncleListenerContainer(): ConcurrentMessageListenerContainer<PumpEvent, EthereumUncle> {
 
         val consumerFactory = DefaultKafkaConsumerFactory(
-                consumerConfigs(), JsonDeserializer(PumpEvent::class.java), JsonDeserializer(EthereumUncle::class.java)
+            consumerConfigs(), JsonDeserializer(PumpEvent::class.java), JsonDeserializer(EthereumUncle::class.java)
         )
 
         val containerProperties = ContainerProperties(chain.unclePumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
             messageListener = UpdateContractSummaryProcess(contractSummaryStorage, uncleDeltaProcessor, deltaMerger,
-                    monitoring, kafkaBrokers)
+                monitoring, kafkaBrokers)
             isAckOnError = false
             ackMode = AbstractMessageListenerContainer.AckMode.BATCH
         }
@@ -128,11 +130,13 @@ class EthereumTxConsumerConfiguration {
     }
 
     private fun consumerConfigs(): MutableMap<String, Any> = defaultConsumerConfig().with(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
-            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
-            ConsumerConfig.GROUP_ID_CONFIG to "ethereum-contract-summary-update-process",
-            ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
-            ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase(),
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to MAX_POLL_RECORDS_CONFIG
+        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
+        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
+        ConsumerConfig.GROUP_ID_CONFIG to "ethereum-contract-summary-update-process",
+        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
+        ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase(),
+        ConsumerConfig.MAX_POLL_RECORDS_CONFIG to MAX_POLL_RECORDS_CONFIG,
+        ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to MAX_POLL_INTERVAL_MS_CONFIG,
+        ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG to SESSION_TIMEOUT_MS_CONFIG
     )
 }
