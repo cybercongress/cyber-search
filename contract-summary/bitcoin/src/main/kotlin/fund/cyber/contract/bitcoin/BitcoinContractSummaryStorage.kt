@@ -15,7 +15,7 @@ class BitcoinContractSummaryStorage(
     override fun findById(id: String): Mono<CqlBitcoinContractSummary> = contractSummaryRepository.findByHash(id)
 
     override fun findAllByIdIn(ids: Iterable<String>): Flux<CqlBitcoinContractSummary> = contractSummaryRepository
-            .findAllByHashIn(ids)
+            .findAllByHash(ids)
 
     override fun update(summary: CqlBitcoinContractSummary, oldVersion: Long): Mono<Boolean> = contractSummaryRepository
             .update(summary, oldVersion)

@@ -20,7 +20,7 @@ interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEt
     fun findByHash(hash: String): Mono<CqlEthereumContractSummary>
 
     @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
-    fun findAllByHashIn(hashes: Iterable<String>): Flux<CqlEthereumContractSummary> = Flux.fromIterable(hashes)
+    fun findAllByHash(hashes: Iterable<String>): Flux<CqlEthereumContractSummary> = Flux.fromIterable(hashes)
         .flatMap { hash -> findByHash(hash) }
 
     /**
