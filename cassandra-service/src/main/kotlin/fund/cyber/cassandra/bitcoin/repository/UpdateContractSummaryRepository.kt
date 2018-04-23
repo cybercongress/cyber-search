@@ -6,7 +6,6 @@ import org.springframework.data.cassandra.repository.Consistency
 import org.springframework.data.cassandra.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 
@@ -17,10 +16,6 @@ interface BitcoinUpdateContractSummaryRepository : ReactiveCrudRepository<CqlBit
 
     @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
     fun findByHash(hash: String): Mono<CqlBitcoinContractSummary>
-
-    @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
-    fun findAllByHash(hashes: Iterable<String>): Flux<CqlBitcoinContractSummary> = Flux.fromIterable(hashes)
-        .flatMap { hash -> findByHash(hash) }
 
     /**
      * Return {@code true} if update was successful.

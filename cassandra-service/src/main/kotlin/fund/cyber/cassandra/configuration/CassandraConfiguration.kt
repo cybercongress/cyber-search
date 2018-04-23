@@ -32,11 +32,11 @@ val Chain.keyspace: String get() = lowerCaseName
 
 const val REPOSITORY_NAME_DELIMETER = "__"
 
-fun mappingContext(cluster: Cluster, keyspace: String): CassandraMappingContext {
+fun mappingContext(cluster: Cluster, keyspace: String, basePackage: String): CassandraMappingContext {
 
     val mappingContext = CassandraMappingContext()
 
-    mappingContext.setInitialEntitySet(CassandraEntityClassScanner.scan("fund.cyber.cassandra.bitcoin.model"))
+    mappingContext.setInitialEntitySet(CassandraEntityClassScanner.scan(basePackage))
     mappingContext.setUserTypeResolver(SimpleUserTypeResolver(cluster, keyspace))
 
     return mappingContext
