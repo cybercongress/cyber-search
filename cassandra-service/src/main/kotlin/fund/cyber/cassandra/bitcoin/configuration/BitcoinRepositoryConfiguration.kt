@@ -140,7 +140,8 @@ class BitcoinRepositoriesConfiguration : InitializingBean {
                 .forEach { keyspace ->
 
                     //create sessions
-                    val converter = MappingCassandraConverter(mappingContext(cluster, keyspace.name))
+                    val converter = MappingCassandraConverter(mappingContext(cluster, keyspace.name,
+                        "fund.cyber.cassandra.bitcoin.model"))
                     val session = getKeyspaceSession(cluster, keyspace.name, converter).also { it.afterPropertiesSet() }
                     val reactiveSession = DefaultReactiveSessionFactory(DefaultBridgedReactiveSession(session.`object`))
 
