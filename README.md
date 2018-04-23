@@ -24,6 +24,6 @@ You are invited to contribute new features, fixes, or updates, large or small; W
  requests, and do our best to process them as fast as We can. You can find detailed information in our 
  [contribution guide](./CONTRIBUTING.md).
  
-## Changelog
+## Roadmap && Changelog
 
-Stay tuned with our [Changelog](./CHANGELOG.md).
+Stay tuned with our [Changelog](./CHANGELOG.md) and [Roadmap](./ROADMAP.md).
