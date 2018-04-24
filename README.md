@@ -13,6 +13,9 @@ Search engine backend and API.
 * [Docker Images](https://hub.docker.com/r/cybernode/)
 * [Kubernetes Descriptors](https://github.com/cybercongress/cybernode/tree/master/kubernetes-definitions/search)
 
+## Quick Run Demo
+To run small demo on you local pc refer [demo guide](./demo/README.md).
+
 ## Issues
 
 If you have any problems with or questions about search, please contact us through a 

@@ -11,7 +11,7 @@ and this project adheres to [Semantic Visioning](http://semver.org/spec/v2.0.0.h
 - [#108](/../../issues/108) Create API for search results preview
 - [#106](/../../issues/106) Add filter params for search api
 - [#84](/../../issues/84) API: bitcoin endpoints
-- [#98](/../../issues/98) Make chain items retrivial caps non-depended
+- [#98](/../../issues/98) Make chain items retrieval caps non-depended
 - [#85](/../../issues/85) Bitcoin pump/dump and bitcoin contract summary docker images, dockerhub
 ### Fixed
 - [#113](/../../issues/113) Make search API logic dependent of existing keyspaces
