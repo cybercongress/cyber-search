@@ -165,7 +165,7 @@ jobs:
        - run:
            name: Chains Search Api Documentation Image
            command: |
-             docker build -t build/search-api-docs -f ./docs/Dockerfile ./
+             docker build -t build/search-api-docs -f ./docs/api/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
              docker tag build/search-api-docs cybernode/search-api-docs:$CIRCLE_TAG
              docker push cybernode/search-api-docs:$CIRCLE_TAG

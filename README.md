@@ -1,4 +1,4 @@
-# Cyber Search [![CircleCI](https://img.shields.io/circleci/project/github/cybercongress/cyber-search.svg?longCache=true&style=flat-square)](https://circleci.com/gh/cybercongress/cyber-search) [![Latest Release](https://img.shields.io/github/release/cybercongress/cyber-search.svg?longCache=true&style=flat-square)](https://circleci.com/gh/cybercongress/cyber-search/releases) [![GitHub license](https://img.shields.io/github/license/cybercongress/cyber-search.svg?style=flat-square&longCache=true)](https://github.com/cybercongress/cyber-search/blob/master/LICENSE) [![GitHub contributors](https://img.shields.io/github/contributors/cybercongress/cyber-search.svg?style=flat-square&longCache=true)](https://github.com/cybercongress/cyber-search)
+# Cyber Search [![CircleCI](https://img.shields.io/circleci/project/github/cybercongress/cyber-search.svg?longCache=true&style=flat-square)](https://circleci.com/gh/cybercongress/cyber-search) [![Latest Release](https://img.shields.io/github/release/cybercongress/cyber-search.svg?longCache=true&style=flat-square)](https://circleci.com/gh/cybercongress/cyber-search/releases) [![GitHub license](https://img.shields.io/github/license/cybercongress/cyber-search.svg?style=flat-square&longCache=true)](https://github.com/cybercongress/cyber-search/blob/master/LICENSE) [![GitHub contributors](https://img.shields.io/github/contributors/cybercongress/cyber-search.svg?style=flat-square&longCache=true)](https://github.com/cybercongress/cyber-search) [![Telegram](https://img.shields.io/badge/Join%20Us%20On-Telegram-2599D2.svg?style=flat-square&longCache=true)](https://t.me/joinchat/Bze3dEPj5YrvZ3REnMrfPg)
 
 Project status: **beta**. Not all planned features are completed. The API, spec, status and other user facing objects may change.
 
@@ -6,7 +6,7 @@ Search engine backend and API.
 
 ## Getting Start Useful Links
 
-* [Development Quick Start Guide](./dev-environment/README.md)
+* [Development Quick Start Guide](./docs/contributing/dev-environment.md)
 * [Architecture Overview](http://docs.cybernode.io/cybernode/components/search/)
 * [Api OpenAPI 3.0 Documentation](http://docs.cybersearch.io/)
 * [Api Test Server](http://api.cybersearch.io/search?query=42)
@@ -22,7 +22,7 @@ If you have any problems with or questions about search, please contact us throu
 
 You are invited to contribute new features, fixes, or updates, large or small; We are always thrilled to receive pull 
  requests, and do our best to process them as fast as We can. You can find detailed information in our 
- [contribution guide](./CONTRIBUTING.md).
+ [contribution guide](./docs/contributing/contributing.md).
  
 ## Changelog
 

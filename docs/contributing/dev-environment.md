@@ -1,5 +1,8 @@
 # Development environment
 
+## Useful Links
+* [cheat sheet](./cheat-sheet.md)
+
 ## Prestart
 * Install Java 10 JDK
 * Install Docker and Docker Compose
@@ -9,15 +12,17 @@
 ### Start containers(required)
 For mac:
 ```bash
+cd dev-environment
 docker-compose -f dev-environment/env-mac.yml up -d
 ```
 For linux family:
 ```bash
+cd dev-environment
 docker-compose -f dev-environment/env.yml up -d
 ```
 
 ## Import project to Intellij Idea
-Open Project in idea by selecting: Import Project -> selecting build.gradle file from the repository root
+Open Project in idea by selecting: Import Project -> selecting **build.gradle** file from the repository root
 ![Select Build Gradle](images/select-build-gradle.png)
 ![Import Settings](images/gradle-settings.png)
 Wait for dependency downloading and indexation
@@ -35,3 +40,4 @@ Add properties:
 ![Add variables](images/add-environment-variables.png)
 
 Now, run pump one more time, it should start.
+
