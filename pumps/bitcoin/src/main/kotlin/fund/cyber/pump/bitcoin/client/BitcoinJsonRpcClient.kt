@@ -12,15 +12,19 @@ import fund.cyber.search.model.Response
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinBlock
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinTransaction
 import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ByteArrayEntity
 import org.apache.http.message.BasicHeader
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 
 
 @Component
 class BitcoinJsonRpcClient(
-        private val httpClient: HttpClient
+    private val httpClient: HttpClient
 ) {
 
     private val endpointUrl = env(CHAIN_NODE_URL, BITCOIN_CHAIN_NODE_DEFAULT_URL)
@@ -28,15 +32,28 @@ class BitcoinJsonRpcClient(
     private val headers = arrayOf(BasicHeader("Content-Type", "application/json; charset=UTF-8"))
 
     private val jsonSerializer = ObjectMapper().registerKotlinModule()
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+        .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
 
     private val jsonDeserializer = ObjectMapper().registerKotlinModule()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
 
     fun getTxes(txIds: List<String>): List<JsonRpcBitcoinTransaction> {
-        val requests = txIds.map { id -> Request(method = "getrawtransaction", params = listOf(id, true)) }
-        return executeBatchRequest(requests, TxResponse::class.java)
+        val chunkSize = 100
+        println("TRANSACTIONS COUNT: ${txIds.size}. STARTING PROCESSING")
+        var counter = 0
+        return txIds.chunked(chunkSize)
+            .flatMap { chunk ->
+                println("PROCESSING TXS FROM ${counter * chunkSize} TO ${(counter + 1) * chunkSize} OF ${txIds.size} TXS COUNT")
+                counter++
+                Flux.fromIterable(chunk)
+                    .flatMap { txId ->
+                        Mono.just(
+                            executeRestRequest("/rest/tx/$txId", JsonRpcBitcoinTransaction::class.java)
+                        ).subscribeOn(Schedulers.parallel())
+                    }
+                    .collectList().block()!!
+            }
     }
 
     fun getTxMempool(): List<String> {
@@ -50,8 +67,7 @@ class BitcoinJsonRpcClient(
     }
 
     fun getBlockByHash(hash: String): JsonRpcBitcoinBlock? {
-        val request = Request(method = "getblock", params = listOf(hash, true))
-        return executeRequest(request, BlockResponse::class.java)
+        return executeRestRequest("/rest/block/$hash", JsonRpcBitcoinBlock::class.java)
     }
 
     fun getLastBlockNumber(): Long {
@@ -64,11 +80,11 @@ class BitcoinJsonRpcClient(
         val hash = getBlockHash(number) ?: return null
         val block = getBlockByHash(hash) ?: return null
 
-        val transactions = if (block.height != 0L) getTxes(block.tx) else emptyList()
-        return block.copy(rawtx = transactions)
+        return block
     }
 
     private fun <C, T : Response<C>> executeBatchRequest(request: Any, valueType: Class<T>): List<C> {
+        println(request)
         val payload = jsonSerializer.writeValueAsBytes(request)
 
         val httpPost = HttpPost(endpointUrl)
@@ -77,8 +93,8 @@ class BitcoinJsonRpcClient(
 
         val httpResponse = httpClient.execute(httpPost, null)
         val jsonRpcResponses = jsonDeserializer.readValue<List<T>>(
-                httpResponse.entity.content,
-                jsonDeserializer.typeFactory.constructCollectionType(List::class.java, valueType)
+            httpResponse.entity.content,
+            jsonDeserializer.typeFactory.constructCollectionType(List::class.java, valueType)
         )
 
         jsonRpcResponses.forEach { response ->
@@ -106,6 +122,19 @@ class BitcoinJsonRpcClient(
 
         return jsonRpcResponse.result!!
     }
+
+    private fun <C> executeRestRequest(endpointPath: String,
+                                       valueType: Class<C>,
+                                       format: RestResponseFormat = RestResponseFormat.JSON): C {
+        println("QUERYING $endpointUrl$endpointPath.${format.name.toLowerCase()}")
+        val httpGet = HttpGet("$endpointUrl$endpointPath.${format.name.toLowerCase()}")
+        httpGet.setHeaders(headers)
+
+        val httpResponse = httpClient.execute(httpGet, null)
+        val response = jsonDeserializer.readValue(httpResponse.entity.content, valueType)
+
+        return response!!
+    }
 }
 
 class TxMempoolResponse : Response<List<String>>()
@@ -113,3 +142,7 @@ class TxResponse : Response<JsonRpcBitcoinTransaction>()
 class StringResponse : Response<String>()
 class LongResponse : Response<Long>()
 class BlockResponse : Response<JsonRpcBitcoinBlock>()
+
+enum class RestResponseFormat {
+    JSON, BIN, HEX
+}

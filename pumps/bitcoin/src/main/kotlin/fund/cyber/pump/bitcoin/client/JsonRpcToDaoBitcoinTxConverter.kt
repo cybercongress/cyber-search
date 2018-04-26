@@ -43,7 +43,7 @@ class JsonRpcToDaoBitcoinTxConverter {
 
         val inputsByIds = inputs.associateBy { tx -> tx.txid }.toMutableMap()
 
-        return jsonRpcBlock.rawtx
+        return jsonRpcBlock.tx
                 .mapIndexed { index, btcdTransaction ->
                     convertToDaoTransaction(btcdTransaction, inputsByIds, jsonRpcBlock, index)
                 }

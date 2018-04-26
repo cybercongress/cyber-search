@@ -23,7 +23,7 @@ class JsonRpcBlockToBitcoinBundleConverter(
 
     fun convertToBundle(jsonRpcBlock: JsonRpcBitcoinBlock): BitcoinBlockBundle {
 
-        jsonRpcBlock.rawtx.forEach { tx -> txCache?.put(tx.txid, tx) }
+        jsonRpcBlock.tx.forEach { tx -> txCache?.put(tx.txid, tx) }
 
         val inputTransactions = getTransactionsInputs(jsonRpcBlock)
         val transactions = transactionConverter.convertToDaoTransactions(jsonRpcBlock, inputTransactions)
@@ -39,7 +39,7 @@ class JsonRpcBlockToBitcoinBundleConverter(
 
     private fun getTransactionsInputs(jsonRpcBlock: JsonRpcBitcoinBlock): List<JsonRpcBitcoinTransaction> {
 
-        val incomingNonCoinbaseTransactionsIds = jsonRpcBlock.rawtx
+        val incomingNonCoinbaseTransactionsIds = jsonRpcBlock.tx
                 .flatMap { transaction -> transaction.vin }
                 .filter { txInput -> txInput is RegularTransactionInput }
                 .map { txInput -> (txInput as RegularTransactionInput).txid }

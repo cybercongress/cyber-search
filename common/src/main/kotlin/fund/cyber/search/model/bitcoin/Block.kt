@@ -7,21 +7,6 @@ import java.time.Instant
 
 interface BitcoinItem
 
-data class BitcoinTxPreviewIO(
-        val contracts: List<String>,
-        val amount: BigDecimal
-)
-
-data class BitcoinBlockTx(
-        val blockNumber: Long,
-        val index: Int,         //specify tx number(order) in block
-        val hash: String,
-        val fee: BigDecimal,
-        val ins: List<BitcoinTxPreviewIO>,
-        val outs: List<BitcoinTxPreviewIO>
-) : BitcoinItem
-
-
 data class BitcoinBlock(
         val height: Long,
         val hash: String,

@@ -77,7 +77,7 @@ class BtcdToDaoTxConverterTest {
 
 
         val daoCoinbaseTx = JsonRpcToDaoBitcoinTxConverter().convertToDaoTransaction(
-                jsonRpcBlock = btcdBlock, jsonRpcTransaction = btcdBlock.rawtx.first(), inputsByIds = emptyMap(),
+                jsonRpcBlock = btcdBlock, jsonRpcTransaction = btcdBlock.tx.first(), inputsByIds = emptyMap(),
                 txIndex = 0
         )
 
@@ -129,7 +129,7 @@ class BtcdToDaoTxConverterTest {
         ).associateBy { tx -> tx.txid }
 
         val regularTx = JsonRpcToDaoBitcoinTxConverter().convertToDaoTransaction(
-                jsonRpcBlock = btcdBlock, jsonRpcTransaction = btcdBlock.rawtx[1], inputsByIds = daoInputTxById,
+                jsonRpcBlock = btcdBlock, jsonRpcTransaction = btcdBlock.tx[1], inputsByIds = daoInputTxById,
                 txIndex = 1
         )
 
