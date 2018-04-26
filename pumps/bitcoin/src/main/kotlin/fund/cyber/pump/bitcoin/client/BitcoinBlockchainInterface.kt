@@ -30,6 +30,7 @@ class BitcoinBlockchainInterface(
     override fun blockBundleByNumber(number: Long): BitcoinBlockBundle {
         val block = bitcoinJsonRpcClient.getBlockByNumber(number)!!
         val bundle = rpcToBundleEntitiesConverter.convertToBundle(block)
-        return if (number == 0L) genesisDataProvider.provide(bundle) else bundle
+//        return if (number == 0L) genesisDataProvider.provide(bundle) else bundle
+        return bundle
     }
 }
