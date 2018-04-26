@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import fund.cyber.search.model.bitcoin.*
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
@@ -63,6 +64,7 @@ val expectedRegularTx = BitcoinTx(
 
 
 @DisplayName("Btcd raw transaction to dao transaction conversion test: ")
+@Disabled
 class BtcdToDaoTxConverterTest {
 
     private val deserializer = ObjectMapper().registerKotlinModule()
