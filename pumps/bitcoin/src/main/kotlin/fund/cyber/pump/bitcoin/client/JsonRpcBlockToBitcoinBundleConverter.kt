@@ -65,4 +65,3 @@ class JsonRpcBlockToBitcoinBundleConverter(
         return client.getTxes(incomingNonCoinbaseTransactionsIds)
     }
 }
-
