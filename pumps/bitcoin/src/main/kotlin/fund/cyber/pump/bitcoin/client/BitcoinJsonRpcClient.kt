@@ -11,21 +11,30 @@ import fund.cyber.search.model.Request
 import fund.cyber.search.model.Response
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinBlock
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinTransaction
+import io.micrometer.core.instrument.MeterRegistry
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ByteArrayEntity
 import org.apache.http.message.BasicHeader
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 
+private val log = LoggerFactory.getLogger(BitcoinJsonRpcClient::class.java)!!
+
+private const val TXES_CHUNK_SIZE = 100
 
 @Component
 class BitcoinJsonRpcClient(
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
+    monitoring: MeterRegistry
 ) {
+
+    val txesRequestTimer = monitoring.timer("bitcoin_txes_request")
+    val blockRequestTimer = monitoring.timer("bitcoin_block_request")
 
     private val endpointUrl = env(CHAIN_NODE_URL, BITCOIN_CHAIN_NODE_DEFAULT_URL)
 
@@ -39,21 +48,23 @@ class BitcoinJsonRpcClient(
 
 
     fun getTxes(txIds: List<String>): List<JsonRpcBitcoinTransaction> {
-        val chunkSize = 100
-        println("TRANSACTIONS COUNT: ${txIds.size}. STARTING PROCESSING")
-        var counter = 0
-        return txIds.chunked(chunkSize)
-            .flatMap { chunk ->
-                println("PROCESSING TXS FROM ${counter * chunkSize} TO ${(counter + 1) * chunkSize} OF ${txIds.size} TXS COUNT")
-                counter++
-                Flux.fromIterable(chunk)
-                    .flatMap { txId ->
-                        Mono.just(
-                            executeRestRequest("/rest/tx/$txId", JsonRpcBitcoinTransaction::class.java)
-                        ).subscribeOn(Schedulers.parallel())
-                    }
-                    .collectList().block()!!
-            }
+        return txesRequestTimer.recordCallable {
+            log.debug("TRANSACTIONS COUNT: ${txIds.size}. STARTING PROCESSING")
+            var counter = 0
+            return@recordCallable txIds.chunked(TXES_CHUNK_SIZE)
+                .flatMap { chunk ->
+                    log.debug("PROCESSING TXS FROM ${counter * TXES_CHUNK_SIZE}" +
+                        " TO ${(counter + 1) * TXES_CHUNK_SIZE} OF ${txIds.size} TXS COUNT")
+                    counter++
+                    Flux.fromIterable(chunk)
+                        .flatMap { txId ->
+                            Mono.just(
+                                executeRestRequest("/rest/tx/$txId", JsonRpcBitcoinTransaction::class.java)
+                            ).subscribeOn(Schedulers.parallel())
+                        }
+                        .collectList().block()!!
+                }
+        }
     }
 
     fun getTxMempool(): List<String> {
@@ -75,12 +86,14 @@ class BitcoinJsonRpcClient(
         return executeRequest(request, LongResponse::class.java)
     }
 
+    @Suppress("ReturnCount")
     fun getBlockByNumber(number: Long): JsonRpcBitcoinBlock? {
+        return blockRequestTimer.recordCallable {
+            val hash = getBlockHash(number) ?: return@recordCallable null
+            val block = getBlockByHash(hash) ?: return@recordCallable null
 
-        val hash = getBlockHash(number) ?: return null
-        val block = getBlockByHash(hash) ?: return null
-
-        return block
+            return@recordCallable block
+        }
     }
 
     private fun <C, T : Response<C>> executeBatchRequest(request: Any, valueType: Class<T>): List<C> {
@@ -126,7 +139,7 @@ class BitcoinJsonRpcClient(
     private fun <C> executeRestRequest(endpointPath: String,
                                        valueType: Class<C>,
                                        format: RestResponseFormat = RestResponseFormat.JSON): C {
-        println("QUERYING $endpointUrl$endpointPath.${format.name.toLowerCase()}")
+        log.trace("QUERYING $endpointUrl$endpointPath.${format.name.toLowerCase()}")
         val httpGet = HttpGet("$endpointUrl$endpointPath.${format.name.toLowerCase()}")
         httpGet.setHeaders(headers)
 
