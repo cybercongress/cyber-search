@@ -3,9 +3,11 @@ package fund.cyber.pump.bitcoin.client
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinBlock
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinTransaction
 import fund.cyber.search.model.bitcoin.RegularTransactionInput
+import io.micrometer.core.instrument.MeterRegistry
 import org.ehcache.Cache
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import java.util.concurrent.atomic.AtomicLong
 
 
 private val log = LoggerFactory.getLogger(JsonRpcBlockToBitcoinBundleConverter::class.java)!!
@@ -14,8 +16,12 @@ private val log = LoggerFactory.getLogger(JsonRpcBlockToBitcoinBundleConverter::
 @Component
 class JsonRpcBlockToBitcoinBundleConverter(
         private val client: BitcoinJsonRpcClient,
-        private val txCache: Cache<String, JsonRpcBitcoinTransaction>? = null
+        private val txCache: Cache<String, JsonRpcBitcoinTransaction>? = null,
+        monitoring: MeterRegistry
 ) {
+
+    val inputTxesFromCache = monitoring.gauge("input_txes_from_cache", AtomicLong(0L))!!
+    val totalInputTxes = monitoring.gauge("total_input_txes", AtomicLong(0L))!!
 
     private val transactionConverter = JsonRpcToDaoBitcoinTxConverter()
     private val blockConverter = JsonRpcToDaoBitcoinBlockConverter()
@@ -57,6 +63,8 @@ class JsonRpcBlockToBitcoinBundleConverter(
             }
 
             log.debug("Transactions - Total ids: ${incomingNonCoinbaseTransactionsIds.size}, Cache hits: ${txs.size}")
+            totalInputTxes.set(incomingNonCoinbaseTransactionsIds.size.toLong())
+            inputTxesFromCache.set(txs.size.toLong())
 
             txs.addAll(client.getTxes(idsWithoutCacheHit))
             return txs
