@@ -47,7 +47,7 @@ class BitcoinJsonRpcClient(
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
 
-    fun getTxes(txIds: List<String>): List<JsonRpcBitcoinTransaction> {
+    fun getTxes(txIds: Collection<String>): List<JsonRpcBitcoinTransaction> {
         return txesRequestTimer.recordCallable {
             log.debug("TRANSACTIONS COUNT: ${txIds.size}. STARTING PROCESSING")
             var counter = 0
