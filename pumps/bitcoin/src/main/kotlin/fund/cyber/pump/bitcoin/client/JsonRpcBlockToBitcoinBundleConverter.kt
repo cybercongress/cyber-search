@@ -1,7 +1,7 @@
 package fund.cyber.pump.bitcoin.client
 
+import fund.cyber.search.model.bitcoin.BitcoinCacheTx
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinBlock
-import fund.cyber.search.model.bitcoin.JsonRpcBitcoinTransaction
 import fund.cyber.search.model.bitcoin.RegularTransactionInput
 import io.micrometer.core.instrument.MeterRegistry
 import org.ehcache.Cache
@@ -16,7 +16,7 @@ private val log = LoggerFactory.getLogger(JsonRpcBlockToBitcoinBundleConverter::
 @Component
 class JsonRpcBlockToBitcoinBundleConverter(
         private val client: BitcoinJsonRpcClient,
-        private val txCache: Cache<String, JsonRpcBitcoinTransaction>? = null,
+        private val txCache: Cache<String, BitcoinCacheTx>? = null,
         monitoring: MeterRegistry
 ) {
 
@@ -29,7 +29,7 @@ class JsonRpcBlockToBitcoinBundleConverter(
 
     fun convertToBundle(jsonRpcBlock: JsonRpcBitcoinBlock): BitcoinBlockBundle {
 
-        jsonRpcBlock.tx.forEach { tx -> txCache?.put(tx.txid, tx) }
+        jsonRpcBlock.tx.forEach { tx -> txCache?.put(tx.txid, BitcoinCacheTx(tx)) }
 
         val inputTransactions = getTransactionsInputs(jsonRpcBlock)
         val transactions = transactionConverter.convertToDaoTransactions(jsonRpcBlock, inputTransactions)
@@ -43,7 +43,7 @@ class JsonRpcBlockToBitcoinBundleConverter(
     }
 
 
-    private fun getTransactionsInputs(jsonRpcBlock: JsonRpcBitcoinBlock): List<JsonRpcBitcoinTransaction> {
+    private fun getTransactionsInputs(jsonRpcBlock: JsonRpcBitcoinBlock): List<BitcoinCacheTx> {
 
         val incomingNonCoinbaseTransactionsIds = jsonRpcBlock.tx
                 .flatMap { transaction -> transaction.vin }
@@ -55,7 +55,7 @@ class JsonRpcBlockToBitcoinBundleConverter(
         val uniqueTxIds = incomingNonCoinbaseTransactionsIds.toSet()
         if (txCache != null) {
 
-            val txs = mutableListOf<JsonRpcBitcoinTransaction>()
+            val txs = mutableListOf<BitcoinCacheTx>()
             val idsWithoutCacheHit = mutableListOf<String>()
 
             for (id in uniqueTxIds) {
@@ -67,10 +67,10 @@ class JsonRpcBlockToBitcoinBundleConverter(
             totalInputTxes.set(uniqueTxIds.size.toLong())
             inputTxesFromCache.set(txs.size.toLong())
 
-            txs.addAll(client.getTxes(idsWithoutCacheHit))
+            txs.addAll(client.getTxes(idsWithoutCacheHit).map { tx -> BitcoinCacheTx(tx) })
             return txs
         }
 
-        return client.getTxes(uniqueTxIds)
+        return client.getTxes(uniqueTxIds).map { tx -> BitcoinCacheTx(tx) }
     }
 }
