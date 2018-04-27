@@ -1,6 +1,6 @@
 package fund.cyber.pump.bitcoin.client
 
-import fund.cyber.search.model.bitcoin.JsonRpcBitcoinTransaction
+import fund.cyber.search.model.bitcoin.BitcoinCacheTx
 import fund.cyber.search.model.chains.BitcoinFamilyChain
 import fund.cyber.search.model.events.blockPumpTopic
 import fund.cyber.search.model.events.txPumpTopic
@@ -45,8 +45,8 @@ class BitcoinClientConfiguration {
     @Bean
     fun txCache(
         cacheManager: CacheManager
-    ): Cache<String, JsonRpcBitcoinTransaction> {
-        return cacheManager.getCache("bitcoin.transactions", String::class.java, JsonRpcBitcoinTransaction::class.java)
+    ): Cache<String, BitcoinCacheTx> {
+        return cacheManager.getCache("bitcoin.transactions", String::class.java, BitcoinCacheTx::class.java)
     }
 
     @Bean
@@ -55,7 +55,7 @@ class BitcoinClientConfiguration {
             .withCache("bitcoin.transactions",
                 newCacheConfigurationBuilder(
                     String::class.java,
-                    JsonRpcBitcoinTransaction::class.java,
+                    BitcoinCacheTx::class.java,
                     heap(EHCACHE_HEAP_ENTRIES)
                 )
             )
