@@ -52,24 +52,25 @@ class JsonRpcBlockToBitcoinBundleConverter(
 
         if (incomingNonCoinbaseTransactionsIds.isEmpty()) return emptyList()
 
+        val uniqueTxIds = incomingNonCoinbaseTransactionsIds.toSet()
         if (txCache != null) {
 
             val txs = mutableListOf<JsonRpcBitcoinTransaction>()
             val idsWithoutCacheHit = mutableListOf<String>()
 
-            for (id in incomingNonCoinbaseTransactionsIds) {
+            for (id in uniqueTxIds) {
                 val tx = txCache[id]
                 if (tx != null) txs.add(tx) else idsWithoutCacheHit.add(id)
             }
 
-            log.debug("Transactions - Total ids: ${incomingNonCoinbaseTransactionsIds.size}, Cache hits: ${txs.size}")
-            totalInputTxes.set(incomingNonCoinbaseTransactionsIds.size.toLong())
+            log.debug("Transactions - Total ids: ${uniqueTxIds.size}, Cache hits: ${txs.size}")
+            totalInputTxes.set(uniqueTxIds.size.toLong())
             inputTxesFromCache.set(txs.size.toLong())
 
             txs.addAll(client.getTxes(idsWithoutCacheHit))
             return txs
         }
 
-        return client.getTxes(incomingNonCoinbaseTransactionsIds)
+        return client.getTxes(uniqueTxIds)
     }
 }
