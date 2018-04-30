@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Visioning](http://semver.org/spec/v2.0.0.html).
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
@@ -41,7 +41,7 @@ and this project adheres to [Semantic Visioning](http://semver.org/spec/v2.0.0.h
 - [#67](/../../issues/67) Pump stuck after exception
 
 
-[Unreleased]: https://github.com/cybercongress/cyber-search/master
+[Unreleased]: https://github.com/cybercongress/cyber-search/compare/compare/0.3.0...HEAD
 [0.1.0]: https://github.com/cybercongress/cyber-search/releases/tag/0.1.0
 [0.2.0]: https://github.com/cybercongress/cyber-search/releases/tag/0.2.0
 [0.3.0]: https://github.com/cybercongress/cyber-search/releases/tag/0.3.0
