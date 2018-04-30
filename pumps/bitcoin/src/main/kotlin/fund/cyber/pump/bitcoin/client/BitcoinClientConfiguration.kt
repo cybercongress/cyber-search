@@ -13,12 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder
-import org.ehcache.config.builders.ResourcePoolsBuilder.heap
 import org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder
+import org.ehcache.config.builders.ResourcePoolsBuilder.newResourcePoolsBuilder
+import org.ehcache.config.units.MemoryUnit
 
 const val MAX_PER_ROUTE = 16
 const val MAX_TOTAL = 32
-const val EHCACHE_HEAP_ENTRIES = 20000000L
+const val EHCACHE_HEAP_SIZE_GB = 5L
 
 @Configuration
 class BitcoinClientConfiguration {
@@ -56,7 +57,7 @@ class BitcoinClientConfiguration {
                 newCacheConfigurationBuilder(
                     String::class.java,
                     BitcoinCacheTx::class.java,
-                    heap(EHCACHE_HEAP_ENTRIES)
+                    newResourcePoolsBuilder().heap(EHCACHE_HEAP_SIZE_GB, MemoryUnit.GB)
                 )
             )
             .build(true)
