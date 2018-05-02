@@ -25,6 +25,7 @@
     <logger name="org.springframework.web.reactive" level="WARN"/>
     <logger name="org.springframework.http.server" level="WARN"/>
     <logger name="org.springframework.transaction.support" level="WARN"/>
+    <logger name="org.web3j.protocol.http" level="WARN"/>
 
     <root level="${CS_LOG_LEVEL:-INFO}">
         <appender-ref ref="STDOUT"/>

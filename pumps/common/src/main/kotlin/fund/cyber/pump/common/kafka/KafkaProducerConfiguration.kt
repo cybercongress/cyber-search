@@ -23,6 +23,7 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.transaction.KafkaTransactionManager
 import org.springframework.transaction.annotation.EnableTransactionManagement
+import org.springframework.transaction.support.AbstractPlatformTransactionManager.SYNCHRONIZATION_ALWAYS
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
@@ -70,7 +71,9 @@ class KafkaProducerConfiguration {
 
     @Bean
     fun transactionManager(): KafkaTransactionManager<PumpEvent, Any> {
-        return KafkaTransactionManager(producerFactory())
+        return KafkaTransactionManager(producerFactory()).apply {
+            transactionSynchronization = SYNCHRONIZATION_ALWAYS
+        }
     }
 
     @Bean
