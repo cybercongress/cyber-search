@@ -1,6 +1,6 @@
 package fund.cyber.pump.bitcoin.client
 
-import fund.cyber.search.model.bitcoin.BitcoinCacheTx
+import fund.cyber.search.model.bitcoin.BitcoinCacheTxOutput
 import fund.cyber.search.model.chains.BitcoinFamilyChain
 import fund.cyber.search.model.events.blockPumpTopic
 import fund.cyber.search.model.events.txPumpTopic
@@ -46,17 +46,18 @@ class BitcoinClientConfiguration {
     @Bean
     fun txCache(
         cacheManager: CacheManager
-    ): Cache<String, BitcoinCacheTx> {
-        return cacheManager.getCache("bitcoin.transactions", String::class.java, BitcoinCacheTx::class.java)
+    ): Cache<String, BitcoinCacheTxOutput> {
+        return cacheManager.getCache("bitcoin.tx.outputs", String::class.java, BitcoinCacheTxOutput::class.java)
     }
 
     @Bean
     fun cacheManager(): CacheManager {
+
         return newCacheManagerBuilder()
-            .withCache("bitcoin.transactions",
+            .withCache("bitcoin.tx.outputs",
                 newCacheConfigurationBuilder(
                     String::class.java,
-                    BitcoinCacheTx::class.java,
+                    BitcoinCacheTxOutput::class.java,
                     newResourcePoolsBuilder().heap(EHCACHE_HEAP_SIZE_GB, MemoryUnit.GB)
                 )
             )
