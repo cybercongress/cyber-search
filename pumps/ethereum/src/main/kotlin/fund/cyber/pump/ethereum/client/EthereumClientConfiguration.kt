@@ -41,7 +41,7 @@ class EthereumClientConfiguration {
             .build()!!
 
     @Bean
-    fun parityClient() = Web3j.build(HttpService(endpointUrl, httpClient()))!!
+    fun parityClient() = Web3j.build(HttpService(endpointUrl))!!
 
     @Bean
     fun kafkaTopicNames(): List<String> = listOf(chain.txPumpTopic, chain.blockPumpTopic, chain.unclePumpTopic)

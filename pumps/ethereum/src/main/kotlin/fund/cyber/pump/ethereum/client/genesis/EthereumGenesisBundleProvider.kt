@@ -46,11 +46,11 @@ class EthereumGenesisDataFileProvider(
                     val tx = EthereumTx(
                             hash = "GENESIS_$contractHash",
                             nonce = 42,
-                            blockHash = "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3",
+                            blockHash = "d4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3",
                             blockNumber = 0,
                             positionInBlock = index,
                             from = "",
-                            to = "0x$contractHash",
+                            to = contractHash,
                             value = BigDecimal(balance!!).multiply(weiToEthRate),
                             gasPrice = BigDecimal.ZERO,
                             gasUsed = 0,
