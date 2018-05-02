@@ -41,25 +41,14 @@ data class BitcoinTxOut(
     val requiredSignatures: Int
 )
 
-data class BitcoinCacheTx(
-    val txid: String,
-    val outs: List<BitcoinCacheTxOutput>
-) {
-
-    constructor(tx: JsonRpcBitcoinTransaction) : this(
-        txid = tx.txid, outs = tx.vout.map { out -> BitcoinCacheTxOutput(out) }
-    )
-
-    fun getOutputByNumber(number: Int) = outs.find { out -> out.n == number }!!
-}
-
 data class BitcoinCacheTxOutput(
+    val txid: String,
     val value: BigDecimal,
     val n: Int,
     val addresses: List<String> = listOf("no address")
 ) {
 
-    constructor(out: JsonRpcBitcoinTransactionOutput) : this(
-        value = out.value, n = out.n, addresses = out.scriptPubKey.addresses
+    constructor(txid: String, out: JsonRpcBitcoinTransactionOutput) : this(
+        txid = txid, value = out.value, n = out.n, addresses = out.scriptPubKey.addresses
     )
 }

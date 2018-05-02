@@ -1,6 +1,6 @@
 package fund.cyber.pump.bitcoin.client
 
-import fund.cyber.search.model.bitcoin.BitcoinCacheTx
+import fund.cyber.search.model.bitcoin.BitcoinCacheTxOutput
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinBlock
 import fund.cyber.search.model.bitcoin.RegularTransactionInput
 import io.micrometer.core.instrument.MeterRegistry
@@ -12,16 +12,18 @@ import java.util.concurrent.atomic.AtomicLong
 
 private val log = LoggerFactory.getLogger(JsonRpcBlockToBitcoinBundleConverter::class.java)!!
 
+fun Pair<String, Int>.txOutputCacheKey(): String = "${first}__$second"
+
 //todo add cache
 @Component
 class JsonRpcBlockToBitcoinBundleConverter(
-        private val client: BitcoinJsonRpcClient,
-        private val txCache: Cache<String, BitcoinCacheTx>? = null,
-        monitoring: MeterRegistry
+    private val client: BitcoinJsonRpcClient,
+    private val txOutputCache: Cache<String, BitcoinCacheTxOutput>? = null,
+    monitoring: MeterRegistry
 ) {
 
-    val inputTxesFromCache = monitoring.gauge("input_txes_from_cache", AtomicLong(0L))!!
-    val totalInputTxes = monitoring.gauge("total_input_txes", AtomicLong(0L))!!
+    val linkedOutputsFromCache = monitoring.gauge("linked_outputs_from_cache", AtomicLong(0L))!!
+    val totalLinkedOutputs = monitoring.gauge("total_linked_outputs", AtomicLong(0L))!!
 
     private val transactionConverter = JsonRpcToDaoBitcoinTxConverter()
     private val blockConverter = JsonRpcToDaoBitcoinBlockConverter()
@@ -29,10 +31,10 @@ class JsonRpcBlockToBitcoinBundleConverter(
 
     fun convertToBundle(jsonRpcBlock: JsonRpcBitcoinBlock): BitcoinBlockBundle {
 
-        jsonRpcBlock.tx.forEach { tx -> txCache?.put(tx.txid, BitcoinCacheTx(tx)) }
+        updateTxOutputCache(jsonRpcBlock)
 
-        val inputTransactions = getTransactionsInputs(jsonRpcBlock)
-        val transactions = transactionConverter.convertToDaoTransactions(jsonRpcBlock, inputTransactions)
+        val linkedOutputs = getLinkedOutputs(jsonRpcBlock)
+        val transactions = transactionConverter.convertToDaoTransactions(jsonRpcBlock, linkedOutputs)
         val block = blockConverter.convertToDaoBlock(jsonRpcBlock, transactions)
 
         return BitcoinBlockBundle(
@@ -42,35 +44,49 @@ class JsonRpcBlockToBitcoinBundleConverter(
         )
     }
 
+    private fun updateTxOutputCache(jsonRpcBlock: JsonRpcBitcoinBlock) {
+        jsonRpcBlock.tx.forEach { tx ->
+            tx.vout.forEach { out ->
+                txOutputCache?.put((tx.txid to out.n).txOutputCacheKey(), BitcoinCacheTxOutput(tx.txid, out))
+            }
+        }
+    }
 
-    private fun getTransactionsInputs(jsonRpcBlock: JsonRpcBitcoinBlock): List<BitcoinCacheTx> {
 
-        val incomingNonCoinbaseTransactionsIds = jsonRpcBlock.tx
+    private fun getLinkedOutputs(jsonRpcBlock: JsonRpcBitcoinBlock): List<BitcoinCacheTxOutput> {
+
+        val incomingNonCoinbaseTxsLinkedOutputsIds = jsonRpcBlock.tx
                 .flatMap { transaction -> transaction.vin }
                 .filter { txInput -> txInput is RegularTransactionInput }
-                .map { txInput -> (txInput as RegularTransactionInput).txid }
+                .map { txInput -> (txInput as RegularTransactionInput).txid to txInput.vout }
 
-        if (incomingNonCoinbaseTransactionsIds.isEmpty()) return emptyList()
+        if (incomingNonCoinbaseTxsLinkedOutputsIds.isEmpty()) return emptyList()
 
-        val uniqueTxIds = incomingNonCoinbaseTransactionsIds.toSet()
-        if (txCache != null) {
+        if (txOutputCache != null) {
 
-            val txs = mutableListOf<BitcoinCacheTx>()
-            val idsWithoutCacheHit = mutableListOf<String>()
+            val outputsFromCache = mutableListOf<BitcoinCacheTxOutput>()
+            val outputsIdsWithoutCacheHit = mutableListOf<Pair<String, Int>>()
 
-            for (id in uniqueTxIds) {
-                val tx = txCache[id]
-                if (tx != null) txs.add(tx) else idsWithoutCacheHit.add(id)
+            for (txOutputId in incomingNonCoinbaseTxsLinkedOutputsIds) {
+                val output = txOutputCache[txOutputId.txOutputCacheKey()]
+                if (output != null) {
+                    outputsFromCache.add(output)
+                    txOutputCache.remove(txOutputId.txOutputCacheKey())
+                } else outputsIdsWithoutCacheHit.add(txOutputId)
             }
 
-            log.debug("Transactions - Total ids: ${uniqueTxIds.size}, Cache hits: ${txs.size}")
-            totalInputTxes.set(uniqueTxIds.size.toLong())
-            inputTxesFromCache.set(txs.size.toLong())
+            log.debug("Transactions outputs - Total ids: ${incomingNonCoinbaseTxsLinkedOutputsIds.size}," +
+                " Cache hits: ${outputsFromCache.size}")
+            totalLinkedOutputs.set(incomingNonCoinbaseTxsLinkedOutputsIds.size.toLong())
+            linkedOutputsFromCache.set(outputsFromCache.size.toLong())
 
-            txs.addAll(client.getTxes(idsWithoutCacheHit).map { tx -> BitcoinCacheTx(tx) })
-            return txs
+            val nonCacheOutputs = client.getTxes(outputsIdsWithoutCacheHit.map { out -> out.first }.toSet())
+                .flatMap { tx -> tx.vout.map { out -> BitcoinCacheTxOutput(tx.txid, out) } }
+            return outputsFromCache + nonCacheOutputs
         }
 
-        return client.getTxes(uniqueTxIds).map { tx -> BitcoinCacheTx(tx) }
+        return client
+            .getTxes(incomingNonCoinbaseTxsLinkedOutputsIds.map { out -> out.first }.toSet())
+            .flatMap { tx -> tx.vout.map { out -> BitcoinCacheTxOutput(tx.txid, out) } }
     }
 }

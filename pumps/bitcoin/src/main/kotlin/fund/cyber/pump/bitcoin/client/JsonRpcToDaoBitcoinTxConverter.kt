@@ -1,7 +1,7 @@
 package fund.cyber.pump.bitcoin.client
 
 import fund.cyber.common.sum
-import fund.cyber.search.model.bitcoin.BitcoinCacheTx
+import fund.cyber.search.model.bitcoin.BitcoinCacheTxOutput
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.bitcoin.BitcoinTxIn
 import fund.cyber.search.model.bitcoin.BitcoinTxOut
@@ -36,17 +36,18 @@ class JsonRpcToDaoBitcoinTxConverter {
 
     /**
      * @param jsonRpcBlock block to obtain transactions to convert
-     * @param inputs should contains all inputs from transactions included in [jsonRpcBlock]
-     * @throws NullPointerException if [inputs] doesn't contain input for any transaction from [jsonRpcBlock]
+     * @param linkedOutputs should contain all outputs linked from transactions inputs included in [jsonRpcBlock]
+     * @throws NullPointerException if [linkedOutputs] doesn't contain output even for one transaction input
+     *  from [jsonRpcBlock]
      */
     fun convertToDaoTransactions(
-        jsonRpcBlock: JsonRpcBitcoinBlock, inputs: List<BitcoinCacheTx>): List<BitcoinTx> {
+        jsonRpcBlock: JsonRpcBitcoinBlock, linkedOutputs: List<BitcoinCacheTxOutput>): List<BitcoinTx> {
 
-        val inputsByIds = inputs.associateBy { tx -> tx.txid }.toMutableMap()
+        val outputsByIds = linkedOutputs.associateBy { out -> (out.txid to out.n) }.toMutableMap()
 
         return jsonRpcBlock.tx
             .mapIndexed { index, btcdTransaction ->
-                convertToDaoTransaction(btcdTransaction, inputsByIds, jsonRpcBlock, index)
+                convertToDaoTransaction(btcdTransaction, outputsByIds, jsonRpcBlock, index)
             }
     }
 
@@ -54,11 +55,12 @@ class JsonRpcToDaoBitcoinTxConverter {
     /**
      * @param jsonRpcBlock block to obtain transaction's block fields
      * @param jsonRpcTransaction transaction to convert
-     * @param inputsByIds should contains all inputs for [jsonRpcTransaction]
-     * @throws NullPointerException if [inputsByIds] doesn't contain any input for [jsonRpcTransaction]
+     * @param outputsByIds should contain all outputs linked from tx inputs for [jsonRpcTransaction]
+     * @throws NullPointerException if [outputsByIds] doesn't contain output even for one transaction input
+     * from [jsonRpcBlock]
      */
     fun convertToDaoTransaction(
-        jsonRpcTransaction: JsonRpcBitcoinTransaction, inputsByIds: Map<String, BitcoinCacheTx>,
+        jsonRpcTransaction: JsonRpcBitcoinTransaction, outputsByIds: Map<Pair<String, Int>, BitcoinCacheTxOutput>,
         jsonRpcBlock: JsonRpcBitcoinBlock, txIndex: Int): BitcoinTx {
 
         val firstInput = jsonRpcTransaction.vin.first()
@@ -68,7 +70,7 @@ class JsonRpcToDaoBitcoinTxConverter {
             return convertToCoinbaseTransaction(jsonRpcTransaction, jsonRpcBlock)
         }
 
-        val ins = convertToDaoTransactionInput(jsonRpcTransaction.regularInputs(), inputsByIds)
+        val ins = convertToDaoTransactionInput(jsonRpcTransaction.regularInputs(), outputsByIds)
         val outputs = jsonRpcTransaction.vout.map(this::convertToDaoTransactionOutput)
 
         val totalInput = ins.map { input -> input.amount }.sum()
@@ -113,15 +115,15 @@ class JsonRpcToDaoBitcoinTxConverter {
      *   we should use earlier transactions outputs defined by transaction hash and output number.
      *
      * @param txIns json rpc transaction inputs
-     * @param inputsByIds should contains all inputs define in [txIns]
-     * @throws NullPointerException if [inputsByIds] doesn't contain any input defined in [txIns]
+     * @param outputsByIds should contains all outputs linked from [txIns]
+     * @throws NullPointerException if [outputsByIds] doesn't contain even one output linked from [txIns]
      */
     fun convertToDaoTransactionInput(txIns: List<RegularTransactionInput>,
-                                     inputsByIds: Map<String, BitcoinCacheTx>): List<BitcoinTxIn> {
+                                     outputsByIds: Map<Pair<String, Int>, BitcoinCacheTxOutput>): List<BitcoinTxIn> {
 
         return txIns.map { (txid, vout, scriptSig) ->
             log.trace("looking for $txid transaction and output $vout")
-            val daoTxOut = inputsByIds[txid]!!.getOutputByNumber(vout)
+            val daoTxOut = outputsByIds[txid to vout]!!
             BitcoinTxIn(
                 contracts = daoTxOut.addresses, amount = daoTxOut.value,
                 asm = scriptSig.asm, txHash = txid, txOut = vout
