@@ -34,8 +34,8 @@ class TxDumpProcessTest {
         val txC = EthereumTx(
                 hash = "C",
                 nonce = 0, blockHash = "C",
-                blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
-                from = "a", to = "b", firstSeenTime = Instant.now(),
+                blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
+                from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
@@ -43,8 +43,8 @@ class TxDumpProcessTest {
         val txD = EthereumTx(
                 hash = "D",
                 nonce = 0, blockHash = "D",
-                blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
-                from = "a", to = "b", firstSeenTime = Instant.now(),
+                blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
+                from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
@@ -52,8 +52,8 @@ class TxDumpProcessTest {
         val txE = EthereumTx(
                 hash = "E",
                 nonce = 0, blockHash = "E",
-                blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
-                from = "a", to = "b", firstSeenTime = Instant.now(),
+                blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
+                from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
@@ -61,8 +61,8 @@ class TxDumpProcessTest {
         val txF = EthereumTx(
                 hash = "F",
                 nonce = 0, blockHash = "F",
-                blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
-                from = "a", to = "b", firstSeenTime = Instant.now(),
+                blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
+                from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
@@ -70,8 +70,8 @@ class TxDumpProcessTest {
         val txG = EthereumTx(
                 hash = "G",
                 nonce = 0, blockHash = "G",
-                blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
-                from = "a", to = "b", firstSeenTime = Instant.now(),
+                blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
+                from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
@@ -79,8 +79,8 @@ class TxDumpProcessTest {
         val txH = EthereumTx(
                 hash = "H",
                 nonce = 0, blockHash = "H",
-                blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
-                from = "a", to = "b", firstSeenTime = Instant.now(),
+                blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
+                from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
@@ -88,8 +88,8 @@ class TxDumpProcessTest {
         val txI = EthereumTx(
                 hash = "I",
                 nonce = 0, blockHash = "I",
-                blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
-                from = "a", to = "b", firstSeenTime = Instant.now(),
+                blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
+                from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
@@ -115,6 +115,7 @@ class TxDumpProcessTest {
         val txRepository = mock<EthereumTxRepository> {
             on { saveAll(any<Iterable<CqlEthereumTx>>()) }.thenReturn(Flux.empty())
             on { deleteAll(any<Iterable<CqlEthereumTx>>()) }.thenReturn(Mono.empty())
+            on { findAllById(any<Iterable<String>>()) }.thenReturn(Flux.empty())
         }
         val blockTxRepository = mock<EthereumBlockTxRepository> {
             on { saveAll(any<Iterable<CqlEthereumBlockTxPreview>>()) }.thenReturn(Flux.empty())
@@ -132,27 +133,27 @@ class TxDumpProcessTest {
 
 
         verify(txRepository, times(1))
-                .saveAll(listOf(CqlEthereumTx(txD), CqlEthereumTx(txE),
-                        CqlEthereumTx(txG), CqlEthereumTx(txI)))
-        verify(txRepository, times(1))
-                .deleteAll(listOf(CqlEthereumTx(txF), CqlEthereumTx(txC)))
+                .saveAll(
+                    listOf(
+                        CqlEthereumTx(txH.mempoolState()), CqlEthereumTx(txF.mempoolState()),
+                        CqlEthereumTx(txC.mempoolState()), CqlEthereumTx(txD), CqlEthereumTx(txE),
+                        CqlEthereumTx(txG), CqlEthereumTx(txI)
+                    )
+                )
 
         verify(blockTxRepository, times(1))
-                .saveAll(listOf(CqlEthereumBlockTxPreview(txD), CqlEthereumBlockTxPreview(txE),
-                        CqlEthereumBlockTxPreview(txG), CqlEthereumBlockTxPreview(txI)))
-        verify(blockTxRepository, times(1))
-                .deleteAll(listOf(CqlEthereumBlockTxPreview(txF), CqlEthereumBlockTxPreview(txC)))
+                .saveAll(
+                    listOf(
+                        CqlEthereumBlockTxPreview(txH.mempoolState()), CqlEthereumBlockTxPreview(txF.mempoolState()),
+                        CqlEthereumBlockTxPreview(txC.mempoolState()), CqlEthereumBlockTxPreview(txD),
+                        CqlEthereumBlockTxPreview(txE), CqlEthereumBlockTxPreview(txG), CqlEthereumBlockTxPreview(txI)
+                    )
+
+                )
 
         verify(contractTxRepository, times(1))
                 .saveAll(
-                        listOf(txD, txE, txG, txI)
-                                .flatMap { tx ->
-                                    tx.contractsUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) }
-                                }
-                )
-        verify(contractTxRepository, times(1))
-                .deleteAll(
-                        listOf(txF, txC)
+                        listOf(txH.mempoolState(), txF.mempoolState(), txC.mempoolState(), txD, txE, txG, txI)
                                 .flatMap { tx ->
                                     tx.contractsUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) }
                                 }

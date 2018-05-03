@@ -42,6 +42,7 @@ data class CqlEthereumContractTxPreview(
         val blockTime: Instant?,
         @PrimaryKeyColumn(ordinal = 2, type = PrimaryKeyType.CLUSTERED) val hash: String,
         val fee: BigDecimal,
+        @Column("first_seen_time") val firstSeenTime: Instant,
         @Column(forceQuote = true) val from: String,
         @Column(forceQuote = true) val to: String,
         val value: String
@@ -51,7 +52,7 @@ data class CqlEthereumContractTxPreview(
     constructor(tx: EthereumTx, contractHash: String) : this(
             hash = tx.hash, contractHash = contractHash, blockTime = tx.blockTime,
             from = tx.from, to = (tx.to ?: tx.createdSmartContract)!!,
-            value = tx.value.toString(), fee = tx.fee
+            value = tx.value.toString(), fee = tx.fee, firstSeenTime = tx.firstSeenTime
     )
 }
 

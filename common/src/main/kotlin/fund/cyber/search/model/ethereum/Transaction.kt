@@ -25,5 +25,13 @@ data class EthereumTx(
         val createdSmartContract: String?            //creates contract hash
 ) : PoolItem {
     fun contractsUsedInTransaction() = listOfNotNull(from, to, createdSmartContract)
-            .filter { contract -> contract.isNotEmpty() }
+        .filter { contract -> contract.isNotEmpty() }
+
+    fun mempoolState() = EthereumTx(
+        hash = this.hash, nonce = this.nonce, blockHash = null, blockNumber = -1,
+        blockTime = null, positionInBlock = -1, from = this.from, to = this.to,
+        value = this.value, gasPrice = this.gasPrice, gasLimit = this.gasLimit,
+        gasUsed = 0, fee = this.gasPrice * this.gasLimit.toBigDecimal(), input = this.input,
+        createdSmartContract = this.createdSmartContract, firstSeenTime = this.firstSeenTime
+    )
 }

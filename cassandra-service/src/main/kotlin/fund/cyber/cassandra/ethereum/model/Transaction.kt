@@ -15,6 +15,7 @@ data class CqlEthereumTx(
         val nonce: Long,
         @Column("block_hash") val blockHash: String?,
         @Column("block_number") val blockNumber: Long,
+        @Column("first_seen_time") val firstSeenTime: Instant,
         @Column("block_time") val blockTime: Instant?,
         @Column(forceQuote = true) val from: String,
         @Column(forceQuote = true) val to: String?,
@@ -29,7 +30,7 @@ data class CqlEthereumTx(
 
     constructor(tx: EthereumTx) : this(
             hash = tx.hash, nonce = tx.nonce, blockHash = tx.blockHash, blockNumber = tx.blockNumber,
-            blockTime = tx.blockTime, from = tx.from, to = tx.to,
+            blockTime = tx.blockTime, from = tx.from, to = tx.to, firstSeenTime = tx.firstSeenTime,
             value = tx.value.toString(), gasPrice = tx.gasPrice, gasLimit = tx.gasLimit, gasUsed = tx.gasUsed,
             fee = tx.fee.toString(), input = tx.input, createdContract = tx.createdSmartContract
 

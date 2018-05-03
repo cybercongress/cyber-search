@@ -19,43 +19,38 @@ import java.util.concurrent.atomic.AtomicLong
 
 
 class UncleDumpProcess(
-        private val uncleRepository: EthereumUncleRepository,
-        private val contractUncleRepository: EthereumContractUncleRepository,
-        private val chain: EthereumFamilyChain,
-        private val monitoring: MeterRegistry
+    private val uncleRepository: EthereumUncleRepository,
+    private val contractUncleRepository: EthereumContractUncleRepository,
+    private val chain: EthereumFamilyChain,
+    monitoring: MeterRegistry
 ) : BatchMessageListener<PumpEvent, EthereumUncle> {
 
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
 
-    private lateinit var topicCurrentOffsetMonitor: AtomicLong
-
+    private var topicCurrentOffsetMonitor: AtomicLong = monitoring.gauge("dump_topic_current_offset",
+        Tags.of("topic", chain.unclePumpTopic), AtomicLong(0))!!
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, EthereumUncle>>) {
 
         log.info("Dumping batch of ${records.size} $chain uncles from offset ${records.first().offset()}")
 
         val recordsToProcess = records.toRecordEventsMap()
-                .filterNotContainsAllEventsOf(listOf(PumpEvent.NEW_BLOCK, PumpEvent.DROPPED_BLOCK))
+            .filterNotContainsAllEventsOf(listOf(PumpEvent.NEW_BLOCK, PumpEvent.DROPPED_BLOCK))
 
         val unclesToCommit = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.NEW_BLOCK) }.keys
         val unclesToRevert = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.DROPPED_BLOCK) }.keys
 
-        uncleRepository.saveAll(unclesToCommit.map { uncle -> CqlEthereumUncle(uncle) }).collectList().block()
         uncleRepository.deleteAll(unclesToRevert.map { uncle -> CqlEthereumUncle(uncle) }).block()
+        uncleRepository.saveAll(unclesToCommit.map { uncle -> CqlEthereumUncle(uncle) }).collectList().block()
 
         contractUncleRepository
-                .saveAll(unclesToCommit.map { uncle -> CqlEthereumContractMinedUncle(uncle) })
-                .collectList().block()
+            .deleteAll(unclesToRevert.map { uncle -> CqlEthereumContractMinedUncle(uncle) })
+            .block()
         contractUncleRepository
-                .deleteAll(unclesToRevert.map { uncle -> CqlEthereumContractMinedUncle(uncle) })
-                .block()
+            .saveAll(unclesToCommit.map { uncle -> CqlEthereumContractMinedUncle(uncle) })
+            .collectList().block()
 
-        if (::topicCurrentOffsetMonitor.isInitialized) {
-            topicCurrentOffsetMonitor.set(records.last().offset())
-        } else {
-            topicCurrentOffsetMonitor = monitoring.gauge("dump_topic_current_offset",
-                    Tags.of("topic", chain.unclePumpTopic), AtomicLong(records.last().offset()))!!
-        }
+        topicCurrentOffsetMonitor.set(records.last().offset())
 
     }
 }
