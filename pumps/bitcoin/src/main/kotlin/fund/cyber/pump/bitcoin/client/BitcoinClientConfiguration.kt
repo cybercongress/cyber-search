@@ -44,7 +44,7 @@ class BitcoinClientConfiguration {
     fun kafkaTopicNames(): List<String> = listOf(chain.txPumpTopic, chain.blockPumpTopic)
 
     @Bean
-    fun txCache(
+    fun txOutputCache(
         cacheManager: CacheManager
     ): Cache<String, BitcoinCacheTxOutput> {
         return cacheManager.getCache("bitcoin.tx.outputs", String::class.java, BitcoinCacheTxOutput::class.java)
