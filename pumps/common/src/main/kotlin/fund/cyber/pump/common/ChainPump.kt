@@ -41,8 +41,7 @@ class ChainPump<T : BlockBundle>(
 
     fun startPump() {
 
-        val lastPumpedBlockNumber = lastBlockNumber()
-        val startBlockNumber = lastPumpedBlockNumber + 1
+        val startBlockNumber = startBlockNumber()
 
         log.info("Start block number is $startBlockNumber")
         initializeStreamProcessing(startBlockNumber)
@@ -87,7 +86,7 @@ class ChainPump<T : BlockBundle>(
 
     private fun initializeStackCache() = StackCache<T>(stackCacheSize)
 
-    private fun lastBlockNumber(): Long {
+    private fun startBlockNumber(): Long {
         return System.getenv(START_BLOCK_NUMBER)?.toLong() ?: (lastPumpedBlockNumber()?.plus(1) ?: 0)
     }
 

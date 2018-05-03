@@ -19,48 +19,43 @@ import java.util.concurrent.atomic.AtomicLong
 
 
 class BlockDumpProcess(
-        private val blockRepository: EthereumBlockRepository,
-        private val contractMinedBlockRepository: EthereumContractMinedBlockRepository,
-        private val chain: EthereumFamilyChain,
-        private val monitoring: MeterRegistry
+    private val blockRepository: EthereumBlockRepository,
+    private val contractMinedBlockRepository: EthereumContractMinedBlockRepository,
+    private val chain: EthereumFamilyChain,
+    monitoring: MeterRegistry
 ) : BatchMessageListener<PumpEvent, EthereumBlock> {
 
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
 
-    private lateinit var topicCurrentOffsetMonitor: AtomicLong
+    private var topicCurrentOffsetMonitor: AtomicLong = monitoring.gauge("dump_topic_current_offset",
+        Tags.of("topic", chain.blockPumpTopic), AtomicLong(0))!!
 
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, EthereumBlock>>) {
 
-        val first = records.first()
-        val last = records.last()
-        log.info("Dumping batch of ${first.value().number}-${last.value().number} $chain blocks")
+        log.info("Dumping batch of ${records.size} $chain blocks from offset ${records.first().offset()}")
 
         val recordsToProcess = records.toRecordEventsMap()
-                .filterNotContainsAllEventsOf(listOf(PumpEvent.NEW_BLOCK, PumpEvent.DROPPED_BLOCK))
+            .filterNotContainsAllEventsOf(listOf(PumpEvent.NEW_BLOCK, PumpEvent.DROPPED_BLOCK))
 
         val blocksToCommit = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.NEW_BLOCK) }.keys
         val blocksToRevert = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.DROPPED_BLOCK) }.keys
 
-        blockRepository
-                .saveAll(blocksToCommit.map { block -> CqlEthereumBlock(block) })
-                .collectList().block()
+
         blockRepository.deleteAll(blocksToRevert.map { block -> CqlEthereumBlock(block) })
-                .block()
+            .block()
+        blockRepository
+            .saveAll(blocksToCommit.map { block -> CqlEthereumBlock(block) })
+            .collectList().block()
 
         contractMinedBlockRepository
-                .saveAll(blocksToCommit.map { block -> CqlEthereumContractMinedBlock(block) })
-                .collectList().block()
+            .deleteAll(blocksToRevert.map { block -> CqlEthereumContractMinedBlock(block) })
+            .block()
         contractMinedBlockRepository
-                .deleteAll(blocksToRevert.map { block -> CqlEthereumContractMinedBlock(block) })
-                .block()
+            .saveAll(blocksToCommit.map { block -> CqlEthereumContractMinedBlock(block) })
+            .collectList().block()
 
-        if (::topicCurrentOffsetMonitor.isInitialized) {
-            topicCurrentOffsetMonitor.set(records.last().offset())
-        } else {
-            topicCurrentOffsetMonitor = monitoring.gauge("dump_topic_current_offset",
-                    Tags.of("topic", chain.blockPumpTopic), AtomicLong(records.last().offset()))!!
-        }
+        topicCurrentOffsetMonitor.set(records.last().offset())
 
     }
 }
