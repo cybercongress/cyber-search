@@ -20,7 +20,6 @@ data class JsonRpcBitcoinBlock(
         val weight: Int,
         val version: Int,
         val merkleroot: String,
-//        val rawtx: List<JsonRpcBitcoinTransaction> = emptyList(),
         val tx: List<JsonRpcBitcoinTransaction> = emptyList(),
         val time: Long,
         val nonce: Long,
