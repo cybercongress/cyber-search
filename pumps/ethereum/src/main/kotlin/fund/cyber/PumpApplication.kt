@@ -3,6 +3,7 @@ package fund.cyber
 import fund.cyber.pump.common.ChainPump
 import fund.cyber.pump.common.pool.PoolPump
 import fund.cyber.search.configuration.CHAIN
+import fund.cyber.search.configuration.WITH_MEMPOOL
 import fund.cyber.search.configuration.env
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import org.slf4j.LoggerFactory
@@ -32,11 +33,13 @@ class EthereumPumpApplication {
 
             val applicationContext = application.run(*args)
 
-            try {
-                val poolPump = applicationContext.getBean(PoolPump::class.java)
-                poolPump.startPump()
-            } catch (e: NoSuchBeanDefinitionException) {
-                log.error("No pump for pool found!")
+            if (env(WITH_MEMPOOL, false)) {
+                try {
+                    val poolPump = applicationContext.getBean(PoolPump::class.java)
+                    poolPump.startPump()
+                } catch (e: NoSuchBeanDefinitionException) {
+                    log.error("No pump for pool found!")
+                }
             }
 
             val pump = applicationContext.getBean(ChainPump::class.java)

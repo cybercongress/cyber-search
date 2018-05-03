@@ -37,6 +37,8 @@ const val START_BLOCK_NUMBER_DEFAULT = -2L
 const val STACK_CACHE_SIZE = "STACK_CACHE_SIZE"
 const val STACK_CACHE_SIZE_DEFAULT = 100
 
+const val WITH_MEMPOOL = "WITH_MEMPOOL"
+
 
 inline fun <reified T : Any> env(name: String, default: T): T =
         when (T::class) {
