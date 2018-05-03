@@ -9,7 +9,6 @@ import fund.cyber.pump.common.node.FlowableBlockchainInterface
 import fund.cyber.search.configuration.STACK_CACHE_SIZE
 import fund.cyber.search.configuration.STACK_CACHE_SIZE_DEFAULT
 import fund.cyber.search.configuration.START_BLOCK_NUMBER
-import fund.cyber.search.configuration.START_BLOCK_NUMBER_DEFAULT
 import fund.cyber.search.model.events.PumpEvent
 import io.micrometer.core.instrument.DistributionSummary
 import io.micrometer.core.instrument.MeterRegistry
@@ -34,8 +33,6 @@ class ChainPump<T : BlockBundle>(
         private val kafkaBlockBundleProducer: KafkaBlockBundleProducer<T>,
         private val lastPumpedBundlesProvider: LastPumpedBundlesProvider<T>,
         private val monitoring: MeterRegistry,
-        @Value("\${$START_BLOCK_NUMBER:$START_BLOCK_NUMBER_DEFAULT}")
-        private val startBlockNumber: Long,
         @Value("\${$STACK_CACHE_SIZE:$STACK_CACHE_SIZE_DEFAULT}")
         private val stackCacheSize: Int,
         private val blockBundleEventGenerator: BlockBundleEventGenerator<T>,
@@ -91,10 +88,9 @@ class ChainPump<T : BlockBundle>(
     private fun initializeStackCache() = StackCache<T>(stackCacheSize)
 
     private fun lastBlockNumber(): Long {
-        return if (startBlockNumber == START_BLOCK_NUMBER_DEFAULT)
-            lastPumpedBundlesProvider.getLastBlockBundles().firstOrNull()?.second?.number ?: -1
-        else
-            startBlockNumber
+        return System.getenv(START_BLOCK_NUMBER)?.toLong() ?: (lastPumpedBlockNumber()?.plus(1) ?: 0)
     }
+
+    private fun lastPumpedBlockNumber() = lastPumpedBundlesProvider.getLastBlockBundles().firstOrNull()?.second?.number
 
 }

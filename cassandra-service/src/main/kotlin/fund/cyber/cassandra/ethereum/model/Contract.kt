@@ -39,7 +39,7 @@ data class CqlEthereumContractTxPreview(
         @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED, value = "contract_hash")
         val contractHash: String,
         @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = DESCENDING, name = "block_time")
-        val blockTime: Instant,
+        val blockTime: Instant?,
         @PrimaryKeyColumn(ordinal = 2, type = PrimaryKeyType.CLUSTERED) val hash: String,
         val fee: BigDecimal,
         @Column(forceQuote = true) val from: String,

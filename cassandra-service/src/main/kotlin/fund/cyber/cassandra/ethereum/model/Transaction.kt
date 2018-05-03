@@ -15,7 +15,7 @@ data class CqlEthereumTx(
         val nonce: Long,
         @Column("block_hash") val blockHash: String?,
         @Column("block_number") val blockNumber: Long,
-        @Column("block_time") val blockTime: Instant,
+        @Column("block_time") val blockTime: Instant?,
         @Column(forceQuote = true) val from: String,
         @Column(forceQuote = true) val to: String?,
         val value: String,

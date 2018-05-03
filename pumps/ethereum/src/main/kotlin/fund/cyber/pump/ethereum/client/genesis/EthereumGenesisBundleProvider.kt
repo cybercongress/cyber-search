@@ -56,6 +56,7 @@ class EthereumGenesisDataFileProvider(
                             gasUsed = 0,
                             gasLimit = 0,
                             fee = BigDecimal.ZERO,
+                            firstSeenTime = Instant.parse("2015-07-30T15:26:13Z"),
                             blockTime = Instant.parse("2015-07-30T15:26:13Z"),
                             input = "",
                             createdSmartContract = null

@@ -35,7 +35,7 @@ class TxDumpProcessTest {
                 hash = "C",
                 nonce = 0, blockHash = "C",
                 blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
-                from = "a", to = "b",
+                from = "a", to = "b", firstSeenTime = Instant.now(),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
@@ -44,7 +44,7 @@ class TxDumpProcessTest {
                 hash = "D",
                 nonce = 0, blockHash = "D",
                 blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
-                from = "a", to = "b",
+                from = "a", to = "b", firstSeenTime = Instant.now(),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
@@ -53,7 +53,7 @@ class TxDumpProcessTest {
                 hash = "E",
                 nonce = 0, blockHash = "E",
                 blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
-                from = "a", to = "b",
+                from = "a", to = "b", firstSeenTime = Instant.now(),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
@@ -62,7 +62,7 @@ class TxDumpProcessTest {
                 hash = "F",
                 nonce = 0, blockHash = "F",
                 blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
-                from = "a", to = "b",
+                from = "a", to = "b", firstSeenTime = Instant.now(),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
@@ -71,7 +71,7 @@ class TxDumpProcessTest {
                 hash = "G",
                 nonce = 0, blockHash = "G",
                 blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
-                from = "a", to = "b",
+                from = "a", to = "b", firstSeenTime = Instant.now(),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
@@ -80,7 +80,7 @@ class TxDumpProcessTest {
                 hash = "H",
                 nonce = 0, blockHash = "H",
                 blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
-                from = "a", to = "b",
+                from = "a", to = "b", firstSeenTime = Instant.now(),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
@@ -89,7 +89,7 @@ class TxDumpProcessTest {
                 hash = "I",
                 nonce = 0, blockHash = "I",
                 blockNumber = 4959189, blockTime = Instant.now(), positionInBlock = 1,
-                from = "a", to = "b",
+                from = "a", to = "b", firstSeenTime = Instant.now(),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
         )
