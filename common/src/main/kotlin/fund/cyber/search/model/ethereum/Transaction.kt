@@ -11,7 +11,8 @@ data class EthereumTx(
         val nonce: Long,                //parsed from hex
         val blockHash: String?,        //null when its pending
         val blockNumber: Long,         //parsed from hex   //null when its pending
-        val blockTime: Instant,
+        val firstSeenTime: Instant,
+        val blockTime: Instant?,
         val positionInBlock: Int,       //txes from one block ordering field
         val from: String,
         val to: String?,                //null when its a contract creation transaction.

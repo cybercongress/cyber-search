@@ -48,6 +48,7 @@ class EthereumTxDeltaProcessorTest {
     private val tx = EthereumTx(
             hash = "0x64c95bb2b75068ae92c36c5e3888e61af5de4398dd6eab64013cc1f96fd2ccf3",
             nonce = 0, blockHash = "0x97bda148dc1c0181bfca62d0af4443e736a65c8b2909062abd8c8c6aa9e62d85",
+            firstSeenTime = Instant.ofEpochMilli(100000),
             blockNumber = 4959189, blockTime = Instant.ofEpochMilli(100000), positionInBlock = 1,
             from = "0x4585c7eaa2cb96d4b59e868929efabeeb8e65b07", to = "0x39a629145280fd28b74b878e44d6fed7bd4dffe5",
             value = BigDecimal("0.8"), gasPrice = BigDecimal("0.000000023"), gasLimit = 21000L,
