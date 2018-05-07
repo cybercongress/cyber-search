@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.0] - Ethereum mempool indexation
+### Added
+- [#135](/../../issues/135) Ethereum mempool indexation pump
+- [#136](/../../issues/136) Ethereum mempool transactions dump
+- [#116](/../../issues/116) Add Ethereum Pump/Dump Search Demo Quick Run
+### Fixed
+- [#82](/../../issues/82) Contract Summary Tx processing stucks
+- [#99](/../../issues/34) Bitcoin pump doesn't download blocks after 200k blocks
+
 ## [0.3.0] - Bitcoin pump, dump, contract summary
 ### Added
 - [#108](/../../issues/108) Create API for search results preview
@@ -16,7 +25,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - [#113](/../../issues/113) Make search API logic dependent of existing keyspaces
 - [#99](/../../issues/99) Pump stuck if chain reorganization bundles number exceed history stack size
-
 
 
 ## [0.2.0] - Ethereum chain reorganisation
