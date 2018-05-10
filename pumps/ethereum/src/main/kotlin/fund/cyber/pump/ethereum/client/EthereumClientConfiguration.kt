@@ -13,7 +13,7 @@ import org.apache.http.message.BasicHeader
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.web3j.protocol.Web3j
+import org.web3j.protocol.parity.Parity
 import org.web3j.protocol.http.HttpService
 
 const val MAX_PER_ROUTE = 16
@@ -41,7 +41,7 @@ class EthereumClientConfiguration {
             .build()!!
 
     @Bean
-    fun parityClient() = Web3j.build(HttpService(endpointUrl))!!
+    fun parityClient() = Parity.build(HttpService(endpointUrl))!!
 
     @Bean
     fun kafkaTopicNames(): List<String> = listOf(chain.txPumpTopic, chain.blockPumpTopic, chain.unclePumpTopic)

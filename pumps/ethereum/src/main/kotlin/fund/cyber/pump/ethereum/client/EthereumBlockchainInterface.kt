@@ -10,10 +10,11 @@ import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
 import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.stereotype.Component
-import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameter
 import org.web3j.protocol.core.methods.response.EthBlock
 import org.web3j.protocol.core.methods.response.TransactionReceipt
+import org.web3j.protocol.parity.Parity
+import org.web3j.protocol.parity.methods.response.Trace
 import java.math.BigInteger
 
 class EthereumBlockBundle(
@@ -29,7 +30,7 @@ class EthereumBlockBundle(
 
 @Component
 class EthereumBlockchainInterface(
-        private val parityClient: Web3j,
+        private val parityClient: Parity,
         private val parityToBundleConverter: ParityToEthereumBundleConverter,
         private val genesisDataProvider: EthereumGenesisDataProvider,
         monitoring: MeterRegistry
@@ -42,10 +43,9 @@ class EthereumBlockchainInterface(
     override fun blockBundleByNumber(number: Long): EthereumBlockBundle {
 
 
-        val downloadResult = downloadSpeedMonitor.recordCallable { downloadBundleData(number) }
+        val bundleRawData = downloadSpeedMonitor.recordCallable { downloadBundleData(number) }
 
-        val bundle = parityToBundleConverter
-            .convert(downloadResult.block, downloadResult.uncles, downloadResult.txsReceipts)
+        val bundle = parityToBundleConverter.convert(bundleRawData)
         return if (number == 0L) genesisDataProvider.provide(bundle) else bundle
     }
 
@@ -56,7 +56,7 @@ class EthereumBlockchainInterface(
         )
     }
 
-    private fun downloadBundleData(number: Long): DownloadBundleResult {
+    private fun downloadBundleData(number: Long): BundleRawData {
 
         val blockParameter = blockParameter(number.toBigInteger())
         val ethBlock = parityClient.ethGetBlockByNumber(blockParameter, true).send()
@@ -65,7 +65,9 @@ class EthereumBlockchainInterface(
 
         val txsReceipts = downloadTransactionReceiptData(ethBlock)
 
-        return DownloadBundleResult(ethBlock.block, uncles, txsReceipts)
+        val calls = parityClient.traceBlock(blockParameter).send().traces
+
+        return BundleRawData(ethBlock.block, uncles, txsReceipts, calls)
     }
 
     private fun downloadUnclesData(ethBlock: EthBlock): List<EthBlock.Block> {
@@ -90,8 +92,9 @@ class EthereumBlockchainInterface(
     private fun blockParameter(blockNumber: BigInteger) = DefaultBlockParameter.valueOf(blockNumber)!!
 }
 
-data class DownloadBundleResult(
+data class BundleRawData(
     val block: EthBlock.Block,
     val uncles: List<EthBlock.Block>,
-    val txsReceipts: List<TransactionReceipt>
+    val txsReceipts: List<TransactionReceipt>,
+    val calls: List<Trace>
 )

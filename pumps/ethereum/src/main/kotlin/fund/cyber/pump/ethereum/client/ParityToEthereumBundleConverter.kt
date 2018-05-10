@@ -15,28 +15,26 @@ import fund.cyber.search.model.ethereum.weiToEthRate
 import org.springframework.stereotype.Component
 import org.web3j.protocol.core.methods.response.EthBlock
 import org.web3j.protocol.core.methods.response.Transaction
-import org.web3j.protocol.core.methods.response.TransactionReceipt
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
 
 @Component
 class ParityToEthereumBundleConverter(
-        private val chain: EthereumFamilyChain
+    private val chain: EthereumFamilyChain
 ) {
 
-    fun convert(parityBlock: EthBlock.Block, uncles: List<EthBlock.Block>,
-                txsReceipts: List<TransactionReceipt>): EthereumBlockBundle {
-        val block = parityBlockToDao(parityBlock)
-        val blockUncles = parityUnclesToDao(block, uncles)
 
-        val transactions = parityTransactionsToDao(parityBlock, txsReceipts)
+    fun convert(rawData: BundleRawData): EthereumBlockBundle {
 
+        val block = parityBlockToDao(rawData.block)
+        val blockUncles = parityUnclesToDao(block, rawData.uncles)
+        val transactions = parityTransactionsToDao(rawData)
+        //todo parent hash test, reorganisation
         return EthereumBlockBundle(
-                hash = parityBlock.hash.toSearchHashFormat(),
-                parentHash = parityBlock.parentHash?.toSearchHashFormat() ?: "-1",
-                number = parityBlock.number.toLong(), block = block, uncles = blockUncles,
-                txes = transactions, blockSize = parityBlock.size.toInt()
+            hash = block.hash.toSearchHashFormat(), parentHash = block.parentHash.toSearchHashFormat(),
+            number = block.number, block = block, uncles = blockUncles,
+            txes = transactions, blockSize = block.size.toInt()
         )
     }
 
@@ -49,7 +47,7 @@ class ParityToEthereumBundleConverter(
             blockNumber = -1L, firstSeenTime = Instant.now(), blockTime = null,
             createdSmartContract = parityTx.creates?.toSearchHashFormat(), input = parityTx.input,
             positionInBlock = -1, gasLimit = parityTx.gasRaw.hexToLong(),
-            gasUsed = 0,
+            gasUsed = 0, trace = null,
             gasPrice = BigDecimal(parityTx.gasPrice) * weiToEthRate,
             fee = BigDecimal(parityTx.gasPrice * parityTx.gas) * weiToEthRate
         )
@@ -59,27 +57,28 @@ class ParityToEthereumBundleConverter(
         return uncles.mapIndexed { index, uncle ->
             val uncleNumber = uncle.number.toLong()
             EthereumUncle(
-                    miner = uncle.miner.toSearchHashFormat(), hash = uncle.hash.toSearchHashFormat(),
-                    number = uncleNumber, position = index,
-                    timestamp = Instant.ofEpochSecond(uncle.timestampRaw.hexToLong()),
-                    blockNumber = block.number, blockTime = block.timestamp,
-                    blockHash = block.hash.toSearchHashFormat(),
-                    uncleReward = getUncleReward(chain, uncleNumber, block.number)
+                miner = uncle.miner.toSearchHashFormat(), hash = uncle.hash.toSearchHashFormat(),
+                number = uncleNumber, position = index,
+                timestamp = Instant.ofEpochSecond(uncle.timestampRaw.hexToLong()),
+                blockNumber = block.number, blockTime = block.timestamp,
+                blockHash = block.hash.toSearchHashFormat(),
+                uncleReward = getUncleReward(chain, uncleNumber, block.number)
             )
         }
     }
 
-    private fun parityTransactionsToDao(parityBlock: EthBlock.Block,
-                                        txsReceipts: List<TransactionReceipt>): List<EthereumTx> {
+    private fun parityTransactionsToDao(rawData: BundleRawData): List<EthereumTx> {
 
-        val txReceiptIndex = txsReceipts.associateBy { receipt -> receipt.transactionHash!! }
+        val parityBlock = rawData.block
+        val txReceiptIndex = rawData.txsReceipts.associateBy { receipt -> receipt.transactionHash!! }
+        val tracesIndex = toTxesTraces(rawData.calls).associateBy { txTrace -> txTrace.txHash }
 
         return parityBlock.transactions
                 .filterIsInstance<EthBlock.TransactionObject>()
                 .mapIndexed { index, parityTx ->
                     val gasUsed = txReceiptIndex[parityTx.hash]!!.gasUsedRaw.hexToLong()
                     EthereumTx(
-                            from = parityTx.from.toSearchHashFormat(), to = parityTx.to.toSearchHashFormat(),
+                            from = parityTx.from.toSearchHashFormat(), to = parityTx.to?.toSearchHashFormat(),
                             nonce = parityTx.nonce.toLong(), value = BigDecimal(parityTx.value) * weiToEthRate,
                             hash = parityTx.hash.toSearchHashFormat(),
                             blockHash = parityBlock.hash.toSearchHashFormat(),
@@ -88,7 +87,7 @@ class ParityToEthereumBundleConverter(
                             blockTime = Instant.ofEpochSecond(parityBlock.timestampRaw.hexToLong()),
                             createdSmartContract = parityTx.creates?.toSearchHashFormat(), input = parityTx.input,
                             positionInBlock = index, gasLimit = parityTx.gasRaw.hexToLong(),
-                            gasUsed = gasUsed,
+                            gasUsed = gasUsed, trace = tracesIndex[parityTx.hash],
                             gasPrice = BigDecimal(parityTx.gasPrice) * weiToEthRate,
                             fee = BigDecimal(parityTx.gasPrice * gasUsed.toBigInteger()) * weiToEthRate
                     )

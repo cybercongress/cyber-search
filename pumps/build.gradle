@@ -44,5 +44,6 @@ project(":pumps:ethereum") {
         compile 'org.ehcache:ehcache'
         compile 'org.apache.httpcomponents:httpasyncclient'
         compile 'org.web3j:core'
+        compile 'org.web3j:parity'
     }
 }

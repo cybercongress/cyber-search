@@ -22,7 +22,8 @@ data class EthereumTx(
         val gasUsed: Long,             //parsed from hex
         val fee: BigDecimal,            //decimal //calculated
         val input: String,
-        val createdSmartContract: String?            //creates contract hash
+        val createdSmartContract: String?,            //creates contract hash
+        val trace: TxTrace?
 ) : PoolItem {
     fun contractsUsedInTransaction() = listOfNotNull(from, to, createdSmartContract)
         .filter { contract -> contract.isNotEmpty() }
@@ -32,6 +33,6 @@ data class EthereumTx(
         blockTime = null, positionInBlock = -1, from = this.from, to = this.to,
         value = this.value, gasPrice = this.gasPrice, gasLimit = this.gasLimit,
         gasUsed = 0, fee = this.gasPrice * this.gasLimit.toBigDecimal(), input = this.input,
-        createdSmartContract = this.createdSmartContract, firstSeenTime = this.firstSeenTime
+        createdSmartContract = this.createdSmartContract, firstSeenTime = this.firstSeenTime, trace = this.trace
     )
 }
