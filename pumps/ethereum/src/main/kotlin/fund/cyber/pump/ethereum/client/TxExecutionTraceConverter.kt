@@ -17,8 +17,8 @@ import java.util.*
 const val EMPTY_FIELD = "0x"
 
 /**
- * Trace is result of single "operation" inside transaction (ex: send eth to address inside smart contract method execution)
- * Parity return all traces for block as flatten list.
+ * Trace is result of single "operation" inside transaction (ex: send eth to address inside smart contract
+ *  method execution). Parity return all traces for block as flatten list.
  * Current method gathers flatten traces list into stacktrace tree for each transaction
  *
  */

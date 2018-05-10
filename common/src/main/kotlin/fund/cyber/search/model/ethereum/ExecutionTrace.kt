@@ -42,7 +42,8 @@ data class DestroyContractOperation(
 ) : Operation
 
 data class OperationResult(
-    val error: String?, //todo test field https://etherscan.io/tx/0x339eb2072aa91861a468e7799b4bff1c36b24c4d2d24bf52988fd52cd1cc4795
+    // https://etherscan.io/tx/0x339eb2072aa91861a468e7799b4bff1c36b24c4d2d24bf52988fd52cd1cc4795
+    val error: String?, //todo test field
     val address: String?, //todo wtf field?
     val code: String?,//todo wtf field?
     val gasUsed: Long?,

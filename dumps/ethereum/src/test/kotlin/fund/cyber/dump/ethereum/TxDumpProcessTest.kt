@@ -37,7 +37,7 @@ class TxDumpProcessTest {
                 blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
                 from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
-                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null, trace = null
         )
 
         val txD = EthereumTx(
@@ -46,7 +46,7 @@ class TxDumpProcessTest {
                 blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
                 from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
-                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null, trace = null
         )
 
         val txE = EthereumTx(
@@ -55,7 +55,7 @@ class TxDumpProcessTest {
                 blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
                 from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
-                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null, trace = null
         )
 
         val txF = EthereumTx(
@@ -64,7 +64,7 @@ class TxDumpProcessTest {
                 blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
                 from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
-                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null, trace = null
         )
 
         val txG = EthereumTx(
@@ -73,7 +73,7 @@ class TxDumpProcessTest {
                 blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
                 from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
-                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null, trace = null
         )
 
         val txH = EthereumTx(
@@ -82,7 +82,7 @@ class TxDumpProcessTest {
                 blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
                 from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
-                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null, trace = null
         )
 
         val txI = EthereumTx(
@@ -91,7 +91,7 @@ class TxDumpProcessTest {
                 blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
                 from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
                 value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
-                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null, trace = null
         )
 
 

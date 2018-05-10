@@ -52,7 +52,7 @@ class EthereumTxDeltaProcessorTest {
             blockNumber = 4959189, blockTime = Instant.ofEpochMilli(100000), positionInBlock = 1,
             from = "0x4585c7eaa2cb96d4b59e868929efabeeb8e65b07", to = "0x39a629145280fd28b74b878e44d6fed7bd4dffe5",
             value = BigDecimal("0.8"), gasPrice = BigDecimal("0.000000023"), gasLimit = 21000L,
-            gasUsed = 21000L, fee = BigDecimal("0.000483"), input = "", createdSmartContract = null
+            gasUsed = 21000L, fee = BigDecimal("0.000483"), input = "", createdSmartContract = null, trace = null
     )
 
     @Test
