@@ -40,7 +40,8 @@ CREATE TABLE IF NOT exists ethereum_classic.tx (
     gas_used bigint,
     fee text,
     input text,
-    created_contract text
+    created_contract text,
+    trace_json text
 );
 
 CREATE TABLE IF NOT exists ethereum_classic.tx_preview_by_contract (

@@ -33,6 +33,6 @@ data class EthereumTx(
         blockTime = null, positionInBlock = -1, from = this.from, to = this.to,
         value = this.value, gasPrice = this.gasPrice, gasLimit = this.gasLimit,
         gasUsed = 0, fee = this.gasPrice * this.gasLimit.toBigDecimal(), input = this.input,
-        createdSmartContract = this.createdSmartContract, firstSeenTime = this.firstSeenTime, trace = this.trace
+        createdSmartContract = this.createdSmartContract, firstSeenTime = this.firstSeenTime, trace = null
     )
 }

@@ -14,3 +14,4 @@ class SearchApiApplication
 fun main(args: Array<String>) {
     runApplication<SearchApiApplication>(*args)
 }
+//todo everywhere 404 if object not found

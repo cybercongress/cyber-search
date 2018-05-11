@@ -16,7 +16,6 @@ import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.RouterFunctions
 import org.springframework.web.reactive.function.server.ServerResponse
 
-
 @Configuration
 @DependsOn("ethereum-cassandra-repositories")
 class EthereumTxHandlersConfiguration {
@@ -36,6 +35,7 @@ class EthereumTxHandlersConfiguration {
                 val hash = request.pathVariable("hash")
                 val tx = txRepository.findById(hash.toSearchHashFormat())
                 ServerResponse.ok().body(tx, CqlEthereumTx::class.java)
+                    .switchIfEmpty(ServerResponse.notFound().build())
             }
             RouterFunctions.route(RequestPredicates.path("/${chainName.toLowerCase()}/tx/{hash}"), txByHash)
         }.asSingleRouterFunction()

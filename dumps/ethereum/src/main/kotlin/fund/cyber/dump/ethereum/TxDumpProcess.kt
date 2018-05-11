@@ -1,11 +1,11 @@
 package fund.cyber.dump.ethereum
 
-import fund.cyber.cassandra.ethereum.model.CqlEthereumContractTxPreview
 import fund.cyber.cassandra.ethereum.model.CqlEthereumBlockTxPreview
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractTxPreview
 import fund.cyber.cassandra.ethereum.model.CqlEthereumTx
-import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.events.PumpEvent
@@ -21,10 +21,10 @@ import java.util.concurrent.atomic.AtomicLong
  * Transform transaction based on event. For [PumpEvent.DROPPED_BLOCK] we transform transaction to mempool state.
  * For others it remains as it is.
  *
- * @param tx transaction to transform
+ * @param event used to transform
  * @return transformed transaction
  */
-fun PumpEvent.transform(tx: EthereumTx) = if (this == PumpEvent.DROPPED_BLOCK) tx.mempoolState() else tx
+fun EthereumTx.transformBy(event: PumpEvent) = if (event == PumpEvent.DROPPED_BLOCK) this.mempoolState() else this
 
 class TxDumpProcess(
     private val txRepository: EthereumTxRepository,
@@ -53,8 +53,9 @@ class TxDumpProcess(
             // we don't need to save pool tx if we already have some state for this tx in DB
             .filter { entry -> !(entry.value.first == PumpEvent.NEW_POOL_TX && currentDbTxs.contains(entry.key)) }
             .map { entry ->
+                val (event, tx) = entry.value
                 val currentDbTx = currentDbTxs[entry.value.second.hash]
-                val newTx = entry.value.first.transform(entry.value.second)
+                val newTx = tx.transformBy(event)
                 // Set first seen time from previous state in DB
                 if (currentDbTx != null) {
                     return@map newTx.copy(firstSeenTime = currentDbTx.firstSeenTime)
