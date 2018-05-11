@@ -16,10 +16,14 @@ import org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurati
 import org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder
 import org.ehcache.config.builders.ResourcePoolsBuilder.newResourcePoolsBuilder
 import org.ehcache.config.units.MemoryUnit
+import org.ehcache.core.spi.service.StatisticsService
+import org.ehcache.impl.internal.statistics.DefaultStatisticsService
 
 const val MAX_PER_ROUTE = 16
 const val MAX_TOTAL = 32
 const val EHCACHE_HEAP_SIZE_GB = 4L
+
+const val TXS_OUTPUTS_CACHE_NAME = "bitcoin.tx.outputs"
 
 @Configuration
 class BitcoinClientConfiguration {
@@ -47,20 +51,24 @@ class BitcoinClientConfiguration {
     fun txOutputCache(
         cacheManager: CacheManager
     ): Cache<String, BitcoinCacheTxOutput> {
-        return cacheManager.getCache("bitcoin.tx.outputs", String::class.java, BitcoinCacheTxOutput::class.java)
+        return cacheManager.getCache(TXS_OUTPUTS_CACHE_NAME, String::class.java, BitcoinCacheTxOutput::class.java)
     }
 
     @Bean
-    fun cacheManager(): CacheManager {
+    fun cacheStatisticsService() = DefaultStatisticsService()
+
+    @Bean
+    fun cacheManager(cacheStatisticsService: StatisticsService): CacheManager {
 
         return newCacheManagerBuilder()
-            .withCache("bitcoin.tx.outputs",
+            .withCache(TXS_OUTPUTS_CACHE_NAME,
                 newCacheConfigurationBuilder(
                     String::class.java,
                     BitcoinCacheTxOutput::class.java,
                     newResourcePoolsBuilder().heap(EHCACHE_HEAP_SIZE_GB, MemoryUnit.GB)
                 )
             )
+            .using(cacheStatisticsService)
             .build(true)
     }
 }
