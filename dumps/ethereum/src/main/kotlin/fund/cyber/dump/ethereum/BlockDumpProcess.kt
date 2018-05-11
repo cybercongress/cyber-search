@@ -42,7 +42,8 @@ class BlockDumpProcess(
         val blocksToRevert = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.DROPPED_BLOCK) }.keys
 
 
-        blockRepository.deleteAll(blocksToRevert.map { block -> CqlEthereumBlock(block) })
+        blockRepository
+            .deleteAll(blocksToRevert.map { block -> CqlEthereumBlock(block) })
             .block()
         blockRepository
             .saveAll(blocksToCommit.map { block -> CqlEthereumBlock(block) })

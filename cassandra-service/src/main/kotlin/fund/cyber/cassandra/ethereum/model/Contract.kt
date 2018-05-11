@@ -39,8 +39,9 @@ data class CqlEthereumContractTxPreview(
         @PrimaryKeyColumn(ordinal = 0, type = PrimaryKeyType.PARTITIONED, value = "contract_hash")
         val contractHash: String,
         @PrimaryKeyColumn(ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = DESCENDING, name = "block_time")
-        val blockTime: Instant?,
-        @PrimaryKeyColumn(ordinal = 2, type = PrimaryKeyType.CLUSTERED) val hash: String,
+        val blockTime: Long,
+        @PrimaryKeyColumn(ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+        val hash: String,
         val fee: BigDecimal,
         @Column("first_seen_time") val firstSeenTime: Instant,
         @Column(forceQuote = true) val from: String,
@@ -50,7 +51,7 @@ data class CqlEthereumContractTxPreview(
 
     //both 'to' or 'createdSmartContract' can't be null at same time
     constructor(tx: EthereumTx, contractHash: String) : this(
-            hash = tx.hash, contractHash = contractHash, blockTime = tx.blockTime,
+            hash = tx.hash, contractHash = contractHash, blockTime = tx.blockTime?.toEpochMilli() ?: -1,
             from = tx.from, to = (tx.to ?: tx.createdSmartContract)!!,
             value = tx.value.toString(), fee = tx.fee, firstSeenTime = tx.firstSeenTime
     )

@@ -42,28 +42,28 @@ class TxDumpProcess(
         val txsToCommit = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.NEW_BLOCK) }.keys
         val txsToRevert = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.DROPPED_BLOCK) }.keys
 
+        txRepository.deleteAll(txsToRevert.map { tx -> CqlBitcoinTx(tx) })
+            .block()
         txRepository
                 .saveAll(txsToCommit.map { tx -> CqlBitcoinTx(tx) })
                 .collectList().block()
-        txRepository.deleteAll(txsToRevert.map { tx -> CqlBitcoinTx(tx) })
-                .block()
 
+        contractTxRepository
+            .deleteAll(txsToRevert.flatMap { tx ->
+                tx.allContractsUsedInTransaction().map { contract -> CqlBitcoinContractTxPreview(contract, tx) }
+            })
+            .block()
         contractTxRepository
                 .saveAll(txsToCommit.flatMap { tx ->
                     tx.allContractsUsedInTransaction().map { contract -> CqlBitcoinContractTxPreview(contract, tx) }
                 })
                 .collectList().block()
-        contractTxRepository
-                .deleteAll(txsToRevert.flatMap { tx ->
-                    tx.allContractsUsedInTransaction().map { contract -> CqlBitcoinContractTxPreview(contract, tx) }
-                })
-                .block()
 
+        blockTxRepository.deleteAll(txsToRevert.map { tx -> CqlBitcoinBlockTxPreview(tx) })
+            .block()
         blockTxRepository
                 .saveAll(txsToCommit.map { tx -> CqlBitcoinBlockTxPreview(tx) })
                 .collectList().block()
-        blockTxRepository.deleteAll(txsToRevert.map { tx -> CqlBitcoinBlockTxPreview(tx) })
-                .block()
         if (::topicCurrentOffsetMonitor.isInitialized) {
             topicCurrentOffsetMonitor.set(records.last().offset())
         } else {
