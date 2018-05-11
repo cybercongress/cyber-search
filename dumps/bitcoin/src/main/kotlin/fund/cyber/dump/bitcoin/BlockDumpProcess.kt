@@ -19,10 +19,10 @@ import java.util.concurrent.atomic.AtomicLong
 
 
 class BlockDumpProcess(
-        private val blockRepository: BitcoinBlockRepository,
-        private val contractMinedBlockRepository: BitcoinContractMinedBlockRepository,
-        private val chain: BitcoinFamilyChain,
-        private val monitoring: MeterRegistry
+    private val blockRepository: BitcoinBlockRepository,
+    private val contractMinedBlockRepository: BitcoinContractMinedBlockRepository,
+    private val chain: BitcoinFamilyChain,
+    private val monitoring: MeterRegistry
 ) : BatchMessageListener<PumpEvent, BitcoinBlock> {
 
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
@@ -36,28 +36,30 @@ class BlockDumpProcess(
         log.info("Dumping batch of ${first.value().height}-${last.value().height} $chain blocks")
 
         val recordsToProcess = records.toRecordEventsMap()
-                .filterNotContainsAllEventsOf(listOf(PumpEvent.NEW_BLOCK, PumpEvent.DROPPED_BLOCK))
+            .filterNotContainsAllEventsOf(listOf(PumpEvent.NEW_BLOCK, PumpEvent.DROPPED_BLOCK))
 
         val blocksToCommit = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.NEW_BLOCK) }.keys
         val blocksToRevert = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.DROPPED_BLOCK) }.keys
 
         blockRepository
-                .saveAll(blocksToCommit.map { block -> CqlBitcoinBlock(block) })
-                .collectList().block()
-        blockRepository.deleteAll(blocksToRevert.map { block -> CqlBitcoinBlock(block) })
-                .block()
+            .deleteAll(blocksToRevert.map { block -> CqlBitcoinBlock(block) })
+            .block()
+        blockRepository
+            .saveAll(blocksToCommit.map { block -> CqlBitcoinBlock(block) })
+            .collectList().block()
 
         contractMinedBlockRepository
-                .saveAll(blocksToCommit.map { block -> CqlBitcoinContractMinedBlock(block) })
-                .collectList().block()
-        contractMinedBlockRepository.deleteAll(blocksToRevert.map { block -> CqlBitcoinContractMinedBlock(block) })
-                .block()
+            .deleteAll(blocksToRevert.map { block -> CqlBitcoinContractMinedBlock(block) })
+            .block()
+        contractMinedBlockRepository
+            .saveAll(blocksToCommit.map { block -> CqlBitcoinContractMinedBlock(block) })
+            .collectList().block()
 
         if (::topicCurrentOffsetMonitor.isInitialized) {
             topicCurrentOffsetMonitor.set(records.last().offset())
         } else {
             topicCurrentOffsetMonitor = monitoring.gauge("dump_topic_current_offset",
-                    Tags.of("topic", chain.blockPumpTopic), AtomicLong(records.last().offset()))!!
+                Tags.of("topic", chain.blockPumpTopic), AtomicLong(records.last().offset()))!!
         }
     }
 }
