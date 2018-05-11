@@ -142,22 +142,25 @@ class TxDumpProcessTest {
                 )
 
         verify(blockTxRepository, times(1))
-                .saveAll(
-                    listOf(
-                        CqlEthereumBlockTxPreview(txH.mempoolState()), CqlEthereumBlockTxPreview(txF.mempoolState()),
-                        CqlEthereumBlockTxPreview(txC.mempoolState()), CqlEthereumBlockTxPreview(txD),
-                        CqlEthereumBlockTxPreview(txE), CqlEthereumBlockTxPreview(txG), CqlEthereumBlockTxPreview(txI)
-                    )
-
-                )
+            .deleteAll(linkedSetOf(CqlEthereumBlockTxPreview(txF), CqlEthereumBlockTxPreview(txC)))
+        verify(blockTxRepository, times(1))
+            .saveAll(linkedSetOf(CqlEthereumBlockTxPreview(txD), CqlEthereumBlockTxPreview(txE),
+                CqlEthereumBlockTxPreview(txG), CqlEthereumBlockTxPreview(txI)))
 
         verify(contractTxRepository, times(1))
-                .saveAll(
-                        listOf(txH.mempoolState(), txF.mempoolState(), txC.mempoolState(), txD, txE, txG, txI)
-                                .flatMap { tx ->
-                                    tx.contractsUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) }
-                                }
-                )
+            .deleteAll(
+                listOf(txF, txC, txD.mempoolState(), txE.mempoolState(), txG.mempoolState(), txI.mempoolState())
+                    .flatMap { tx ->
+                        tx.contractsUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) }
+                    }
+            )
+        verify(contractTxRepository, times(1))
+            .saveAll(
+                listOf(txD, txE, txG, txI)
+                    .flatMap { tx ->
+                        tx.contractsUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) }
+                    }
+            )
 
 
     }
