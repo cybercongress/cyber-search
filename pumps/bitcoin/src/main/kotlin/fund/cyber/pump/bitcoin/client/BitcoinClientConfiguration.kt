@@ -21,7 +21,7 @@ import org.ehcache.impl.internal.statistics.DefaultStatisticsService
 
 const val MAX_PER_ROUTE = 16
 const val MAX_TOTAL = 32
-const val EHCACHE_HEAP_SIZE_GB = 4L
+const val EHCACHE_HEAP_SIZE_GB = 2L
 
 const val TXS_OUTPUTS_CACHE_NAME = "bitcoin.tx.outputs"
 
