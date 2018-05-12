@@ -28,6 +28,10 @@ import org.springframework.retry.policy.AlwaysRetryPolicy
 import org.springframework.retry.support.RetryTemplate
 import org.springframework.web.reactive.config.EnableWebFlux
 import java.util.*
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
+import org.springframework.scheduling.TaskScheduler
+
+
 
 private val log = LoggerFactory.getLogger(DefaultRetryListenerSupport::class.java)!!
 
@@ -55,6 +59,9 @@ class CommonConfiguration {
     fun metricsCommonTags(): MeterRegistryCustomizer<MeterRegistry> {
         return MeterRegistryCustomizer { registry -> registry.config().commonTags("chain", chain.name) }
     }
+
+    @Bean
+    fun taskScheduler(): TaskScheduler = ConcurrentTaskScheduler()
 
     @Bean
     fun commonPumpConsumer(): Consumer<Any, Any> {
