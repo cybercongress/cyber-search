@@ -9,8 +9,6 @@ import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
 import fund.cyber.cassandra.configuration.getKeyspaceSession
 import fund.cyber.cassandra.configuration.keyspace
 import fund.cyber.cassandra.configuration.mappingContext
-import fund.cyber.cassandra.ethereum.model.TxTraceReadConverter
-import fund.cyber.cassandra.ethereum.model.TxTraceWriteConverter
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumContractRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository

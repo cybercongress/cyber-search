@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.BatchMessageListener
 import java.util.concurrent.atomic.AtomicLong
 
+
+//todo in dump add label for smart contract from calls
 /**
  * Transform transaction based on event. For [PumpEvent.DROPPED_BLOCK] we transform transaction to mempool state.
  * For others it remains as it is.

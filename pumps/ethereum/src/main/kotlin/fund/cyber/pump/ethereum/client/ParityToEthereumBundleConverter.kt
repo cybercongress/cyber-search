@@ -71,7 +71,7 @@ class ParityToEthereumBundleConverter(
 
         val parityBlock = rawData.block
         val txReceiptIndex = rawData.txsReceipts.associateBy { receipt -> receipt.transactionHash!! }
-        val tracesIndex = toTxesTraces(rawData.calls).associateBy { txTrace -> txTrace.txHash }
+        val tracesIndex = toTxesTraces(rawData.calls)
 
         return parityBlock.transactions
                 .filterIsInstance<EthBlock.TransactionObject>()

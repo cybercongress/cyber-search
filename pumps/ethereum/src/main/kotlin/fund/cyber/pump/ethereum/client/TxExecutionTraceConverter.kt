@@ -7,26 +7,28 @@ import fund.cyber.search.model.ethereum.DestroyContractOperation
 import fund.cyber.search.model.ethereum.Operation
 import fund.cyber.search.model.ethereum.OperationResult
 import fund.cyber.search.model.ethereum.OperationTrace
+import fund.cyber.search.model.ethereum.RewardOperation
 import fund.cyber.search.model.ethereum.TxTrace
 import fund.cyber.search.model.ethereum.weiToEthRate
 import org.web3j.protocol.parity.methods.response.Trace
 import java.math.BigDecimal
 import java.util.*
 
-//todo add tests
-const val EMPTY_FIELD = "0x"
-
 /**
- * Trace is result of single "operation" inside transaction (ex: send eth to address inside smart contract
- *  method execution). Parity return all traces for block as flatten list.
- * Current method gathers flatten traces list into stacktrace tree for each transaction
+ * Trace(parity) is result of single "operation/call" inside transaction (ex: send eth to address inside smart contract
+ *  method execution). Parity return all traces for block(tx) as flatten list.
+ *  Current method gathers flatten traces list into trace tree for transaction.
+ *
+ * For normal txes, first(root) operation(call) duplicate parent tx data (such as value, from, to, etc).
+ * For method execution txes, first(root) operation(call) duplicate parent tx data (such as value, from, to, etc).
+ * For sm creation/deletion first(root) operation(call) duplicate parent tx data (such as value, from, to, etc).
  *
  */
-fun toTxesTraces(parityTraces: List<Trace>): List<TxTrace> {
+fun toTxesTraces(parityTraces: List<Trace>): Map<String, TxTrace> {
 
-    return parityTraces.removeSimpleTraces()
+    return parityTraces
         .groupBy { trace -> trace.transactionHash }
-        .map { (txHash, traces) -> toTxTrace(txHash, traces) }
+        .mapValues { (_, traces) -> toTxTrace(traces) }
 }
 
 /**
@@ -43,25 +45,24 @@ fun toTxesTraces(parityTraces: List<Trace>): List<TxTrace> {
  *
  *  In raw trace, tree index is represented by array traceAddress. See https://wiki.parity.io/JSONRPC-trace-module
  */
-private fun toTxTrace(txHash: String, traces: List<Trace>): TxTrace {
+private fun toTxTrace(traces: List<Trace>): TxTrace {
 
     val tree = mutableMapOf<Trace, MutableList<Trace>>()
 
+    // pop any parents from this deque as deep or deeper than this node
+    // add node to tree
+    // add node to parent's children if applicable
+    // add node to parents stack
     val parents = ArrayDeque<Trace>()
     for (trace in traces) {
-        val node = trace
-        // pop any parents from this deque as deep or deeper than this node
         while (parents.size > trace.traceAddress?.size ?: 0) parents.pop()
-        // add node to tree
-        tree[node] = mutableListOf()
-        // add node to parent's children if applicable
-        tree[parents.peek()]?.add(node)
-        // add node to parents stack
-        parents.push(node)
+        tree[trace] = mutableListOf()
+        tree[parents.peek()]?.add(trace)
+        parents.push(trace)
     }
 
     val rootOperationTrace = toOperationTrace(traces[0], tree)
-    return TxTrace(txHash, rootOperationTrace)
+    return TxTrace(rootOperationTrace)
 }
 
 /**
@@ -84,6 +85,7 @@ private fun convertResult(trace: Trace): OperationResult {
     )
 }
 
+//todo check weiToEthRate value result
 private fun convertOperation(action: Trace.Action): Operation {
     return when (action) {
         is Trace.CallAction -> {
@@ -104,31 +106,9 @@ private fun convertOperation(action: Trace.Action): Operation {
                 balance = BigDecimal(action.balance) * weiToEthRate
             )
         }
-        else -> throw RuntimeException()
-    }
-}
-
-
-/**
- * Current method returns list of traces without simple traces.
- * Simple trace is a trace returned for regular tx(tx not invoking methods), block and uncles rewards.
- */
-fun List<Trace>.removeSimpleTraces(): List<Trace> {
-
-    return this.filter { call ->
-
-        return@filter when (call.action) {
-            is Trace.RewardAction -> false
-            is Trace.CallAction -> !isSimpleCall(call.action as Trace.CallAction)
-            else -> true
+        is Trace.RewardAction -> {
+            RewardOperation(action.author, BigDecimal(action.value) * weiToEthRate, action.rewardType)
         }
+        else -> throw RuntimeException("Unknown trace call")
     }
-}
-
-/**
- * Current method returns true if trace is simple call.
- * Simple call is a call returned for regular tx(tx not invoking methods).
- */
-private fun isSimpleCall(call: Trace.CallAction): Boolean {
-    return call.input == null || call.input.isEmpty() || EMPTY_FIELD == call.input
 }

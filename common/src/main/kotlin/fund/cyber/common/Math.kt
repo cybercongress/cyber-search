@@ -48,3 +48,5 @@ inline fun String.hexToLong(): Long = java.lang.Long.decode(this)
 @Suppress("MagicNumber") val decimal32 = BigDecimal(32)
 const val DECIMAL_SCALE = 18
 
+
+fun BigDecimal.isZero(): Boolean = BigDecimal.ZERO.compareTo(this) == 0
