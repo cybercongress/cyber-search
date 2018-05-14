@@ -32,7 +32,7 @@ class TxDumpProcessTest {
     fun testWithDroppedTxs() {
 
         val txC = EthereumTx(
-                hash = "C",
+                hash = "C", error = null,
                 nonce = 0, blockHash = "C",
                 blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
                 from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
@@ -41,7 +41,7 @@ class TxDumpProcessTest {
         )
 
         val txD = EthereumTx(
-                hash = "D",
+                hash = "D", error = null,
                 nonce = 0, blockHash = "D",
                 blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
                 from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
@@ -50,7 +50,7 @@ class TxDumpProcessTest {
         )
 
         val txE = EthereumTx(
-                hash = "E",
+                hash = "E", error = null,
                 nonce = 0, blockHash = "E",
                 blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
                 from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
@@ -59,7 +59,7 @@ class TxDumpProcessTest {
         )
 
         val txF = EthereumTx(
-                hash = "F",
+                hash = "F", error = null,
                 nonce = 0, blockHash = "F",
                 blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
                 from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
@@ -68,7 +68,7 @@ class TxDumpProcessTest {
         )
 
         val txG = EthereumTx(
-                hash = "G",
+                hash = "G", error = null,
                 nonce = 0, blockHash = "G",
                 blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
                 from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
@@ -77,7 +77,7 @@ class TxDumpProcessTest {
         )
 
         val txH = EthereumTx(
-                hash = "H",
+                hash = "H", error = null,
                 nonce = 0, blockHash = "H",
                 blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
                 from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
@@ -86,7 +86,7 @@ class TxDumpProcessTest {
         )
 
         val txI = EthereumTx(
-                hash = "I",
+                hash = "I", error = null,
                 nonce = 0, blockHash = "I",
                 blockNumber = 4959189, blockTime = Instant.ofEpochSecond(100000), positionInBlock = 1,
                 from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),

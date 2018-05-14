@@ -125,8 +125,7 @@ subprojects {
             dependency("org.slf4j:slf4j-api:$slf4jVersion")
             dependency("ch.qos.logback:logback-classic:$lockbackVersion")
 
-            dependency("org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion")
-            dependency("org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion")
+            dependency("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
             dependency("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
             dependency("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
             dependency("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinCoroutinesVersion")
@@ -194,7 +193,7 @@ project(":common") {
         compile("org.slf4j:slf4j-api")
         compile("ch.qos.logback:logback-classic")
 
-        compile("org.jetbrains.kotlin:kotlin-stdlib-jre8")
+        compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
         compile("org.jetbrains.kotlin:kotlin-reflect")
 
 

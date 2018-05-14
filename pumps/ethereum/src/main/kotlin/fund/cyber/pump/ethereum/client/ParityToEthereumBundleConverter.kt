@@ -6,15 +6,18 @@ import fund.cyber.common.hexToLong
 import fund.cyber.common.sum
 import fund.cyber.common.toSearchHashFormat
 import fund.cyber.search.model.chains.EthereumFamilyChain
+import fund.cyber.search.model.ethereum.ErroredOperationResult
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
+import fund.cyber.search.model.ethereum.TxTrace
 import fund.cyber.search.model.ethereum.getBlockReward
 import fund.cyber.search.model.ethereum.getUncleReward
 import fund.cyber.search.model.ethereum.weiToEthRate
 import org.springframework.stereotype.Component
 import org.web3j.protocol.core.methods.response.EthBlock
 import org.web3j.protocol.core.methods.response.Transaction
+import org.web3j.protocol.core.methods.response.TransactionReceipt
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
@@ -41,7 +44,7 @@ class ParityToEthereumBundleConverter(
     fun parityMempoolTxToDao(parityTx: Transaction): EthereumTx {
         return EthereumTx(
             from = parityTx.from.toSearchHashFormat(), to = parityTx.to.toSearchHashFormat(),
-            nonce = parityTx.nonce.toLong(),
+            nonce = parityTx.nonce.toLong(), error = null,
             value = BigDecimal(parityTx.value) * weiToEthRate,
             hash = parityTx.hash.toSearchHashFormat(), blockHash = null,
             blockNumber = -1L, firstSeenTime = Instant.now(), blockTime = null,
@@ -81,6 +84,7 @@ class ParityToEthereumBundleConverter(
                             from = parityTx.from.toSearchHashFormat(), to = parityTx.to?.toSearchHashFormat(),
                             nonce = parityTx.nonce.toLong(), value = BigDecimal(parityTx.value) * weiToEthRate,
                             hash = parityTx.hash.toSearchHashFormat(),
+                            error = txError(txReceiptIndex[parityTx.hash]!!, tracesIndex[parityTx.hash]!!),
                             blockHash = parityBlock.hash.toSearchHashFormat(),
                             blockNumber = parityBlock.numberRaw.hexToLong(),
                             firstSeenTime = Instant.ofEpochSecond(parityBlock.timestampRaw.hexToLong()),
@@ -92,6 +96,15 @@ class ParityToEthereumBundleConverter(
                             fee = BigDecimal(parityTx.gasPrice * gasUsed.toBigInteger()) * weiToEthRate
                     )
                 }
+    }
+
+    /**
+     * Returns error for failed txes, or null if tx succeeded
+     */
+    private fun txError(receipt: TransactionReceipt, txTrace: TxTrace): String? {
+
+        if (receipt.isStatusOK) return null
+        return (txTrace.rootOperationTrace.result as ErroredOperationResult).error
     }
 
 
