@@ -11,9 +11,6 @@ import org.springframework.data.cassandra.core.mapping.Table
 import java.math.BigDecimal
 import java.time.Instant
 
-enum class ExecutionStatus {
-    OK, FAILED
-}
 
 //todo add tx status
 @Table("tx")
@@ -33,16 +30,16 @@ data class CqlEthereumTx(
     val fee: String,
     val input: String,
     @Column("created_contract") val createdContract: String?,
-    @Column("trace_json") val trace: TxTrace?,   //saved in cassandra as json string //todo save as bytes
-    val operations: List<CqlTxOperation>
+    @Column("trace_json") val trace: TxTrace?   //saved in cassandra as json string
+    //val operations: List<CqlTxOperation>
 ) : CqlEthereumItem {
 
     constructor(tx: EthereumTx) : this(
         hash = tx.hash, nonce = tx.nonce, blockHash = tx.blockHash, blockNumber = tx.blockNumber,
         blockTime = tx.blockTime, from = tx.from, to = tx.to, firstSeenTime = tx.firstSeenTime,
         value = tx.value.toString(), gasPrice = tx.gasPrice, gasLimit = tx.gasLimit, gasUsed = tx.gasUsed,
-        fee = tx.fee.toString(), input = tx.input, createdContract = tx.createdSmartContract, trace = tx.trace,
-        operations = emptyList() //todo
+        fee = tx.fee.toString(), input = tx.input, createdContract = tx.createdSmartContract, trace = tx.trace
+        //operations = emptyList()
     )
 
     fun contractsUsedInTransaction() = listOfNotNull(from, to, createdContract)
@@ -53,7 +50,6 @@ data class CqlTxOperation(
     val from: String,
     val to: String,
     val value: BigDecimal,
-    val status: ExecutionStatus, //todo add assumption check for error out of gas for blocks > 0
     val error: String?, //not null if status is FAILED
     val gasUsed: Long,
     val gasLimit: Long

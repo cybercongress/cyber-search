@@ -10,13 +10,14 @@ import fund.cyber.search.model.ethereum.OperationType.CALL
 import fund.cyber.search.model.ethereum.OperationType.CREATE_CONTRACT
 import fund.cyber.search.model.ethereum.OperationType.DESTROY_CONTRACT
 import fund.cyber.search.model.ethereum.OperationType.REWARD
-
+import java.lang.RuntimeException
 
 
 data class OperationTrace(
     @JsonDeserialize(using = OperationsDeserializer::class)
     val operation: Operation,
-    val result: OperationResult,
+    @JsonDeserialize(using = OperationResultDeserializer::class)
+    val result: OperationResult?, //null for reward and destroy contract operations
     val subtraces: List<OperationTrace>
 )
 
@@ -32,6 +33,23 @@ class OperationsDeserializer : JsonDeserializer<Operation>() {
             CREATE_CONTRACT -> objectMapper.convertValue(root, CreateContractOperation::class.java)
             DESTROY_CONTRACT -> objectMapper.convertValue(root, DestroyContractOperation::class.java)
             REWARD -> objectMapper.convertValue(root, RewardOperation::class.java)
+        }
+    }
+}
+
+
+class OperationResultDeserializer : JsonDeserializer<OperationResult?>() {
+
+    override fun deserialize(jsonParser: JsonParser, context: DeserializationContext): OperationResult? {
+
+        val objectMapper = jsonParser.codec as ObjectMapper
+        val root = objectMapper.readTree<ObjectNode>(jsonParser)
+        if (root.isNull) return null
+
+        return when {
+            root.has("output") -> objectMapper.convertValue(root, CallOperationResult::class.java)
+            root.has("code") -> objectMapper.convertValue(root, CreateContractOperationResult::class.java)
+            else -> throw RuntimeException("Unsupported Result")
         }
     }
 }

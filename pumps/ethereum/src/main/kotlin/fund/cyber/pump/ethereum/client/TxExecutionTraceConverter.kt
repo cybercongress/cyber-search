@@ -2,8 +2,11 @@ package fund.cyber.pump.ethereum.client
 
 import fund.cyber.common.hexToLong
 import fund.cyber.search.model.ethereum.CallOperation
+import fund.cyber.search.model.ethereum.CallOperationResult
 import fund.cyber.search.model.ethereum.CreateContractOperation
+import fund.cyber.search.model.ethereum.CreateContractOperationResult
 import fund.cyber.search.model.ethereum.DestroyContractOperation
+import fund.cyber.search.model.ethereum.ErroredOperationResult
 import fund.cyber.search.model.ethereum.Operation
 import fund.cyber.search.model.ethereum.OperationResult
 import fund.cyber.search.model.ethereum.OperationTrace
@@ -77,12 +80,18 @@ private fun toOperationTrace(trace: Trace, tracesTree: Map<Trace, List<Trace>>):
 }
 
 
-private fun convertResult(trace: Trace): OperationResult {
+private fun convertResult(trace: Trace): OperationResult? {
+
+    if (trace.error != null && trace.error.isNotEmpty()) return ErroredOperationResult(trace.error)
+    if (trace.result == null) return null
+
     val result = trace.result
-    return OperationResult(
-        error = trace.error, address = result?.address, code = result?.code,
-        gasUsed = result?.gasUsedRaw?.hexToLong(), output = result?.output
-    )
+    val gasUsed = result.gasUsedRaw.hexToLong()
+    return when (trace.action) {
+        is Trace.CallAction -> CallOperationResult(gasUsed, result.output)
+        is Trace.CreateAction -> CreateContractOperationResult(result.address, result.code, gasUsed)
+        else -> throw RuntimeException("Unknown trace call result")
+    }
 }
 
 //todo check weiToEthRate value result

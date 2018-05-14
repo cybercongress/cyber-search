@@ -5,17 +5,17 @@ import fund.cyber.search.model.ethereum.TxTrace
 import org.springframework.core.convert.converter.Converter
 
 /**
- * Used to create TxTrace from stringified json.
+ * Used to create TxTrace from byted json.
  */
-class TxTraceReadConverter(private val jsonDeserializer: ObjectMapper) : Converter<String, TxTrace> {
+class TxTraceReadConverter(private val jsonDeserializer: ObjectMapper) : Converter<ByteArray, TxTrace> {
 
-    override fun convert(source: String) = jsonDeserializer.readValue(source, TxTrace::class.java)!!
+    override fun convert(source: ByteArray) = jsonDeserializer.readValue(source, TxTrace::class.java)!!
 }
 
 /**
- * Used to convert TxTrace to stringified json.
+ * Used to convert TxTrace to byted json.
  */
-class TxTraceWriteConverter(private val jsonSerializer: ObjectMapper) : Converter<TxTrace, String> {
+class TxTraceWriteConverter(private val jsonSerializer: ObjectMapper) : Converter<TxTrace, ByteArray> {
 
-    override fun convert(source: TxTrace) = jsonSerializer.writeValueAsString(source)!!
+    override fun convert(source: TxTrace) = jsonSerializer.writeValueAsBytes(source)!!
 }

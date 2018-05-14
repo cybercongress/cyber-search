@@ -10,7 +10,7 @@ data class TxTrace(
 ) {
 
     fun getAllOperationsSendingEth(): List<OperationTrace> {
-        return allSuboperations(listOf(rootOperationTrace)).filter { operationTrace ->
+        return getAllOperationsTraces().filter { operationTrace ->
             val operation = operationTrace.operation
             return@filter when (operation) {
                 is CallOperation -> !operation.value.isZero()
@@ -21,11 +21,15 @@ data class TxTrace(
         }
     }
 
+    fun getAllOperationsTraces(): List<OperationTrace> {
+        return allSuboperations(listOf(rootOperationTrace))
+    }
+
     private fun allSuboperations(operations: List<OperationTrace>): List<OperationTrace> {
-        return operations.flatMap { operation ->
-            if (operation.subtraces.isEmpty()) {
-                return@flatMap listOf(operation)
-            }
+
+        if (operations.isEmpty()) return emptyList()
+
+        return operations + operations.flatMap { operation ->
             return@flatMap allSuboperations(operation.subtraces)
         }
     }
