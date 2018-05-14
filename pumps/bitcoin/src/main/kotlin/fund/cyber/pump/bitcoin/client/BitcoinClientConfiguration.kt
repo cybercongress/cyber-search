@@ -1,5 +1,7 @@
 package fund.cyber.pump.bitcoin.client
 
+import fund.cyber.search.configuration.BITCOIN_TX_OUTS_CACHE_HEAP_SIZE
+import fund.cyber.search.configuration.BITCOIN_TX_OUTS_CACHE_HEAP_SIZE_DEFAULT
 import fund.cyber.search.model.bitcoin.BitcoinCacheTxOutput
 import fund.cyber.search.model.chains.BitcoinFamilyChain
 import fund.cyber.search.model.events.blockPumpTopic
@@ -16,13 +18,20 @@ import org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurati
 import org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder
 import org.ehcache.config.builders.ResourcePoolsBuilder.newResourcePoolsBuilder
 import org.ehcache.config.units.MemoryUnit
+import org.ehcache.core.spi.service.StatisticsService
+import org.ehcache.impl.internal.statistics.DefaultStatisticsService
+import org.springframework.beans.factory.annotation.Value
 
 const val MAX_PER_ROUTE = 16
 const val MAX_TOTAL = 32
-const val EHCACHE_HEAP_SIZE_GB = 5L
+
+const val TXS_OUTPUTS_CACHE_NAME = "bitcoin.tx.outputs"
 
 @Configuration
-class BitcoinClientConfiguration {
+class BitcoinClientConfiguration(
+    @Value("\${$BITCOIN_TX_OUTS_CACHE_HEAP_SIZE:$BITCOIN_TX_OUTS_CACHE_HEAP_SIZE_DEFAULT}")
+    private val txOutsCacheHeapSize: Long
+) {
 
     @Autowired
     private lateinit var chain: BitcoinFamilyChain
@@ -47,20 +56,24 @@ class BitcoinClientConfiguration {
     fun txOutputCache(
         cacheManager: CacheManager
     ): Cache<String, BitcoinCacheTxOutput> {
-        return cacheManager.getCache("bitcoin.tx.outputs", String::class.java, BitcoinCacheTxOutput::class.java)
+        return cacheManager.getCache(TXS_OUTPUTS_CACHE_NAME, String::class.java, BitcoinCacheTxOutput::class.java)
     }
 
     @Bean
-    fun cacheManager(): CacheManager {
+    fun cacheStatisticsService() = DefaultStatisticsService()
+
+    @Bean
+    fun cacheManager(cacheStatisticsService: StatisticsService): CacheManager {
 
         return newCacheManagerBuilder()
-            .withCache("bitcoin.tx.outputs",
+            .withCache(TXS_OUTPUTS_CACHE_NAME,
                 newCacheConfigurationBuilder(
                     String::class.java,
                     BitcoinCacheTxOutput::class.java,
-                    newResourcePoolsBuilder().heap(EHCACHE_HEAP_SIZE_GB, MemoryUnit.GB)
+                    newResourcePoolsBuilder().heap(txOutsCacheHeapSize, MemoryUnit.GB)
                 )
             )
+            .using(cacheStatisticsService)
             .build(true)
     }
 }

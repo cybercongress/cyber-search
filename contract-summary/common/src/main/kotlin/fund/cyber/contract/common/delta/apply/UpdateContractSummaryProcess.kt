@@ -96,15 +96,19 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
 
         log.info("Processing records for topic: ${info.topic}; partition ${info.partition} from ${info.minOffset}" +
             " to ${info.maxOffset} offset.")
+
+        // todo: Remove when https://github.com/cybercongress/cyber-search/issues/137 will be implemented.
+        val recordsToProcess = records.filter { record -> record.key() != PumpEvent.NEW_POOL_TX }
+
         val storeAttempts: MutableMap<String, Int> = mutableMapOf()
         val previousStates: MutableMap<String, S?> = mutableMapOf()
 
-        val contracts = deltaProcessor.affectedContracts(records)
+        val contracts = deltaProcessor.affectedContracts(recordsToProcess)
 
         val contractsSummary = contractSummaryStorage.findAllByIdIn(contracts)
             .await().groupBy { a -> a.hash }.map { (k, v) -> k to v.first() }.toMap()
 
-        val deltas = records.flatMap { record -> deltaProcessor.recordToDeltas(record) }
+        val deltas = recordsToProcess.flatMap { record -> deltaProcessor.recordToDeltas(record) }
 
         val mergedDeltas = deltas.groupBy { delta -> delta.contract }
             .filterKeys { contract -> contract.isNotEmpty() }

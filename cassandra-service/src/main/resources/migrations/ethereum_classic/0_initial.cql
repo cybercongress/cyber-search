@@ -47,7 +47,7 @@ CREATE TABLE IF NOT exists ethereum_classic.tx (
 CREATE TABLE IF NOT exists ethereum_classic.tx_preview_by_contract (
     contract_hash text,
     hash text,
-    block_time timestamp,
+    block_time bigint,
     first_seen_time timestamp,
     fee decimal,
     block_number bigint,
