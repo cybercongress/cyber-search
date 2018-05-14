@@ -38,6 +38,9 @@ const val STACK_CACHE_SIZE_DEFAULT = 100
 
 const val WITH_MEMPOOL = "WITH_MEMPOOL"
 
+const val BITCOIN_TX_OUTS_CACHE_HEAP_SIZE = "BITCOIN_TX_OUTS_CACHE_HEAP_SIZE"
+const val BITCOIN_TX_OUTS_CACHE_HEAP_SIZE_DEFAULT = 4
+
 
 inline fun <reified T : Any> env(name: String, default: T): T =
         when (T::class) {
