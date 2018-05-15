@@ -2,7 +2,7 @@ package fund.cyber.pump.common
 
 import fund.cyber.common.StackCache
 import fund.cyber.pump.common.kafka.KafkaBlockBundleProducer
-import fund.cyber.pump.common.kafka.LastPumpedBundlesProvider
+import fund.cyber.pump.common.kafka.LastPumpedBlockNumberProvider
 import fund.cyber.pump.common.node.BlockBundle
 import fund.cyber.pump.common.node.BlockBundleEventGenerator
 import fund.cyber.pump.common.node.FlowableBlockchainInterface
@@ -29,14 +29,14 @@ private const val BLOCK_BUFFER_TIMESPAN = 3L
 @Component
 @DependsOn(value = ["kafkaBlockBundleProducer"])  // to resolve generics at runtime
 class ChainPump<T : BlockBundle>(
-        private val flowableBlockchainInterface: FlowableBlockchainInterface<T>,
-        private val kafkaBlockBundleProducer: KafkaBlockBundleProducer<T>,
-        private val lastPumpedBundlesProvider: LastPumpedBundlesProvider<T>,
-        private val monitoring: MeterRegistry,
-        @Value("\${$STACK_CACHE_SIZE:$STACK_CACHE_SIZE_DEFAULT}")
+    private val flowableBlockchainInterface: FlowableBlockchainInterface<T>,
+    private val kafkaBlockBundleProducer: KafkaBlockBundleProducer,
+    private val lastPumpedBlockNumberProvider: LastPumpedBlockNumberProvider,
+    private val monitoring: MeterRegistry,
+    @Value("\${$STACK_CACHE_SIZE:$STACK_CACHE_SIZE_DEFAULT}")
         private val stackCacheSize: Int,
-        private val blockBundleEventGenerator: BlockBundleEventGenerator<T>,
-        private val applicationContext: ConfigurableApplicationContext
+    private val blockBundleEventGenerator: BlockBundleEventGenerator<T>,
+    private val applicationContext: ConfigurableApplicationContext
 ) {
 
     fun startPump() {
@@ -87,9 +87,9 @@ class ChainPump<T : BlockBundle>(
     private fun initializeStackCache() = StackCache<T>(stackCacheSize)
 
     private fun startBlockNumber(): Long {
-        return System.getenv(START_BLOCK_NUMBER)?.toLong() ?: (lastPumpedBlockNumber()?.plus(1) ?: 0)
+        return System.getenv(START_BLOCK_NUMBER)?.toLong() ?: lastPumpedBlockNumber().plus(1)
     }
 
-    private fun lastPumpedBlockNumber() = lastPumpedBundlesProvider.getLastBlockBundles().firstOrNull()?.second?.number
+    private fun lastPumpedBlockNumber() = lastPumpedBlockNumberProvider.getLastBlockNumber()
 
 }

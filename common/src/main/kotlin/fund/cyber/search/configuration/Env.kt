@@ -3,9 +3,9 @@ package fund.cyber.search.configuration
 const val DEV_ENVIRONMENT = "DEV_ENVIRONMENT"
 
 const val CHAIN = "CHAIN"
+const val CHAIN_FAMILY = "CHAIN_FAMILY"
+const val CHAIN_NAME = "CHAIN_NAME"
 const val CHAIN_NODE_URL = "CHAIN_NODE_URL"
-const val BITCOIN_CHAIN_NODE_DEFAULT_URL = "http://cyber:cyber@127.0.0.1:8332"
-const val ETHEREUM_CHAIN_NODE_DEFAULT_URL = "http://127.0.0.1:8545"
 
 const val KAFKA_BROKERS = "KAFKA_BROKERS"
 const val KAFKA_BROKERS_DEFAULT = "localhost:9092"

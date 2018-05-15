@@ -10,10 +10,10 @@ const val CONSUMER_POLL_TIMEOUT = 100L
 const val EMPTY_POLL_MAX_NUMBER = 5
 
 class SinglePartitionTopicLastItemsReader<out K, out V>(
-        private val kafkaBrokers: String,
-        private val topic: String,
-        keyClass: Class<K>,
-        valueClass: Class<V>
+    private val kafkaBrokers: String,
+    private val topic: String,
+    keyClass: Class<K>,
+    valueClass: Class<V>
 ) {
 
     private val consumerProperties = Properties().apply {
@@ -25,10 +25,11 @@ class SinglePartitionTopicLastItemsReader<out K, out V>(
     }
 
     private val consumer =
-            KafkaConsumer<K, V>(consumerProperties, JsonDeserializer(keyClass), JsonDeserializer(valueClass))
+        KafkaConsumer<K, V>(consumerProperties, JsonDeserializer(keyClass), JsonDeserializer(valueClass))
 
 
-    fun readLastRecords(numberOfRecordsToRead: Int): List<Pair<K, V>> {
+    fun readLastRecords(numberOfRecordsToRead: Int,
+                        keyFilterPredicate: (K) -> Boolean = { _ -> true }): List<Pair<K, V>> {
 
         val partitions = consumer.partitionsFor(topic)
         if (partitions == null || partitions.size == 0) return emptyList()
@@ -58,7 +59,8 @@ class SinglePartitionTopicLastItemsReader<out K, out V>(
 
             if (!consumerRecords.isEmpty) {
                 val record = consumerRecords.first()
-                records.add(record.key() to record.value())
+                if (keyFilterPredicate(record.key()))
+                    records.add(record.key() to record.value())
             }
 
             readOffsetNumber++

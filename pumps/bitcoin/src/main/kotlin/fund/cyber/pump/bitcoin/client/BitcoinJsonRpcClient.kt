@@ -4,13 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import fund.cyber.search.configuration.BITCOIN_CHAIN_NODE_DEFAULT_URL
-import fund.cyber.search.configuration.CHAIN_NODE_URL
-import fund.cyber.search.configuration.env
 import fund.cyber.search.model.Request
 import fund.cyber.search.model.Response
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinBlock
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinTransaction
+import fund.cyber.search.model.chains.ChainInfo
 import io.micrometer.core.instrument.MeterRegistry
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
@@ -30,13 +28,14 @@ private const val TXES_CHUNK_SIZE = 100
 @Component
 class BitcoinJsonRpcClient(
     private val httpClient: HttpClient,
-    monitoring: MeterRegistry
+    monitoring: MeterRegistry,
+    chainInfo: ChainInfo
 ) {
 
     val txesRequestTimer = monitoring.timer("bitcoin_txes_request")
     val blockRequestTimer = monitoring.timer("bitcoin_block_request")
 
-    private val endpointUrl = env(CHAIN_NODE_URL, BITCOIN_CHAIN_NODE_DEFAULT_URL)
+    private val endpointUrl = chainInfo.nodeUrl
 
     private val headers = arrayOf(BasicHeader("Content-Type", "application/json; charset=UTF-8"))
 

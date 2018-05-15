@@ -17,7 +17,7 @@ private val log = LoggerFactory.getLogger(PoolPump::class.java)!!
 @DependsOn("kafkaPoolItemProducer")
 class PoolPump<T : PoolItem>(
     private val poolInterface: PoolInterface<T>,
-    private val poolItemProducer: KafkaPoolItemProducer<T>
+    private val poolItemProducer: KafkaPoolItemProducer
 ) {
 
     fun startPump() {

@@ -1,5 +1,6 @@
 package fund.cyber.search.model.bitcoin
 
+import fund.cyber.search.model.chains.ChainEntity
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -17,7 +18,7 @@ data class BitcoinTx(
     val totalOutputsAmount: BigDecimal,
     val ins: List<BitcoinTxIn>,
     val outs: List<BitcoinTxOut>
-) : BitcoinItem {
+) : ChainEntity {
 
     fun getOutputByNumber(number: Int) = outs.find { out -> out.out == number }!!
 

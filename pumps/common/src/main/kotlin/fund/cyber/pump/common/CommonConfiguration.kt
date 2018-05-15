@@ -5,16 +5,20 @@ import fund.cyber.pump.common.node.BlockBundle
 import fund.cyber.pump.common.node.BlockchainInterface
 import fund.cyber.pump.common.node.ConcurrentPulledBlockchain
 import fund.cyber.pump.common.node.FlowableBlockchainInterface
+import fund.cyber.search.configuration.CHAIN_FAMILY
+import fund.cyber.search.configuration.CHAIN_NAME
+import fund.cyber.search.configuration.CHAIN_NODE_URL
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
-import fund.cyber.search.model.chains.Chain
+import fund.cyber.search.configuration.env
+import fund.cyber.search.model.chains.ChainFamily
+import fund.cyber.search.model.chains.ChainInfo
 import io.micrometer.core.instrument.MeterRegistry
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.requests.IsolationLevel
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -52,12 +56,21 @@ class CommonConfiguration {
     @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
     private lateinit var kafkaBrokers: String
 
-    @Autowired
-    private lateinit var chain: Chain
+    @Bean
+    fun chainInfo(): ChainInfo {
+        val chainFamilyAsString = env(CHAIN_FAMILY, "")
+        val chainFamily = ChainFamily.valueOf(chainFamilyAsString)
+        val chainName = env(CHAIN_NAME, "")
+        val chainNodeUrl = env(CHAIN_NODE_URL, chainFamily.defaultNodeUrl)
+
+        return ChainInfo(ChainFamily.valueOf(chainFamilyAsString), chainName, chainNodeUrl)
+    }
 
     @Bean
-    fun metricsCommonTags(): MeterRegistryCustomizer<MeterRegistry> {
-        return MeterRegistryCustomizer { registry -> registry.config().commonTags("chain", chain.name) }
+    fun metricsCommonTags(
+        chainInfo: ChainInfo
+    ): MeterRegistryCustomizer<MeterRegistry> {
+        return MeterRegistryCustomizer { registry -> registry.config().commonTags("chain", chainInfo.fullName) }
     }
 
     @Bean
