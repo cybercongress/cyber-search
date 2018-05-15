@@ -5,7 +5,7 @@ import fund.cyber.common.decimal32
 import fund.cyber.common.hexToLong
 import fund.cyber.common.sum
 import fund.cyber.common.toSearchHashFormat
-import fund.cyber.search.model.chains.EthereumFamilyChain
+import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
@@ -22,7 +22,7 @@ import java.time.Instant
 
 @Component
 class ParityToEthereumBundleConverter(
-        private val chain: EthereumFamilyChain
+        private val chainInfo: ChainInfo
 ) {
 
     fun convert(parityBlock: EthBlock.Block, uncles: List<EthBlock.Block>,
@@ -64,7 +64,7 @@ class ParityToEthereumBundleConverter(
                     timestamp = Instant.ofEpochSecond(uncle.timestampRaw.hexToLong()),
                     blockNumber = block.number, blockTime = block.timestamp,
                     blockHash = block.hash.toSearchHashFormat(),
-                    uncleReward = getUncleReward(chain, uncleNumber, block.number)
+                    uncleReward = getUncleReward(chainInfo, uncleNumber, block.number)
             )
         }
     }
@@ -104,7 +104,7 @@ class ParityToEthereumBundleConverter(
                 }
 
         val number = parityBlock.numberRaw.hexToLong()
-        val blockReward = getBlockReward(chain, number)
+        val blockReward = getBlockReward(chainInfo, number)
         val uncleReward = (blockReward * parityBlock.uncles.size.toBigDecimal())
                 .divide(decimal32, DECIMAL_SCALE, RoundingMode.FLOOR).stripTrailingZeros()
 

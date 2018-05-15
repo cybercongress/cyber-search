@@ -3,15 +3,11 @@ package fund.cyber.pump.bitcoin.client
 import fund.cyber.search.configuration.BITCOIN_TX_OUTS_CACHE_HEAP_SIZE
 import fund.cyber.search.configuration.BITCOIN_TX_OUTS_CACHE_HEAP_SIZE_DEFAULT
 import fund.cyber.search.model.bitcoin.BitcoinCacheTxOutput
-import fund.cyber.search.model.chains.BitcoinFamilyChain
-import fund.cyber.search.model.events.blockPumpTopic
-import fund.cyber.search.model.events.txPumpTopic
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.apache.http.message.BasicHeader
 import org.ehcache.Cache
 import org.ehcache.CacheManager
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder
@@ -33,9 +29,6 @@ class BitcoinClientConfiguration(
     private val txOutsCacheHeapSize: Long
 ) {
 
-    @Autowired
-    private lateinit var chain: BitcoinFamilyChain
-
     private val defaultHttpHeaders = listOf(BasicHeader("Keep-Alive", "timeout=10, max=1024"))
     private val connectionManager = PoolingHttpClientConnectionManager().apply {
         defaultMaxPerRoute = MAX_PER_ROUTE
@@ -48,9 +41,6 @@ class BitcoinClientConfiguration(
             .setConnectionManagerShared(true)
             .setDefaultHeaders(defaultHttpHeaders)
             .build()!!
-
-    @Bean
-    fun kafkaTopicNames(): List<String> = listOf(chain.txPumpTopic, chain.blockPumpTopic)
 
     @Bean
     fun txOutputCache(

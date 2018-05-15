@@ -2,6 +2,8 @@ package fund.cyber.pump.common.node
 
 import com.nhaarman.mockito_kotlin.mock
 import fund.cyber.common.StackCache
+import fund.cyber.search.model.chains.ChainEntity
+import fund.cyber.search.model.chains.ChainEntityType
 import fund.cyber.search.model.events.PumpEvent
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.assertj.core.api.Assertions
@@ -12,7 +14,10 @@ data class TestBlockBundle(
         override val parentHash: String,
         override val number: Long,
         override val blockSize: Int
-) : BlockBundle
+) : BlockBundle {
+
+    override fun entitiesByType(chainEntityType: ChainEntityType): List<ChainEntity> = emptyList()
+}
 
 class BlockBundleEventGeneratorTest {
 

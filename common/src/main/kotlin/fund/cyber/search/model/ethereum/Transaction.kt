@@ -1,6 +1,7 @@
 package fund.cyber.search.model.ethereum
 
 import fund.cyber.search.model.PoolItem
+import fund.cyber.search.model.chains.ChainEntity
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -23,7 +24,7 @@ data class EthereumTx(
         val fee: BigDecimal,            //decimal //calculated
         val input: String,
         val createdSmartContract: String?            //creates contract hash
-) : PoolItem {
+) : PoolItem, ChainEntity {
     fun contractsUsedInTransaction() = listOfNotNull(from, to, createdSmartContract)
         .filter { contract -> contract.isNotEmpty() }
 
