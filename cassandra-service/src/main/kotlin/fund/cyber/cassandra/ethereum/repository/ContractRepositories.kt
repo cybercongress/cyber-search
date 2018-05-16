@@ -9,10 +9,13 @@ import org.springframework.data.cassandra.repository.CassandraRepository
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
+import reactor.core.publisher.Flux
 
 interface EthereumContractRepository : ReactiveCrudRepository<CqlEthereumContractSummary, String>
 
-interface EthereumContractTxRepository : ReactiveCrudRepository<CqlEthereumContractTxPreview, MapId>
+interface EthereumContractTxRepository : ReactiveCrudRepository<CqlEthereumContractTxPreview, MapId>{
+    fun findAllByContractHashAndBlockTime(contractHash: String, blockTime: Long): Flux<CqlEthereumContractTxPreview>
+}
 
 interface EthereumContractMinedBlockRepository : ReactiveCrudRepository<CqlEthereumContractMinedBlock, MapId>
 
