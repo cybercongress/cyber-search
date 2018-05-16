@@ -11,6 +11,7 @@ import fund.cyber.cassandra.configuration.keyspace
 import fund.cyber.cassandra.configuration.mappingContext
 import fund.cyber.cassandra.ethereum.repository.EthereumContractRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractMinedBlockRepository
@@ -163,7 +164,9 @@ class EthereumRepositoriesConfiguration : InitializingBean {
 
                     val contractRepository = reactiveRepositoryFactory
                             .getRepository(EthereumContractRepository::class.java)
-                    val contractTxRepository = repositoryFactory
+                    val contractTxRepository = reactiveRepositoryFactory
+                            .getRepository(EthereumContractTxRepository::class.java)
+                    val pageableContractTxRepository = repositoryFactory
                             .getRepository(PageableEthereumContractTxRepository::class.java)
                     val contractUncleRepository = repositoryFactory
                             .getRepository(PageableEthereumContractMinedUncleRepository::class.java)
@@ -182,8 +185,10 @@ class EthereumRepositoriesConfiguration : InitializingBean {
                     beanFactory.registerSingleton("${repositoryPrefix}txRepository", txRepository)
 
                     beanFactory.registerSingleton("${repositoryPrefix}contractRepository", contractRepository)
-                    beanFactory.registerSingleton("${repositoryPrefix}pageableContractTxRepository",
+                    beanFactory.registerSingleton("${repositoryPrefix}contractTxRepository",
                             contractTxRepository)
+                    beanFactory.registerSingleton("${repositoryPrefix}pageableContractTxRepository",
+                            pageableContractTxRepository)
                     beanFactory.registerSingleton("${repositoryPrefix}pageableContractBlockRepository",
                             contractBlockRepository)
                     beanFactory.registerSingleton("${repositoryPrefix}pageableContractUncleRepository",
