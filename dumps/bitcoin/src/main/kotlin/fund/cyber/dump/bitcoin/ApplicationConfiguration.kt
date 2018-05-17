@@ -16,7 +16,6 @@ import fund.cyber.search.model.chains.BitcoinFamilyChain
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.blockPumpTopic
 import fund.cyber.search.model.events.txPumpTopic
-import io.micrometer.core.instrument.MeterRegistry
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.requests.IsolationLevel
 import org.springframework.beans.factory.annotation.Autowired
@@ -52,8 +51,6 @@ class ApplicationConfiguration(
     lateinit var contractTxRepository: BitcoinContractTxRepository
     @Autowired
     lateinit var blockTxRepository: BitcoinBlockTxRepository
-    @Autowired
-    lateinit var monitoring: MeterRegistry
 
     @Bean
     fun blocksListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, BitcoinBlock> {
@@ -68,7 +65,7 @@ class ApplicationConfiguration(
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain.blockPumpTopic).apply {
-            messageListener = BlockDumpProcess(blockRepository, contractMinedBlockRepository, chain, monitoring)
+            messageListener = BlockDumpProcess(blockRepository, contractMinedBlockRepository, chain)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
@@ -89,7 +86,7 @@ class ApplicationConfiguration(
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
-            messageListener = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository, chain, monitoring)
+            messageListener = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository, chain)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
