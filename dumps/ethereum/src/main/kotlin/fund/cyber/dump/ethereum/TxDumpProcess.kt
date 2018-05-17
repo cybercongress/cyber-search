@@ -11,13 +11,9 @@ import fund.cyber.dump.common.toRecordEventsMap
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.events.PumpEvent
-import fund.cyber.search.model.events.txPumpTopic
-import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.Tags
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.BatchMessageListener
-import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Transform transaction based on event. For [PumpEvent.DROPPED_BLOCK] we transform transaction to mempool state.
@@ -32,15 +28,10 @@ class TxDumpProcess(
     private val txRepository: EthereumTxRepository,
     private val blockTxRepository: EthereumBlockTxRepository,
     private val contractTxRepository: EthereumContractTxRepository,
-    private val chain: EthereumFamilyChain,
-    monitoring: MeterRegistry
+    private val chain: EthereumFamilyChain
 ) : BatchMessageListener<PumpEvent, EthereumTx> {
 
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
-
-    private var topicCurrentOffsetMonitor: AtomicLong = monitoring.gauge("dump_topic_current_offset",
-        Tags.of("topic", chain.txPumpTopic), AtomicLong(0L))!!
-
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, EthereumTx>>) {
 
@@ -53,8 +44,6 @@ class TxDumpProcess(
         saveTransactions(records, currentDbTxs)
         saveBlockTransactions(records)
         saveContractTransactions(records, currentDbTxs)
-
-        topicCurrentOffsetMonitor.set(records.last().offset())
     }
 
     /**

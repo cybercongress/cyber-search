@@ -20,7 +20,6 @@ import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.blockPumpTopic
 import fund.cyber.search.model.events.txPumpTopic
 import fund.cyber.search.model.events.unclePumpTopic
-import io.micrometer.core.instrument.MeterRegistry
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.requests.IsolationLevel
 import org.springframework.beans.factory.annotation.Autowired
@@ -58,8 +57,6 @@ class ApplicationConfiguration(
     lateinit var ethereumUncleRepository: EthereumUncleRepository
     @Autowired
     lateinit var ethereumContractUncleRepository: EthereumContractUncleRepository
-    @Autowired
-    lateinit var monitoring: MeterRegistry
 
     @Bean
     fun blocksListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, EthereumBlock> {
@@ -74,8 +71,7 @@ class ApplicationConfiguration(
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain.blockPumpTopic).apply {
-            messageListener = BlockDumpProcess(ethereumBlockRepository, ethereumContractMinedBlockRepository, chain,
-                    monitoring)
+            messageListener = BlockDumpProcess(ethereumBlockRepository, ethereumContractMinedBlockRepository, chain)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
@@ -97,7 +93,7 @@ class ApplicationConfiguration(
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
             messageListener = TxDumpProcess(ethereumTxRepository, ethereumBlockTxRepository,
-                    ethereumContractTxRepository, chain, monitoring)
+                    ethereumContractTxRepository, chain)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
@@ -118,8 +114,7 @@ class ApplicationConfiguration(
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain.unclePumpTopic).apply {
-            messageListener = UncleDumpProcess(ethereumUncleRepository, ethereumContractUncleRepository, chain,
-                    monitoring)
+            messageListener = UncleDumpProcess(ethereumUncleRepository, ethereumContractUncleRepository, chain)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }

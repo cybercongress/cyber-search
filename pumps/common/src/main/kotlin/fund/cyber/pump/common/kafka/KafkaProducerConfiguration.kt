@@ -63,6 +63,19 @@ class KafkaProducerConfiguration {
     }
 
     @Bean
+    fun producerFactoryPool(): ProducerFactory<PumpEvent, Any> {
+        return DefaultKafkaProducerFactory<PumpEvent, Any>(producerConfigs(), JsonSerializer(), JsonSerializer())
+            .apply {
+                setTransactionIdPrefix(chainInfo.fullName + "_PUMP_POOL")
+            }
+    }
+
+    @Bean
+    fun kafkaTemplatePool(): KafkaTemplate<PumpEvent, Any> {
+        return KafkaTemplate(producerFactoryPool())
+    }
+
+    @Bean
     fun producerConfigs(): Map<String, Any> = defaultProducerConfig().with(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers
     )
