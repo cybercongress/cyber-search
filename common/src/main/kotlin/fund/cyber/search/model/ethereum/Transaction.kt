@@ -1,6 +1,7 @@
 package fund.cyber.search.model.ethereum
 
 import fund.cyber.search.model.PoolItem
+import fund.cyber.search.model.chains.ChainEntity
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -28,7 +29,7 @@ data class EthereumTx(
 
     val createdSmartContract: String?,           // not null if tx creates smart contract
     val trace: TxTrace?                          // null only for pending txes (in memory pool)
-) : PoolItem {
+) : PoolItem, ChainEntity {
 
     fun contractsUsedInTransaction() = listOfNotNull(from, to, createdSmartContract).filter(String::isNotEmpty)
 

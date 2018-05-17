@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import fund.cyber.pump.common.genesis.GenesisDataProvider
 import fund.cyber.pump.ethereum.client.EthereumBlockBundle
-import fund.cyber.search.model.chains.Chain
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.weiToEthRate
@@ -17,13 +16,12 @@ interface EthereumGenesisDataProvider : GenesisDataProvider<EthereumBlockBundle>
 
 @Component
 class EthereumGenesisDataFileProvider(
-        private val genesisFileRootDirectory: String = "genesis",
-        private val chain: Chain
+        private val genesisFileRootDirectory: String = "genesis"
 ) : EthereumGenesisDataProvider {
 
     override fun provide(blockBundle: EthereumBlockBundle): EthereumBlockBundle {
 
-        val filePath = "/$genesisFileRootDirectory/${chain.lowerCaseName}.json"
+        val filePath = "/$genesisFileRootDirectory/ethereum.json"
 
         val jkMapper = ObjectMapper()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

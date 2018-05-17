@@ -97,7 +97,6 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
         log.info("Processing records for topic: ${info.topic}; partition ${info.partition} from ${info.minOffset}" +
             " to ${info.maxOffset} offset.")
 
-        // todo: Remove when https://github.com/cybercongress/cyber-search/issues/137 will be implemented.
         val recordsToProcess = records.filter { record -> record.key() != PumpEvent.NEW_POOL_TX }
 
         val storeAttempts: MutableMap<String, Int> = mutableMapOf()

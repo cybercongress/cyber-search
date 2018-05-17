@@ -12,7 +12,6 @@ import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.blockPumpTopic
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
@@ -149,7 +148,7 @@ class BlockDumpProcessTest {
         }
 
         val blockDumpProcess = BlockDumpProcess(blockRepository, contractMinedBlockRepository,
-                EthereumFamilyChain.ETHEREUM, SimpleMeterRegistry())
+            EthereumFamilyChain.ETHEREUM)
 
         blockDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8))
 

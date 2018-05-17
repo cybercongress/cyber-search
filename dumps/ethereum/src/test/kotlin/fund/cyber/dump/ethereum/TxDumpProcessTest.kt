@@ -14,7 +14,6 @@ import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.txPumpTopic
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
@@ -127,7 +126,7 @@ class TxDumpProcessTest {
         }
 
         val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository,
-                EthereumFamilyChain.ETHEREUM, SimpleMeterRegistry())
+                EthereumFamilyChain.ETHEREUM)
 
         txDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8))
 

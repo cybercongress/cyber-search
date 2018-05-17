@@ -471,19 +471,11 @@ components:
         lastActivityDate:
           type: string
           format: date-time
-        version:
-          type: integer
-          format: int64
-        kafkaDeltaOffset:
-          type: integer
-          format: int64
-        kafkaDeltaPartition:
-          type: integer
-          format: int32
-        kafkaDeltaTopic:
-          type: string
-        kafkaDeltaOffsetCommited:
-          type: boolean
+        unconfirmedTxValues:
+          type: object
+          additionalProperties:
+            type: number
+
 
     EthereumContractTx:
       type: object

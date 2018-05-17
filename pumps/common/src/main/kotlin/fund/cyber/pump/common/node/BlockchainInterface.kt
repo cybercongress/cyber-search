@@ -1,13 +1,16 @@
 package fund.cyber.pump.common.node
 
+import fund.cyber.search.model.chains.ChainEntity
+import fund.cyber.search.model.chains.ChainEntityType
 
-const val UNKNOWN_PARENT_HASH = "UNKNOWN_PARENT_HASH"
 
 interface BlockBundle {
     val hash: String
     val parentHash: String
     val number: Long
     val blockSize: Int
+
+    fun entitiesByType(chainEntityType: ChainEntityType): List<ChainEntity>
 }
 
 interface BlockchainInterface<out T : BlockBundle> {

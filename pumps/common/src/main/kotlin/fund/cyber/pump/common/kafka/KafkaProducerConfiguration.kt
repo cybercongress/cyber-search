@@ -2,10 +2,11 @@ package fund.cyber.pump.common.kafka
 
 import fund.cyber.common.kafka.JsonSerializer
 import fund.cyber.common.kafka.defaultProducerConfig
+import fund.cyber.common.kafka.kafkaTopicName
 import fund.cyber.common.with
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
-import fund.cyber.search.model.chains.Chain
+import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.events.PumpEvent
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.AdminClientConfig
@@ -38,10 +39,7 @@ class KafkaProducerConfiguration {
     private lateinit var kafkaBrokers: String
 
     @Autowired
-    private lateinit var chain: Chain
-
-    @Autowired
-    private lateinit var kafkaTopicNames: List<String>
+    private lateinit var chainInfo: ChainInfo
 
     @Bean
     fun kafkaAdmin(): KafkaAdmin {
@@ -55,13 +53,23 @@ class KafkaProducerConfiguration {
     fun producerFactory(): ProducerFactory<PumpEvent, Any> {
         return DefaultKafkaProducerFactory<PumpEvent, Any>(producerConfigs(), JsonSerializer(), JsonSerializer())
                 .apply {
-                    setTransactionIdPrefix(chain.name + "_PUMP")
+                    setTransactionIdPrefix(chainInfo.fullName + "_PUMP")
                 }
     }
 
     @Bean
     fun kafkaTemplate(): KafkaTemplate<PumpEvent, Any> {
         return KafkaTemplate(producerFactory())
+    }
+
+    @Bean
+    fun producerFactoryPool(): ProducerFactory<PumpEvent, Any> {
+        return DefaultKafkaProducerFactory<PumpEvent, Any>(producerConfigs(), JsonSerializer(), JsonSerializer())
+    }
+
+    @Bean
+    fun kafkaTemplatePool(): KafkaTemplate<PumpEvent, Any> {
+        return KafkaTemplate(producerFactoryPool())
     }
 
     @Bean
@@ -90,8 +98,8 @@ class KafkaProducerConfiguration {
         val kafkaClient = AdminClient.create(kafkaAdmin().config)
 
         val newTopics = mutableListOf<NewTopic>()
-        kafkaTopicNames.forEach { topic ->
-            newTopics.add(NewTopic(topic, 1, 1).configs(topicConfigs()))
+        chainInfo.family.entityTypes.keys.forEach { entity ->
+            newTopics.add(NewTopic(entity.kafkaTopicName(chainInfo), 1, 1).configs(topicConfigs()))
         }
 
         kafkaClient.createTopics(newTopics)

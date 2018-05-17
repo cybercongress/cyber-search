@@ -2,6 +2,7 @@ package fund.cyber.pump.common.pool
 
 import fund.cyber.search.model.PoolItem
 import fund.cyber.search.model.events.PumpEvent
+import io.micrometer.core.instrument.MeterRegistry
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import org.reactivestreams.Subscriber
@@ -17,8 +18,11 @@ private val log = LoggerFactory.getLogger(PoolPump::class.java)!!
 @DependsOn("kafkaPoolItemProducer")
 class PoolPump<T : PoolItem>(
     private val poolInterface: PoolInterface<T>,
-    private val poolItemProducer: KafkaPoolItemProducer<T>
+    private val poolItemProducer: KafkaPoolItemProducer,
+    monitoring: MeterRegistry
 ) {
+
+    val mempoolTxCountMonitor = monitoring.counter("mempool_tx_counter")
 
     fun startPump() {
         log.debug("Starting pool pump")
@@ -29,7 +33,8 @@ class PoolPump<T : PoolItem>(
             .subscribe (
                 { item ->
                     log.debug("New pool item received $item")
-                    poolItemProducer.storeItems(listOf(PumpEvent.NEW_POOL_TX to item))
+                    mempoolTxCountMonitor.increment()
+                    poolItemProducer.storeItem(PumpEvent.NEW_POOL_TX to item)
                 },
                 { error ->
                     log.error("Error during processing pool...", error)

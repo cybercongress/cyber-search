@@ -1,11 +1,10 @@
 package fund.cyber.search.model.bitcoin
 
+import fund.cyber.search.model.chains.BlockEntity
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 
-
-interface BitcoinItem
 
 data class BitcoinBlock(
         val height: Long,
@@ -23,8 +22,9 @@ data class BitcoinBlock(
         val bits: String,
         val difficulty: BigInteger,
         val txNumber: Int,
-        val totalOutputsAmount: BigDecimal
-) : BitcoinItem
+        val totalOutputsAmount: BigDecimal,
+        override val number: Long = height
+) : BlockEntity
 
 const val BITCOIN_REWARD_FIRST_CHANGE_BLOCK_NUMBER = 210000
 const val BITCOIN_REWARD_SECOND_CHANGE_BLOCK_NUMBER = 420000

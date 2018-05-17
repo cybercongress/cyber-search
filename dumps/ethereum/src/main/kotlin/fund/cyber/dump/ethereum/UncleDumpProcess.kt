@@ -9,26 +9,18 @@ import fund.cyber.dump.common.toRecordEventsMap
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumUncle
 import fund.cyber.search.model.events.PumpEvent
-import fund.cyber.search.model.events.unclePumpTopic
-import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.Tags
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.BatchMessageListener
-import java.util.concurrent.atomic.AtomicLong
 
 
 class UncleDumpProcess(
     private val uncleRepository: EthereumUncleRepository,
     private val contractUncleRepository: EthereumContractUncleRepository,
-    private val chain: EthereumFamilyChain,
-    monitoring: MeterRegistry
+    private val chain: EthereumFamilyChain
 ) : BatchMessageListener<PumpEvent, EthereumUncle> {
 
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
-
-    private var topicCurrentOffsetMonitor: AtomicLong = monitoring.gauge("dump_topic_current_offset",
-        Tags.of("topic", chain.unclePumpTopic), AtomicLong(0))!!
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, EthereumUncle>>) {
 
@@ -49,8 +41,5 @@ class UncleDumpProcess(
         contractUncleRepository
             .saveAll(unclesToCommit.map { uncle -> CqlEthereumContractMinedUncle(uncle) })
             .collectList().block()
-
-        topicCurrentOffsetMonitor.set(records.last().offset())
-
     }
 }

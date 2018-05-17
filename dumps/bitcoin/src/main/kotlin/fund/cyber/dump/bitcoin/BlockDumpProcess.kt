@@ -9,25 +9,18 @@ import fund.cyber.dump.common.toRecordEventsMap
 import fund.cyber.search.model.bitcoin.BitcoinBlock
 import fund.cyber.search.model.chains.BitcoinFamilyChain
 import fund.cyber.search.model.events.PumpEvent
-import fund.cyber.search.model.events.blockPumpTopic
-import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.Tags
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.BatchMessageListener
-import java.util.concurrent.atomic.AtomicLong
 
 
 class BlockDumpProcess(
     private val blockRepository: BitcoinBlockRepository,
     private val contractMinedBlockRepository: BitcoinContractMinedBlockRepository,
-    private val chain: BitcoinFamilyChain,
-    private val monitoring: MeterRegistry
+    private val chain: BitcoinFamilyChain
 ) : BatchMessageListener<PumpEvent, BitcoinBlock> {
 
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
-
-    private lateinit var topicCurrentOffsetMonitor: AtomicLong
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, BitcoinBlock>>) {
 
@@ -54,12 +47,5 @@ class BlockDumpProcess(
         contractMinedBlockRepository
             .saveAll(blocksToCommit.map { block -> CqlBitcoinContractMinedBlock(block) })
             .collectList().block()
-
-        if (::topicCurrentOffsetMonitor.isInitialized) {
-            topicCurrentOffsetMonitor.set(records.last().offset())
-        } else {
-            topicCurrentOffsetMonitor = monitoring.gauge("dump_topic_current_offset",
-                Tags.of("topic", chain.blockPumpTopic), AtomicLong(records.last().offset()))!!
-        }
     }
 }

@@ -1,7 +1,11 @@
 package fund.cyber.common.kafka
 
+import fund.cyber.search.model.chains.ChainEntityType
+import fund.cyber.search.model.chains.ChainInfo
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.common.TopicPartition
+
+fun ChainEntityType.kafkaTopicName(chainInfo: ChainInfo)  = "${chainInfo.fullName}_${this.name}_PUMP"
 
 fun Consumer<Any, Any>.readTopicLastOffset(topic: String): Long {
     val partitions = partitionsFor(topic)

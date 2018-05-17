@@ -5,6 +5,8 @@ import fund.cyber.pump.common.node.BlockchainInterface
 import fund.cyber.pump.ethereum.client.genesis.EthereumGenesisDataProvider
 import fund.cyber.common.await
 import fund.cyber.pump.common.pool.PoolInterface
+import fund.cyber.search.model.chains.ChainEntity
+import fund.cyber.search.model.chains.ChainEntityType
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
@@ -25,7 +27,15 @@ class EthereumBlockBundle(
         val block: EthereumBlock,
         val uncles: List<EthereumUncle>,
         val txes: List<EthereumTx>
-) : BlockBundle
+) : BlockBundle {
+    override fun entitiesByType(chainEntityType: ChainEntityType): List<ChainEntity> {
+        return when(chainEntityType) {
+            ChainEntityType.BLOCK -> listOf(block)
+            ChainEntityType.TX -> txes
+            ChainEntityType.UNCLE -> uncles
+        }
+    }
+}
 
 
 @Component

@@ -11,6 +11,7 @@ import fund.cyber.cassandra.configuration.keyspace
 import fund.cyber.cassandra.configuration.mappingContext
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumContractRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumBlockTxRepository
@@ -56,19 +57,18 @@ import org.springframework.data.cassandra.repository.support.ReactiveCassandraRe
 import org.springframework.data.convert.CustomConversions
 import org.springframework.stereotype.Component
 
-//todo separate files
-//todo add context tests
+
 @Configuration
 @EnableReactiveCassandraRepositories(
-    basePackages = ["fund.cyber.cassandra.ethereum.repository"],
-    reactiveCassandraTemplateRef = "ethereumCassandraTemplate"
+        basePackages = ["fund.cyber.cassandra.ethereum.repository"],
+        reactiveCassandraTemplateRef = "ethereumCassandraTemplate"
 )
 @Conditional(EthereumFamilyChainCondition::class)
 class EthereumRepositoryConfiguration(
-    @Value("\${$CASSANDRA_HOSTS:$CASSANDRA_HOSTS_DEFAULT}")
-    private val cassandraHosts: String,
-    @Value("\${$CASSANDRA_PORT:$CASSANDRA_PORT_DEFAULT}")
-    private val cassandraPort: Int
+        @Value("\${$CASSANDRA_HOSTS:$CASSANDRA_HOSTS_DEFAULT}")
+        private val cassandraHosts: String,
+        @Value("\${$CASSANDRA_PORT:$CASSANDRA_PORT_DEFAULT}")
+        private val cassandraPort: Int
 ) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort) {
 
     private val chain = EthereumFamilyChain.valueOf(env(CHAIN, ""))
@@ -87,14 +87,14 @@ class EthereumRepositoryConfiguration(
 
     @Bean("ethereumCassandraTemplate")
     fun reactiveCassandraTemplate(
-        @Qualifier("ethereumReactiveSession") session: ReactiveSession
+            @Qualifier("ethereumReactiveSession") session: ReactiveSession
     ): ReactiveCassandraOperations {
         return ReactiveCassandraTemplate(DefaultReactiveSessionFactory(session), cassandraConverter())
     }
 
     @Bean("ethereumReactiveSession")
     fun reactiveSession(
-        @Qualifier("ethereumSession") session: CassandraSessionFactoryBean
+            @Qualifier("ethereumSession") session: CassandraSessionFactoryBean
     ): ReactiveSession {
         return DefaultBridgedReactiveSession(session.`object`)
     }
@@ -154,62 +154,66 @@ class EthereumRepositoriesConfiguration : InitializingBean {
         val beanFactory = applicationContext.beanFactory
 
         cluster.metadata.keyspaces
-            .filter { keyspace -> keyspace.name.startsWith("ethereum", true) }
-            .forEach { keyspace ->
+                .filter { keyspace -> keyspace.name.startsWith("ethereum", true) }
+                .forEach { keyspace ->
 
-                //create sessions
-                val converter = MappingCassandraConverter(mappingContext(cluster, keyspace.name,
-                    "fund.cyber.cassandra.ethereum.model", customEthereumConversions()))
-                converter.customConversions = customEthereumConversions()
-                converter.afterPropertiesSet()
-                val session = getKeyspaceSession(cluster, keyspace.name, converter).also { it.afterPropertiesSet() }
-                val reactiveSession = DefaultReactiveSessionFactory(DefaultBridgedReactiveSession(session.`object`))
+                    //create sessions
+                    val converter = MappingCassandraConverter(mappingContext(cluster, keyspace.name,
+                        "fund.cyber.cassandra.ethereum.model", customEthereumConversions()))
+                    converter.customConversions = customEthereumConversions()
+                    converter.afterPropertiesSet()
+                    val session = getKeyspaceSession(cluster, keyspace.name, converter).also { it.afterPropertiesSet() }
+                    val reactiveSession = DefaultReactiveSessionFactory(DefaultBridgedReactiveSession(session.`object`))
 
-                // create cassandra operations
-                val reactiveCassandraOperations = ReactiveCassandraTemplate(reactiveSession, converter)
-                val cassandraOperations = CassandraTemplate(session.`object`, converter)
+                    // create cassandra operations
+                    val reactiveCassandraOperations = ReactiveCassandraTemplate(reactiveSession, converter)
+                    val cassandraOperations = CassandraTemplate(session.`object`, converter)
 
-                // create repository factories
-                val reactiveRepositoryFactory = ReactiveCassandraRepositoryFactory(reactiveCassandraOperations)
-                val repositoryFactory = CassandraRepositoryFactory(cassandraOperations)
+                    // create repository factories
+                    val reactiveRepositoryFactory = ReactiveCassandraRepositoryFactory(reactiveCassandraOperations)
+                    val repositoryFactory = CassandraRepositoryFactory(cassandraOperations)
 
-                // create repositories
-                val blockRepository = reactiveRepositoryFactory.getRepository(EthereumBlockRepository::class.java)
-                val blockTxRepository = repositoryFactory
-                    .getRepository(PageableEthereumBlockTxRepository::class.java)
+                    // create repositories
+                    val blockRepository = reactiveRepositoryFactory.getRepository(EthereumBlockRepository::class.java)
+                    val blockTxRepository = repositoryFactory
+                            .getRepository(PageableEthereumBlockTxRepository::class.java)
 
-                val txRepository = reactiveRepositoryFactory.getRepository(EthereumTxRepository::class.java)
+                    val txRepository = reactiveRepositoryFactory.getRepository(EthereumTxRepository::class.java)
 
-                val contractRepository = reactiveRepositoryFactory
-                    .getRepository(EthereumContractRepository::class.java)
-                val contractTxRepository = repositoryFactory
-                    .getRepository(PageableEthereumContractTxRepository::class.java)
-                val contractUncleRepository = repositoryFactory
-                    .getRepository(PageableEthereumContractMinedUncleRepository::class.java)
-                val contractBlockRepository = repositoryFactory
-                    .getRepository(PageableEthereumContractMinedBlockRepository::class.java)
+                    val contractRepository = reactiveRepositoryFactory
+                            .getRepository(EthereumContractRepository::class.java)
+                    val contractTxRepository = reactiveRepositoryFactory
+                            .getRepository(EthereumContractTxRepository::class.java)
+                    val pageableContractTxRepository = repositoryFactory
+                            .getRepository(PageableEthereumContractTxRepository::class.java)
+                    val contractUncleRepository = repositoryFactory
+                            .getRepository(PageableEthereumContractMinedUncleRepository::class.java)
+                    val contractBlockRepository = repositoryFactory
+                            .getRepository(PageableEthereumContractMinedBlockRepository::class.java)
 
-                val uncleRepository = reactiveRepositoryFactory.getRepository(EthereumUncleRepository::class.java)
+                    val uncleRepository = reactiveRepositoryFactory.getRepository(EthereumUncleRepository::class.java)
 
-                val repositoryPrefix = "${keyspace.name}$REPOSITORY_NAME_DELIMETER"
+                    val repositoryPrefix = "${keyspace.name}$REPOSITORY_NAME_DELIMETER"
 
-                // register repositories
-                beanFactory.registerSingleton("${repositoryPrefix}blockRepository", blockRepository)
-                beanFactory.registerSingleton("${repositoryPrefix}pageableBlockTxRepository",
-                    blockTxRepository)
+                    // register repositories
+                    beanFactory.registerSingleton("${repositoryPrefix}blockRepository", blockRepository)
+                    beanFactory.registerSingleton("${repositoryPrefix}pageableBlockTxRepository",
+                                    blockTxRepository)
 
-                beanFactory.registerSingleton("${repositoryPrefix}txRepository", txRepository)
+                    beanFactory.registerSingleton("${repositoryPrefix}txRepository", txRepository)
 
-                beanFactory.registerSingleton("${repositoryPrefix}contractRepository", contractRepository)
-                beanFactory.registerSingleton("${repositoryPrefix}pageableContractTxRepository",
-                    contractTxRepository)
-                beanFactory.registerSingleton("${repositoryPrefix}pageableContractBlockRepository",
-                    contractBlockRepository)
-                beanFactory.registerSingleton("${repositoryPrefix}pageableContractUncleRepository",
-                    contractUncleRepository)
+                    beanFactory.registerSingleton("${repositoryPrefix}contractRepository", contractRepository)
+                    beanFactory.registerSingleton("${repositoryPrefix}contractTxRepository",
+                            contractTxRepository)
+                    beanFactory.registerSingleton("${repositoryPrefix}pageableContractTxRepository",
+                            pageableContractTxRepository)
+                    beanFactory.registerSingleton("${repositoryPrefix}pageableContractBlockRepository",
+                            contractBlockRepository)
+                    beanFactory.registerSingleton("${repositoryPrefix}pageableContractUncleRepository",
+                            contractUncleRepository)
 
-                beanFactory.registerSingleton("${repositoryPrefix}uncleRepository", uncleRepository)
-            }
+                    beanFactory.registerSingleton("${repositoryPrefix}uncleRepository", uncleRepository)
+                }
     }
 
 }
