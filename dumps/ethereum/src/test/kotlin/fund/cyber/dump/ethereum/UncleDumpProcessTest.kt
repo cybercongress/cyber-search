@@ -12,7 +12,6 @@ import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumUncle
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.unclePumpTopic
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
@@ -90,8 +89,7 @@ class UncleDumpProcessTest {
             on { deleteAll(any<Iterable<CqlEthereumContractMinedUncle>>()) }.thenReturn(Mono.empty())
         }
 
-        val blockDumpProcess = UncleDumpProcess(uncleRepository, contractUncleRepository, EthereumFamilyChain.ETHEREUM,
-                SimpleMeterRegistry())
+        val blockDumpProcess = UncleDumpProcess(uncleRepository, contractUncleRepository, EthereumFamilyChain.ETHEREUM)
 
         blockDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8))
 

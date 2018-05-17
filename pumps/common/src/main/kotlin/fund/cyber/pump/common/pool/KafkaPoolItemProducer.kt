@@ -20,9 +20,10 @@ class KafkaPoolItemProducer(
     fun storeItem(itemEvent: Pair<PumpEvent, PoolItem>) {
         val event = itemEvent.first
         val item = itemEvent.second
-        kafkaTemplatePool.send(ChainEntityType.TX.kafkaTopicName(chainInfo), event, item).addCallback({_ -> }) { error ->
-            log.error("Error during sending mempool item to kafka", error)
-            storeItem(itemEvent)
-        }
+        kafkaTemplatePool.send(ChainEntityType.TX.kafkaTopicName(chainInfo), event, item)
+            .addCallback({ _ -> }) { error ->
+                log.error("Error during sending mempool item to kafka", error)
+                storeItem(itemEvent)
+            }
     }
 }
