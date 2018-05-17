@@ -5,23 +5,24 @@ import fund.cyber.search.model.PoolItem
 import fund.cyber.search.model.chains.ChainEntityType
 import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.events.PumpEvent
+import org.slf4j.LoggerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
+private val log = LoggerFactory.getLogger(KafkaPoolItemProducer::class.java)!!
 
 @Component
 class KafkaPoolItemProducer(
-    private val kafkaTemplate: KafkaTemplate<PumpEvent, Any>,
+    private val kafkaTemplatePool: KafkaTemplate<PumpEvent, Any>,
     private val chainInfo: ChainInfo
 ) {
 
-    @Transactional
-    fun storeItems(itemsEvents: List<Pair<PumpEvent, PoolItem>>) {
-        itemsEvents.forEach { itemEvent ->
-            val event = itemEvent.first
-            val item = itemEvent.second
-            kafkaTemplate.send(ChainEntityType.TX.kafkaTopicName(chainInfo), event, item)
+    fun storeItem(itemEvent: Pair<PumpEvent, PoolItem>) {
+        val event = itemEvent.first
+        val item = itemEvent.second
+        kafkaTemplatePool.send(ChainEntityType.TX.kafkaTopicName(chainInfo), event, item).addCallback({_ -> }) { error ->
+            log.error("Error during sending mempool item to kafka", error)
+            storeItem(itemEvent)
         }
     }
 }
