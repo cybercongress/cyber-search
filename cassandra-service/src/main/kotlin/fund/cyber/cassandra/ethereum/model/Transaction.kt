@@ -3,7 +3,6 @@
 package fund.cyber.cassandra.ethereum.model
 
 import fund.cyber.search.model.ethereum.EthereumTx
-import fund.cyber.search.model.ethereum.OperationType
 import fund.cyber.search.model.ethereum.TxTrace
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
@@ -31,7 +30,6 @@ data class CqlEthereumTx(
     val input: String,
     @Column("created_contract") val createdContract: String?,
     @Column("trace_json") val trace: TxTrace?   //saved in cassandra as json string
-    //val operations: List<CqlTxOperation>
 ) : CqlEthereumItem {
 
     constructor(tx: EthereumTx) : this(
@@ -45,12 +43,4 @@ data class CqlEthereumTx(
     fun contractsUsedInTransaction() = listOfNotNull(from, to, createdContract)
 }
 
-data class CqlTxOperation(
-    val type: OperationType,
-    val from: String,
-    val to: String,
-    val value: BigDecimal,
-    val error: String?, //not null if status is FAILED
-    val gasUsed: Long,
-    val gasLimit: Long
-)
+

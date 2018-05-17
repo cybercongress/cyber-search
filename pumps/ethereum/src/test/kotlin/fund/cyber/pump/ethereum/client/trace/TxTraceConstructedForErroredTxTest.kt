@@ -11,7 +11,7 @@ import java.math.BigDecimal
 class TxTraceConstructedForErroredTxTest : BaseTxTraceConverterTest() {
 
     private val expectedRootOperation = CallOperation(
-        type = "call", from = "0x87268131fbcd127a0692ce6e0a714923fe6b67d1", input = "0xd1058e59", gas = 68728,
+        type = "call", from = "0x87268131fbcd127a0692ce6e0a714923fe6b67d1", input = "0xd1058e59", gasLimit = 68728,
         to = "0xd0a6e6c54dbc68db5db3a091b171a77407ff7ccf", value = BigDecimal("0E-18")
     )
 

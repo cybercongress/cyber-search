@@ -17,20 +17,21 @@ import java.time.Instant
 
 @Table("contract_summary")
 data class CqlEthereumContractSummary(
-        @PrimaryKey override val hash: String,
-        @Column("confirmed_balance") val confirmedBalance: String,
-        @Column("smart_contract") val smartContract: Boolean,
-        @Column("confirmed_total_received") val confirmedTotalReceived: String,
-        @Column("tx_number") val txNumber: Int,
-        @Column("uncle_number") val minedUncleNumber: Int,
-        @Column("mined_block_number") val minedBlockNumber: Int,
-        @Column("first_activity_date") val firstActivityDate: Instant,
-        @Column("last_activity_date") val lastActivityDate: Instant,
-        override val version: Long,
-        @Column("kafka_delta_offset") override val kafkaDeltaOffset: Long,
-        @Column("kafka_delta_partition") override val kafkaDeltaPartition: Int,
-        @Column("kafka_delta_topic") override val kafkaDeltaTopic: String,
-        @Column("kafka_delta_offset_committed") override val kafkaDeltaOffsetCommitted: Boolean = false
+    @PrimaryKey override val hash: String,
+    @Column("confirmed_balance") val confirmedBalance: String,
+    @Column("smart_contract") val smartContract: Boolean,
+    @Column("confirmed_total_received") val confirmedTotalReceived: String,
+    @Column("tx_number") val txNumber: Int,
+    @Column("successful_operation_number") val successfulOpNumber: Int,
+    @Column("uncle_number") val minedUncleNumber: Int,
+    @Column("mined_block_number") val minedBlockNumber: Int,
+    @Column("first_activity_date") val firstActivityDate: Instant,
+    @Column("last_activity_date") val lastActivityDate: Instant,
+    override val version: Long,
+    @Column("kafka_delta_offset") override val kafkaDeltaOffset: Long,
+    @Column("kafka_delta_partition") override val kafkaDeltaPartition: Int,
+    @Column("kafka_delta_topic") override val kafkaDeltaTopic: String,
+    @Column("kafka_delta_offset_committed") override val kafkaDeltaOffsetCommitted: Boolean = false
 ) : CqlEthereumItem, CqlContractSummary
 
 

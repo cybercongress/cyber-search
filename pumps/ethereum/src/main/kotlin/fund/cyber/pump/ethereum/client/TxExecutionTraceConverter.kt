@@ -100,19 +100,19 @@ private fun convertOperation(action: Trace.Action): Operation {
         is Trace.CallAction -> {
             CallOperation(
                 type = action.callType, from = action.from, to = action.to, input = action.input,
-                value = BigDecimal(action.value) * weiToEthRate, gas = action.gasRaw.hexToLong()
+                value = BigDecimal(action.value) * weiToEthRate, gasLimit = action.gasRaw.hexToLong()
             )
         }
         is Trace.CreateAction -> {
             CreateContractOperation(
                 from = action.from, init = action.init,
-                value = BigDecimal(action.value) * weiToEthRate, gas = action.gasRaw.hexToLong()
+                value = BigDecimal(action.value) * weiToEthRate, gasLimit = action.gasRaw.hexToLong()
             )
         }
         is Trace.SuicideAction -> {
             DestroyContractOperation(
-                address = action.address, refundAddress = action.refundAddress,
-                balance = BigDecimal(action.balance) * weiToEthRate
+                contractToDestroy = action.address, refundContract = action.refundAddress,
+                refundValue = BigDecimal(action.balance) * weiToEthRate
             )
         }
         is Trace.RewardAction -> {

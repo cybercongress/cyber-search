@@ -14,7 +14,7 @@ import java.math.BigDecimal
 class TxTraceConstructedForNormalTxTest : BaseTxTraceConverterTest() {
 
     private val expectedOperation = CallOperation(
-        type = "call", from = "0x52bc44d5378309ee2abf1539bf71de1b7d7be3b5", input = "0x", gas = 29000,
+        type = "call", from = "0x52bc44d5378309ee2abf1539bf71de1b7d7be3b5", input = "0x", gasLimit = 29000,
         to = "0x00b654761a1b4372a77f6a327893572f55a483c7", value = BigDecimal("0.491554978522159616")
     )
 

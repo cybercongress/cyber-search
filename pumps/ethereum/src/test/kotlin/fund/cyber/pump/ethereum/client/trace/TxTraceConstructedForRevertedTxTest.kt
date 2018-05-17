@@ -12,7 +12,7 @@ import java.math.BigDecimal
 class TxTraceConstructedForRevertedTxTest : BaseTxTraceConverterTest() {
 
     private val expectedOperation = CallOperation(
-        type = "call", from = "0x2c2ff4ccd958954c5a5802c8cf81555d936f78ca", input = "0x", gas = 69000,
+        type = "call", from = "0x2c2ff4ccd958954c5a5802c8cf81555d936f78ca", input = "0x", gasLimit = 69000,
         to = "0x71d442f6a361befb4e98e091a6bc31392abc65dc", value = BigDecimal("4.205780000000000000")
     )
 

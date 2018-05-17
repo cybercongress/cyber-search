@@ -75,6 +75,7 @@ CREATE TABLE IF NOT exists ethereum.contract_summary (
     smart_contract boolean,
     confirmed_total_received text,
     tx_number int,
+    successful_operation_number int,
     uncle_number int,
     mined_block_number int,
     first_activity_date timestamp,

@@ -30,21 +30,21 @@ data class CallOperation(
     val to: String,
     val input: String,
     val value: BigDecimal,
-    val gas: Long
+    val gasLimit: Long
 ) : Operation(CALL)
 
 data class CreateContractOperation(
     val from: String,
     val init: String,
     val value: BigDecimal,
-    val gas: Long
+    val gasLimit: Long
 ) : Operation(CREATE_CONTRACT)
 
 
 data class DestroyContractOperation(
-    val address: String,
-    val balance: BigDecimal,
-    val refundAddress: String
+    val contractToDestroy: String,
+    val refundValue: BigDecimal,
+    val refundContract: String
 ) : Operation(DESTROY_CONTRACT)
 
 /**

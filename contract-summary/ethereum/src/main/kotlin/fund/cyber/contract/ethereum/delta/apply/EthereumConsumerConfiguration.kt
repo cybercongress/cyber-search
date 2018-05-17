@@ -4,11 +4,11 @@ import fund.cyber.contract.common.delta.apply.UpdateContractSummaryProcess
 import fund.cyber.contract.ethereum.EthereumContractSummaryStorage
 import fund.cyber.contract.ethereum.summary.EthereumBlockDeltaProcessor
 import fund.cyber.contract.ethereum.summary.EthereumDeltaMerger
-import fund.cyber.contract.ethereum.summary.EthereumTxDeltaProcessor
 import fund.cyber.contract.ethereum.summary.EthereumUncleDeltaProcessor
 import fund.cyber.common.kafka.JsonDeserializer
 import fund.cyber.common.kafka.defaultConsumerConfig
 import fund.cyber.common.with
+import fund.cyber.contract.ethereum.delta.EthereumTxDeltaProcessor
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
 import fund.cyber.search.model.chains.Chain

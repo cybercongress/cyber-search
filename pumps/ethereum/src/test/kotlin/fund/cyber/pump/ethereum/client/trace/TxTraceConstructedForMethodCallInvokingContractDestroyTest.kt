@@ -32,8 +32,8 @@ class TxTraceConstructedForMethodCallInvokingContractDestroyTest : BaseTxTraceCo
     private fun expectedDestroyContractSuboperationTrace(): OperationTrace {
 
         val operation = DestroyContractOperation(
-            address = "0x863df6bfa4469f3ead0be8f9f2aae51c91a907b4", balance = BigDecimal("0E-18"),
-            refundAddress = "0xae7168deb525862f4fee37d987a971b385b96952"
+            contractToDestroy = "0x863df6bfa4469f3ead0be8f9f2aae51c91a907b4", refundValue = BigDecimal("0E-18"),
+            refundContract = "0xae7168deb525862f4fee37d987a971b385b96952"
         )
 
         return OperationTrace(operation, null, emptyList())
