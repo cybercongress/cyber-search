@@ -33,7 +33,7 @@ jobs:
             - ~/.gradle/wrapper/
       - run:
           name: Build And Test Project
-          command: ./gradlew clean build
+          command: ./gradlew clean jacocoTestReport jacocoMerge coveralls
       - save_cache:
           key: project-dependencies-{{ checksum "build.gradle" }}
           paths:
