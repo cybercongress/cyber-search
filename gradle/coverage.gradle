@@ -8,12 +8,12 @@
  *
  */
 
+apply plugin: 'com.github.kt3k.coveralls'
+apply plugin: "jacoco"
+
 repositories {
     jcenter()
 }
-
-apply plugin: 'com.github.kt3k.coveralls'
-apply plugin: "jacoco"
 
 jacoco {
     toolVersion = "0.8.1"
