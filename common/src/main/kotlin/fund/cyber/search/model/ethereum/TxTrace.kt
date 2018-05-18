@@ -7,6 +7,8 @@ data class TxTrace(
     val rootOperationTrace: OperationTrace
 ) {
 
+    fun isRootOperationFailed() = rootOperationTrace.result is ErroredOperationResult
+
     fun getAllOperationsTraces() = allSuboperations(listOf(rootOperationTrace))
 
     private fun allSuboperations(operations: List<OperationTrace>): List<OperationTrace> {

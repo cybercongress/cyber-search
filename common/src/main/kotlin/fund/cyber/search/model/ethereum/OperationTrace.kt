@@ -19,7 +19,25 @@ data class OperationTrace(
     @JsonDeserialize(using = OperationResultDeserializer::class)
     val result: OperationResult?, //null for reward and destroy contract operations
     val subtraces: List<OperationTrace>
-)
+) {
+
+    /**
+     * Do not returns child contracts.
+     */
+    fun contractsUsedInCurrentOp(): List<String> {
+
+        return when (operation) {
+            is CallOperation -> listOf(operation.from, operation.to)
+            is RewardOperation -> listOf(operation.address)
+            is DestroyContractOperation -> listOf(operation.contractToDestroy, operation.refundContract)
+            is CreateContractOperation -> {
+                if (result is CreateContractOperationResult) listOf(operation.from, result.address)
+                else listOf(operation.from)
+            }
+        }
+    }
+}
+
 
 class OperationsDeserializer : JsonDeserializer<Operation>() {
 

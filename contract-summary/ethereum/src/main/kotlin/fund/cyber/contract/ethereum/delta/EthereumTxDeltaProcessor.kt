@@ -12,6 +12,7 @@ import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.OperationResult
 import fund.cyber.search.model.ethereum.OperationTrace
 import fund.cyber.search.model.ethereum.RewardOperation
+import fund.cyber.search.model.ethereum.TxTrace
 import fund.cyber.search.model.events.PumpEvent
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.stereotype.Component
@@ -40,9 +41,8 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumContractS
 
     override fun affectedContracts(records: List<ConsumerRecord<PumpEvent, EthereumTx>>): Set<String> {
         val allContracts: List<String> = records.flatMap { record ->
-            val inContract = record.value().from
-            val outContract = (record.value().to ?: record.value().createdSmartContract)!!
-            return@flatMap listOf(inContract, outContract)
+            if (record.key() == PumpEvent.NEW_POOL_TX) return@flatMap emptyList<String>()
+            return@flatMap record.value().trace!!.contractsChangingState()
         }
 
         return allContracts.filter { contract -> contract.isNotEmpty() }.toSet()
@@ -76,7 +76,7 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumContractS
     }
 
     /**
-     * If parent operation failed, should no be invoked. Returns delta for destroyed contract and refund contract.
+     * For suboperations: If parent operation failed, should no be invoked. Returns delta for call in-out contracts.
      */
     @SuppressWarnings("ComplexMethod")
     private fun deltasByCallOperationTrace(
@@ -108,7 +108,8 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumContractS
     }
 
     /**
-     * If parent operation failed, should no be invoked. Returns delta for destroyed contract and refund contract.
+     * For suboperations: If parent operation failed, should no be invoked.
+     * Returns delta for crated contract and contract creator.
      */
     @SuppressWarnings("ComplexMethod")
     private fun deltasByCreateOperation(
@@ -143,7 +144,8 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumContractS
     }
 
     /**
-     * If parent operation failed, should no be invoked. Returns delta for destroyed contract and refund contract.
+     * For suboperations: If parent operation failed, should no be invoked.
+     * Returns delta for destroyed contract and refund contract.
      * Can't be root op.
      */
     private fun deltasByDestroyOperation(
@@ -166,3 +168,19 @@ class EthereumTxDeltaProcessor : DeltaProcessor<EthereumTx, CqlEthereumContractS
         return listOf(contractDelta, refundDelta)
     }
 }
+
+internal fun TxTrace.contractsChangingState() = if (this.isRootOperationFailed()) {
+    this.rootOperationTrace.contractsUsedInCurrentOp()
+} else {
+    this.rootOperationTrace.contractsUsedInCurrentOp() + contractsChangingState(this.rootOperationTrace.subtraces)
+}
+
+private fun contractsChangingState(ops: List<OperationTrace>): List<String> {
+    return ops
+        .filter { op -> op.result !is ErroredOperationResult }
+        .flatMap { op ->
+            val contracts = op.contractsUsedInCurrentOp()
+            return@flatMap contracts + contractsChangingState(op.subtraces)
+        }
+}
+

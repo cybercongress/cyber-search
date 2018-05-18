@@ -271,5 +271,75 @@ class EthereumTxDeltaProcessorTest {
         val actualDeltas = deltaProcessor.recordToDeltas(txRecord)
         Assertions.assertEquals(expectedDeltas, actualDeltas)
     }
+
+    /**
+     *
+     *  Tx -> Ok Call
+     *            | -> Ok Call
+     *                     |  -> Ok Call
+     *                     |  -> Ok Create
+     *                     |  -> Fail Call
+     *                                 | -> Ok Destroy
+     *            | -> Fail Call
+     *            | -> Ok Call
+     */
+    @Test
+    @DisplayName("affected addresses should returns same contracts as in record deltas")
+    fun testAffectedAddressShouldReturnsSameContractsAsDeltas() {
+        val subtraces13 = listOf(
+            destroyContractOperationTrace(contractToDelete = "1-1-3-1f", refundContract = "1-1-3-1t")
+        )
+        val subtraces1 = listOf(
+            callOperationTrace(from = "1-1-1f", to = "1-1-1t"),
+            createContractOperationTrace(from = "1-1-2f", to = "1-1-2t"),
+            callOperationTrace(from = "1-1-3f", to = "1-1-3t", error = "e", subtraces = subtraces13)
+        )
+        val subtraces = listOf(
+            callOperationTrace(from = "1-1f", to = "1-1t", subtraces = subtraces1),
+            callOperationTrace(from = "1-2f", to = "1-2t", error = "e"),
+            callOperationTrace(from = "1-3f", to = "1-3t")
+        )
+        val txTrace = TxTrace(
+            callOperationTrace(from = "1f", to = "1t", subtraces = subtraces)
+        )
+
+        val txRecord = txRecord(trace = txTrace, value = ZERO)
+
+        val expectedContracts = setOf("1f", "1t", "1-1f", "1-1t", "1-1-1f", "1-1-1t", "1-1-2f", "1-1-2t", "1-3f", "1-3t")
+        val affectedContracts = deltaProcessor.affectedContracts(listOf(txRecord))
+        val deltasContracts = deltaProcessor.recordToDeltas(txRecord).map { d -> d.contract }.toSet()
+
+        Assertions.assertEquals(expectedContracts, affectedContracts)
+        Assertions.assertEquals(expectedContracts, deltasContracts)
+    }
+
+    /**
+     *
+     *  Tx -> Ok Fail
+     *            | -> Ok Call
+     *            | -> Fail Call
+     *            | -> Ok Call
+     */
+    @Test
+    @DisplayName("affected addresses should returns same contracts as in record deltas for failed root tx")
+    fun testAffectedAddressShouldReturnsSameContractsAsDeltasForFailedRootTx() {
+        val subtraces = listOf(
+            callOperationTrace(from = "1-1f", to = "1-1t"),
+            callOperationTrace(from = "1-2f", to = "1-2t", error = "e"),
+            callOperationTrace(from = "1-3f", to = "1-3t")
+        )
+        val txTrace = TxTrace(
+            callOperationTrace(from = "1f", to = "1t", subtraces = subtraces, error = "e")
+        )
+
+        val txRecord = txRecord(trace = txTrace, value = ZERO)
+
+        val expectedContracts = setOf("1f", "1t")
+        val affectedContracts = deltaProcessor.affectedContracts(listOf(txRecord))
+        val deltasContracts = deltaProcessor.recordToDeltas(txRecord).map { d -> d.contract }.toSet()
+
+        Assertions.assertEquals(expectedContracts, affectedContracts)
+        Assertions.assertEquals(expectedContracts, deltasContracts)
+    }
 }
 
