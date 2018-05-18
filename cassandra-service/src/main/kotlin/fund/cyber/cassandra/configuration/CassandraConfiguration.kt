@@ -18,6 +18,7 @@ import org.springframework.data.cassandra.config.AbstractReactiveCassandraConfig
 import org.springframework.data.cassandra.config.CassandraEntityClassScanner
 import org.springframework.data.cassandra.config.CassandraSessionFactoryBean
 import org.springframework.data.cassandra.config.SchemaAction
+import org.springframework.data.cassandra.core.convert.CassandraCustomConversions
 import org.springframework.data.cassandra.core.convert.MappingCassandraConverter
 import org.springframework.data.cassandra.core.cql.keyspace.CreateKeyspaceSpecification
 import org.springframework.data.cassandra.core.mapping.CassandraMappingContext
@@ -32,12 +33,16 @@ val Chain.keyspace: String get() = lowerCaseName
 
 const val REPOSITORY_NAME_DELIMETER = "__"
 
-fun mappingContext(cluster: Cluster, keyspace: String, basePackage: String): CassandraMappingContext {
+fun mappingContext(
+        cluster: Cluster, keyspace: String, basePackage: String,
+        customConversions: CassandraCustomConversions = CassandraCustomConversions(emptyList<Any>())
+): CassandraMappingContext {
 
     val mappingContext = CassandraMappingContext()
 
     mappingContext.setInitialEntitySet(CassandraEntityClassScanner.scan(basePackage))
     mappingContext.setUserTypeResolver(SimpleUserTypeResolver(cluster, keyspace))
+    mappingContext.setCustomConversions(customConversions)
 
     return mappingContext
 }

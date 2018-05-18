@@ -24,7 +24,7 @@ class EthereumBlockDeltaProcessorTest {
             smartContract = null, totalReceivedDelta = BigDecimal("5.089262252548096035"), txNumberDelta = 0,
             uncleNumberDelta = 0, minedBlockNumberDelta = 1,
             topic = EthereumFamilyChain.ETHEREUM.blockPumpTopic, partition = 0, offset = 0,
-            time = Instant.ofEpochMilli(100000)
+            lastOpTime = Instant.ofEpochMilli(100000)
     )
 
     private val expectedDroppedDelta = EthereumContractSummaryDelta(
@@ -33,7 +33,7 @@ class EthereumBlockDeltaProcessorTest {
             smartContract = null, totalReceivedDelta = BigDecimal("5.089262252548096035").negate(),
             txNumberDelta = 0, uncleNumberDelta = 0, minedBlockNumberDelta = -1,
             topic = EthereumFamilyChain.ETHEREUM.blockPumpTopic, partition = 0, offset = 0,
-            time = Instant.ofEpochMilli(100000)
+            lastOpTime = Instant.ofEpochMilli(100000)
     )
 
     private val block = EthereumBlock(

@@ -9,15 +9,15 @@ import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
 import fund.cyber.cassandra.configuration.getKeyspaceSession
 import fund.cyber.cassandra.configuration.keyspace
 import fund.cyber.cassandra.configuration.mappingContext
-import fund.cyber.cassandra.ethereum.repository.EthereumContractRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
+import fund.cyber.cassandra.ethereum.repository.PageableEthereumBlockTxRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractMinedBlockRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractMinedUncleRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractTxRepository
-import fund.cyber.cassandra.ethereum.repository.PageableEthereumBlockTxRepository
 import fund.cyber.cassandra.migration.BlockchainMigrationSettings
 import fund.cyber.cassandra.migration.MigrationSettings
 import fund.cyber.search.configuration.CASSANDRA_HOSTS
@@ -26,6 +26,8 @@ import fund.cyber.search.configuration.CASSANDRA_PORT
 import fund.cyber.search.configuration.CASSANDRA_PORT_DEFAULT
 import fund.cyber.search.configuration.CHAIN
 import fund.cyber.search.configuration.env
+import fund.cyber.search.jsonDeserializer
+import fund.cyber.search.jsonSerializer
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
@@ -44,6 +46,7 @@ import org.springframework.data.cassandra.config.ClusterBuilderConfigurer
 import org.springframework.data.cassandra.core.CassandraTemplate
 import org.springframework.data.cassandra.core.ReactiveCassandraOperations
 import org.springframework.data.cassandra.core.ReactiveCassandraTemplate
+import org.springframework.data.cassandra.core.convert.CassandraCustomConversions
 import org.springframework.data.cassandra.core.convert.MappingCassandraConverter
 import org.springframework.data.cassandra.core.cql.keyspace.CreateKeyspaceSpecification
 import org.springframework.data.cassandra.core.cql.session.DefaultBridgedReactiveSession
@@ -51,6 +54,7 @@ import org.springframework.data.cassandra.core.cql.session.DefaultReactiveSessio
 import org.springframework.data.cassandra.repository.config.EnableReactiveCassandraRepositories
 import org.springframework.data.cassandra.repository.support.CassandraRepositoryFactory
 import org.springframework.data.cassandra.repository.support.ReactiveCassandraRepositoryFactory
+import org.springframework.data.convert.CustomConversions
 import org.springframework.stereotype.Component
 
 
@@ -108,6 +112,18 @@ class EthereumRepositoryConfiguration(
         session.setKeyspaceName(keyspaceName)
         return session
     }
+
+    @Bean
+    override fun customConversions(): CustomConversions {
+        return customEthereumConversions()
+    }
+}
+
+private fun customEthereumConversions(): CassandraCustomConversions {
+    val additionConverters = listOf(
+        TxTraceReadConverter(jsonDeserializer), TxTraceWriteConverter(jsonSerializer)
+    )
+    return CassandraCustomConversions(additionConverters)
 }
 
 
@@ -143,7 +159,9 @@ class EthereumRepositoriesConfiguration : InitializingBean {
 
                     //create sessions
                     val converter = MappingCassandraConverter(mappingContext(cluster, keyspace.name,
-                        "fund.cyber.cassandra.ethereum.model"))
+                        "fund.cyber.cassandra.ethereum.model", customEthereumConversions()))
+                    converter.customConversions = customEthereumConversions()
+                    converter.afterPropertiesSet()
                     val session = getKeyspaceSession(cluster, keyspace.name, converter).also { it.afterPropertiesSet() }
                     val reactiveSession = DefaultReactiveSessionFactory(DefaultBridgedReactiveSession(session.`object`))
 

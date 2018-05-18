@@ -24,7 +24,6 @@ CREATE TABLE IF NOT exists ethereum.block (
     uncles FROZEN < list < text > >
 );
 
-
 CREATE TABLE IF NOT exists ethereum.tx (
     hash text PRIMARY KEY,
     nonce bigint,
@@ -40,7 +39,8 @@ CREATE TABLE IF NOT exists ethereum.tx (
     gas_used bigint,
     fee text,
     input text,
-    created_contract text
+    created_contract text,
+    trace_json text
 );
 
 CREATE TABLE IF NOT exists ethereum.tx_preview_by_contract (
@@ -75,6 +75,7 @@ CREATE TABLE IF NOT exists ethereum.contract_summary (
     smart_contract boolean,
     confirmed_total_received text,
     tx_number int,
+    successful_operation_number int,
     uncle_number int,
     mined_block_number int,
     first_activity_date timestamp,

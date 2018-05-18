@@ -28,6 +28,7 @@ interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEt
             smart_contract = :#{#summary.smartContract},
             confirmed_total_received = :#{#summary.confirmedTotalReceived},
             tx_number = :#{#summary.txNumber},
+            successful_operation_number = :#{#summary.successfulOpNumber},
             uncle_number = :#{#summary.minedUncleNumber},
             mined_block_number = :#{#summary.minedBlockNumber},
             last_activity_date = :#{#summary.lastActivityDate},
@@ -48,13 +49,13 @@ interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEt
     @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
     @Query("""
         INSERT INTO contract_summary (hash, confirmed_balance, smart_contract,
-          confirmed_total_received, tx_number, uncle_number, mined_block_number,
+          confirmed_total_received, tx_number, successful_operation_number, uncle_number, mined_block_number,
           first_activity_date, last_activity_date, version, kafka_delta_offset, kafka_delta_topic,
           kafka_delta_partition, kafka_delta_offset_committed)
         VALUES (:#{#summary.hash}, :#{#summary.confirmedBalance}, :#{#summary.smartContract},
-            :#{#summary.confirmedTotalReceived}, :#{#summary.txNumber}, :#{#summary.minedUncleNumber},
-            :#{#summary.minedBlockNumber}, :#{#summary.firstActivityDate}, :#{#summary.lastActivityDate},
-            :#{#summary.version}, :#{#summary.kafkaDeltaOffset},
+            :#{#summary.confirmedTotalReceived}, :#{#summary.txNumber},:#{#summary.successfulOpNumber},
+            :#{#summary.minedUncleNumber}, :#{#summary.minedBlockNumber}, :#{#summary.firstActivityDate},
+            :#{#summary.lastActivityDate}, :#{#summary.version}, :#{#summary.kafkaDeltaOffset},
             :#{#summary.kafkaDeltaTopic}, :#{#summary.kafkaDeltaPartition},
             false)
         IF NOT EXISTS

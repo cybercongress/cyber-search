@@ -459,6 +459,9 @@ components:
         txNumber:
           type: integer
           format: int32
+        successfulOpNumber:
+          type: integer
+          format: int32
         minedUncleNumber:
           type: integer
           format: int32
