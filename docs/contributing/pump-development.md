@@ -40,7 +40,7 @@ To start with, create new Gradle submodule with name of your chain in `pumps` mo
 
 Example of `pumps/build.gradle` file with your module:
 
-```
+```groovy
 project(":pumps:common") {
 
     apply plugin: "io.spring.dependency-management"
@@ -66,9 +66,9 @@ project(":pumps:{your_module_name}") {
 }
 
 ...
-``` 
-Example of `settings.gradle` file:
 ```
+Example of `settings.gradle` file:
+```groovy
 include "common"
 include "common-kafka"
 include "cassandra-service"
