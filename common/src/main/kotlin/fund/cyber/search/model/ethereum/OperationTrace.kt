@@ -18,7 +18,7 @@ data class OperationTrace(
     val operation: Operation,
     @JsonDeserialize(using = OperationResultDeserializer::class)
     val result: OperationResult?, //null for reward and destroy contract operations
-    val subtraces: List<OperationTrace>
+    val subtraces: List<OperationTrace> = emptyList()
 ) {
 
     /**
@@ -67,6 +67,7 @@ class OperationResultDeserializer : JsonDeserializer<OperationResult?>() {
         return when {
             root.has("output") -> objectMapper.convertValue(root, CallOperationResult::class.java)
             root.has("code") -> objectMapper.convertValue(root, CreateContractOperationResult::class.java)
+            root.has("error") -> objectMapper.convertValue(root, ErroredOperationResult::class.java)
             else -> throw RuntimeException("Unsupported Result")
         }
     }

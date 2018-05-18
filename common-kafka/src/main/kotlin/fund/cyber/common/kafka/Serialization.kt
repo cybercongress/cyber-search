@@ -25,6 +25,7 @@ class JsonDeserializer<T>(private val type: Class<T>) : Deserializer<T> {
     private val objectMapper = jsonDeserializer
     private val log = LoggerFactory.getLogger(JsonDeserializer::class.java)
 
+    //todo if exception is throwed here there is no log
     override fun deserialize(topic: String, data: ByteArray): T {
         log.debug("topic $topic data size : ${data.size}")
         return objectMapper.readValue(data, type)

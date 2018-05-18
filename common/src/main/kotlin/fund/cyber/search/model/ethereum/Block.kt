@@ -28,7 +28,7 @@ data class EthereumBlock(
         val gasLimit: Long,                //parsed from hex
         val gasUsed: Long,                //parsed from hex
         val txNumber: Int,
-        val uncles: List<String>,
+        val uncles: List<String> = emptyList(),
         val blockReward: BigDecimal,
         val unclesReward: BigDecimal,
         val txFees: BigDecimal
