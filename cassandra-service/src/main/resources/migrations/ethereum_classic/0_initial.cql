@@ -27,6 +27,7 @@ CREATE TABLE IF NOT exists ethereum_classic.block (
 
 CREATE TABLE IF NOT exists ethereum_classic.tx (
     hash text PRIMARY KEY,
+    status text,
     nonce bigint,
     block_hash text,
     block_time timestamp,
@@ -41,7 +42,7 @@ CREATE TABLE IF NOT exists ethereum_classic.tx (
     fee text,
     input text,
     created_contract text,
-    trace_json text
+    trace_json blob
 );
 
 CREATE TABLE IF NOT exists ethereum_classic.tx_preview_by_contract (

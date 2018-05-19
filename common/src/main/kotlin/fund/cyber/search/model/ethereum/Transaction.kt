@@ -2,10 +2,17 @@ package fund.cyber.search.model.ethereum
 
 import fund.cyber.search.model.PoolItem
 import fund.cyber.search.model.chains.ChainEntity
+import fund.cyber.search.model.ethereum.TxStatus.FAILED
+import fund.cyber.search.model.ethereum.TxStatus.OK
+import fund.cyber.search.model.ethereum.TxStatus.PENDING
 import java.math.BigDecimal
 import java.time.Instant
 
 val weiToEthRate = BigDecimal("1E-18")
+
+enum class TxStatus {
+    PENDING, OK, FAILED;
+}
 
 data class EthereumTx(
     val hash: String,
@@ -25,11 +32,13 @@ data class EthereumTx(
     val fee: BigDecimal,                         // calculated
 
     val input: String,                           // tx payload, used to specify invoking method with arguments,
-                                                 // or bytecode for smart contract creation
+    // or bytecode for smart contract creation
 
     val createdSmartContract: String?,           // not null if tx creates smart contract
     val trace: TxTrace?                          // null only for pending txes (in memory pool)
 ) : PoolItem, ChainEntity {
+
+    fun txStatus() = if (trace == null) PENDING else if (trace.isRootOperationFailed()) FAILED else OK
 
     fun contractsUsedInTransaction() = listOfNotNull(from, to, createdSmartContract).filter(String::isNotEmpty)
 

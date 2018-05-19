@@ -10,7 +10,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 val jsonSerializer = ObjectMapper().registerKotlinModule()
         .registerModule(Jdk8Module())
         .registerModule(JavaTimeModule())
-        .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)!!
+        .setSerializationInclusion(JsonInclude.Include.NON_NULL)!!
 
 val jsonDeserializer = ObjectMapper().registerKotlinModule()
         .registerModule(Jdk8Module())
