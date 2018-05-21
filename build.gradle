@@ -4,8 +4,8 @@ buildscript {
         kotlinVersion = "1.2.41"
         kotlinCoroutinesVersion = "0.22.3"
         jacksonVersion = "2.9.2"
-        kafkaVersion = "1.0.1"
-        springKafkaVersion = "2.1.4.RELEASE"
+        kafkaVersion = "1.1.0"
+        springKafkaVersion = "2.1.6.RELEASE"
         cassandraVersion = "3.5.0"
         springCassandraVersion = "2.0.7.RELEASE"
         web3jVersion = "3.4.0"
@@ -146,8 +146,7 @@ subprojects {
             dependency "org.springframework.kafka:spring-kafka:$springKafkaVersion"
             dependency "org.springframework.kafka:spring-kafka-test:$springKafkaVersion"
             dependency("org.apache.kafka:kafka-clients:$kafkaVersion")
-            dependency("org.apache.kafka:kafka-streams:$kafkaVersion")
-            dependency("org.apache.kafka:connect-api:$kafkaVersion")
+            dependency("org.apache.kafka:kafka_2.11:$kafkaVersion")
 
             dependency("org.junit.jupiter:junit-jupiter-api:$junitVersion")
             dependency("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
@@ -220,7 +219,9 @@ project(":common-kafka") {
         compile project(":common")
 
         compile "org.springframework.kafka:spring-kafka"
+        compile "org.apache.kafka:kafka-clients"
 
+        testCompile 'org.apache.kafka:kafka_2.11'
         testCompile 'org.springframework:spring-test'
         testCompile 'org.springframework.kafka:spring-kafka-test'
     }
