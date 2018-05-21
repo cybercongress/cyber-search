@@ -7,5 +7,4 @@ RUN ./gradlew clean :pumps:bitcoin:assemble
 # Container with application
 FROM openjdk:10-jre-slim
 COPY --from=build /build/pumps/bitcoin/build/libs /cyberapp/bin
-ENV JAVA_CGROUP_OPTS = "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XshowSettings:vm"
-ENTRYPOINT exec java $JAVA_CGROUP_OPTS $JAVA_OPTS -jar /cyberapp/bin/bitcoin.jar
+ENTRYPOINT exec java $JAVA_OPTS -jar /cyberapp/bin/bitcoin.jar

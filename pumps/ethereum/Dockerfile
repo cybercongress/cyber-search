@@ -7,5 +7,4 @@ RUN ./gradlew clean :pumps:ethereum:assemble
 # Container with application
 FROM openjdk:10-jre-slim
 COPY --from=build /build/pumps/ethereum/build/libs /cyberapp/bin
-ENV JAVA_CGROUP_OPTS = "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XshowSettings:vm"
-ENTRYPOINT exec java $JAVA_CGROUP_OPTS $JAVA_OPTS -jar /cyberapp/bin/ethereum.jar
+ENTRYPOINT exec java $JAVA_OPTS -jar /cyberapp/bin/ethereum.jar
