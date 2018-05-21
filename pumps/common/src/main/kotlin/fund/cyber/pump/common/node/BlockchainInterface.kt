@@ -4,7 +4,8 @@ import fund.cyber.search.model.chains.ChainEntity
 import fund.cyber.search.model.chains.ChainEntityType
 
 /**
- * Blockchain block with all dependent entities.
+ * Blockchain block with all dependent entities. Should collect all entities in scope of one block.
+ * For example: transactions, uncles, etc..
  */
 interface BlockBundle {
     /**

@@ -144,7 +144,8 @@ To integrate your pump with our system you simply have to implement two interfac
 
 ```kotlin
 /**
- * Blockchain block with all dependent entities.
+ * Blockchain block with all dependent entities. Should collect all entities in scope of one block.
+ * For example: transactions, uncles, etc..
  */
 interface BlockBundle {
     /**
@@ -222,5 +223,3 @@ class BitcoinBlockchainInterface(
 ```
 
 So, as you can see, you're not care of what happening with data next and how to store it. All you need is just to tell `BlockBundle` how to map it's fields on entities and we'll take care of everything else.
-
-  
