@@ -17,6 +17,10 @@ import org.web3j.protocol.parity.methods.response.Trace
 import java.math.BigDecimal
 import java.util.*
 
+
+const val MAX_TRACE_DEPTH = 5
+const val SUBTRACES_NUMBER_BEFORE_ZIPPING = 14
+
 /**
  * Trace(parity) is result of single "operation/call" inside transaction (ex: send eth to address inside smart contract
  *  method execution). Parity return all traces for block(tx) as flatten list.
@@ -26,6 +30,11 @@ import java.util.*
  * For method execution txes, first(root) operation(call) duplicate parent tx data (such as value, from, to, etc).
  * For sm creation/deletion first(root) operation(call) duplicate parent tx data (such as value, from, to, etc).
  *
+ *
+ * IMPORTANT NOTE:
+ * We do not store all traces. All errored traces, deeper than [MAX_TRACE_DEPTH], will be removed.
+ * All traces deeper than [MAX_TRACE_DEPTH], will be flattened into single sublist.
+ * Also, if node have more than [SUBTRACES_NUMBER_BEFORE_ZIPPING] subtraces, all errored will be removed.
  */
 fun toTxesTraces(parityTraces: List<Trace>): Map<String, TxTrace> {
 
@@ -64,19 +73,95 @@ private fun toTxTrace(traces: List<Trace>): TxTrace {
         parents.push(trace)
     }
 
-    val rootOperationTrace = toOperationTrace(traces[0], tree)
+    val rootOperationTrace = toOperationTrace(traces[0], tree, 0)
     return TxTrace(rootOperationTrace)
 }
 
 /**
  * Converts raw parity trace and its child to search OperationTrace data class.
+ *
+ * IMPORTANT NOTE:
  * !!Recursive by child first.
+ * !!All traces deeper than [MAX_TRACE_DEPTH], will be flattened into single sublist.
+ *
  */
-private fun toOperationTrace(trace: Trace, tracesTree: Map<Trace, List<Trace>>): OperationTrace {
-    val subtraces = tracesTree[trace]?.map { subtrace -> toOperationTrace(subtrace, tracesTree) } ?: emptyList()
+private fun toOperationTrace(
+    trace: Trace, tracesTree: Map<Trace, List<Trace>>, depthFromRoot: Int, isParentFailed: Boolean = false
+): OperationTrace {
+
+    // -1 due include root
+    return if (depthFromRoot < MAX_TRACE_DEPTH - 1) {
+        toOpTraceAsTree(trace, tracesTree, isParentFailed, depthFromRoot)
+    } else {
+        toOpTraceAsFlattenList(trace, tracesTree, isParentFailed)
+    }
+}
+
+
+/**
+ *  All errored traces with their subtraces will be not returned.
+ */
+private fun toOpTraceAsFlattenList(
+    trace: Trace, tracesTree: Map<Trace, List<Trace>>, isParentFailed: Boolean
+): OperationTrace {
+
     val operation = convertOperation(trace.action)
     val result = convertResult(trace)
+
+    return if (isParentFailed) {
+        OperationTrace(operation, result, emptyList(), getSubtracesNumber(trace, tracesTree))
+    } else {
+        val subtracesToStore = getAllSuccessfulSubtracesAsFlattenList(trace, tracesTree).map { subtrace ->
+            OperationTrace(convertOperation(subtrace.action), convertResult(subtrace))
+        }
+        val droppedTracesNumber = getSubtracesNumber(trace, tracesTree) - subtracesToStore.size
+
+        OperationTrace(operation, result, subtracesToStore, droppedTracesNumber)
+    }
+}
+
+/**
+ * If node have more than [SUBTRACES_NUMBER_BEFORE_ZIPPING] subtraces, all errored one will be removed.
+ */
+private fun toOpTraceAsTree(
+    trace: Trace, tracesTree: Map<Trace, List<Trace>>, isParentFailed: Boolean, depthFromRoot: Int
+): OperationTrace {
+
+    val operation = convertOperation(trace.action)
+    val result = convertResult(trace)
+    val childIsParentFailed = isParentFailed || result is ErroredOperationResult
+
+    val children = tracesTree[trace] ?: return OperationTrace(operation, result, emptyList())
+
+    val subtraces = children.map { subtrace ->
+        toOperationTrace(subtrace, tracesTree, depthFromRoot + 1, childIsParentFailed)
+    }
+    if (subtraces.size > SUBTRACES_NUMBER_BEFORE_ZIPPING) {
+        val subtracesToStore = subtraces.filterNot(OperationTrace::isOperationFailed)
+        val droppedTracesNumber = subtraces.size - subtracesToStore.size
+        return OperationTrace(operation, result, subtracesToStore, droppedTracesNumber)
+    }
     return OperationTrace(operation, result, subtraces)
+}
+
+
+private fun getSubtracesNumber(trace: Trace, tracesTree: Map<Trace, List<Trace>>): Int {
+    return tracesTree[trace]?.map { subtrace -> getSubtracesNumber(subtrace, tracesTree) + 1 }?.sum() ?: 0
+}
+
+
+private fun getAllSuccessfulSubtracesAsFlattenList(
+    trace: Trace, tracesTree: Map<Trace, List<Trace>>
+): List<Trace> {
+
+    val children = tracesTree[trace] ?: emptyList()
+    return children.flatMap { subtrace ->
+        if (subtrace.error == null || subtrace.error.isEmpty()) {
+            listOf(subtrace) + getAllSuccessfulSubtracesAsFlattenList(subtrace, tracesTree)
+        } else {
+            emptyList()
+        }
+    }
 }
 
 
@@ -94,7 +179,6 @@ private fun convertResult(trace: Trace): OperationResult? {
     }
 }
 
-//todo check weiToEthRate value result
 private fun convertOperation(action: Trace.Action): Operation {
     return when (action) {
         is Trace.CallAction -> {
