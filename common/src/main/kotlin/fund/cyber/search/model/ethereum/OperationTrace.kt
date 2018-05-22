@@ -13,13 +13,20 @@ import fund.cyber.search.model.ethereum.OperationType.REWARD
 import java.lang.RuntimeException
 
 
+/**
+ * Represent single operation/call trace.
+ * See [fund.cyber.pump.ethereum.client.toTxesTraces] function docs.
+ */
 data class OperationTrace(
     @JsonDeserialize(using = OperationsDeserializer::class)
     val operation: Operation,
     @JsonDeserialize(using = OperationResultDeserializer::class)
     val result: OperationResult?, //null for reward and destroy contract operations
-    val subtraces: List<OperationTrace> = emptyList()
+    val subtraces: List<OperationTrace> = emptyList(),
+    val droppedSuboperationsNumber: Int = 0
 ) {
+
+    fun isOperationFailed() = result is ErroredOperationResult
 
     /**
      * Do not returns child contracts.
