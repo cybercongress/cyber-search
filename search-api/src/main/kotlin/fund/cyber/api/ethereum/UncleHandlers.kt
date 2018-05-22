@@ -1,10 +1,10 @@
 package fund.cyber.api.ethereum
 
 import fund.cyber.api.common.asSingleRouterFunction
-import fund.cyber.api.common.toSearchHashFormat
 import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
 import fund.cyber.cassandra.ethereum.model.CqlEthereumUncle
 import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
+import fund.cyber.common.toSearchHashFormat
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
