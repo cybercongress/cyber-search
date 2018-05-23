@@ -19,7 +19,7 @@ interface FlowableBlockchainInterface<T : BlockBundle> : BlockchainInterface<T> 
 private val log = LoggerFactory.getLogger(ConcurrentPulledBlockchain::class.java)!!
 
 private const val REAL_TIME_BLOCK_QUERYING_TIMEOUT = 1000L
-private const val MAX_CONCURRENCY = 20
+private const val MAX_CONCURRENCY = 6
 
 class ConcurrentPulledBlockchain<T : BlockBundle>(
         private val blockchainInterface: BlockchainInterface<T>,
