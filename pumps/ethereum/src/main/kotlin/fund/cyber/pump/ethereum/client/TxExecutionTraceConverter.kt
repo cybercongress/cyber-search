@@ -1,6 +1,7 @@
 package fund.cyber.pump.ethereum.client
 
 import fund.cyber.common.hexToLong
+import fund.cyber.common.isEmptyHexValue
 import fund.cyber.search.model.ethereum.CallOperation
 import fund.cyber.search.model.ethereum.CallOperationResult
 import fund.cyber.search.model.ethereum.CreateContractOperation
@@ -14,12 +15,18 @@ import fund.cyber.search.model.ethereum.RewardOperation
 import fund.cyber.search.model.ethereum.TxTrace
 import fund.cyber.search.model.ethereum.weiToEthRate
 import org.web3j.protocol.parity.methods.response.Trace
+import org.web3j.protocol.parity.methods.response.Trace.CallAction
+import org.web3j.protocol.parity.methods.response.Trace.CreateAction
+import org.web3j.protocol.parity.methods.response.Trace.RewardAction
+import org.web3j.protocol.parity.methods.response.Trace.SuicideAction
 import java.math.BigDecimal
 import java.util.*
 
 
 const val MAX_TRACE_DEPTH = 5
 const val SUBTRACES_NUMBER_BEFORE_ZIPPING = 14
+
+const val CREATE_CONTRACT_ERROR = "Contract creation error"
 
 /**
  * Trace(parity) is result of single "operation/call" inside transaction (ex: send eth to address inside smart contract
@@ -32,9 +39,10 @@ const val SUBTRACES_NUMBER_BEFORE_ZIPPING = 14
  *
  *
  * IMPORTANT NOTE:
- * We do not store all traces. All errored traces, deeper than [MAX_TRACE_DEPTH], will be removed.
- * All traces deeper than [MAX_TRACE_DEPTH], will be flattened into single sublist.
- * Also, if node have more than [SUBTRACES_NUMBER_BEFORE_ZIPPING] subtraces, all errored will be removed.
+ * 1) We do not store all traces. All errored traces, deeper than [MAX_TRACE_DEPTH], will be removed.
+ * 2) All traces deeper than [MAX_TRACE_DEPTH], will be flattened into single sublist.
+ * 3) Also, if node have more than [SUBTRACES_NUMBER_BEFORE_ZIPPING] subtraces, all errored will be removed.
+ * 4) We do not store byte code for not created smart contract.
  */
 fun toTxesTraces(parityTraces: List<Trace>): Map<String, TxTrace> {
 
@@ -105,14 +113,14 @@ private fun toOpTraceAsFlattenList(
     trace: Trace, tracesTree: Map<Trace, List<Trace>>, isParentFailed: Boolean
 ): OperationTrace {
 
-    val operation = convertOperation(trace.action)
+    val operation = convertOperation(trace)
     val result = convertResult(trace)
 
     return if (isParentFailed) {
         OperationTrace(operation, result, emptyList(), getSubtracesNumber(trace, tracesTree))
     } else {
         val subtracesToStore = getAllSuccessfulSubtracesAsFlattenList(trace, tracesTree).map { subtrace ->
-            OperationTrace(convertOperation(subtrace.action), convertResult(subtrace))
+            OperationTrace(convertOperation(subtrace), convertResult(subtrace))
         }
         val droppedTracesNumber = getSubtracesNumber(trace, tracesTree) - subtracesToStore.size
 
@@ -127,7 +135,7 @@ private fun toOpTraceAsTree(
     trace: Trace, tracesTree: Map<Trace, List<Trace>>, isParentFailed: Boolean, depthFromRoot: Int
 ): OperationTrace {
 
-    val operation = convertOperation(trace.action)
+    val operation = convertOperation(trace)
     val result = convertResult(trace)
     val childIsParentFailed = isParentFailed || result is ErroredOperationResult
 
@@ -173,35 +181,49 @@ private fun convertResult(trace: Trace): OperationResult? {
     val result = trace.result
     val gasUsed = result.gasUsedRaw.hexToLong()
     return when (trace.action) {
-        is Trace.CallAction -> CallOperationResult(gasUsed, result.output)
-        is Trace.CreateAction -> CreateContractOperationResult(result.address, result.code, gasUsed)
+        is CallAction -> CallOperationResult(gasUsed, result.output)
+        is CreateAction -> {
+            if (trace.isFailed()) ErroredOperationResult(CREATE_CONTRACT_ERROR)
+            else CreateContractOperationResult(result.address, result.code, gasUsed)
+        }
         else -> throw RuntimeException("Unknown trace call result")
     }
 }
 
-private fun convertOperation(action: Trace.Action): Operation {
+private fun convertOperation(trace: Trace): Operation {
+    val action = trace.action
     return when (action) {
-        is Trace.CallAction -> {
+        is CallAction -> {
             CallOperation(
                 type = action.callType, from = action.from, to = action.to, input = action.input,
                 value = BigDecimal(action.value) * weiToEthRate, gasLimit = action.gasRaw.hexToLong()
             )
         }
-        is Trace.CreateAction -> {
+        is CreateAction -> {
             CreateContractOperation(
-                from = action.from, init = action.init,
+                from = action.from, init = if (trace.isFailed()) "" else action.init,
                 value = BigDecimal(action.value) * weiToEthRate, gasLimit = action.gasRaw.hexToLong()
             )
         }
-        is Trace.SuicideAction -> {
+        is SuicideAction -> {
             DestroyContractOperation(
                 contractToDestroy = action.address, refundContract = action.refundAddress,
                 refundValue = BigDecimal(action.balance) * weiToEthRate
             )
         }
-        is Trace.RewardAction -> {
+        is RewardAction -> {
             RewardOperation(action.author, BigDecimal(action.value) * weiToEthRate, action.rewardType)
         }
         else -> throw RuntimeException("Unknown trace call")
     }
 }
+
+/**
+ * returns "0x" for contract as indicator of failed contract creation
+ */
+fun Trace.isFailed(): Boolean = when {
+    error != null && error.isNotEmpty() -> true
+    action is CreateAction && (result.code == null || result.code.isEmpty() || result.code.isEmptyHexValue()) -> true
+    else -> false
+}
+

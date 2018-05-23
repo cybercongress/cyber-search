@@ -1,6 +1,7 @@
 package fund.cyber.search
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
@@ -8,11 +9,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 
 val jsonSerializer = ObjectMapper().registerKotlinModule()
-        .registerModule(Jdk8Module())
-        .registerModule(JavaTimeModule())
-        .setSerializationInclusion(JsonInclude.Include.NON_NULL)!!
+    .registerModule(Jdk8Module())
+    .registerModule(JavaTimeModule())
+    .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+    .enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS)!!
 
 val jsonDeserializer = ObjectMapper().registerKotlinModule()
-        .registerModule(Jdk8Module())
-        .registerModule(JavaTimeModule())
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)!!
+    .registerModule(Jdk8Module())
+    .registerModule(JavaTimeModule())
+    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)!!

@@ -3,7 +3,7 @@ buildscript {
     ext {
         kotlinVersion = "1.2.41"
         kotlinCoroutinesVersion = "0.22.3"
-        jacksonVersion = "2.9.2"
+        jacksonVersion = "2.9.5"
         kafkaVersion = "1.1.0"
         springKafkaVersion = "2.1.6.RELEASE"
         cassandraVersion = "3.5.0"
