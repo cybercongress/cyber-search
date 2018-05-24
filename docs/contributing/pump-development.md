@@ -99,11 +99,7 @@ class BitcoinPumpApplication {
         fun main(args: Array<String>) {
 
             val application = SpringApplication(BitcoinPumpApplication::class.java)
-            application.setRegisterShutdownHook(false)
-            val applicationContext = application.run(*args)
-
-            val pump = applicationContext.getBean(ChainPump::class.java)
-            pump.startPump()
+            application.runPump(args)
         }
     }
 }
@@ -223,3 +219,59 @@ class BitcoinBlockchainInterface(
 ```
 
 So, as you can see, you're not care of what happening with data next and how to store it. All you need is just to tell `BlockBundle` how to map it's fields on entities and we'll take care of everything else.
+
+### Memory Pool Pump
+
+You also could add memory pool pumping logic by simply implement `PoolInterface` interface
+
+```kotlin
+interface PoolInterface<T: PoolItem> {
+    fun subscribePool(): Flowable<T>
+}
+``` 
+
+It contains only one method that should return `io.reactivex.Flowable` of pool items.
+
+### Create Dockerfile
+Put Docker file in root folder of your module. Here is template of Dockerfile:
+```
+# Build Stage
+FROM openjdk:10-jdk-slim AS build
+COPY ./ /build
+WORKDIR /build
+RUN ./gradlew clean :pumps:${your_chain_name}:assemble
+
+# Container with application
+FROM openjdk:10-jre-slim
+COPY --from=build /build/pumps/${your_chain_name}/build/libs /cyberapp/bin
+ENTRYPOINT exec java $JAVA_OPTS -jar /cyberapp/bin/${your_chain_name}.jar
+```
+
+### Update CI
+
+Finally, you should update `.circleci/config.yml` file with steps for building and pushing docker image.
+* Add deploy job to `jobs` section. Template:
+```
+deploy_chain_pumps_${your_chain_name}_image:
+     <<: *defaults
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.11.0-ce
+       - run:
+           name: Build ${your_chain_name} Pump Image
+           command: |
+             docker build -t build/pump-${your_chain_name} -f ./pumps/${your_chain_name}/Dockerfile ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/pump-${your_chain_name} cybernode/chain-pump-${your_chain_name}:$CIRCLE_TAG
+             docker push cybernode/chain-pump-${your_chain_name}:$CIRCLE_TAG
+             docker tag build/pump-${your_chain_name} cybernode/chain-pump-${your_chain_name}:latest
+             docker push cybernode/chain-pump-${your_chain_name}:latest
+```
+* Add deploy job to `workflows.search_build.jobs` section. Template:
+```
+- deploy_chain_pumps_${your_chain_name}_image:
+  <<: *release_filter
+  requires:
+    - build_project
+```
