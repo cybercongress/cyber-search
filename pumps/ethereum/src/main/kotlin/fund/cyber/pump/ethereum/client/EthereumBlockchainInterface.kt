@@ -67,7 +67,7 @@ class EthereumBlockchainInterface(
 
             parityClient
                 .pendingTransactionObservable()
-                .flatMap { e -> Observable.just(parityToBundleConverter.parityMempoolTxToDao(e)) }
+                .map { e -> parityToBundleConverter.parityMempoolTxToDao(e) }
                 .subscribe( { v -> emitter.onNext(v) }, { e -> emitter.onError(e)}, { emitter.onComplete() })
 
         }, BackpressureStrategy.BUFFER)
