@@ -36,7 +36,7 @@ data class CqlBitcoinContractSummary(
 data class CqlBitcoinContractTxPreview(
 
         @PrimaryKeyColumn(ordinal = 0, type = PARTITIONED, value = "contract_hash") val contractHash: String,
-        @PrimaryKeyColumn(ordinal = 1, type = CLUSTERED, value = "block_time") val blockTime: Instant,
+        @PrimaryKeyColumn(ordinal = 1, type = CLUSTERED, value = "block_time") val blockTime: Long,
         @PrimaryKeyColumn(ordinal = 2, type = CLUSTERED) val hash: String,
         val fee: BigDecimal,
         @Column("block_number") val blockNumber: Long,
@@ -45,7 +45,7 @@ data class CqlBitcoinContractTxPreview(
 ) : CqlBitcoinItem {
 
     constructor(contract: String, tx: BitcoinTx) : this(
-            contractHash = contract, blockTime = tx.blockTime, hash = tx.hash, fee = tx.fee,
+            contractHash = contract, blockTime = tx.blockTime?.toEpochMilli() ?: -1, hash = tx.hash, fee = tx.fee,
             blockNumber = tx.blockNumber, ins = tx.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) },
             outs = tx.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
     )

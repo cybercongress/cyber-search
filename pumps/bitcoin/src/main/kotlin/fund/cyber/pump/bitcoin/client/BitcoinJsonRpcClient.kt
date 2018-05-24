@@ -23,8 +23,7 @@ import reactor.core.scheduler.Schedulers
 
 private val log = LoggerFactory.getLogger(BitcoinJsonRpcClient::class.java)!!
 
-private const val TXES_CHUNK_SIZE = 100
-
+@Suppress("TooManyFunctions")
 @Component
 class BitcoinJsonRpcClient(
     private val httpClient: HttpClient,
@@ -49,21 +48,20 @@ class BitcoinJsonRpcClient(
     fun getTxes(txIds: Collection<String>): List<JsonRpcBitcoinTransaction> {
         return txesRequestTimer.recordCallable {
             log.debug("TRANSACTIONS COUNT: ${txIds.size}. STARTING PROCESSING")
-            var counter = 0
-            return@recordCallable txIds.chunked(TXES_CHUNK_SIZE)
-                .flatMap { chunk ->
-                    log.debug("PROCESSING TXS FROM ${counter * TXES_CHUNK_SIZE}" +
-                        " TO ${(counter + 1) * TXES_CHUNK_SIZE} OF ${txIds.size} TXS COUNT")
-                    counter++
-                    Flux.fromIterable(chunk)
-                        .flatMap { txId ->
-                            Mono.just(
-                                executeRestRequest("/rest/tx/$txId", JsonRpcBitcoinTransaction::class.java)
-                            ).subscribeOn(Schedulers.parallel())
-                        }
-                        .collectList().block()!!
-                }
+            return@recordCallable Flux.fromIterable(txIds)
+                .flatMap { hash -> getTxRx(hash).subscribeOn(Schedulers.parallel()) }
+                .collectList().block()!!
         }
+    }
+
+    fun getTxRx(hash: String): Mono<JsonRpcBitcoinTransaction> = Mono.fromCallable { getTx(hash) }
+
+    fun getTx(hash: String): JsonRpcBitcoinTransaction =
+        executeRestRequest("/rest/tx/$hash", JsonRpcBitcoinTransaction::class.java)
+
+    fun getTxesBatch(txIds: List<String>): List<JsonRpcBitcoinTransaction> {
+        val requests = txIds.map { id -> Request(method = "getrawtransaction", params = listOf(id, true)) }
+        return executeBatchRequest(requests, TxResponse::class.java)
     }
 
     fun getTxMempool(): List<String> {
@@ -96,7 +94,6 @@ class BitcoinJsonRpcClient(
     }
 
     private fun <C, T : Response<C>> executeBatchRequest(request: Any, valueType: Class<T>): List<C> {
-        println(request)
         val payload = jsonSerializer.writeValueAsBytes(request)
 
         val httpPost = HttpPost(endpointUrl)

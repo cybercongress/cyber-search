@@ -22,6 +22,8 @@ const val MAX_PER_ROUTE = 16
 const val MAX_TOTAL = 32
 
 const val TXS_OUTPUTS_CACHE_NAME = "bitcoin.tx.outputs"
+const val MEMPOOL_HASHES_CASH = "bitcoin.mempool.hashes"
+const val MEMPOOL_HASHES_CASH_SIZE_MB = 300L
 
 @Configuration
 class BitcoinClientConfiguration(
@@ -43,10 +45,13 @@ class BitcoinClientConfiguration(
             .build()!!
 
     @Bean
-    fun txOutputCache(
-        cacheManager: CacheManager
-    ): Cache<String, BitcoinCacheTxOutput> {
+    fun txOutputCache(cacheManager: CacheManager): Cache<String, BitcoinCacheTxOutput> {
         return cacheManager.getCache(TXS_OUTPUTS_CACHE_NAME, String::class.java, BitcoinCacheTxOutput::class.java)
+    }
+
+    @Bean
+    fun mempoolHashesCache(cacheManager: CacheManager): Cache<String, String> {
+        return cacheManager.getCache(MEMPOOL_HASHES_CASH, String::class.java, String::class.java)
     }
 
     @Bean
@@ -63,6 +68,12 @@ class BitcoinClientConfiguration(
                     newResourcePoolsBuilder().heap(txOutsCacheHeapSize, MemoryUnit.GB)
                 )
             )
+            .withCache(MEMPOOL_HASHES_CASH,
+                newCacheConfigurationBuilder(
+                    String::class.java,
+                    String::class.java,
+                    newResourcePoolsBuilder().heap(MEMPOOL_HASHES_CASH_SIZE_MB, MemoryUnit.MB)
+                ))
             .using(cacheStatisticsService)
             .build(true)
     }
