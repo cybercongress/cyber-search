@@ -1,6 +1,7 @@
-package fund.cyber.pump.bitcoin.client
+package fund.cyber.pump.bitcoin.client.converter
 
 import fund.cyber.common.sum
+import fund.cyber.common.toSearchHashFormat
 import fund.cyber.search.model.bitcoin.BitcoinCacheTxOutput
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.bitcoin.BitcoinTxIn
@@ -16,6 +17,17 @@ import java.time.Instant
 
 
 private val log = LoggerFactory.getLogger(JsonRpcToDaoBitcoinTxConverter::class.java)!!
+
+data class BitcoinBlockInfo(
+    val hash: String? = null,
+    val time: Instant? = null,
+    val number: Long = -1
+) {
+
+    constructor(jsonRpcBlock: JsonRpcBitcoinBlock) : this (
+        hash = jsonRpcBlock.hash, time = Instant.ofEpochSecond(jsonRpcBlock.time), number = jsonRpcBlock.height
+    )
+}
 
 /**
  * Bitcoin transaction consists from several "inputs" and "outputs" (for example: 5 inputs, 3 outputs).
@@ -47,27 +59,26 @@ class JsonRpcToDaoBitcoinTxConverter {
 
         return jsonRpcBlock.tx
             .mapIndexed { index, btcdTransaction ->
-                convertToDaoTransaction(btcdTransaction, outputsByIds, jsonRpcBlock, index)
+                convertToDaoTransaction(btcdTransaction, outputsByIds, BitcoinBlockInfo(jsonRpcBlock), index)
             }
     }
 
 
     /**
-     * @param jsonRpcBlock block to obtain transaction's block fields
+     * @param blockInfo block to obtain transaction's block fields
      * @param jsonRpcTransaction transaction to convert
      * @param outputsByIds should contain all outputs linked from tx inputs for [jsonRpcTransaction]
      * @throws NullPointerException if [outputsByIds] doesn't contain output even for one transaction input
-     * from [jsonRpcBlock]
      */
     fun convertToDaoTransaction(
         jsonRpcTransaction: JsonRpcBitcoinTransaction, outputsByIds: Map<Pair<String, Int>, BitcoinCacheTxOutput>,
-        jsonRpcBlock: JsonRpcBitcoinBlock, txIndex: Int): BitcoinTx {
+        blockInfo: BitcoinBlockInfo, txIndex: Int): BitcoinTx {
 
         val firstInput = jsonRpcTransaction.vin.first()
 
         // coinbase case
         if (firstInput is CoinbaseTransactionInput) {
-            return convertToCoinbaseTransaction(jsonRpcTransaction, jsonRpcBlock)
+            return convertToCoinbaseTransaction(jsonRpcTransaction, blockInfo)
         }
 
         val ins = convertToDaoTransactionInput(jsonRpcTransaction.regularInputs(), outputsByIds)
@@ -77,32 +88,33 @@ class JsonRpcToDaoBitcoinTxConverter {
         val totalOutput = outputs.map { input -> input.amount }.sum()
 
         return BitcoinTx(
-            hash = jsonRpcTransaction.txid, blockNumber = jsonRpcBlock.height, index = txIndex,
+            hash = jsonRpcTransaction.txid.toSearchHashFormat(), blockNumber = blockInfo.number, index = txIndex,
             ins = ins, outs = outputs, totalInputsAmount = totalInput, totalOutputsAmount = totalOutput,
             fee = totalInput - totalOutput, size = jsonRpcTransaction.size,
-            blockTime = Instant.ofEpochSecond(jsonRpcBlock.time), blockHash = jsonRpcBlock.hash
+            blockTime = blockInfo.time, blockHash = blockInfo.hash?.toSearchHashFormat(),
+            firstSeenTime = blockInfo.time ?: Instant.now()
         )
     }
 
 
     /**
-     * @param jsonRpcBlock block to obtain transaction's block fields
+     * @param blockInfo block to obtain transaction's block fields
      * @param jsonRpcTransaction transaction to convert
      * @throws ClassCastException if [jsonRpcTransaction] doesn't contain coinbase input
      */
     fun convertToCoinbaseTransaction(
-        jsonRpcTransaction: JsonRpcBitcoinTransaction, jsonRpcBlock: JsonRpcBitcoinBlock): BitcoinTx {
+        jsonRpcTransaction: JsonRpcBitcoinTransaction, blockInfo: BitcoinBlockInfo): BitcoinTx {
 
         val firstInput = jsonRpcTransaction.vin.first() as CoinbaseTransactionInput
 
         val outputs = jsonRpcTransaction.vout.map(this::convertToDaoTransactionOutput)
 
         return BitcoinTx(
-            hash = jsonRpcTransaction.txid, blockNumber = jsonRpcBlock.height, index = 0,
-            coinbase = firstInput.coinbase, blockHash = jsonRpcBlock.hash,
-            blockTime = Instant.ofEpochSecond(jsonRpcBlock.time),
-            ins = emptyList(), outs = outputs, size = jsonRpcTransaction.size,
-            totalInputsAmount = ZERO, totalOutputsAmount = outputs.map { out -> out.amount }.sum(), fee = ZERO
+            hash = jsonRpcTransaction.txid.toSearchHashFormat(), blockNumber = blockInfo.number, index = 0,
+            coinbase = firstInput.coinbase, blockHash = blockInfo.hash?.toSearchHashFormat(),
+            blockTime = blockInfo.time, ins = emptyList(), outs = outputs, size = jsonRpcTransaction.size,
+            totalInputsAmount = ZERO, totalOutputsAmount = outputs.map { out -> out.amount }.sum(), fee = ZERO,
+            firstSeenTime = blockInfo.time ?: Instant.now()
         )
     }
 
@@ -125,8 +137,8 @@ class JsonRpcToDaoBitcoinTxConverter {
             log.trace("looking for $txid transaction and output $vout")
             val daoTxOut = outputsByIds[txid to vout]!!
             BitcoinTxIn(
-                contracts = daoTxOut.addresses, amount = daoTxOut.value,
-                asm = scriptSig.asm, txHash = txid, txOut = vout
+                contracts = daoTxOut.addresses.map { a -> a.toSearchHashFormat() }, amount = daoTxOut.value,
+                asm = scriptSig.asm, txHash = txid.toSearchHashFormat(), txOut = vout
             )
         }
     }
@@ -134,7 +146,7 @@ class JsonRpcToDaoBitcoinTxConverter {
     private fun convertToDaoTransactionOutput(jsonRpcTxOut: JsonRpcBitcoinTransactionOutput): BitcoinTxOut {
 
         return BitcoinTxOut(
-            contracts = jsonRpcTxOut.scriptPubKey.addresses,
+            contracts = jsonRpcTxOut.scriptPubKey.addresses.map { a -> a.toSearchHashFormat() },
             amount = jsonRpcTxOut.value, out = jsonRpcTxOut.n, asm = jsonRpcTxOut.scriptPubKey.asm,
             requiredSignatures = jsonRpcTxOut.scriptPubKey.reqSigs
         )
