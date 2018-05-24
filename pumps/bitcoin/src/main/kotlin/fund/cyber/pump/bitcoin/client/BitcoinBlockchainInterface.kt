@@ -48,6 +48,9 @@ class BitcoinBlockchainInterface(
 
     private val downloadSpeedMonitor = monitoring.timer("pump_bundle_download")
 
+    /* We don't care of cash item value for mempool transactions.
+       We just need to know if tx hash is in cache or not.
+       So we always use empty string as value to not mess memory. */
     private val mempoolCacheValue = ""
 
     override fun lastNetworkBlock(): Long = bitcoinJsonRpcClient.getLastBlockNumber()
