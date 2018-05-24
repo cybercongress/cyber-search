@@ -1,6 +1,7 @@
-package fund.cyber.pump.bitcoin.client
+package fund.cyber.pump.bitcoin.client.converter
 
 import fund.cyber.common.sum
+import fund.cyber.common.toSearchHashFormat
 import fund.cyber.search.model.bitcoin.BitcoinBlock
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinBlock
@@ -23,13 +24,14 @@ class JsonRpcToDaoBitcoinBlockConverter {
         val coinbaseTxMinerOutput = coinbaseTx?.outs?.firstOrNull()
 
         return BitcoinBlock(
-                hash = jsonRpcBlock.hash, size = jsonRpcBlock.size,
-                minerContractHash = coinbaseTxMinerOutput?.contracts?.first()?:"",
+                hash = jsonRpcBlock.hash.toSearchHashFormat(), size = jsonRpcBlock.size,
+                minerContractHash = coinbaseTxMinerOutput?.contracts?.first()?.toSearchHashFormat() ?: "",
                 version = jsonRpcBlock.version, blockReward = getBlockReward(jsonRpcBlock.height),
-                txFees = transactions.map { tx -> tx.fee }.sum(), coinbaseData = coinbaseTx?.coinbase?:"",
+                txFees = transactions.map { tx -> tx.fee }.sum(), coinbaseData = coinbaseTx?.coinbase ?: "",
                 bits = jsonRpcBlock.bits, difficulty = jsonRpcBlock.difficulty.toBigInteger(),
                 nonce = jsonRpcBlock.nonce, time = Instant.ofEpochSecond(jsonRpcBlock.time),
-                weight = jsonRpcBlock.weight, merkleroot = jsonRpcBlock.merkleroot, height = jsonRpcBlock.height,
+                weight = jsonRpcBlock.weight, merkleroot = jsonRpcBlock.merkleroot.toSearchHashFormat(),
+                height = jsonRpcBlock.height,
                 txNumber = jsonRpcBlock.tx.size, totalOutputsAmount = totalOutputsValue
         )
     }

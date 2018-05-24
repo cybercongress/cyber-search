@@ -69,7 +69,7 @@ class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinContractSumm
                 BitcoinContractSummaryDelta(
                         contract = contract, balanceDelta = -input.amount, txNumberDelta = 1,
                         totalReceivedDelta = ZERO, topic = record.topic(), partition = record.partition(),
-                        offset = record.offset(), time = tx.blockTime
+                        offset = record.offset(), time = tx.blockTime!!
                 )
             }
         }
@@ -79,7 +79,7 @@ class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinContractSumm
                 BitcoinContractSummaryDelta(
                         contract = contract, balanceDelta = output.amount, txNumberDelta = 1,
                         totalReceivedDelta = output.amount, topic = record.topic(), partition = record.partition(),
-                        offset = record.offset(), time = tx.blockTime
+                        offset = record.offset(), time = tx.blockTime!!
                 )
             }
         }

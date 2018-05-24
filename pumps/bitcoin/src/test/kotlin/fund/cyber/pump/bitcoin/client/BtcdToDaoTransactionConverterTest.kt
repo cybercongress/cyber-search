@@ -4,6 +4,8 @@ package fund.cyber.pump.bitcoin.client
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import fund.cyber.pump.bitcoin.client.converter.BitcoinBlockInfo
+import fund.cyber.pump.bitcoin.client.converter.JsonRpcToDaoBitcoinTxConverter
 import fund.cyber.search.model.bitcoin.BitcoinCacheTxOutput
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.bitcoin.BitcoinTxIn
@@ -30,7 +32,8 @@ val expectedDaoCoinbaseTx = BitcoinTx(
     totalOutputsAmount = BigDecimal("50"), totalInputsAmount = ZERO, ins = emptyList(),
     blockNumber = 100000, outs = listOf(expectedDaoCoinbaseTxOut),
     blockTime = Instant.ofEpochSecond(1293623863),
-    blockHash = "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506", index = 0
+    blockHash = "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506", index = 0,
+    firstSeenTime = Instant.ofEpochSecond(1293623863)
 )
 
 
@@ -62,7 +65,8 @@ val expectedRegularTx = BitcoinTx(
     ins = listOf(expectedFirstTxInput, expectedSecondTxInput),
     outs = listOf(expectedFirstTxOut, expectedSecondTxOut),
     blockNumber = 100000, blockTime = Instant.ofEpochSecond(1293623863),
-    blockHash = "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506", index = 1
+    blockHash = "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506", index = 1,
+    firstSeenTime = Instant.ofEpochSecond(1293623863)
 )
 
 
@@ -81,7 +85,7 @@ class BtcdToDaoTxConverterTest {
 
 
         val daoCoinbaseTx = JsonRpcToDaoBitcoinTxConverter().convertToDaoTransaction(
-            jsonRpcBlock = btcdBlock, jsonRpcTransaction = btcdBlock.tx.first(), outputsByIds = emptyMap(),
+            blockInfo = BitcoinBlockInfo(btcdBlock), jsonRpcTransaction = btcdBlock.tx.first(), outputsByIds = emptyMap(),
             txIndex = 0
         )
 
@@ -110,7 +114,7 @@ class BtcdToDaoTxConverterTest {
         val daoInputTxById = outs.associateBy { out -> out.txid to out.n }
 
         val regularTx = JsonRpcToDaoBitcoinTxConverter().convertToDaoTransaction(
-            jsonRpcBlock = btcdBlock, jsonRpcTransaction = btcdBlock.tx[1], outputsByIds = daoInputTxById,
+            blockInfo = BitcoinBlockInfo(btcdBlock), jsonRpcTransaction = btcdBlock.tx[1], outputsByIds = daoInputTxById,
             txIndex = 1
         )
 
