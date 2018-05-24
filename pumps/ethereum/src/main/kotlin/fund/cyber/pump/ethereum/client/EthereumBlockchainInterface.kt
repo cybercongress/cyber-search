@@ -19,7 +19,6 @@ import org.web3j.protocol.core.methods.response.EthBlock
 import org.web3j.protocol.core.methods.response.TransactionReceipt
 import org.web3j.protocol.parity.Parity
 import org.web3j.protocol.parity.methods.response.Trace
-import rx.Observable
 import java.math.BigInteger
 
 class EthereumBlockBundle(
