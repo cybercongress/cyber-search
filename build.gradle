@@ -21,8 +21,8 @@ buildscript {
         detektPluginVersion = "1.0.0.RC6-4"
 
         // tests
-        junitVersion = "5.0.3"
-        junitPlatformVersion = "1.0.3"
+        junitVersion = "5.2.0"
+        junitPlatformVersion = "1.2.0"
         mockitoVersion = "2.1.0"
         mockitoKotlinVersion = "0.7.0"
         assertjVersion = "3.9.0"
@@ -54,6 +54,7 @@ buildscript {
         classpath("io.spring.gradle:dependency-management-plugin:$dependencyPluginVersion")
         classpath("org.springframework.boot:spring-boot-gradle-plugin:$bootPluginVersion")
         classpath("gradle.plugin.io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektPluginVersion")
+        classpath("org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.2")
     }
 }
 
@@ -90,6 +91,8 @@ subprojects {
     apply plugin: 'kotlin-spring'
     apply plugin: "org.junit.platform.gradle.plugin"
     apply plugin: "io.spring.dependency-management"
+
+    apply from: "$rootDir/gradle/coverage-subprojects.gradle"
 
     compileKotlin {
         kotlinOptions {
@@ -260,3 +263,5 @@ project(":search-api") {
         compile 'io.micrometer:micrometer-core'
     }
 }
+
+apply from: 'gradle/coverage.gradle'

@@ -17,9 +17,9 @@ data class CqlBitcoinTx(
 
         @PrimaryKey val hash: String,
         @Column("block_number") val blockNumber: Long,
-        @Column("block_hash") val blockHash: String,
+        @Column("block_hash") val blockHash: String?,
         val coinbase: String? = null,
-        @Column("block_time") val blockTime: Instant,
+        @Column("block_time") val blockTime: Instant?,
         val size: Int,
         val fee: String,
         @Column("total_input") val totalInput: String,

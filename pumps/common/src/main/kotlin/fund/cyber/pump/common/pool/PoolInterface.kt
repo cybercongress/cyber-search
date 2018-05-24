@@ -1,7 +1,8 @@
 package fund.cyber.pump.common.pool
 
 import fund.cyber.search.model.PoolItem
+import io.reactivex.Flowable
 
-interface PoolInterface<out T: PoolItem> {
-    fun onNewItem(action: (T)->Unit, onError: (Throwable) -> Unit)
+interface PoolInterface<T: PoolItem> {
+    fun subscribePool(): Flowable<T>
 }

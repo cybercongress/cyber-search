@@ -1,16 +1,10 @@
 package fund.cyber
 
-import fund.cyber.pump.common.ChainPump
-import fund.cyber.pump.common.pool.PoolPump
-import fund.cyber.search.configuration.WITH_MEMPOOL
-import fund.cyber.search.configuration.env
-import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.NoSuchBeanDefinitionException
+import fund.cyber.pump.common.runPump
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
 
-private val log = LoggerFactory.getLogger(EthereumPumpApplication::class.java)!!
 
 @SpringBootApplication(exclude = [KafkaAutoConfiguration::class])
 class EthereumPumpApplication {
@@ -20,21 +14,7 @@ class EthereumPumpApplication {
         fun main(args: Array<String>) {
 
             val application = SpringApplication(EthereumPumpApplication::class.java)
-            application.setRegisterShutdownHook(false)
-
-            val applicationContext = application.run(*args)
-
-            if (env(WITH_MEMPOOL, false)) {
-                try {
-                    val poolPump = applicationContext.getBean(PoolPump::class.java)
-                    poolPump.startPump()
-                } catch (e: NoSuchBeanDefinitionException) {
-                    log.error("No pump for pool found!")
-                }
-            }
-
-            val pump = applicationContext.getBean(ChainPump::class.java)
-            pump.startPump()
+            application.runPump(args)
         }
     }
 }

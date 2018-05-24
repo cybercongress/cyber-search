@@ -11,6 +11,8 @@ import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
 import io.micrometer.core.instrument.MeterRegistry
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import org.springframework.stereotype.Component
 import org.web3j.protocol.core.DefaultBlockParameter
 import org.web3j.protocol.core.methods.response.EthBlock
@@ -61,11 +63,15 @@ class EthereumBlockchainInterface(
         return if (number == 0L) genesisDataProvider.provide(bundle) else bundle
     }
 
-    override fun onNewItem(action: (EthereumTx) -> Unit, onError: (Throwable) -> Unit) {
-        parityClient.pendingTransactionObservable().toBlocking().subscribe(
-            { parityTx -> action(parityToBundleConverter.parityMempoolTxToDao(parityTx)) },
-            { error -> onError(error) }
-        )
+    override fun subscribePool(): Flowable<EthereumTx> {
+        return Flowable.create<EthereumTx>({ emitter ->
+
+            parityClient
+                .pendingTransactionObservable()
+                .map { e -> parityToBundleConverter.parityMempoolTxToDao(e) }
+                .subscribe( { v -> emitter.onNext(v) }, { e -> emitter.onError(e)}, { emitter.onComplete() })
+
+        }, BackpressureStrategy.BUFFER)
     }
 
     private fun downloadBundleData(number: Long): BundleRawData {

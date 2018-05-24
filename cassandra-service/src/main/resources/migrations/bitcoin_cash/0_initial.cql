@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS bitcoin_cash.tx_preview_by_contract (
     contract_hash text,
     fee decimal,
     block_number bigint,
-    block_time timestamp,
+    block_time bigint,
     hash text,
     ins FROZEN < list < bitcoin_cash.tx_preview_io > >,
     outs FROZEN < list < bitcoin_cash.tx_preview_io > >,
