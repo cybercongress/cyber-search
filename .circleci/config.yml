@@ -82,12 +82,12 @@ jobs:
        - run:
            name: Build Ethereum Contract Summary Image
            command: |
-             docker build -t build/chain_supply_ethereum -f ./contract-summary/ethereum/Dockerfile ./
+             docker build -t build/chain-contract-summary-ethereum -f ./contract-summary/ethereum/Dockerfile ./
              docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker tag build/chain_supply_ethereum cybernode/chain_supply_ethereum:$CIRCLE_TAG
-             docker push cybernode/chain_supply_ethereum:$CIRCLE_TAG
-             docker tag build/chain_supply_ethereum cybernode/chain_supply_ethereum:latest
-             docker push cybernode/chain_supply_ethereum:latest
+             docker tag build/chain-contract-summary-ethereum cybernode/chain-contract-summary-ethereum:$CIRCLE_TAG
+             docker push cybernode/chain-contract-summary-ethereum:$CIRCLE_TAG
+             docker tag build/chain-contract-summary-ethereum cybernode/chain-contract-summary-ethereum:latest
+             docker push cybernode/chain-contract-summary-ethereum:latest
 
   deploy_chain_supply_ethereum_image:
      <<: *defaults
