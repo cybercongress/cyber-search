@@ -19,13 +19,11 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.test.annotation.DirtiesContext
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 
 
-@DirtiesContext
 @DisplayName("Application context start-up configuration test")
 class CalculateEthereumSupplyProcessTest {
 
