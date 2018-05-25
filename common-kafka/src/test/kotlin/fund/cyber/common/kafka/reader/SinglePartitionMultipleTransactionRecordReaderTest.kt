@@ -1,6 +1,6 @@
 package fund.cyber.common.kafka.reader
 
-import fund.cyber.common.kafka.BaseForKafkaIntegrationTest
+import fund.cyber.common.kafka.BaseKafkaIntegrationTest
 import fund.cyber.common.kafka.SinglePartitionTopicDataPresentLatch
 import fund.cyber.common.kafka.sendRecordsInTransaction
 import org.junit.jupiter.api.*
@@ -16,7 +16,7 @@ const val MULTIPLE_TRANSACTION_RECORD_TOPIC = "MULTIPLE_TRANSACTION_RECORD_TOPIC
         ]
 )
 @DisplayName("Single-partitioned topic last items reader test")
-class SinglePartitionMultipleTransactionRecordReaderTest : BaseForKafkaIntegrationTest() {
+class SinglePartitionMultipleTransactionRecordReaderTest : BaseKafkaIntegrationTest() {
 
     private val itemsCount = 4
 

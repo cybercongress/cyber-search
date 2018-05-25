@@ -24,11 +24,11 @@ buildscript {
         junitVersion = "5.2.0"
         junitPlatformVersion = "1.2.0"
         mockitoVersion = "2.1.0"
-        mockitoKotlinVersion = "0.7.0"
+        mockitoKotlinVersion = "1.5.0"
         assertjVersion = "3.9.0"
 
         // metrics
-        micrometerVersion = "1.0.0"
+        micrometerVersion = "1.0.4"
 
         // logs
         slf4jVersion = "1.7.25"
