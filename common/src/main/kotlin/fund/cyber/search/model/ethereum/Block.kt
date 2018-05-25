@@ -34,6 +34,7 @@ data class EthereumBlock(
     val txFees: BigDecimal
 ) : BlockEntity
 
+//todo change to use block trace rewards operations
 //todo: 1) add properly support of new classic fork. 2) add support of custom reward functions in forks
 fun getBlockReward(chainInfo: ChainInfo, number: Long): BigDecimal {
     return if (chainInfo.fullName == "ETHEREUM_CLASSIC") {

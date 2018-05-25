@@ -7,8 +7,8 @@ import org.apache.http.message.BasicHeader
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.web3j.protocol.parity.Parity
 import org.web3j.protocol.http.HttpService
+import org.web3j.protocol.parity.Parity
 
 const val MAX_PER_ROUTE = 16
 const val MAX_TOTAL = 32
@@ -27,12 +27,11 @@ class EthereumClientConfiguration {
 
     @Bean
     fun httpClient() = HttpClients.custom()
-            .setConnectionManager(connectionManager)
-            .setConnectionManagerShared(true)
-            .setDefaultHeaders(defaultHttpHeaders)
-            .build()!!
+        .setConnectionManager(connectionManager)
+        .setConnectionManagerShared(true)
+        .setDefaultHeaders(defaultHttpHeaders)
+        .build()!!
 
     @Bean
     fun parityClient() = Parity.build(HttpService(chainInfo.nodeUrl))!!
-
 }

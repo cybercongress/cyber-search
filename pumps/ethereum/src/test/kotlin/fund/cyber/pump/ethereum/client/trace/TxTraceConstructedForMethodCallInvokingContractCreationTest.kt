@@ -1,9 +1,11 @@
 package fund.cyber.pump.ethereum.client.trace
 
+import fund.cyber.pump.ethereum.client.CREATE_CONTRACT_ERROR
 import fund.cyber.search.model.ethereum.CallOperation
 import fund.cyber.search.model.ethereum.CallOperationResult
 import fund.cyber.search.model.ethereum.CreateContractOperation
 import fund.cyber.search.model.ethereum.CreateContractOperationResult
+import fund.cyber.search.model.ethereum.ErroredOperationResult
 import fund.cyber.search.model.ethereum.OperationTrace
 import fund.cyber.search.model.ethereum.TxTrace
 import org.junit.jupiter.api.Assertions
@@ -41,13 +43,14 @@ class TxTraceConstructedForMethodCallInvokingContractCreationTest : BaseTxTraceC
 
         val expectedOperationResult = CallOperationResult(output = "0x", gasUsed = 394988)
         val rootTrace = OperationTrace(
-            expectedOperation, expectedOperationResult, listOf(createContractSuboperationTrace())
+            expectedOperation, expectedOperationResult,
+            listOf(okCreateContractSuboperationTrace(), failedCreateContractSuboperationTrace())
         )
         return TxTrace(rootTrace)
     }
 
 
-    private fun createContractSuboperationTrace(): OperationTrace {
+    private fun okCreateContractSuboperationTrace(): OperationTrace {
 
         val expectedOperation = CreateContractOperation(
             from = "0x6090a6e47849629b7245dfa1ca21d94cd15878ef", gasLimit = 436209,
@@ -59,6 +62,19 @@ class TxTraceConstructedForMethodCallInvokingContractCreationTest : BaseTxTraceC
             address = "0xe8a3c515fd7d0914dc56a4e6dbbb77a7f58bc6ce", gasUsed = 339168,
             code = "0x606060405236156100885763ffffffff60e060020a60003504166305b34410811461008a5780630b5ab3d5146100"
         )
+
+        return OperationTrace(expectedOperation, expectedOperationResult, emptyList())
+    }
+
+    private fun failedCreateContractSuboperationTrace(): OperationTrace {
+
+        val expectedOperation = CreateContractOperation(
+            from = "0x6090a6e47849629b7245dfa1ca21d94cd15878ef", gasLimit = 436209,
+            value = BigDecimal("1.030000000000000000"),
+            init = ""
+        )
+
+        val expectedOperationResult = ErroredOperationResult(CREATE_CONTRACT_ERROR)
 
         return OperationTrace(expectedOperation, expectedOperationResult, emptyList())
     }

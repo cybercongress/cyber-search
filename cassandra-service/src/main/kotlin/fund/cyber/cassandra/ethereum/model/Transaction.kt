@@ -3,6 +3,7 @@
 package fund.cyber.cassandra.ethereum.model
 
 import fund.cyber.search.model.ethereum.EthereumTx
+import fund.cyber.search.model.ethereum.TxStatus
 import fund.cyber.search.model.ethereum.TxTrace
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
@@ -15,6 +16,7 @@ import java.time.Instant
 @Table("tx")
 data class CqlEthereumTx(
     @PrimaryKey val hash: String,
+    val status: TxStatus,
     val nonce: Long,
     @Column("block_hash") val blockHash: String?,
     @Column("block_number") val blockNumber: Long,
@@ -29,18 +31,16 @@ data class CqlEthereumTx(
     val fee: String,
     val input: String,
     @Column("created_contract") val createdContract: String?,
-    @Column("trace_json") val trace: TxTrace?   //saved in cassandra as json string
+    @Column("trace_json") val trace: TxTrace? // saved in cassandra as json bytes
 ) : CqlEthereumItem {
 
     constructor(tx: EthereumTx) : this(
         hash = tx.hash, nonce = tx.nonce, blockHash = tx.blockHash, blockNumber = tx.blockNumber,
         blockTime = tx.blockTime, from = tx.from, to = tx.to, firstSeenTime = tx.firstSeenTime,
         value = tx.value.toString(), gasPrice = tx.gasPrice, gasLimit = tx.gasLimit, gasUsed = tx.gasUsed,
-        fee = tx.fee.toString(), input = tx.input, createdContract = tx.createdSmartContract, trace = tx.trace
-        //operations = emptyList()
+        fee = tx.fee.toString(), input = tx.input, createdContract = tx.createdSmartContract, trace = tx.trace,
+        status = tx.txStatus()
     )
 
     fun contractsUsedInTransaction() = listOfNotNull(from, to, createdContract)
 }
-
-

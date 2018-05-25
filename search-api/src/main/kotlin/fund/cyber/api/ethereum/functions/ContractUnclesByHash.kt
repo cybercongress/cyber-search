@@ -1,8 +1,8 @@
 package fund.cyber.api.ethereum.functions
 
-import fund.cyber.api.common.toSearchHashFormat
 import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedUncle
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractMinedUncleRepository
+import fund.cyber.common.toSearchHashFormat
 import org.springframework.data.cassandra.core.query.CassandraPageRequest
 import org.springframework.web.reactive.function.server.HandlerFunction
 import org.springframework.web.reactive.function.server.ServerRequest
