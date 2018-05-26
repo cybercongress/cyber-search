@@ -1,6 +1,7 @@
 package fund.cyber.dump.ethereum
 
 import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
@@ -14,7 +15,6 @@ import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.blockPumpTopic
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.junit.jupiter.api.Test
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -138,13 +138,14 @@ class BlockDumpProcessTest {
         val record8 = ConsumerRecord<PumpEvent, EthereumBlock>(EthereumFamilyChain.ETHEREUM.blockPumpTopic, 0,
                 0, PumpEvent.NEW_BLOCK, blockI)
 
+
         val blockRepository = mock<EthereumBlockRepository> {
-            on { saveAll(any<Iterable<CqlEthereumBlock>>()) }.thenReturn(Flux.empty())
-            on { deleteAll(any<Iterable<CqlEthereumBlock>>()) }.thenReturn(Mono.empty())
+            on { save(any<CqlEthereumBlock>()) }.doReturn(Mono.empty<CqlEthereumBlock>())
+            on { delete(any()) }.thenReturn(Mono.empty<Void>())
         }
         val contractMinedBlockRepository = mock<EthereumContractMinedBlockRepository> {
-            on { saveAll(any<Iterable<CqlEthereumContractMinedBlock>>()) }.thenReturn(Flux.empty())
-            on { deleteAll(any<Iterable<CqlEthereumContractMinedBlock>>()) }.thenReturn(Mono.empty())
+            on { save(any<CqlEthereumContractMinedBlock>()) }.thenReturn(Mono.empty<CqlEthereumContractMinedBlock>())
+            on { delete(any()) }.thenReturn(Mono.empty<Void>())
         }
 
         val blockDumpProcess = BlockDumpProcess(blockRepository, contractMinedBlockRepository,
@@ -153,17 +154,22 @@ class BlockDumpProcessTest {
         blockDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8))
 
 
-        verify(blockRepository, times(1))
-                .saveAll(listOf(CqlEthereumBlock(blockD), CqlEthereumBlock(blockE),
-                        CqlEthereumBlock(blockG), CqlEthereumBlock(blockI)))
-        verify(blockRepository, times(1))
-                .deleteAll(listOf(CqlEthereumBlock(blockF), CqlEthereumBlock(blockC)))
+        verify(blockRepository, times(1)).save(CqlEthereumBlock(blockD))
+        verify(blockRepository, times(1)).save(CqlEthereumBlock(blockE))
+        verify(blockRepository, times(1)).save(CqlEthereumBlock(blockG))
+        verify(blockRepository, times(1)).save(CqlEthereumBlock(blockI))
 
-        verify(contractMinedBlockRepository, times(1))
-                .saveAll(listOf(CqlEthereumContractMinedBlock(blockD), CqlEthereumContractMinedBlock(blockE),
-                        CqlEthereumContractMinedBlock(blockG), CqlEthereumContractMinedBlock(blockI)))
-        verify(contractMinedBlockRepository, times(1))
-                .deleteAll(listOf(CqlEthereumContractMinedBlock(blockF), CqlEthereumContractMinedBlock(blockC)))
+        verify(blockRepository, times(1)).delete(CqlEthereumBlock(blockF))
+        verify(blockRepository, times(1)).delete(CqlEthereumBlock(blockC))
+
+        verify(contractMinedBlockRepository, times(1)).save(CqlEthereumContractMinedBlock(blockD))
+        verify(contractMinedBlockRepository, times(1)).save(CqlEthereumContractMinedBlock(blockE))
+        verify(contractMinedBlockRepository, times(1)).save(CqlEthereumContractMinedBlock(blockG))
+        verify(contractMinedBlockRepository, times(1)).save(CqlEthereumContractMinedBlock(blockI))
+
+
+        verify(contractMinedBlockRepository, times(1)).delete(CqlEthereumContractMinedBlock(blockF))
+        verify(contractMinedBlockRepository, times(1)).delete(CqlEthereumContractMinedBlock(blockC))
 
 
     }

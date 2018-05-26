@@ -93,6 +93,15 @@ class TxDumpProcessTest {
                 gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null, trace = null
         )
 
+        val txK = EthereumTx(
+                hash = "K", error = null,
+                nonce = 0, blockHash = null,
+                blockNumber = -1, blockTime = null, positionInBlock = -1,
+                from = "a", to = "b", firstSeenTime = Instant.ofEpochSecond(100000),
+                value = BigDecimal.ZERO, gasPrice = BigDecimal.ZERO, gasLimit = 0,
+                gasUsed = 21000L, fee = BigDecimal.ZERO, input = "", createdSmartContract = null, trace = null
+        )
+
 
         val record1 = ConsumerRecord<PumpEvent, EthereumTx>(EthereumFamilyChain.ETHEREUM.txPumpTopic, 0,
                 0, PumpEvent.NEW_BLOCK, txH)
@@ -110,15 +119,17 @@ class TxDumpProcessTest {
                 0, PumpEvent.NEW_BLOCK, txG)
         val record8 = ConsumerRecord<PumpEvent, EthereumTx>(EthereumFamilyChain.ETHEREUM.txPumpTopic, 0,
                 0, PumpEvent.NEW_BLOCK, txI)
+        val record9 = ConsumerRecord<PumpEvent, EthereumTx>(EthereumFamilyChain.ETHEREUM.txPumpTopic, 0,
+            0, PumpEvent.NEW_POOL_TX, txK)
 
         val txRepository = mock<EthereumTxRepository> {
-            on { saveAll(any<Iterable<CqlEthereumTx>>()) }.thenReturn(Flux.empty())
-            on { deleteAll(any<Iterable<CqlEthereumTx>>()) }.thenReturn(Mono.empty())
-            on { findAllById(any<Iterable<String>>()) }.thenReturn(Flux.empty())
+            on { save(any<CqlEthereumTx>()) }.thenReturn(Mono.empty())
+            on { delete(any()) }.thenReturn(Mono.empty())
+            on { findById(any<String>()) }.thenReturn(Mono.empty())
         }
         val blockTxRepository = mock<EthereumBlockTxRepository> {
-            on { saveAll(any<Iterable<CqlEthereumBlockTxPreview>>()) }.thenReturn(Flux.empty())
-            on { deleteAll(any<Iterable<CqlEthereumBlockTxPreview>>()) }.thenReturn(Mono.empty())
+            on { save(any<CqlEthereumBlockTxPreview>()) }.thenReturn(Mono.empty())
+            on { delete(any()) }.thenReturn(Mono.empty())
         }
         val contractTxRepository = mock<EthereumContractTxRepository> {
             on { saveAll(any<Iterable<CqlEthereumContractTxPreview>>()) }.thenReturn(Flux.empty())
@@ -128,40 +139,49 @@ class TxDumpProcessTest {
         val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository,
                 EthereumFamilyChain.ETHEREUM)
 
-        txDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8))
+        txDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8, record9))
 
 
-        verify(txRepository, times(1))
-                .saveAll(
-                    listOf(
-                        CqlEthereumTx(txH.mempoolState()), CqlEthereumTx(txF.mempoolState()),
-                        CqlEthereumTx(txC.mempoolState()), CqlEthereumTx(txD), CqlEthereumTx(txE),
-                        CqlEthereumTx(txG), CqlEthereumTx(txI)
-                    )
-                )
+        verify(txRepository, times(2)).findById(txH.hash)
+        verify(txRepository, times(1)).findById(txF.hash)
+        verify(txRepository, times(1)).findById(txC.hash)
+        verify(txRepository, times(1)).findById(txD.hash)
+        verify(txRepository, times(1)).findById(txE.hash)
+        verify(txRepository, times(1)).findById(txG.hash)
+        verify(txRepository, times(1)).findById(txI.hash)
+        verify(txRepository, times(1)).findById(txK.hash)
 
-        verify(blockTxRepository, times(1))
-            .deleteAll(linkedSetOf(CqlEthereumBlockTxPreview(txF), CqlEthereumBlockTxPreview(txC)))
-        verify(blockTxRepository, times(1))
-            .saveAll(linkedSetOf(CqlEthereumBlockTxPreview(txD), CqlEthereumBlockTxPreview(txE),
-                CqlEthereumBlockTxPreview(txG), CqlEthereumBlockTxPreview(txI)))
+        verify(txRepository, times(1)).save(CqlEthereumTx(txH))
+        verify(txRepository, times(1)).save(CqlEthereumTx(txH.mempoolState()))
+        verify(txRepository, times(1)).save(CqlEthereumTx(txF.mempoolState()))
+        verify(txRepository, times(1)).save(CqlEthereumTx(txC.mempoolState()))
+        verify(txRepository, times(1)).save(CqlEthereumTx(txD))
+        verify(txRepository, times(1)).save(CqlEthereumTx(txE))
+        verify(txRepository, times(1)).save(CqlEthereumTx(txG))
+        verify(txRepository, times(1)).save(CqlEthereumTx(txI))
+        verify(txRepository, times(1)).save(CqlEthereumTx(txK))
 
-        verify(contractTxRepository, times(1))
-            .deleteAll(
-                listOf(txF, txC, txD.mempoolState(), txE.mempoolState(), txG.mempoolState(), txI.mempoolState())
-                    .flatMap { tx ->
-                        tx.contractsUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) }
-                    }
-            )
-        verify(contractTxRepository, times(1))
-            .saveAll(
-                listOf(txD, txE, txG, txI)
-                    .flatMap { tx ->
-                        tx.contractsUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) }
-                    }
-            )
+        verify(blockTxRepository, times(1)).save(CqlEthereumBlockTxPreview(txH))
+        verify(blockTxRepository, times(1)).delete(CqlEthereumBlockTxPreview(txH))
+        verify(blockTxRepository, times(1)).delete(CqlEthereumBlockTxPreview(txF))
+        verify(blockTxRepository, times(1)).delete(CqlEthereumBlockTxPreview(txC))
+        verify(blockTxRepository, times(1)).save(CqlEthereumBlockTxPreview(txD))
+        verify(blockTxRepository, times(1)).save(CqlEthereumBlockTxPreview(txE))
+        verify(blockTxRepository, times(1)).save(CqlEthereumBlockTxPreview(txG))
+        verify(blockTxRepository, times(1)).save(CqlEthereumBlockTxPreview(txI))
 
 
+        listOf(txH, txF, txC, txH.mempoolState(), txD.mempoolState(), txE.mempoolState(), txG.mempoolState(), txI.mempoolState())
+            .forEach { tx ->
+                verify(contractTxRepository, times(1))
+                    .deleteAll(tx.contractsUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) })
+            }
+
+        listOf(txH, txD, txE, txG, txI, txK)
+            .forEach { tx ->
+                verify(contractTxRepository, times(1))
+                    .saveAll(tx.contractsUsedInTransaction().map { it -> CqlEthereumContractTxPreview(tx, it) })
+            }
     }
 
 

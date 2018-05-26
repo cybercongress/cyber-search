@@ -23,8 +23,8 @@ buildscript {
         // tests
         junitVersion = "5.2.0"
         junitPlatformVersion = "1.2.0"
-        mockitoVersion = "2.1.0"
-        mockitoKotlinVersion = "0.7.0"
+        mockitoVersion = "2.8.9"
+        mockitoKotlinVersion = "1.5.0"
         assertjVersion = "3.9.0"
 
         // metrics
@@ -172,6 +172,7 @@ subprojects {
                 exclude 'org.jetbrains.kotlin:kotlin-stdlib'
             }
             dependency("io.projectreactor:reactor-core:$reactorVersion")
+            dependency("io.projectreactor:reactor-test:$reactorVersion")
 
             dependency("io.micrometer:micrometer-core:$micrometerVersion")
             dependency("io.micrometer:micrometer-registry-prometheus:$micrometerVersion")
@@ -184,6 +185,7 @@ subprojects {
         testCompile("org.mockito:mockito-core")
         testCompile("com.nhaarman:mockito-kotlin")
         testCompile("org.assertj:assertj-core")
+        testCompile("io.projectreactor:reactor-test")
         testRuntime("org.junit.jupiter:junit-jupiter-engine")
     }
 }

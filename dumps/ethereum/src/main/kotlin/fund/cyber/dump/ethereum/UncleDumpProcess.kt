@@ -4,14 +4,15 @@ import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedUncle
 import fund.cyber.cassandra.ethereum.model.CqlEthereumUncle
 import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumContractUncleRepository
-import fund.cyber.dump.common.filterNotContainsAllEventsOf
-import fund.cyber.dump.common.toRecordEventsMap
+import fund.cyber.dump.common.executeOperations
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumUncle
 import fund.cyber.search.model.events.PumpEvent
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.BatchMessageListener
+import reactor.core.publisher.Mono
 
 
 class UncleDumpProcess(
@@ -26,20 +27,26 @@ class UncleDumpProcess(
 
         log.info("Dumping batch of ${records.size} $chain uncles from offset ${records.first().offset()}")
 
-        val recordsToProcess = records.toRecordEventsMap()
-            .filterNotContainsAllEventsOf(listOf(PumpEvent.NEW_BLOCK, PumpEvent.DROPPED_BLOCK))
+        records.executeOperations { event, uncle ->
+            return@executeOperations when (event) {
+                PumpEvent.NEW_BLOCK -> uncle.toNewBlockPublisher()
+                PumpEvent.NEW_POOL_TX -> Mono.empty()
+                PumpEvent.DROPPED_BLOCK -> uncle.toDropBlockPublisher()
+            }
+        }
+    }
 
-        val unclesToCommit = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.NEW_BLOCK) }.keys
-        val unclesToRevert = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.DROPPED_BLOCK) }.keys
+    private fun EthereumUncle.toNewBlockPublisher(): Publisher<Any> {
+        val saveBlockMono = uncleRepository.save(CqlEthereumUncle(this))
+        val saveContractBlockMono = contractUncleRepository.save(CqlEthereumContractMinedUncle(this))
 
-        uncleRepository.deleteAll(unclesToRevert.map { uncle -> CqlEthereumUncle(uncle) }).block()
-        uncleRepository.saveAll(unclesToCommit.map { uncle -> CqlEthereumUncle(uncle) }).collectList().block()
+        return reactor.core.publisher.Flux.concat(saveBlockMono, saveContractBlockMono)
+    }
 
-        contractUncleRepository
-            .deleteAll(unclesToRevert.map { uncle -> CqlEthereumContractMinedUncle(uncle) })
-            .block()
-        contractUncleRepository
-            .saveAll(unclesToCommit.map { uncle -> CqlEthereumContractMinedUncle(uncle) })
-            .collectList().block()
+    private fun EthereumUncle.toDropBlockPublisher(): Publisher<Any> {
+        val deleteBlockMono = uncleRepository.delete(CqlEthereumUncle(this))
+        val deleteContractBlockMono = contractUncleRepository.delete(CqlEthereumContractMinedUncle(this))
+
+        return reactor.core.publisher.Flux.concat(deleteBlockMono, deleteContractBlockMono)
     }
 }
