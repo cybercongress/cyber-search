@@ -5,17 +5,15 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.reactivestreams.Publisher
 import reactor.core.publisher.Flux
 
-fun <RECORD> List<ConsumerRecord<PumpEvent, RECORD>>.executeOperations(
-    convertToOperations: (PumpEvent, RECORD) -> Publisher<*>
-) {
-    val fluxesToExecute = this.compileOperations(convertToOperations)
 
-    fluxesToExecute.forEach { flux ->
+fun List<Flux<Any>>.execute() {
+
+    this.forEach { flux ->
         flux.collectList().block()
     }
 }
 
-fun <RECORD> List<ConsumerRecord<PumpEvent, RECORD>>.compileOperations(
+fun <RECORD> List<ConsumerRecord<PumpEvent, RECORD>>.toFluxBatch(
     convertToOperations: (PumpEvent, RECORD) -> Publisher<*>
 ): List<Flux<Any>> {
 

@@ -4,7 +4,8 @@ import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedUncle
 import fund.cyber.cassandra.ethereum.model.CqlEthereumUncle
 import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumContractUncleRepository
-import fund.cyber.dump.common.executeOperations
+import fund.cyber.dump.common.execute
+import fund.cyber.dump.common.toFluxBatch
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumUncle
 import fund.cyber.search.model.events.PumpEvent
@@ -27,13 +28,13 @@ class UncleDumpProcess(
 
         log.info("Dumping batch of ${records.size} $chain uncles from offset ${records.first().offset()}")
 
-        records.executeOperations { event, uncle ->
-            return@executeOperations when (event) {
+        records.toFluxBatch { event, uncle ->
+            return@toFluxBatch when (event) {
                 PumpEvent.NEW_BLOCK -> uncle.toNewBlockPublisher()
                 PumpEvent.NEW_POOL_TX -> Mono.empty()
                 PumpEvent.DROPPED_BLOCK -> uncle.toDropBlockPublisher()
             }
-        }
+        }.execute()
     }
 
     private fun EthereumUncle.toNewBlockPublisher(): Publisher<Any> {

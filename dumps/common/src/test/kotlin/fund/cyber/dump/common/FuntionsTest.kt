@@ -27,8 +27,8 @@ class FunctionsTest {
             testRecord(PumpEvent.NEW_BLOCK)
         )
 
-        val fluxesToExecute = records.compileOperations { event, _ ->
-            return@compileOperations when (event) {
+        val fluxesToExecute = records.toFluxBatch { event, _ ->
+            return@toFluxBatch when (event) {
                 PumpEvent.NEW_BLOCK -> Flux.fromIterable(listOf("a1", "a2", "a3"))
                 PumpEvent.NEW_POOL_TX -> Flux.fromIterable(listOf("b1", "b2"))
                 PumpEvent.DROPPED_BLOCK -> Flux.fromIterable(listOf("c1", "c2", "c3"))
@@ -66,8 +66,8 @@ class FunctionsTest {
     fun compileOperationsWithNoRecordsTest() {
         val records = emptyList<ConsumerRecord<PumpEvent, TestData>>()
 
-        val fluxesToExecute = records.compileOperations { event, _ ->
-            return@compileOperations when (event) {
+        val fluxesToExecute = records.toFluxBatch { event, _ ->
+            return@toFluxBatch when (event) {
                 PumpEvent.NEW_BLOCK -> Flux.fromIterable(listOf("a1", "a2", "a3"))
                 PumpEvent.NEW_POOL_TX -> Flux.fromIterable(listOf("b1", "b2"))
                 PumpEvent.DROPPED_BLOCK -> Flux.fromIterable(listOf("c1", "c2", "c3"))
@@ -87,8 +87,8 @@ class FunctionsTest {
             testRecord(PumpEvent.NEW_BLOCK)
         )
 
-        val fluxesToExecute = records.compileOperations { event, _ ->
-            return@compileOperations when (event) {
+        val fluxesToExecute = records.toFluxBatch { event, _ ->
+            return@toFluxBatch when (event) {
                 PumpEvent.NEW_BLOCK -> Flux.empty()
                 PumpEvent.NEW_POOL_TX -> Flux.empty<Any>()
                 PumpEvent.DROPPED_BLOCK -> Flux.empty()
@@ -118,8 +118,8 @@ class FunctionsTest {
             testRecord(PumpEvent.NEW_BLOCK)
         )
 
-        val fluxesToExecute = records.compileOperations { event, _ ->
-            return@compileOperations when (event) {
+        val fluxesToExecute = records.toFluxBatch { event, _ ->
+            return@toFluxBatch when (event) {
                 PumpEvent.NEW_BLOCK -> Flux.fromIterable(listOf("a1", "a2", "a3"))
                 PumpEvent.NEW_POOL_TX -> Mono.just("b1")
                 PumpEvent.DROPPED_BLOCK -> Flux.fromIterable(listOf("c1", "c2", "c3"))

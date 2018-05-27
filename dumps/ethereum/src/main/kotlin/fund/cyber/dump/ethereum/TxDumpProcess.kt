@@ -6,7 +6,8 @@ import fund.cyber.cassandra.ethereum.model.CqlEthereumTx
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
-import fund.cyber.dump.common.executeOperations
+import fund.cyber.dump.common.execute
+import fund.cyber.dump.common.toFluxBatch
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.events.PumpEvent
@@ -32,13 +33,13 @@ class TxDumpProcess(
 
         log.info("Dumping batch of ${records.size} $chain transactions from offset ${records.first().offset()}")
 
-        records.executeOperations { event, tx ->
-            return@executeOperations when (event) {
+        records.toFluxBatch { event, tx ->
+            return@toFluxBatch when (event) {
                 PumpEvent.NEW_BLOCK -> tx.toNewBlockPublisher()
                 PumpEvent.NEW_POOL_TX -> tx.toNewPoolItemPublisher()
                 PumpEvent.DROPPED_BLOCK -> tx.toDropBlockPublisher()
             }
-        }
+        }.execute()
 
     }
 

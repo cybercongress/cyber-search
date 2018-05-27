@@ -4,7 +4,8 @@ import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractMinedBlock
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlock
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractMinedBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
-import fund.cyber.dump.common.executeOperations
+import fund.cyber.dump.common.execute
+import fund.cyber.dump.common.toFluxBatch
 import fund.cyber.search.model.bitcoin.BitcoinBlock
 import fund.cyber.search.model.chains.BitcoinFamilyChain
 import fund.cyber.search.model.events.PumpEvent
@@ -28,13 +29,13 @@ class BlockDumpProcess(
 
         log.info("Dumping batch of ${records.size} $chain blocks from offset ${records.first().offset()}")
 
-        records.executeOperations { event, block ->
-            return@executeOperations when (event) {
+        records.toFluxBatch { event, block ->
+            return@toFluxBatch when (event) {
                 PumpEvent.NEW_BLOCK -> block.toNewBlockPublisher()
                 PumpEvent.NEW_POOL_TX -> Mono.empty()
                 PumpEvent.DROPPED_BLOCK -> block.toDropBlockPublisher()
             }
-        }
+        }.execute()
     }
 
     private fun BitcoinBlock.toNewBlockPublisher(): Publisher<Any> {
