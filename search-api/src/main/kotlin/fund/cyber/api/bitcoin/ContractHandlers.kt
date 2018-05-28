@@ -1,10 +1,11 @@
 package fund.cyber.api.bitcoin
 
+import fund.cyber.api.bitcoin.dto.ContractSummaryDto
 import fund.cyber.api.common.asSingleRouterFunction
 import fund.cyber.api.bitcoin.functions.ContractBlocksByHash
 import fund.cyber.api.bitcoin.functions.ContractTxesByHash
-import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractSummary
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractSummaryRepository
+import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractMinedBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractTxRepository
 import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
@@ -34,10 +35,22 @@ class BitcoinContractHandlersConfiguration {
 
             val repository = applicationContext.getBean(beanName, BitcoinContractSummaryRepository::class.java)
 
+            //todo: make variables with repositories names and common method to get bean name
+            val contractTxRepositoryBeanName = "$chainName${REPOSITORY_NAME_DELIMETER}contractTxRepository"
+            val contractTxRepository = applicationContext
+                .getBean(contractTxRepositoryBeanName, BitcoinContractTxRepository::class.java)
+
             val blockByNumber = HandlerFunction { request ->
                 val contractHash = request.pathVariable("hash")
+
                 val contract = repository.findById(contractHash)
-                ServerResponse.ok().body(contract, CqlBitcoinContractSummary::class.java)
+                val contractUnconfirmedTxes = contractTxRepository
+                    .findAllByContractHashAndBlockTime(contractHash, -1)
+
+                val result = contract.zipWith(contractUnconfirmedTxes.collectList()) { contr, txes ->
+                    ContractSummaryDto(contr, txes)
+                }
+                ServerResponse.ok().body(result, ContractSummaryDto::class.java)
             }
             RouterFunctions.route(path("/${chainName.toLowerCase()}/contract/{hash}"), blockByNumber)
         }.asSingleRouterFunction()

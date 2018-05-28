@@ -43,7 +43,7 @@ class ParityToEthereumBundleConverter(
 
     fun parityMempoolTxToDao(parityTx: Transaction): EthereumTx {
         return EthereumTx(
-            from = parityTx.from.toSearchHashFormat(), to = parityTx.to.toSearchHashFormat(),
+            from = parityTx.from.toSearchHashFormat(), to = parityTx.to?.toSearchHashFormat(),
             nonce = parityTx.nonce.toLong(), error = null,
             value = BigDecimal(parityTx.value) * weiToEthRate,
             hash = parityTx.hash.toSearchHashFormat(), blockHash = null,

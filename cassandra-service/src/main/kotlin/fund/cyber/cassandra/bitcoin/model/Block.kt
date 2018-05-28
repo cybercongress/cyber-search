@@ -54,26 +54,28 @@ data class CqlBitcoinBlockTxPreview(
 
 @Table("block")
 data class CqlBitcoinBlock(
-        @PrimaryKey val number: Long,
-        val hash: String,
-        @Column("miner_contract_hash") val minerContractHash: String,
-        @Column("block_reward") val blockReward: BigDecimal,
-        @Column("tx_fees") val txFees: BigDecimal,
-        @Column("coinbase_data") val coinbaseData: String,
-        val timestamp: Instant,
-        val nonce: Long,
-        val merkleroot: String,
-        val size: Int,
-        val version: Int,
-        val weight: Int,
-        val bits: String,
-        val difficulty: BigInteger,
-        @Column("tx_number") val txNumber: Int,
-        @Column("total_outputs_value") val totalOutputsValue: String
+    @PrimaryKey val number: Long,
+    val hash: String,
+    @Column("parent_hash") val parentHash: String,
+    @Column("miner_contract_hash") val minerContractHash: String,
+    @Column("block_reward") val blockReward: BigDecimal,
+    @Column("tx_fees") val txFees: BigDecimal,
+    @Column("coinbase_data") val coinbaseData: String,
+    val timestamp: Instant,
+    val nonce: Long,
+    val merkleroot: String,
+    val size: Int,
+    val version: Int,
+    val weight: Int,
+    val bits: String,
+    val difficulty: BigInteger,
+    @Column("tx_number") val txNumber: Int,
+    @Column("total_outputs_value") val totalOutputsValue: String
 ) : CqlBitcoinItem {
 
     constructor(block: BitcoinBlock) : this(
-            number = block.height, hash = block.hash, minerContractHash = block.minerContractHash,
+            number = block.height, hash = block.hash, parentHash = block.parentHash,
+            minerContractHash = block.minerContractHash,
             blockReward = block.blockReward, txFees = block.txFees, coinbaseData = block.coinbaseData,
             timestamp = block.time, nonce = block.nonce, bits = block.bits, merkleroot = block.merkleroot,
             size = block.size, version = block.version, weight = block.weight, difficulty = block.difficulty,

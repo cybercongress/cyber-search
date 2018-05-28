@@ -26,6 +26,10 @@ CREATE TABLE IF NOT EXISTS bitcoin_cash.tx_preview_by_block (
 ) WITH CLUSTERING ORDER BY ( "index" ASC );
 
 
+CREATE TYPE IF NOT EXISTS bitcoin.script_sig (
+    asm text,
+    hex text
+);
 
 CREATE TYPE IF NOT EXISTS bitcoin_cash.tx_out (
     contracts FROZEN < list < text > >,
@@ -38,7 +42,8 @@ CREATE TYPE IF NOT EXISTS bitcoin_cash.tx_out (
 CREATE TYPE IF NOT EXISTS bitcoin_cash.tx_in (
     contracts FROZEN < list < text > >,
     amount decimal,
-    asm text,
+    scriptSig FROZEN < bitcoin_cash.script_sig >,
+    txinwitness FROZEN < list < text > >,
     tx_hash text,
     tx_out int
 );
@@ -48,6 +53,7 @@ CREATE TABLE IF NOT EXISTS bitcoin_cash.tx (
      block_number bigint,
      block_hash text,
      block_time timestamp,
+     first_seen_time timestamp,
      size int,
      coinbase text,
      fee text,
@@ -61,6 +67,7 @@ CREATE TABLE IF NOT EXISTS bitcoin_cash.tx (
 
 CREATE TABLE IF NOT EXISTS bitcoin_cash.block (
      hash text,
+     parent_hash text,
      number bigint PRIMARY KEY,
      miner_contract_hash text,
      block_reward decimal,

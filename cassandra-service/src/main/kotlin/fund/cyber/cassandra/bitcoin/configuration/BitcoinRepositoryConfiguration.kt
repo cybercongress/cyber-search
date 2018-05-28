@@ -4,6 +4,7 @@ import com.datastax.driver.core.Cluster
 import com.datastax.driver.extras.codecs.jdk8.InstantCodec
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractSummaryRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
+import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractMinedBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractTxRepository
@@ -162,7 +163,9 @@ class BitcoinRepositoriesConfiguration : InitializingBean {
 
                     val contractRepository = reactiveRepositoryFactory
                             .getRepository(BitcoinContractSummaryRepository::class.java)
-                    val contractTxRepository = repositoryFactory
+                    val contractTxRepository = reactiveRepositoryFactory
+                        .getRepository(BitcoinContractTxRepository::class.java)
+                    val pageableContractTxRepository = repositoryFactory
                             .getRepository(PageableBitcoinContractTxRepository::class.java)
                     val contractBlockRepository = repositoryFactory
                             .getRepository(PageableBitcoinContractMinedBlockRepository::class.java)
@@ -176,8 +179,10 @@ class BitcoinRepositoriesConfiguration : InitializingBean {
                     beanFactory.registerSingleton("${repositoryPrefix}txRepository", txRepository)
 
                     beanFactory.registerSingleton("${repositoryPrefix}contractRepository", contractRepository)
+                    beanFactory.registerSingleton("${repositoryPrefix}contractTxRepository",
+                        contractTxRepository)
                     beanFactory.registerSingleton("${repositoryPrefix}pageableContractTxRepository",
-                                    contractTxRepository)
+                                    pageableContractTxRepository)
                     beanFactory.registerSingleton("${repositoryPrefix}pageableContractBlockRepository",
                                     contractBlockRepository)
                 }

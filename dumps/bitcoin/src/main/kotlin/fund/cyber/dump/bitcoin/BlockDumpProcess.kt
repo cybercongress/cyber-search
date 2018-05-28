@@ -4,14 +4,17 @@ import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractMinedBlock
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlock
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractMinedBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
-import fund.cyber.dump.common.filterNotContainsAllEventsOf
-import fund.cyber.dump.common.toRecordEventsMap
+import fund.cyber.dump.common.execute
+import fund.cyber.dump.common.toFluxBatch
 import fund.cyber.search.model.bitcoin.BitcoinBlock
 import fund.cyber.search.model.chains.BitcoinFamilyChain
 import fund.cyber.search.model.events.PumpEvent
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.BatchMessageListener
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 
 class BlockDumpProcess(
@@ -24,28 +27,28 @@ class BlockDumpProcess(
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, BitcoinBlock>>) {
 
-        val first = records.first()
-        val last = records.last()
-        log.info("Dumping batch of ${first.value().height}-${last.value().height} $chain blocks")
+        log.info("Dumping batch of ${records.size} $chain blocks from offset ${records.first().offset()}")
 
-        val recordsToProcess = records.toRecordEventsMap()
-            .filterNotContainsAllEventsOf(listOf(PumpEvent.NEW_BLOCK, PumpEvent.DROPPED_BLOCK))
+        records.toFluxBatch { event, block ->
+            return@toFluxBatch when (event) {
+                PumpEvent.NEW_BLOCK -> block.toNewBlockPublisher()
+                PumpEvent.NEW_POOL_TX -> Mono.empty()
+                PumpEvent.DROPPED_BLOCK -> block.toDropBlockPublisher()
+            }
+        }.execute()
+    }
 
-        val blocksToCommit = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.NEW_BLOCK) }.keys
-        val blocksToRevert = recordsToProcess.filter { entry -> entry.value.contains(PumpEvent.DROPPED_BLOCK) }.keys
+    private fun BitcoinBlock.toNewBlockPublisher(): Publisher<Any> {
+        val saveBlockMono = blockRepository.save(CqlBitcoinBlock(this))
+        val saveContractBlockMono = contractMinedBlockRepository.save(CqlBitcoinContractMinedBlock(this))
 
-        blockRepository
-            .deleteAll(blocksToRevert.map { block -> CqlBitcoinBlock(block) })
-            .block()
-        blockRepository
-            .saveAll(blocksToCommit.map { block -> CqlBitcoinBlock(block) })
-            .collectList().block()
+        return Flux.concat(saveBlockMono, saveContractBlockMono)
+    }
 
-        contractMinedBlockRepository
-            .deleteAll(blocksToRevert.map { block -> CqlBitcoinContractMinedBlock(block) })
-            .block()
-        contractMinedBlockRepository
-            .saveAll(blocksToCommit.map { block -> CqlBitcoinContractMinedBlock(block) })
-            .collectList().block()
+    private fun BitcoinBlock.toDropBlockPublisher(): Publisher<Any> {
+        val deleteBlockMono = blockRepository.delete(CqlBitcoinBlock(this))
+        val deleteContractBlockMono = contractMinedBlockRepository.delete(CqlBitcoinContractMinedBlock(this))
+
+        return Flux.concat(deleteBlockMono, deleteContractBlockMono)
     }
 }
