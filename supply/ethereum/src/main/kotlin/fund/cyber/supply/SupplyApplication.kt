@@ -1,4 +1,4 @@
-package fund.cyber.supply.ethereum
+package fund.cyber.supply
 
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
