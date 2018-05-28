@@ -220,6 +220,8 @@ class BitcoinBlockchainInterface(
 
 So, as you can see, you're not care of what happening with data next and how to store it. All you need is just to tell `BlockBundle` how to map it's fields on entities and we'll take care of everything else.
 
+Note that you should use `toSearchHashFormat()` extension function placed in `fund.cyber.api.common.Func.kt` on all fields in hex format when building your chain entities.
+
 ### Memory Pool Pump
 
 You also could add memory pool pumping logic by simply implement `PoolInterface` interface
