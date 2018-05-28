@@ -23,8 +23,6 @@ import reactor.core.scheduler.Schedulers
 
 private val log = LoggerFactory.getLogger(BitcoinJsonRpcClient::class.java)!!
 
-const val GET_TXES_CONCURRENCY = 10
-
 @Suppress("TooManyFunctions")
 @Component
 class BitcoinJsonRpcClient(
@@ -47,12 +45,12 @@ class BitcoinJsonRpcClient(
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
 
-    fun getTxes(txIds: Collection<String>): List<JsonRpcBitcoinTransaction> {
+    fun getTxes(txIds: Collection<String>, concurrency: Int): List<JsonRpcBitcoinTransaction> {
         return txesRequestTimer.recordCallable {
             log.debug("TRANSACTIONS COUNT: ${txIds.size}. STARTING PROCESSING")
             return@recordCallable Flux.fromIterable(txIds)
                 .flatMap { hash ->
-                    getTxRx(hash).subscribeOn(Schedulers.newParallel("get-btc-tx", GET_TXES_CONCURRENCY))
+                    getTxRx(hash).subscribeOn(Schedulers.newParallel("get-btc-tx", concurrency))
                 }.collectList().block()!!
         }
     }
