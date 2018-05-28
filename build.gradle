@@ -28,7 +28,7 @@ buildscript {
         assertjVersion = "3.9.0"
 
         // metrics
-        micrometerVersion = "1.0.0"
+        micrometerVersion = "1.0.4"
 
         // logs
         slf4jVersion = "1.7.25"

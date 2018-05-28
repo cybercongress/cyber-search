@@ -30,7 +30,7 @@ data class EthereumBlock(
     val txNumber: Int,
     val uncles: List<String> = emptyList(),
     val blockReward: BigDecimal,
-    val unclesReward: BigDecimal,
+    val unclesReward: BigDecimal,          //including uncles reward, todo rename
     val txFees: BigDecimal
 ) : BlockEntity
 

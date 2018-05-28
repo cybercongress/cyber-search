@@ -1,6 +1,6 @@
 package fund.cyber.common.kafka.reader
 
-import fund.cyber.common.kafka.BaseForKafkaIntegrationTest
+import fund.cyber.common.kafka.BaseKafkaIntegrationTest
 import fund.cyber.common.kafka.SinglePartitionTopicDataPresentLatch
 import fund.cyber.common.kafka.sendRecords
 import org.junit.jupiter.api.*
@@ -17,7 +17,7 @@ const val EXISTING_TOPIC_WITH_RECORDS_LACK = "EXISTING_EMPTY_TOPIC"
         ]
 )
 @DisplayName("Single-partitioned topic lack of records reader test")
-class SinglePartitionLackOfRecordsReaderTest : BaseForKafkaIntegrationTest() {
+class SinglePartitionLackOfRecordsReaderTest : BaseKafkaIntegrationTest() {
 
 
     private val itemsCount = 4

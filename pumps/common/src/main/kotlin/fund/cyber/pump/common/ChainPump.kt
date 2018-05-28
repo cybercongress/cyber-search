@@ -91,5 +91,4 @@ class ChainPump<T : BlockBundle>(
     }
 
     private fun lastPumpedBlockNumber() = lastPumpedBlockNumberProvider.getLastBlockNumber()
-
 }
