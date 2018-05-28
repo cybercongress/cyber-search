@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS bitcoin.tx (
 
 CREATE TABLE IF NOT EXISTS bitcoin.block (
      hash text,
+     parent_hash text,
      number bigint PRIMARY KEY,
      miner_contract_hash text,
      block_reward decimal,
