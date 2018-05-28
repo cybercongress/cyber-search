@@ -18,7 +18,7 @@ data class CallOperationResult(
 
 data class CreateContractOperationResult(
     val address: String, // created contract address
-    val code: String, // created contract bytecode
+    val code: String,    // created contract bytecode
     val gasUsed: Long
 ) : OperationResult()
 

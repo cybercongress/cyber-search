@@ -63,7 +63,7 @@ sealed class TransactionInput
 data class CoinbaseTransactionInput(
         val coinbase: String,
         val sequence: Long,
-        val txinwitness: String = ""
+        val txinwitness: List<String> = emptyList()
 ) : TransactionInput()
 
 data class RegularTransactionInput(
@@ -71,7 +71,7 @@ data class RegularTransactionInput(
         val vout: Int,
         val scriptSig: SignatureScript,
         val sequence: Long,
-        val txinwitness: String = ""
+        val txinwitness: List<String> = emptyList()
 ) : TransactionInput()
 
 data class PubKeyScript(

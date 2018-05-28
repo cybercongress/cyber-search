@@ -1,6 +1,6 @@
 package fund.cyber
 
-import fund.cyber.pump.common.ChainPump
+import fund.cyber.pump.common.runPump
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
@@ -14,11 +14,7 @@ class BitcoinPumpApplication {
         fun main(args: Array<String>) {
 
             val application = SpringApplication(BitcoinPumpApplication::class.java)
-            application.setRegisterShutdownHook(false)
-            val applicationContext = application.run(*args)
-
-            val pump = applicationContext.getBean(ChainPump::class.java)
-            pump.startPump()
+            application.runPump(args)
         }
     }
 }

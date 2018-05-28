@@ -5,6 +5,25 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- [#127](/../../issues/127) Websockets API
+- [#164](/../../issues/164) Bitcoin pump failed to dowload 481824-481844 blocks
+- [#165](/../../issues/165) Bitcoin Transactions Dump stucks on 16 millions
+- [#166](/../../issues/166) BTC, ETH Supply Service
+- [#169](/../../issues/169) Improve bitcoin pump perfomance
+- [#170](/../../issues/170) Improve bitcoin transactions dump performance
+- [#21](/../../issues/21) Setup Bitcoin mempool indexation
+
+## [0.5.0] - Ethereum tx traces. Ethereum mempool txes in contract summary. Custom {chainName} pump.
+### Added
+- [#161](/../../issues/161) Ethereum contract summary should use traces to calculate balances
+- [#156](/../../issues/156) Migrate search kafka monitoring info to kafka exporter metrics
+- [#154](/../../issues/154) Make bitcoin tx outputs cache heap size environment variable
+- [#152](/../../issues/152) Support of custom {chainName} for pump
+- [#150](/../../issues/150) Dump: Store tx traces along side with tx as json text field
+- [#149](/../../issues/149) Pump should provide txes with execution traces tree
+- [#137](/../../issues/137) Allow ethereum mempool transactions in contract summary
+### Fixed
+- [#147](/../../issues/147) Pump timeout error on custom ethereum chain
 
 ## [0.4.0] - Ethereum mempool indexation
 ### Added

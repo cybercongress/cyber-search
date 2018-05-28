@@ -44,6 +44,7 @@ inline fun Iterable<BigDecimal>.sum(): BigDecimal {
 
 inline fun String.hexToLong(): Long = java.lang.Long.decode(this)
 
+@Suppress("MagicNumber","TopLevelPropertyNaming") val MINUS_ONE = BigDecimal.ONE.negate()!!
 @Suppress("MagicNumber") val decimal8 = BigDecimal(8)
 @Suppress("MagicNumber") val decimal32 = BigDecimal(32)
 const val DECIMAL_SCALE = 18

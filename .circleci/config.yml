@@ -33,7 +33,7 @@ jobs:
             - ~/.gradle/wrapper/
       - run:
           name: Build And Test Project
-          command: ./gradlew clean build
+          command: ./gradlew clean build jacocoTestReport jacocoMerge coveralls
       - save_cache:
           key: project-dependencies-{{ checksum "build.gradle" }}
           paths:
@@ -88,6 +88,22 @@ jobs:
              docker push cybernode/chain-contract-summary-ethereum:$CIRCLE_TAG
              docker tag build/chain-contract-summary-ethereum cybernode/chain-contract-summary-ethereum:latest
              docker push cybernode/chain-contract-summary-ethereum:latest
+
+  deploy_chain_supply_ethereum_image:
+     <<: *defaults
+     steps:
+       - checkout
+       - setup_remote_docker:
+           version: 17.11.0-ce
+       - run:
+           name: Build Ethereum Supply Service
+           command: |
+             docker build -t build/ethereum_suply_service -f ./supply/ethereum/Dockerfile ./
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag build/ethereum_suply_service cybernode/ethereum_suply_service:$CIRCLE_TAG
+             docker push cybernode/ethereum_suply_service:$CIRCLE_TAG
+             docker tag build/ethereum_suply_service cybernode/ethereum_suply_service:latest
+             docker push cybernode/ethereum_suply_service:latest
 
 # Bitcoin images
   deploy_chain_pumps_bitcoin_image:
@@ -190,6 +206,10 @@ workflows:
           requires:
             - build_project
       - deploy_chain_contract_summary_ethereum_image:
+          <<: *release_filter
+          requires:
+            - build_project
+      - deploy_chain_supply_ethereum_image:
           <<: *release_filter
           requires:
             - build_project

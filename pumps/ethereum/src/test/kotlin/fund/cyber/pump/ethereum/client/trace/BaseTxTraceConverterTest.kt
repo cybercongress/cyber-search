@@ -13,9 +13,9 @@ abstract class BaseTxTraceConverterTest {
         return toTxesTraces(flattenTraces)[txHash]!!
     }
 
-    protected fun getParityTracesForTx(txHash: String): List<Trace> {
+    protected fun getParityTracesForTx(txHash: String): MutableList<Trace> {
 
         val tracesResourceLocation = javaClass.getResource("/client/traces/$txHash.json")
-        return jsonDeserializer.readValue(tracesResourceLocation, Array<Trace>::class.java).toList()
+        return jsonDeserializer.readValue(tracesResourceLocation, Array<Trace>::class.java).toMutableList()
     }
 }

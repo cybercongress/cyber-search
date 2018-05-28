@@ -8,3 +8,5 @@ fun String.toSearchHashFormat(): String {
     }
     return this
 }
+
+fun String.isEmptyHexValue() = this == "0x"

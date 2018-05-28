@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono
 
 
 //todo write small tests for query consistency with object fields.
+//todo test BigDecimal saving
 /**
  * To archive atomic updates of contract summaries we should use CAS, two-phase commit, serial reads and quorum writes.
  */
