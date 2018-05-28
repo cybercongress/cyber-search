@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import fund.cyber.search.configuration.BTC_TX_DOWNLOAD_MAX_CONCURRENCY
+import fund.cyber.search.configuration.BTC_TX_DOWNLOAD_MAX_CONCURRENCY_DEFAULT
 import fund.cyber.search.model.Request
 import fund.cyber.search.model.Response
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinBlock
@@ -16,6 +18,7 @@ import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ByteArrayEntity
 import org.apache.http.message.BasicHeader
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -28,8 +31,12 @@ private val log = LoggerFactory.getLogger(BitcoinJsonRpcClient::class.java)!!
 class BitcoinJsonRpcClient(
     private val httpClient: HttpClient,
     monitoring: MeterRegistry,
-    chainInfo: ChainInfo
+    chainInfo: ChainInfo,
+    @Value("\${$BTC_TX_DOWNLOAD_MAX_CONCURRENCY:$BTC_TX_DOWNLOAD_MAX_CONCURRENCY_DEFAULT}")
+    private val txMaxConcurrency: Int
 ) {
+
+    val getTxesPool = Schedulers.newParallel("get-btc-tx", txMaxConcurrency)
 
     val txesRequestTimer = monitoring.timer("bitcoin_txes_request")
     val blockRequestTimer = monitoring.timer("bitcoin_block_request")
@@ -45,12 +52,12 @@ class BitcoinJsonRpcClient(
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
 
-    fun getTxes(txIds: Collection<String>, concurrency: Int): List<JsonRpcBitcoinTransaction> {
+    fun getTxes(txIds: Collection<String>): List<JsonRpcBitcoinTransaction> {
         return txesRequestTimer.recordCallable {
             log.debug("TRANSACTIONS COUNT: ${txIds.size}. STARTING PROCESSING")
             return@recordCallable Flux.fromIterable(txIds)
                 .flatMap { hash ->
-                    getTxRx(hash).subscribeOn(Schedulers.newParallel("get-btc-tx", concurrency))
+                    getTxRx(hash).subscribeOn(getTxesPool)
                 }.collectList().block()!!
         }
     }

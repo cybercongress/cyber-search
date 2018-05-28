@@ -53,13 +53,13 @@ class DefaultRetryListenerSupport: RetryListenerSupport() {
 @EnableWebFlux
 @EnableScheduling
 @Configuration
-class CommonConfiguration {
-
+class CommonConfiguration(
     @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
-    private lateinit var kafkaBrokers: String
-
+    private val kafkaBrokers: String,
     @Value("\${$PUMP_MAX_CONCURRENCY:$PUMP_MAX_CONCURRENCY_DEFAULT}")
-    private lateinit var maxConcurrency: String
+    private val maxConcurrency: Int
+) {
+
 
     @Bean
     fun chainInfo(): ChainInfo {
@@ -102,7 +102,7 @@ class CommonConfiguration {
             retryTemplate: RetryTemplate
     ): FlowableBlockchainInterface<T> {
         return ConcurrentPulledBlockchain(blockchainInterface = blockchainInterface, retryTemplate = retryTemplate,
-            maxConcurrency = maxConcurrency.toInt())
+            maxConcurrency = maxConcurrency)
     }
 
     private fun consumerProperties() = Properties().apply {
