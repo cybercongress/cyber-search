@@ -1,7 +1,6 @@
 package fund.cyber.dump.ethereum
 
 import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
@@ -29,118 +28,27 @@ class BlockDumpProcessTest {
     @Suppress("LongMethod")
     fun testWithDroppedBlocks() {
 
-        val blockC = EthereumBlock(
-                hash = "C", number = 2,
-                parentHash = "B",
-                txNumber = 158, minerContractHash = "miner3",
-                difficulty = BigInteger("0"),
-                totalDifficulty = BigInteger("0"), size = 0,
-                unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
-                txFees = BigDecimal("0"), gasUsed = 0, gasLimit = 0,
-                timestamp = Instant.now(), logsBloom = "", transactionsRoot = "", stateRoot = "",
-                sha3Uncles = "",
-                nonce = 1, receiptsRoot = "", extraData = "", uncles = emptyList()
-        )
-
-        val blockD = EthereumBlock(
-                hash = "D", number = 2,
-                parentHash = "B",
-                txNumber = 158, minerContractHash = "miner4",
-                difficulty = BigInteger("0"),
-                totalDifficulty = BigInteger("0"), size = 0,
-                unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
-                txFees = BigDecimal("0"), gasUsed = 0, gasLimit = 0,
-                timestamp = Instant.now(), logsBloom = "", transactionsRoot = "", stateRoot = "",
-                sha3Uncles = "",
-                nonce = 1, receiptsRoot = "", extraData = "", uncles = emptyList()
-        )
-
-        val blockE = EthereumBlock(
-                hash = "E", number = 3,
-                parentHash = "D",
-                txNumber = 158, minerContractHash = "miner5",
-                difficulty = BigInteger("0"),
-                totalDifficulty = BigInteger("0"), size = 0,
-                unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
-                txFees = BigDecimal("0"), gasUsed = 0, gasLimit = 0,
-                timestamp = Instant.now(), logsBloom = "", transactionsRoot = "", stateRoot = "",
-                sha3Uncles = "",
-                nonce = 1, receiptsRoot = "", extraData = "", uncles = emptyList()
-        )
-
-        val blockF = EthereumBlock(
-                hash = "F", number = 3,
-                parentHash = "C",
-                txNumber = 158, minerContractHash = "miner6",
-                difficulty = BigInteger("0"),
-                totalDifficulty = BigInteger("0"), size = 0,
-                unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
-                txFees = BigDecimal("0"), gasUsed = 0, gasLimit = 0,
-                timestamp = Instant.now(), logsBloom = "", transactionsRoot = "", stateRoot = "",
-                sha3Uncles = "",
-                nonce = 1, receiptsRoot = "", extraData = "", uncles = emptyList()
-        )
-
-        val blockG = EthereumBlock(
-                hash = "G", number = 4,
-                parentHash = "E",
-                txNumber = 158, minerContractHash = "miner7",
-                difficulty = BigInteger("0"),
-                totalDifficulty = BigInteger("0"), size = 0,
-                unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
-                txFees = BigDecimal("0"), gasUsed = 0, gasLimit = 0,
-                timestamp = Instant.now(), logsBloom = "", transactionsRoot = "", stateRoot = "",
-                sha3Uncles = "",
-                nonce = 1, receiptsRoot = "", extraData = "", uncles = emptyList()
-        )
-
-        val blockH = EthereumBlock(
-                hash = "H", number = 4,
-                parentHash = "F",
-                txNumber = 158, minerContractHash = "miner8",
-                difficulty = BigInteger("0"),
-                totalDifficulty = BigInteger("0"), size = 0,
-                unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
-                txFees = BigDecimal("0"), gasUsed = 0, gasLimit = 0,
-                timestamp = Instant.now(), logsBloom = "", transactionsRoot = "", stateRoot = "",
-                sha3Uncles = "",
-                nonce = 1, receiptsRoot = "", extraData = "", uncles = emptyList()
-        )
-
-        val blockI = EthereumBlock(
-                hash = "I", number = 5,
-                parentHash = "G",
-                txNumber = 158, minerContractHash = "miner9",
-                difficulty = BigInteger("0"),
-                totalDifficulty = BigInteger("0"), size = 0,
-                unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
-                txFees = BigDecimal("0"), gasUsed = 0, gasLimit = 0,
-                timestamp = Instant.now(), logsBloom = "", transactionsRoot = "", stateRoot = "",
-                sha3Uncles = "",
-                nonce = 1, receiptsRoot = "", extraData = "", uncles = emptyList()
-        )
+        val blockC = block("C","B", 2, "miner3")
+        val blockD = block("D", "B", 2, "miner4")
+        val blockE = block("E", "D", 3, "miner5")
+        val blockF = block("F", "C", 3, "miner6")
+        val blockG = block("G", "E", 4, "miner7")
+        val blockH = block("H", "F", 4, "miner8")
+        val blockI = block("I", "G", 5, "miner9")
 
 
-        val record1 = ConsumerRecord<PumpEvent, EthereumBlock>(EthereumFamilyChain.ETHEREUM.blockPumpTopic, 0,
-                0, PumpEvent.NEW_BLOCK, blockH)
-        val record2 = ConsumerRecord<PumpEvent, EthereumBlock>(EthereumFamilyChain.ETHEREUM.blockPumpTopic, 0,
-                0, PumpEvent.DROPPED_BLOCK, blockH)
-        val record3 = ConsumerRecord<PumpEvent, EthereumBlock>(EthereumFamilyChain.ETHEREUM.blockPumpTopic, 0,
-                0, PumpEvent.DROPPED_BLOCK, blockF)
-        val record4 = ConsumerRecord<PumpEvent, EthereumBlock>(EthereumFamilyChain.ETHEREUM.blockPumpTopic, 0,
-                0, PumpEvent.DROPPED_BLOCK, blockC)
-        val record5 = ConsumerRecord<PumpEvent, EthereumBlock>(EthereumFamilyChain.ETHEREUM.blockPumpTopic, 0,
-                0, PumpEvent.NEW_BLOCK, blockD)
-        val record6 = ConsumerRecord<PumpEvent, EthereumBlock>(EthereumFamilyChain.ETHEREUM.blockPumpTopic, 0,
-                0, PumpEvent.NEW_BLOCK, blockE)
-        val record7 = ConsumerRecord<PumpEvent, EthereumBlock>(EthereumFamilyChain.ETHEREUM.blockPumpTopic, 0,
-                0, PumpEvent.NEW_BLOCK, blockG)
-        val record8 = ConsumerRecord<PumpEvent, EthereumBlock>(EthereumFamilyChain.ETHEREUM.blockPumpTopic, 0,
-                0, PumpEvent.NEW_BLOCK, blockI)
+        val record1 = record(PumpEvent.NEW_BLOCK, blockH)
+        val record2 = record(PumpEvent.DROPPED_BLOCK, blockH)
+        val record3 = record(PumpEvent.DROPPED_BLOCK, blockF)
+        val record4 = record(PumpEvent.DROPPED_BLOCK, blockC)
+        val record5 = record(PumpEvent.NEW_BLOCK, blockD)
+        val record6 = record(PumpEvent.NEW_BLOCK, blockE)
+        val record7 = record(PumpEvent.NEW_BLOCK, blockG)
+        val record8 = record(PumpEvent.NEW_BLOCK, blockI)
 
 
         val blockRepository = mock<EthereumBlockRepository> {
-            on { save(any<CqlEthereumBlock>()) }.doReturn(Mono.empty<CqlEthereumBlock>())
+            on { save(any<CqlEthereumBlock>()) }.thenReturn(Mono.empty<CqlEthereumBlock>())
             on { delete(any()) }.thenReturn(Mono.empty<Void>())
         }
         val contractMinedBlockRepository = mock<EthereumContractMinedBlockRepository> {
@@ -154,25 +62,41 @@ class BlockDumpProcessTest {
         blockDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8))
 
 
+        verify(blockRepository, times(1)).save(CqlEthereumBlock(blockH))
         verify(blockRepository, times(1)).save(CqlEthereumBlock(blockD))
         verify(blockRepository, times(1)).save(CqlEthereumBlock(blockE))
         verify(blockRepository, times(1)).save(CqlEthereumBlock(blockG))
         verify(blockRepository, times(1)).save(CqlEthereumBlock(blockI))
 
+        verify(blockRepository, times(1)).delete(CqlEthereumBlock(blockH))
         verify(blockRepository, times(1)).delete(CqlEthereumBlock(blockF))
         verify(blockRepository, times(1)).delete(CqlEthereumBlock(blockC))
 
+        verify(contractMinedBlockRepository, times(1)).save(CqlEthereumContractMinedBlock(blockH))
         verify(contractMinedBlockRepository, times(1)).save(CqlEthereumContractMinedBlock(blockD))
         verify(contractMinedBlockRepository, times(1)).save(CqlEthereumContractMinedBlock(blockE))
         verify(contractMinedBlockRepository, times(1)).save(CqlEthereumContractMinedBlock(blockG))
         verify(contractMinedBlockRepository, times(1)).save(CqlEthereumContractMinedBlock(blockI))
 
 
+        verify(contractMinedBlockRepository, times(1)).delete(CqlEthereumContractMinedBlock(blockH))
         verify(contractMinedBlockRepository, times(1)).delete(CqlEthereumContractMinedBlock(blockF))
         verify(contractMinedBlockRepository, times(1)).delete(CqlEthereumContractMinedBlock(blockC))
 
 
     }
+    
+    fun block(hash: String, parentHash: String, number: Long, miner: String) = EthereumBlock(
+        hash = hash, number = number, parentHash = parentHash, txNumber = 158, minerContractHash = miner,
+        difficulty = BigInteger("0"), totalDifficulty = BigInteger("0"), size = 0,
+        unclesReward = BigDecimal("0"), blockReward = BigDecimal("0"),
+        txFees = BigDecimal("0"), gasUsed = 0, gasLimit = 0,
+        timestamp = Instant.now(), logsBloom = "", transactionsRoot = "", stateRoot = "",
+        sha3Uncles = "", nonce = 1, receiptsRoot = "", extraData = "", uncles = emptyList()
+    )
+
+    fun record(event: PumpEvent, block: EthereumBlock) =
+        ConsumerRecord<PumpEvent, EthereumBlock>(EthereumFamilyChain.ETHEREUM.blockPumpTopic, 0, 0, event, block)
 
 
 }

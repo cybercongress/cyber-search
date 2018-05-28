@@ -9,6 +9,7 @@ import java.time.Instant
 data class BitcoinBlock(
         val height: Long,
         val hash: String,
+        val parentHash: String,
         val minerContractHash: String,
         val blockReward: BigDecimal,
         val txFees: BigDecimal,

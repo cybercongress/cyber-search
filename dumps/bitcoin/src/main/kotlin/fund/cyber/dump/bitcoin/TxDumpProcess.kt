@@ -16,6 +16,7 @@ import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.BatchMessageListener
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
 
 
@@ -46,7 +47,7 @@ class TxDumpProcess(
 
         val saveTxMono = txRepository.findById(this.hash)
             .flatMap { cqlTx -> txRepository.save(CqlBitcoinTx(this.copy(firstSeenTime = cqlTx.firstSeenTime))) }
-            .switchIfEmpty(txRepository.save(CqlBitcoinTx(this)))
+            .switchIfEmpty(Mono.defer { txRepository.save(CqlBitcoinTx(this)) })
 
         val saveBlockTxMono = blockTxRepository.save(CqlBitcoinBlockTxPreview(this))
 
@@ -71,7 +72,7 @@ class TxDumpProcess(
             .flatMap { cqlTx ->
                 txRepository.save(CqlBitcoinTx(this.mempoolState().copy(firstSeenTime = cqlTx.firstSeenTime)))
             }
-            .switchIfEmpty(txRepository.save(CqlBitcoinTx(this.mempoolState())))
+            .switchIfEmpty(Mono.defer { txRepository.save(CqlBitcoinTx(this.mempoolState())) })
 
         val deleteBlockTxMono = blockTxRepository.delete(CqlBitcoinBlockTxPreview(this))
 
@@ -91,7 +92,10 @@ class TxDumpProcess(
             .map { it -> it as Any } // hack to convert Mono to Any type
             .toFlux()
             .switchIfEmpty(
-                Flux.concat(txRepository.save(CqlBitcoinTx(this)), contractTxRepository.saveAll(contractTxesToSave))
+                Flux.concat(
+                    Mono.defer { txRepository.save(CqlBitcoinTx(this)) },
+                    Flux.defer { contractTxRepository.saveAll(contractTxesToSave) }
+                )
             )
     }
 

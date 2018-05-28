@@ -16,6 +16,7 @@ import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.BatchMessageListener
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
 
 
@@ -47,7 +48,7 @@ class TxDumpProcess(
 
         val saveTxMono = txRepository.findById(this.hash)
             .flatMap { cqlTx -> txRepository.save(CqlEthereumTx(this.copy(firstSeenTime = cqlTx.firstSeenTime))) }
-            .switchIfEmpty(txRepository.save(CqlEthereumTx(this)))
+            .switchIfEmpty(Mono.defer { txRepository.save(CqlEthereumTx(this)) })
 
         val saveBlockTxMono = blockTxRepository.save(CqlEthereumBlockTxPreview(this))
 
@@ -72,7 +73,7 @@ class TxDumpProcess(
             .flatMap { cqlTx ->
                 txRepository.save(CqlEthereumTx(this.mempoolState().copy(firstSeenTime = cqlTx.firstSeenTime)))
             }
-            .switchIfEmpty(txRepository.save(CqlEthereumTx(this.mempoolState())))
+            .switchIfEmpty(Mono.defer { txRepository.save(CqlEthereumTx(this.mempoolState())) })
 
         val deleteBlockTxMono = blockTxRepository.delete(CqlEthereumBlockTxPreview(this))
 
@@ -89,10 +90,13 @@ class TxDumpProcess(
             .map { it -> CqlEthereumContractTxPreview(this, it) }
 
         return txRepository.findById(this.hash)
-            .map { it -> it as Any } // hack to convert Mono to Any type
+            .map { it -> it as Any } // hack to convert Mono<T> to Mono<Any> type
             .toFlux()
             .switchIfEmpty(
-                Flux.concat(txRepository.save(CqlEthereumTx(this)), contractTxRepository.saveAll(contractTxesToSave))
+                Flux.concat(
+                    Mono.defer { txRepository.save(CqlEthereumTx(this)) },
+                    Flux.defer { contractTxRepository.saveAll(contractTxesToSave) }
+                )
             )
     }
 

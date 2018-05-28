@@ -14,6 +14,7 @@ import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.BatchMessageListener
 import reactor.core.publisher.Mono
+import reactor.core.publisher.Flux
 
 
 class UncleDumpProcess(
@@ -41,13 +42,13 @@ class UncleDumpProcess(
         val saveBlockMono = uncleRepository.save(CqlEthereumUncle(this))
         val saveContractBlockMono = contractUncleRepository.save(CqlEthereumContractMinedUncle(this))
 
-        return reactor.core.publisher.Flux.concat(saveBlockMono, saveContractBlockMono)
+        return Flux.concat(saveBlockMono, saveContractBlockMono)
     }
 
     private fun EthereumUncle.toDropBlockPublisher(): Publisher<Any> {
         val deleteBlockMono = uncleRepository.delete(CqlEthereumUncle(this))
         val deleteContractBlockMono = contractUncleRepository.delete(CqlEthereumContractMinedUncle(this))
 
-        return reactor.core.publisher.Flux.concat(deleteBlockMono, deleteContractBlockMono)
+        return Flux.concat(deleteBlockMono, deleteContractBlockMono)
     }
 }
