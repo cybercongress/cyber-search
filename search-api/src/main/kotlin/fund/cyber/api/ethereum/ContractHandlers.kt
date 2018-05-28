@@ -28,8 +28,6 @@ class EthereumContractHandlersConfiguration {
 
     @Autowired
     private lateinit var applicationContext: GenericApplicationContext
-//0.722901489983285700
-//0.722901489982963896
 
     @Bean
     fun ethereumContractById(): RouterFunction<ServerResponse> {

@@ -133,12 +133,13 @@ class JsonRpcToDaoBitcoinTxConverter {
     fun convertToDaoTransactionInput(txIns: List<RegularTransactionInput>,
                                      outputsByIds: Map<Pair<String, Int>, BitcoinCacheTxOutput>): List<BitcoinTxIn> {
 
-        return txIns.map { (txid, vout, scriptSig) ->
-            log.trace("looking for $txid transaction and output $vout")
-            val daoTxOut = outputsByIds[txid to vout]!!
+        return txIns.map { txIn ->
+            log.trace("looking for ${txIn.txid} transaction and output ${txIn.vout}")
+            val daoTxOut = outputsByIds[txIn.txid to txIn.vout]!!
             BitcoinTxIn(
                 contracts = daoTxOut.addresses.map { a -> a.toSearchHashFormat() }, amount = daoTxOut.value,
-                asm = scriptSig.asm, txHash = txid.toSearchHashFormat(), txOut = vout
+                scriptSig = txIn.scriptSig, txHash = txIn.txid.toSearchHashFormat(), txOut = txIn.vout,
+                txinwitness = txIn.txinwitness
             )
         }
     }

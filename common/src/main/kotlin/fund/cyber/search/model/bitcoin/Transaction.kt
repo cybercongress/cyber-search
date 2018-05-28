@@ -26,12 +26,15 @@ data class BitcoinTx(
 
     fun allContractsUsedInTransaction() = ins.flatMap { input -> input.contracts } +
         outs.flatMap { output -> output.contracts }
+
+    fun mempoolState() = this.copy(blockNumber = -1, blockHash = null, index = -1, blockTime = null)
 }
 
 data class BitcoinTxIn(
     val contracts: List<String>,
     val amount: BigDecimal,
-    val asm: String,
+    val scriptSig: SignatureScript,
+    val txinwitness: List<String> = emptyList(),
     val txHash: String,
     val txOut: Int
 )

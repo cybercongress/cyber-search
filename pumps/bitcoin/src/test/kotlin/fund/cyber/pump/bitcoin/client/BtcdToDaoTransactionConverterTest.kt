@@ -11,6 +11,7 @@ import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.bitcoin.BitcoinTxIn
 import fund.cyber.search.model.bitcoin.BitcoinTxOut
 import fund.cyber.search.model.bitcoin.JsonRpcBitcoinBlock
+import fund.cyber.search.model.bitcoin.SignatureScript
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -40,12 +41,14 @@ val expectedDaoCoinbaseTx = BitcoinTx(
 /*---------------Regular transaction-----------------------------------------------------*/
 
 val expectedFirstTxInput = BitcoinTxIn(
-    contracts = listOf("1HWqMzw1jfpXb3xyuUZ4uWXY4tqL2cW47J"), amount = BigDecimal("0.1"), asm = "3046",
+    contracts = listOf("1HWqMzw1jfpXb3xyuUZ4uWXY4tqL2cW47J"), amount = BigDecimal("0.1"),
+    scriptSig = SignatureScript("3046", "493046022100c352d3dd993a981beba4a63ad15c209275ca9470abfcd57da93b58e4eb5dce82022100840792bc1f456062819f15d33ee7055cf7b5ee1af1ebcc6028d9cdb1c3af7748014104f46db5e9d61a9dc27b8d64ad23e7383a4e6ca164593c2527c038c0857eb67ee8e825dca65046b82c9331586c82e0fd1f633f25f87c161bc6f8a630121df2b3d3"),
     txHash = "83a157f3fd88ac7907c05fc55e271dc4acdc5605d187d646604ca8c0e9382e03", txOut = 1
 )
 
 val expectedSecondTxInput = BitcoinTxIn(
-    contracts = listOf("1HWqMzw1jfpXb3xyuUZ4uWXY4tqL2cW47J"), amount = BigDecimal("50"), asm = "3046",
+    contracts = listOf("1HWqMzw1jfpXb3xyuUZ4uWXY4tqL2cW47J"), amount = BigDecimal("50"),
+    scriptSig = SignatureScript("3046", "493046022100c352d3dd993a981beba4a63ad15c209275ca9470abfcd57da93b58e4eb5dce82022100840792bc1f456062819f15d33ee7055cf7b5ee1af1ebcc6028d9cdb1c3af7748014104f46db5e9d61a9dc27b8d64ad23e7383a4e6ca164593c2527c038c0857eb67ee8e825dca65046b82c9331586c82e0fd1f633f25f87c161bc6f8a630121df2b3d3"),
     txHash = "8c14f0db3df150123e6f3dbbf30f8b955a8249b62ac1d1ff16284aefa3d06d87", txOut = 0
 )
 

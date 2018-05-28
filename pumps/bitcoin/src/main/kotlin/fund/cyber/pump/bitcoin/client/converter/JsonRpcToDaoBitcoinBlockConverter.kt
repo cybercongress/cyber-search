@@ -24,15 +24,16 @@ class JsonRpcToDaoBitcoinBlockConverter {
         val coinbaseTxMinerOutput = coinbaseTx?.outs?.firstOrNull()
 
         return BitcoinBlock(
-                hash = jsonRpcBlock.hash.toSearchHashFormat(), size = jsonRpcBlock.size,
-                minerContractHash = coinbaseTxMinerOutput?.contracts?.first()?.toSearchHashFormat() ?: "",
-                version = jsonRpcBlock.version, blockReward = getBlockReward(jsonRpcBlock.height),
-                txFees = transactions.map { tx -> tx.fee }.sum(), coinbaseData = coinbaseTx?.coinbase ?: "",
-                bits = jsonRpcBlock.bits, difficulty = jsonRpcBlock.difficulty.toBigInteger(),
-                nonce = jsonRpcBlock.nonce, time = Instant.ofEpochSecond(jsonRpcBlock.time),
-                weight = jsonRpcBlock.weight, merkleroot = jsonRpcBlock.merkleroot.toSearchHashFormat(),
-                height = jsonRpcBlock.height,
-                txNumber = jsonRpcBlock.tx.size, totalOutputsAmount = totalOutputsValue
+            hash = jsonRpcBlock.hash.toSearchHashFormat(), parentHash = jsonRpcBlock.previousblockhash ?: "",
+            size = jsonRpcBlock.size,
+            minerContractHash = coinbaseTxMinerOutput?.contracts?.first()?.toSearchHashFormat() ?: "",
+            version = jsonRpcBlock.version, blockReward = getBlockReward(jsonRpcBlock.height),
+            txFees = transactions.map { tx -> tx.fee }.sum(), coinbaseData = coinbaseTx?.coinbase ?: "",
+            bits = jsonRpcBlock.bits, difficulty = jsonRpcBlock.difficulty.toBigInteger(),
+            nonce = jsonRpcBlock.nonce, time = Instant.ofEpochSecond(jsonRpcBlock.time),
+            weight = jsonRpcBlock.weight, merkleroot = jsonRpcBlock.merkleroot.toSearchHashFormat(),
+            height = jsonRpcBlock.height,
+            txNumber = jsonRpcBlock.tx.size, totalOutputsAmount = totalOutputsValue
         )
     }
 }
