@@ -2,7 +2,6 @@ package fund.cyber.dump.common
 
 import fund.cyber.search.model.events.PumpEvent
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -19,6 +18,7 @@ class FunctionsTest {
 
     @Test
     fun compileOperationsTest() {
+
         val records = listOf(
             testRecord(PumpEvent.NEW_BLOCK),
             testRecord(PumpEvent.DROPPED_BLOCK),
@@ -27,31 +27,24 @@ class FunctionsTest {
             testRecord(PumpEvent.NEW_BLOCK)
         )
 
-        val fluxesToExecute = records.toFluxBatch { event, _ ->
-            return@toFluxBatch when (event) {
+        val flux = records.toFlux { event, _ ->
+            return@toFlux when (event) {
                 PumpEvent.NEW_BLOCK -> Flux.fromIterable(listOf("a1", "a2", "a3"))
                 PumpEvent.NEW_POOL_TX -> Flux.fromIterable(listOf("b1", "b2"))
                 PumpEvent.DROPPED_BLOCK -> Flux.fromIterable(listOf("c1", "c2", "c3"))
             }
         }
 
-        Assertions.assertThat(fluxesToExecute).hasSize(3)
 
-        StepVerifier.create(fluxesToExecute[0])
+        StepVerifier.create(flux)
             .expectNext("a1")
             .expectNext("a2")
             .expectNext("a3")
-            .verifyComplete()
-
-        StepVerifier.create(fluxesToExecute[1])
             .expectNext("c1")
             .expectNext("c2")
             .expectNext("c3")
             .expectNext("b1")
             .expectNext("b2")
-            .verifyComplete()
-
-        StepVerifier.create(fluxesToExecute[2])
             .expectNext("a1")
             .expectNext("a2")
             .expectNext("a3")
@@ -64,21 +57,24 @@ class FunctionsTest {
 
     @Test
     fun compileOperationsWithNoRecordsTest() {
+
         val records = emptyList<ConsumerRecord<PumpEvent, TestData>>()
 
-        val fluxesToExecute = records.toFluxBatch { event, _ ->
-            return@toFluxBatch when (event) {
+        val flux = records.toFlux { event, _ ->
+            return@toFlux when (event) {
                 PumpEvent.NEW_BLOCK -> Flux.fromIterable(listOf("a1", "a2", "a3"))
                 PumpEvent.NEW_POOL_TX -> Flux.fromIterable(listOf("b1", "b2"))
                 PumpEvent.DROPPED_BLOCK -> Flux.fromIterable(listOf("c1", "c2", "c3"))
             }
         }
 
-        Assertions.assertThat(fluxesToExecute).isEmpty()
+
+        StepVerifier.create(flux).verifyComplete()
     }
 
     @Test
     fun compileOperationsWithEmptyRecordsTest() {
+
         val records = listOf(
             testRecord(PumpEvent.NEW_BLOCK),
             testRecord(PumpEvent.DROPPED_BLOCK),
@@ -87,24 +83,15 @@ class FunctionsTest {
             testRecord(PumpEvent.NEW_BLOCK)
         )
 
-        val fluxesToExecute = records.toFluxBatch { event, _ ->
-            return@toFluxBatch when (event) {
+        val flux = records.toFlux { event, _ ->
+            return@toFlux when (event) {
                 PumpEvent.NEW_BLOCK -> Flux.empty()
                 PumpEvent.NEW_POOL_TX -> Flux.empty<Any>()
                 PumpEvent.DROPPED_BLOCK -> Flux.empty()
             }
         }
 
-        Assertions.assertThat(fluxesToExecute).hasSize(3)
-
-        StepVerifier.create(fluxesToExecute[0])
-            .verifyComplete()
-
-        StepVerifier.create(fluxesToExecute[1])
-            .verifyComplete()
-
-        StepVerifier.create(fluxesToExecute[2])
-            .verifyComplete()
+        StepVerifier.create(flux).verifyComplete()
     }
 
 
@@ -118,31 +105,23 @@ class FunctionsTest {
             testRecord(PumpEvent.NEW_BLOCK)
         )
 
-        val fluxesToExecute = records.toFluxBatch { event, _ ->
-            return@toFluxBatch when (event) {
+        val flux = records.toFlux { event, _ ->
+            return@toFlux when (event) {
                 PumpEvent.NEW_BLOCK -> Flux.fromIterable(listOf("a1", "a2", "a3"))
                 PumpEvent.NEW_POOL_TX -> Mono.just("b1")
                 PumpEvent.DROPPED_BLOCK -> Flux.fromIterable(listOf("c1", "c2", "c3"))
             }
         }
 
-        Assertions.assertThat(fluxesToExecute).hasSize(3)
 
-
-        StepVerifier.create(fluxesToExecute[0])
+        StepVerifier.create(flux)
             .expectNext("a1")
             .expectNext("a2")
             .expectNext("a3")
-            .verifyComplete()
-
-        StepVerifier.create(fluxesToExecute[1])
             .expectNext("c1")
             .expectNext("c2")
             .expectNext("c3")
             .expectNext("b1")
-            .verifyComplete()
-
-        StepVerifier.create(fluxesToExecute[2])
             .expectNext("a1")
             .expectNext("a2")
             .expectNext("a3")
@@ -197,6 +176,5 @@ class FunctionsTest {
 
     private fun testRecord(event: PumpEvent) =
         ConsumerRecord("topic", 0, 0, event, TestData("a", 1, "a"))
-
 
 }

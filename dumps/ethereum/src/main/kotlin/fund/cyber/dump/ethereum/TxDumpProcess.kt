@@ -6,8 +6,7 @@ import fund.cyber.cassandra.ethereum.model.CqlEthereumTx
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
-import fund.cyber.dump.common.execute
-import fund.cyber.dump.common.toFluxBatch
+import fund.cyber.dump.common.toFlux
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.events.PumpEvent
@@ -34,13 +33,13 @@ class TxDumpProcess(
 
         log.info("Dumping batch of ${records.size} $chain transactions from offset ${records.first().offset()}")
 
-        records.toFluxBatch { event, tx ->
-            return@toFluxBatch when (event) {
+        records.toFlux { event, tx ->
+            return@toFlux when (event) {
                 PumpEvent.NEW_BLOCK -> tx.toNewBlockPublisher()
                 PumpEvent.NEW_POOL_TX -> tx.toNewPoolItemPublisher()
                 PumpEvent.DROPPED_BLOCK -> tx.toDropBlockPublisher()
             }
-        }.execute()
+        }.collectList().block()
 
     }
 
@@ -59,12 +58,12 @@ class TxDumpProcess(
         val contractTxesToSave = this.contractsUsedInTransaction().toSet()
             .map { it -> CqlEthereumContractTxPreview(this, it) }
 
-        val saveContractTxesFlux = Flux.concat(
+        val saveContractTxesFlux = Flux.merge(
             contractTxRepository.saveAll(contractTxesToSave),
             contractTxRepository.deleteAll(contractTxesToDelete)
         )
 
-        return Flux.concat(saveTxMono, saveBlockTxMono, saveContractTxesFlux)
+        return Flux.merge(saveTxMono, saveBlockTxMono, saveContractTxesFlux)
     }
 
     private fun EthereumTx.toDropBlockPublisher(): Publisher<Any> {
@@ -81,7 +80,7 @@ class TxDumpProcess(
             this.contractsUsedInTransaction().toSet().map { it -> CqlEthereumContractTxPreview(this, it) }
         )
 
-        return Flux.concat(saveTxMono, deleteBlockTxMono, deleteContractTxesFlux)
+        return Flux.merge(saveTxMono, deleteBlockTxMono, deleteContractTxesFlux)
     }
 
     private fun EthereumTx.toNewPoolItemPublisher(): Publisher<Any> {
@@ -93,7 +92,7 @@ class TxDumpProcess(
             .map { it -> it as Any } // hack to convert Mono<T> to Mono<Any> type
             .toFlux()
             .switchIfEmpty(
-                Flux.concat(
+                Flux.merge(
                     Mono.defer { txRepository.save(CqlEthereumTx(this)) },
                     Flux.defer { contractTxRepository.saveAll(contractTxesToSave) }
                 )
