@@ -56,7 +56,6 @@ data class BitcoinContractSummaryDelta(
     }
 }
 
-//todo: txNumberDelta should be 1 if contract both in ins and outs
 @Component
 class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinContractSummary, BitcoinContractSummaryDelta> {
 
@@ -64,28 +63,36 @@ class BitcoinTxDeltaProcessor : DeltaProcessor<BitcoinTx, CqlBitcoinContractSumm
         val tx = record.value()
         val event = record.key()
 
+        val contractsAffected = mutableSetOf<String>()
+
         val contractsDeltasByIns = tx.ins.flatMap { input ->
             input.contracts.map { contract ->
+                val txNumberDelta = if (contractsAffected.contains(contract)) 0 else 1
+                contractsAffected.add(contract)
+
                 BitcoinContractSummaryDelta(
-                        contract = contract, balanceDelta = -input.amount, txNumberDelta = 1,
-                        totalReceivedDelta = ZERO, topic = record.topic(), partition = record.partition(),
-                        offset = record.offset(), time = tx.blockTime!!
+                    contract = contract, balanceDelta = -input.amount, txNumberDelta = txNumberDelta,
+                    totalReceivedDelta = ZERO, topic = record.topic(), partition = record.partition(),
+                    offset = record.offset(), time = tx.blockTime!!
                 )
             }
         }
 
         val contractsDeltasByOuts = tx.outs.flatMap { output ->
             output.contracts.map { contract ->
+                val txNumberDelta = if (contractsAffected.contains(contract)) 0 else 1
+                contractsAffected.add(contract)
+
                 BitcoinContractSummaryDelta(
-                        contract = contract, balanceDelta = output.amount, txNumberDelta = 1,
-                        totalReceivedDelta = output.amount, topic = record.topic(), partition = record.partition(),
-                        offset = record.offset(), time = tx.blockTime!!
+                    contract = contract, balanceDelta = output.amount, txNumberDelta = txNumberDelta,
+                    totalReceivedDelta = output.amount, topic = record.topic(), partition = record.partition(),
+                    offset = record.offset(), time = tx.blockTime!!
                 )
             }
         }
 
         return (contractsDeltasByIns + contractsDeltasByOuts)
-                .map { delta -> if (event == PumpEvent.DROPPED_BLOCK) delta.revertedDelta() else delta }
+            .map { delta -> if (event == PumpEvent.DROPPED_BLOCK) delta.revertedDelta() else delta }
     }
 
     override fun affectedContracts(records: List<ConsumerRecord<PumpEvent, BitcoinTx>>): Set<String> {

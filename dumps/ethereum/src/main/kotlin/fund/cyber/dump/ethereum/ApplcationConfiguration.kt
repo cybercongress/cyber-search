@@ -33,6 +33,7 @@ import org.springframework.kafka.listener.config.ContainerProperties
 
 private const val POLL_TIMEOUT = 5000L
 private const val AUTO_COMMIT_INTERVAL_MS_CONFIG = 10 * 1000
+private const val MAX_POLL_RECORDS = 2000
 
 @Configuration
 class ApplicationConfiguration(
@@ -127,7 +128,8 @@ class ApplicationConfiguration(
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to true,
             ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG to AUTO_COMMIT_INTERVAL_MS_CONFIG,
-            ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase()
+            ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase(),
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to MAX_POLL_RECORDS
     )
 
 }
