@@ -30,7 +30,7 @@ import org.springframework.kafka.listener.config.ContainerProperties
 
 private const val POLL_TIMEOUT = 5000L
 private const val AUTO_COMMIT_INTERVAL_MS_CONFIG = 10 * 1000
-private const val MAX_POLL_RECORDS = 2000
+private const val MAX_POLL_RECORDS = 500
 
 @EnableKafka
 @Configuration
