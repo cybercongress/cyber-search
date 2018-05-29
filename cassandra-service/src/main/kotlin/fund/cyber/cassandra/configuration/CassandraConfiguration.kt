@@ -28,14 +28,15 @@ import org.springframework.data.cassandra.core.mapping.SimpleUserTypeResolver
 const val MAX_CONCURRENT_REQUESTS = 8182
 const val MAX_PER_ROUTE = 16
 const val MAX_TOTAL = 32
+const val MAX_CONNECTIONS_PER_HOST = 2
 
 val Chain.keyspace: String get() = lowerCaseName
 
 const val REPOSITORY_NAME_DELIMETER = "__"
 
 fun mappingContext(
-        cluster: Cluster, keyspace: String, basePackage: String,
-        customConversions: CassandraCustomConversions = CassandraCustomConversions(emptyList<Any>())
+    cluster: Cluster, keyspace: String, basePackage: String,
+    customConversions: CassandraCustomConversions = CassandraCustomConversions(emptyList<Any>())
 ): CassandraMappingContext {
 
     val mappingContext = CassandraMappingContext()
@@ -50,21 +51,23 @@ fun mappingContext(
 fun getKeyspaceSession(cluster: Cluster,
                        keyspace: String,
                        converter: MappingCassandraConverter) = CassandraSessionFactoryBean()
-        .apply {
-            setCluster(cluster)
-            setConverter(converter)
-            setKeyspaceName(keyspace)
-            schemaAction = SchemaAction.NONE
-        }
+    .apply {
+        setCluster(cluster)
+        setConverter(converter)
+        setKeyspaceName(keyspace)
+        schemaAction = SchemaAction.NONE
+    }
 
 abstract class CassandraRepositoriesConfiguration(
-        private val cassandraHosts: String,
-        private val cassandraPort: Int
+    private val cassandraHosts: String,
+    private val cassandraPort: Int
 ) : AbstractReactiveCassandraConfiguration() {
 
     override fun getPoolingOptions() = PoolingOptions()
-            .setMaxRequestsPerConnection(HostDistance.LOCAL, MAX_CONCURRENT_REQUESTS)
-            .setMaxRequestsPerConnection(HostDistance.REMOTE, MAX_CONCURRENT_REQUESTS)!!
+        .setConnectionsPerHost(HostDistance.LOCAL, MAX_CONNECTIONS_PER_HOST, MAX_CONNECTIONS_PER_HOST)
+        .setConnectionsPerHost(HostDistance.REMOTE, MAX_CONNECTIONS_PER_HOST, MAX_CONNECTIONS_PER_HOST)
+        .setMaxRequestsPerConnection(HostDistance.LOCAL, MAX_CONCURRENT_REQUESTS)
+        .setMaxRequestsPerConnection(HostDistance.REMOTE, MAX_CONCURRENT_REQUESTS)!!
 
     override fun getPort() = cassandraPort
     override fun getContactPoints() = cassandraHosts
@@ -91,13 +94,13 @@ class CassandraConfiguration {
 
     @Bean
     fun httpClient() = HttpClients.custom()
-            .setConnectionManager(connectionManager)
-            .setConnectionManagerShared(true)
-            .setDefaultHeaders(defaultHttpHeaders)
-            .build()!!
+        .setConnectionManager(connectionManager)
+        .setConnectionManagerShared(true)
+        .setDefaultHeaders(defaultHttpHeaders)
+        .build()!!
 
     @Bean
     fun migrationsLoader(resourceLoader: GenericApplicationContext) = DefaultMigrationsLoader(
-            resourceLoader = resourceLoader
+        resourceLoader = resourceLoader
     )
 }
