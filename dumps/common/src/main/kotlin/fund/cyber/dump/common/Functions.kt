@@ -5,43 +5,38 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.reactivestreams.Publisher
 import reactor.core.publisher.Flux
 
+fun PumpEvent.changedFromNewBlock(prev: PumpEvent) = this != PumpEvent.NEW_BLOCK && prev == PumpEvent.NEW_BLOCK
 
-fun List<Flux<Any>>.execute() {
+fun PumpEvent.changedToNewBlock(prev: PumpEvent) = this == PumpEvent.NEW_BLOCK && prev != PumpEvent.NEW_BLOCK
 
-    this.forEach { flux ->
-        flux.collectList().block()
-    }
-}
+fun <RECORD> List<ConsumerRecord<PumpEvent, RECORD>>.toFlux(
+    recordToPublisher: (PumpEvent, RECORD) -> Publisher<*>
+): Flux<Any> {
 
-fun <RECORD> List<ConsumerRecord<PumpEvent, RECORD>>.toFluxBatch(
-    convertToOperations: (PumpEvent, RECORD) -> Publisher<*>
-): List<Flux<Any>> {
+    fun RECORD.toPublisher(event: PumpEvent) = recordToPublisher(event, this)
 
-    if (this.isEmpty()) return emptyList()
+    if (this.isEmpty()) return Flux.empty()
 
     var previousEvent = PumpEvent.NEW_BLOCK
-    val fluxesToExecute = mutableListOf<Flux<Any>>()
 
-    var compiledFlux = Flux.empty<Any>()
+    var resultFlux = Flux.empty<Any>()
+    var currentFlux = Flux.empty<Any>()
+
     this.forEach { recordEvent ->
-        val event = recordEvent.key()
-        val record = recordEvent.value()
-        val recordOperations = convertToOperations(event, record)
 
-        val endBatch = (event != PumpEvent.NEW_BLOCK && previousEvent == PumpEvent.NEW_BLOCK)
-            || (event == PumpEvent.NEW_BLOCK && previousEvent != PumpEvent.NEW_BLOCK)
+        val (event, record) = recordEvent.key() to recordEvent.value()
 
-        compiledFlux = if (endBatch) {
-            fluxesToExecute.add(compiledFlux)
-            Flux.empty<Any>().concatWith(recordOperations)
+        val batchEnded = event.changedFromNewBlock(previousEvent) || event.changedToNewBlock(previousEvent)
+
+        currentFlux = if (batchEnded) {
+            resultFlux = resultFlux.concatWith(currentFlux)
+            Flux.empty<Any>().mergeWith(record.toPublisher(event))
         } else {
-            compiledFlux.concatWith(recordOperations)
+            currentFlux.mergeWith(record.toPublisher(event))
         }
 
         previousEvent = event
     }
 
-    fluxesToExecute.add(compiledFlux)
-
-    return fluxesToExecute
+    return resultFlux.concatWith(currentFlux)
 }
