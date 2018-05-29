@@ -28,7 +28,6 @@ import org.springframework.data.cassandra.core.mapping.SimpleUserTypeResolver
 const val MAX_CONCURRENT_REQUESTS = 8182
 const val MAX_PER_ROUTE = 16
 const val MAX_TOTAL = 32
-const val MAX_CONNECTIONS_PER_HOST = 2
 
 val Chain.keyspace: String get() = lowerCaseName
 
@@ -64,8 +63,6 @@ abstract class CassandraRepositoriesConfiguration(
 ) : AbstractReactiveCassandraConfiguration() {
 
     override fun getPoolingOptions() = PoolingOptions()
-        .setConnectionsPerHost(HostDistance.LOCAL, MAX_CONNECTIONS_PER_HOST, MAX_CONNECTIONS_PER_HOST)
-        .setConnectionsPerHost(HostDistance.REMOTE, MAX_CONNECTIONS_PER_HOST, MAX_CONNECTIONS_PER_HOST)
         .setMaxRequestsPerConnection(HostDistance.LOCAL, MAX_CONCURRENT_REQUESTS)
         .setMaxRequestsPerConnection(HostDistance.REMOTE, MAX_CONCURRENT_REQUESTS)!!
 
