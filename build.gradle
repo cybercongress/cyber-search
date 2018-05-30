@@ -222,6 +222,7 @@ project(":common-kafka") {
 
         compile "org.springframework.kafka:spring-kafka"
         compile "org.apache.kafka:kafka-clients"
+        compile "javax.annotation:javax.annotation-api:1.3.2"
 
         testCompile 'org.apache.kafka:kafka_2.11'
         testCompile 'org.springframework:spring-test'
