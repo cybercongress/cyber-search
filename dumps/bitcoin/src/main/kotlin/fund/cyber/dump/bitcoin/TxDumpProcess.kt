@@ -3,6 +3,7 @@ package fund.cyber.dump.bitcoin
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlockTxPreview
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTx
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractTxPreview
+import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTxPreviewIO
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
@@ -53,12 +54,15 @@ class TxDumpProcess(
 
         val saveBlockTxMono = blockTxRepository.save(CqlBitcoinBlockTxPreview(this))
 
+        val affectedContracts = this.allContractsUsedInTransaction().toSet()
 
-        val contractTxesToDelete = this.allContractsUsedInTransaction().toSet()
-            .map { it -> CqlBitcoinContractTxPreview(it, this.mempoolState()) }
+        val ins = this.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
+        val outs = this.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
 
-        val contractTxesToSave = this.allContractsUsedInTransaction().toSet()
-            .map { it -> CqlBitcoinContractTxPreview(it, this) }
+        val contractTxesToDelete = affectedContracts
+            .map { it -> CqlBitcoinContractTxPreview(it, this.mempoolState(), ins, outs) }
+
+        val contractTxesToSave = affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this, ins, outs) }
 
         val saveContractTxesFlux = Flux.merge(
             contractTxRepository.saveAll(contractTxesToSave),
@@ -80,8 +84,13 @@ class TxDumpProcess(
 
         val deleteBlockTxMono = blockTxRepository.delete(CqlBitcoinBlockTxPreview(this))
 
+        val affectedContracts = this.allContractsUsedInTransaction().toSet()
+
+        val ins = this.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
+        val outs = this.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
+
         val deleteContractTxesFlux = contractTxRepository.deleteAll(
-            this.allContractsUsedInTransaction().toSet().map { it -> CqlBitcoinContractTxPreview(it, this) }
+            affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this, ins, outs) }
         )
 
         return Flux.merge(saveTxMono, deleteBlockTxMono, deleteContractTxesFlux)
@@ -91,8 +100,12 @@ class TxDumpProcess(
 
         log.info("NEW_POOL tx ${this.hash}")
 
-        val contractTxesToSave = this.allContractsUsedInTransaction().toSet()
-            .map { it -> CqlBitcoinContractTxPreview(it, this) }
+        val affectedContracts = this.allContractsUsedInTransaction().toSet()
+
+        val ins = this.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
+        val outs = this.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
+
+        val contractTxesToSave = affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this, ins, outs) }
 
         return txRepository.findById(this.hash)
             .map { it -> it as Any } // hack to convert Mono to Any type
