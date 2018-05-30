@@ -20,6 +20,10 @@ import fund.cyber.cassandra.migration.BlockchainMigrationSettings
 import fund.cyber.cassandra.migration.MigrationSettings
 import fund.cyber.search.configuration.CASSANDRA_HOSTS
 import fund.cyber.search.configuration.CASSANDRA_HOSTS_DEFAULT
+import fund.cyber.search.configuration.CASSANDRA_MAX_CONNECTIONS_LOCAL
+import fund.cyber.search.configuration.CASSANDRA_MAX_CONNECTIONS_LOCAL_DEFAULT
+import fund.cyber.search.configuration.CASSANDRA_MAX_CONNECTIONS_REMOTE
+import fund.cyber.search.configuration.CASSANDRA_MAX_CONNECTIONS_REMOTE_DEFAULT
 import fund.cyber.search.configuration.CASSANDRA_PORT
 import fund.cyber.search.configuration.CASSANDRA_PORT_DEFAULT
 import fund.cyber.search.configuration.CHAIN
@@ -62,8 +66,12 @@ class BitcoinRepositoryConfiguration(
         @Value("\${$CASSANDRA_HOSTS:$CASSANDRA_HOSTS_DEFAULT}")
         private val cassandraHosts: String,
         @Value("\${$CASSANDRA_PORT:$CASSANDRA_PORT_DEFAULT}")
-        private val cassandraPort: Int
-) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort) {
+        private val cassandraPort: Int,
+        @Value("\${$CASSANDRA_MAX_CONNECTIONS_LOCAL:$CASSANDRA_MAX_CONNECTIONS_LOCAL_DEFAULT}")
+        private val maxConnectionsLocal: Int,
+        @Value("\${$CASSANDRA_MAX_CONNECTIONS_REMOTE:$CASSANDRA_MAX_CONNECTIONS_REMOTE_DEFAULT}")
+        private val maxConnectionsRemote: Int
+) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort, maxConnectionsLocal, maxConnectionsRemote) {
 
     private val chain = BitcoinFamilyChain.valueOf(env(CHAIN, ""))
 
