@@ -59,12 +59,14 @@ fun getKeyspaceSession(cluster: Cluster,
 
 abstract class CassandraRepositoriesConfiguration(
     private val cassandraHosts: String,
-    private val cassandraPort: Int
+    private val cassandraPort: Int,
+    private val maxRequestLocal:  Int = MAX_CONCURRENT_REQUESTS,
+    private val maxRequestRemote: Int = MAX_CONCURRENT_REQUESTS
 ) : AbstractReactiveCassandraConfiguration() {
 
     override fun getPoolingOptions() = PoolingOptions()
-        .setMaxRequestsPerConnection(HostDistance.LOCAL, MAX_CONCURRENT_REQUESTS)
-        .setMaxRequestsPerConnection(HostDistance.REMOTE, MAX_CONCURRENT_REQUESTS)!!
+        .setMaxRequestsPerConnection(HostDistance.LOCAL, maxRequestLocal)
+        .setMaxRequestsPerConnection(HostDistance.REMOTE, maxRequestRemote)!!
 
     override fun getPort() = cassandraPort
     override fun getContactPoints() = cassandraHosts
