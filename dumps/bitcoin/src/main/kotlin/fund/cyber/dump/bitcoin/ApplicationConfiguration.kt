@@ -36,7 +36,7 @@ private const val AUTO_COMMIT_INTERVAL_MS_CONFIG = 10 * 1000
 class ApplicationConfiguration(
         private val chain: BitcoinFamilyChain,
         @Value("\${$KAFKA_LISTENER_MAX_POLL_RECORDS:$KAFKA_LISTENER_MAX_POLL_RECORDS_DEFAULT}")
-        private val maxPollRecords: Long
+        private val maxPollRecords: Int
 ) {
 
     @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
