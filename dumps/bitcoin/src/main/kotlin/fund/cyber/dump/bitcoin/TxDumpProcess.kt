@@ -45,6 +45,8 @@ class TxDumpProcess(
 
     private fun BitcoinTx.toNewBlockPublisher(): Publisher<Any> {
 
+        log.info("NEW_BLOCK tx ${this.hash}")
+
         val saveTxMono = txRepository.findById(this.hash)
             .flatMap { cqlTx -> txRepository.save(CqlBitcoinTx(this.copy(firstSeenTime = cqlTx.firstSeenTime))) }
             .switchIfEmpty(Mono.defer { txRepository.save(CqlBitcoinTx(this)) })
@@ -68,6 +70,8 @@ class TxDumpProcess(
 
     private fun BitcoinTx.toDropBlockPublisher(): Publisher<Any> {
 
+        log.info("DROP_BLOCK tx ${this.hash}")
+
         val saveTxMono = txRepository.findById(this.hash)
             .flatMap { cqlTx ->
                 txRepository.save(CqlBitcoinTx(this.mempoolState().copy(firstSeenTime = cqlTx.firstSeenTime)))
@@ -84,6 +88,8 @@ class TxDumpProcess(
     }
 
     private fun BitcoinTx.toNewPoolItemPublisher(): Publisher<Any> {
+
+        log.info("NEW_POOL tx ${this.hash}")
 
         val contractTxesToSave = this.allContractsUsedInTransaction().toSet()
             .map { it -> CqlBitcoinContractTxPreview(it, this) }
