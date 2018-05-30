@@ -44,10 +44,11 @@ data class CqlBitcoinContractTxPreview(
         val outs: List<CqlBitcoinTxPreviewIO>
 ) : CqlBitcoinItem {
 
-    constructor(contract: String, tx: BitcoinTx) : this(
+    constructor(
+        contract: String, tx: BitcoinTx, ins: List<CqlBitcoinTxPreviewIO>, outs: List<CqlBitcoinTxPreviewIO>
+    ) : this(
             contractHash = contract, blockTime = tx.blockTime?.toEpochMilli() ?: -1, hash = tx.hash, fee = tx.fee,
-            blockNumber = tx.blockNumber, ins = tx.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) },
-            outs = tx.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
+            blockNumber = tx.blockNumber, ins = ins, outs = outs
     )
 }
 
