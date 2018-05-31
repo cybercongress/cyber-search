@@ -35,7 +35,7 @@ class TxDumpProcess(
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
 
     private val requestCountMonitor = monitoring.gauge(
-        "dump-cs-requests-per-batch",
+        "dump_cs_requests_per_batch",
         Tags.of("topic", chain.txPumpTopic),
         AtomicLong(0)
     )!!
