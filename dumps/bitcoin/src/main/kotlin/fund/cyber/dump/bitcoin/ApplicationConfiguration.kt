@@ -1,5 +1,6 @@
 package fund.cyber.dump.bitcoin
 
+import com.datastax.driver.core.Cluster
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractMinedBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
@@ -56,6 +57,8 @@ class ApplicationConfiguration(
     lateinit var blockTxRepository: BitcoinBlockTxRepository
     @Autowired
     lateinit var monitoring: MeterRegistry
+    @Autowired
+    lateinit var cluster: Cluster
 
     @Bean
     fun blocksListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, BitcoinBlock> {
@@ -91,7 +94,8 @@ class ApplicationConfiguration(
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
-            messageListener = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository, chain, monitoring)
+            messageListener = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository, chain, monitoring,
+                cluster)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
