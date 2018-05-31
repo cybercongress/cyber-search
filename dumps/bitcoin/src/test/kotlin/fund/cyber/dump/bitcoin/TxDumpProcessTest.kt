@@ -19,6 +19,7 @@ import fund.cyber.search.model.bitcoin.SignatureScript
 import fund.cyber.search.model.chains.BitcoinFamilyChain
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.txPumpTopic
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
@@ -69,7 +70,7 @@ class TxDumpProcessTest {
         }
 
         val txDumpProcess = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository,
-            BitcoinFamilyChain.BITCOIN)
+            BitcoinFamilyChain.BITCOIN, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8, record9))
 
@@ -147,7 +148,7 @@ class TxDumpProcessTest {
         val record = record(PumpEvent.NEW_BLOCK, txABlock)
 
         val txDumpProcess = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository,
-            BitcoinFamilyChain.BITCOIN)
+            BitcoinFamilyChain.BITCOIN, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -195,7 +196,7 @@ class TxDumpProcessTest {
         val record = record(PumpEvent.NEW_BLOCK, txABlock)
 
         val txDumpProcess = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository,
-            BitcoinFamilyChain.BITCOIN)
+            BitcoinFamilyChain.BITCOIN, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -245,7 +246,7 @@ class TxDumpProcessTest {
         val record = record(PumpEvent.DROPPED_BLOCK, txADrop)
 
         val txDumpProcess = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository,
-            BitcoinFamilyChain.BITCOIN)
+            BitcoinFamilyChain.BITCOIN, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -286,7 +287,7 @@ class TxDumpProcessTest {
         val record = record(PumpEvent.DROPPED_BLOCK, txADrop)
 
         val txDumpProcess = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository,
-            BitcoinFamilyChain.BITCOIN)
+            BitcoinFamilyChain.BITCOIN, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -331,7 +332,7 @@ class TxDumpProcessTest {
         val record = record(PumpEvent.NEW_POOL_TX, txAPool)
 
         val txDumpProcess = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository,
-            BitcoinFamilyChain.BITCOIN)
+            BitcoinFamilyChain.BITCOIN, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -360,7 +361,7 @@ class TxDumpProcessTest {
         val record = record(PumpEvent.NEW_POOL_TX, txAPool)
 
         val txDumpProcess = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository,
-            BitcoinFamilyChain.BITCOIN)
+            BitcoinFamilyChain.BITCOIN, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record))
 
