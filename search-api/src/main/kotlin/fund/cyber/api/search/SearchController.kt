@@ -48,6 +48,22 @@ class SearchController(
         )
     }
 
+    @GetMapping("/search/stats")
+    fun searchStats() : Mono<SearchStatsResponse> {
+
+        val indicesStats = elasticClient.admin().indices().prepareStats().setStore(true).setDocs(true).execute().get()
+
+        val indexSizeBytes = indicesStats.total.store.sizeInBytes
+
+        val transactionsCount = indicesStats.indices
+            .filterKeys { indexName ->  indexName.endsWith("tx", true)}
+            .values.map { txIndexStat -> txIndexStat.primaries.docs.count }.sum()
+
+        val chains = indicesStats.indices.keys.map { indexName -> indexName.substringBefore(".") }.toSet()
+
+        return Mono.just(SearchStatsResponse(chains.size, transactionsCount, indexSizeBytes))
+    }
+
     private fun prepareIndices(chains: Array<String>, types: Array<String>): Array<String> {
         val chainsToFilter = if (chains.isEmpty()) arrayOf("*") else chains
         val typesToFilter = if (types.isEmpty()) arrayOf("*") else types
