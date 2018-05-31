@@ -11,6 +11,9 @@ import fund.cyber.dump.common.toFlux
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.chains.BitcoinFamilyChain
 import fund.cyber.search.model.events.PumpEvent
+import fund.cyber.search.model.events.txPumpTopic
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Tags
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
@@ -18,20 +21,31 @@ import org.springframework.kafka.listener.BatchMessageListener
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
+import java.util.concurrent.atomic.AtomicLong
 
-
+@Suppress("MagicNumber")
 class TxDumpProcess(
     private val txRepository: BitcoinTxRepository,
     private val contractTxRepository: BitcoinContractTxRepository,
     private val blockTxRepository: BitcoinBlockTxRepository,
-    private val chain: BitcoinFamilyChain
+    private val chain: BitcoinFamilyChain,
+    monitoring: MeterRegistry
 ) : BatchMessageListener<PumpEvent, BitcoinTx> {
 
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
 
+    private val requestCountMonitor = monitoring.gauge(
+        "dump-cs-requests-per-batch",
+        Tags.of("topic", chain.txPumpTopic),
+        AtomicLong(0)
+    )!!
+
+    private var requestsCounter = 0L
+
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, BitcoinTx>>) {
 
         log.info("Dumping batch of ${records.size} $chain transactions from offset ${records.first().offset()}")
+        requestsCounter = 0
 
         records.toFlux { event, tx ->
             return@toFlux when (event) {
@@ -41,12 +55,13 @@ class TxDumpProcess(
             }
         }.collectList().block()
 
+        requestCountMonitor.set(requestsCounter)
         log.info("Finish dump batch of ${records.size} $chain transactions from offset ${records.first().offset()}")
     }
 
     private fun BitcoinTx.toNewBlockPublisher(): Publisher<Any> {
 
-        log.info("NEW_BLOCK tx ${this.hash}")
+        log.debug("NEW_BLOCK tx ${this.hash}")
 
         val saveTxMono = txRepository.findById(this.hash)
             .flatMap { cqlTx -> txRepository.save(CqlBitcoinTx(this.copy(firstSeenTime = cqlTx.firstSeenTime))) }
@@ -69,12 +84,14 @@ class TxDumpProcess(
             contractTxRepository.deleteAll(contractTxesToDelete)
         )
 
+        requestsCounter += 3 + 2 * affectedContracts.size
+
         return Flux.merge(saveTxMono, saveBlockTxMono, saveContractTxesFlux)
     }
 
     private fun BitcoinTx.toDropBlockPublisher(): Publisher<Any> {
 
-        log.info("DROP_BLOCK tx ${this.hash}")
+        log.debug("DROP_BLOCK tx ${this.hash}")
 
         val saveTxMono = txRepository.findById(this.hash)
             .flatMap { cqlTx ->
@@ -93,12 +110,14 @@ class TxDumpProcess(
             affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this, ins, outs) }
         )
 
+        requestsCounter += 3 + affectedContracts.size
+
         return Flux.merge(saveTxMono, deleteBlockTxMono, deleteContractTxesFlux)
     }
 
     private fun BitcoinTx.toNewPoolItemPublisher(): Publisher<Any> {
 
-        log.info("NEW_POOL tx ${this.hash}")
+        log.debug("NEW_POOL tx ${this.hash}")
 
         val affectedContracts = this.allContractsUsedInTransaction().toSet()
 
@@ -106,6 +125,8 @@ class TxDumpProcess(
         val outs = this.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
 
         val contractTxesToSave = affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this, ins, outs) }
+
+        requestsCounter += 2 + affectedContracts.size
 
         return txRepository.findById(this.hash)
             .map { it -> it as Any } // hack to convert Mono to Any type
