@@ -252,5 +252,7 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
         }
     }
 
-    private fun <T> Flux<T>.await() = this.collectList().block()!!
 }
+
+private fun <T> Flux<T>.await() = this.collectList().block()!!
+
