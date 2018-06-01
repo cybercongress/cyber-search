@@ -6,12 +6,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 - [#127](/../../issues/127) Websockets API
-- [#164](/../../issues/164) Bitcoin pump failed to dowload 481824-481844 blocks
-- [#165](/../../issues/165) Bitcoin Transactions Dump stucks on 16 millions
 - [#166](/../../issues/166) BTC, ETH Supply Service
-- [#169](/../../issues/169) Improve bitcoin pump perfomance
 - [#170](/../../issues/170) Improve bitcoin transactions dump performance
+
+## [0.6.0] - Bitcoin mempool. Improve bitcoin pump performance.
+### Added
+- [#169](/../../issues/169) Improve bitcoin pump perfomance
 - [#21](/../../issues/21) Setup Bitcoin mempool indexation
+- [#121](/../../issues/121) Bring all hashes to one format
+- [#92](/../../issues/92) Pump development guide
+- [#30](/../../issues/30) API: Expose index stats
+### Fixed
+- [#165](/../../issues/165) Bitcoin Transactions Dump stucks on 16 millions
+- [#164](/../../issues/164) Bitcoin pump failed to dowload 481824-481844 blocks
+- [#131](/../../issues/131) Can not find item in search without 0x
 
 ## [0.5.0] - Ethereum tx traces. Ethereum mempool txes in contract summary. Custom {chainName} pump.
 ### Added
