@@ -42,7 +42,7 @@ private const val AUTO_COMMIT_INTERVAL_MS_CONFIG = 10 * 1000
 class ApplicationConfiguration(
         private val chain: EthereumFamilyChain,
         @Value("\${$KAFKA_LISTENER_MAX_POLL_RECORDS:$KAFKA_LISTENER_MAX_POLL_RECORDS_DEFAULT}")
-        private val maxPollRecords: Int,
+        private val maxPollRecords: Long,
         @Value("\${$REALTIME_INDEXATION_TRESHOLD:$REALTIME_INDEXATION_TRESHOLD_DEFAULT}")
         private val realtimeIndexationThreshold: Long
 ) {
