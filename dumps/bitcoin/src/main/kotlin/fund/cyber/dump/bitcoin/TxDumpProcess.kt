@@ -1,6 +1,5 @@
 package fund.cyber.dump.bitcoin
 
-import com.datastax.driver.core.Cluster
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlockTxPreview
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTx
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractTxPreview
@@ -30,8 +29,7 @@ class TxDumpProcess(
     private val contractTxRepository: BitcoinContractTxRepository,
     private val blockTxRepository: BitcoinBlockTxRepository,
     private val chain: BitcoinFamilyChain,
-    monitoring: MeterRegistry,
-    private val cluster: Cluster?
+    monitoring: MeterRegistry
 ) : BatchMessageListener<PumpEvent, BitcoinTx> {
 
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
@@ -46,22 +44,19 @@ class TxDumpProcess(
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, BitcoinTx>>) {
 
-        cluster?.let {
-            val hosts = it.metadata.allHosts.map { h -> h.datacenter + "-" + h.address }
-            log.info("Cluster connected to $hosts hosts")
-        }
-
         log.info("Dumping batch of ${records.size} $chain transactions from offset ${records.first().offset()}")
         requestsCounter = 0
 
-        records.toFlux { event, tx ->
+        val queriesFlux = records.toFlux { event, tx ->
             return@toFlux when (event) {
                 PumpEvent.NEW_BLOCK -> tx.toNewBlockPublisher()
                 PumpEvent.NEW_POOL_TX -> tx.toNewPoolItemPublisher()
                 PumpEvent.DROPPED_BLOCK -> tx.toDropBlockPublisher()
             }
-        }.collectList().block()
+        }
 
+        log.info("Performing $requestsCounter queries to Cassandra")
+        queriesFlux.collectList().block()
         requestCountMonitor.set(requestsCounter)
         log.info("Finish dump batch of ${records.size} $chain transactions from offset ${records.first().offset()}")
     }
