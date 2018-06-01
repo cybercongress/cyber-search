@@ -16,8 +16,17 @@ enum class ChainEntityType {
     BLOCK, TX, UNCLE
 }
 
+/**
+ * Enum of chain families used in application.
+ */
 enum class ChainFamily(
+    /**
+     * Default URL of blockchain node to connect for data.
+     */
     val defaultNodeUrl: String,
+    /**
+     * Map of blockchain entities types to their class representation.
+     */
     val entityTypes: Map<ChainEntityType, Class<*>>
 ) {
     BITCOIN(
