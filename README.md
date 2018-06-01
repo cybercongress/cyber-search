@@ -7,7 +7,7 @@ Search engine backend and API.
 ## Getting Start Useful Links
 
 * [Development Quick Start Guide](./docs/contributing/dev-environment.md)
-* [Architecture Overview](http://docs.cybernode.io/cybernode/components/search/)
+* [Architecture Overview](https://cybersearch.io/cyberSearch/components/overview/)
 * [Api OpenAPI 3.0 Documentation](http://docs.cybersearch.io/)
 * [Api Test Server](http://api.cybersearch.io/search?query=42)
 * [Docker Images](https://hub.docker.com/r/cybernode/)
