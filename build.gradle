@@ -36,6 +36,9 @@ buildscript {
     }
 
     repositories {
+        maven {
+            url "$rootDir/libs"
+        }
         mavenCentral()
         jcenter()
         maven { url 'https://dl.bintray.com/kotlin/kotlin-dev/' }
@@ -71,6 +74,9 @@ allprojects {
 
     buildscript {
         repositories {
+            maven {
+                url "$rootDir/libs"
+            }
             maven { url 'https://plugins.gradle.org/m2/' }
         }
     }
@@ -114,6 +120,9 @@ subprojects {
     }
 
     repositories {
+        maven {
+            url "$rootDir/libs"
+        }
         jcenter()
         mavenCentral()
         maven { url 'https://repo.spring.io/libs-milestone' }
@@ -158,7 +167,6 @@ subprojects {
             }
 
             dependency("org.ehcache:ehcache:$ehcacheVersion")
-            dependency("org.elasticsearch.client:transport:$elasticVersion")
 
             dependency "org.springframework.data:spring-data-cassandra:$springCassandraVersion"
             dependency "org.springframework.data:spring-data-commons:$springCassandraVersion"
@@ -222,6 +230,7 @@ project(":common-kafka") {
 
         compile "org.springframework.kafka:spring-kafka"
         compile "org.apache.kafka:kafka-clients"
+        compile "javax.annotation:javax.annotation-api:1.3.2"
 
         testCompile 'org.apache.kafka:kafka_2.11'
         testCompile 'org.springframework:spring-test'
@@ -260,9 +269,10 @@ project(":search-api") {
         compile 'org.springframework.boot:spring-boot-starter-webflux'
         compile 'org.springframework.boot:spring-boot-starter-reactor-netty'
         compile 'org.springframework.boot:spring-boot-starter-actuator'
-        compile 'org.elasticsearch.client:transport'
         compile 'io.micrometer:micrometer-registry-prometheus'
         compile 'io.micrometer:micrometer-core'
+        compile 'com.strapdata.elasticsearch:elasticsearch:5.5.0'
+        compile 'com.strapdata.elasticsearch.client:transport:5.5.0'
     }
 }
 

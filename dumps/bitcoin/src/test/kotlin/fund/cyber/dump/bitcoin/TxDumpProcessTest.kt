@@ -8,6 +8,7 @@ import com.nhaarman.mockito_kotlin.verify
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlockTxPreview
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractTxPreview
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTx
+import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTxPreviewIO
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
@@ -18,6 +19,7 @@ import fund.cyber.search.model.bitcoin.SignatureScript
 import fund.cyber.search.model.chains.BitcoinFamilyChain
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.txPumpTopic
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
@@ -68,7 +70,7 @@ class TxDumpProcessTest {
         }
 
         val txDumpProcess = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository,
-            BitcoinFamilyChain.BITCOIN)
+            BitcoinFamilyChain.BITCOIN, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8, record9))
 
@@ -104,14 +106,22 @@ class TxDumpProcessTest {
 
         listOf(txH, txF, txC, txH.mempoolState(), txD.mempoolState(), txE.mempoolState(), txG.mempoolState(), txI.mempoolState())
             .forEach { tx ->
+                val ins = tx.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
+                val outs = tx.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
                 verify(contractTxRepository, times(1))
-                    .deleteAll(tx.allContractsUsedInTransaction().map { it -> CqlBitcoinContractTxPreview(it, tx) })
+                    .deleteAll(
+                        tx.allContractsUsedInTransaction().map { it -> CqlBitcoinContractTxPreview(it, tx, ins, outs) }
+                    )
             }
 
         listOf(txH, txD, txE, txG, txI, txK)
             .forEach { tx ->
+                val ins = tx.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
+                val outs = tx.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
                 verify(contractTxRepository, times(1))
-                    .saveAll(tx.allContractsUsedInTransaction().map { it -> CqlBitcoinContractTxPreview(it, tx) })
+                    .saveAll(
+                        tx.allContractsUsedInTransaction().map { it -> CqlBitcoinContractTxPreview(it, tx, ins, outs) }
+                    )
             }
     }
 
@@ -138,7 +148,7 @@ class TxDumpProcessTest {
         val record = record(PumpEvent.NEW_BLOCK, txABlock)
 
         val txDumpProcess = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository,
-            BitcoinFamilyChain.BITCOIN)
+            BitcoinFamilyChain.BITCOIN, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -148,12 +158,16 @@ class TxDumpProcessTest {
 
         verify(contractTxRepository, times(1)).saveAll(
             txABlock.allContractsUsedInTransaction().map { it ->
-                CqlBitcoinContractTxPreview(it, txABlock)
+                val ins = txABlock.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
+                val outs = txABlock.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
+                CqlBitcoinContractTxPreview(it, txABlock, ins, outs)
             }
         )
         verify(contractTxRepository, times(1)).deleteAll(
             txABlock.allContractsUsedInTransaction().map { it ->
-                CqlBitcoinContractTxPreview(it, txABlock.mempoolState())
+                val ins = txABlock.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
+                val outs = txABlock.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
+                CqlBitcoinContractTxPreview(it, txABlock.mempoolState(), ins, outs)
             }
         )
     }
@@ -182,7 +196,7 @@ class TxDumpProcessTest {
         val record = record(PumpEvent.NEW_BLOCK, txABlock)
 
         val txDumpProcess = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository,
-            BitcoinFamilyChain.BITCOIN)
+            BitcoinFamilyChain.BITCOIN, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -195,12 +209,16 @@ class TxDumpProcessTest {
 
         verify(contractTxRepository, times(1)).saveAll(
             txABlock.allContractsUsedInTransaction().map { it ->
-                CqlBitcoinContractTxPreview(it, txABlock)
+                val ins = txABlock.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
+                val outs = txABlock.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
+                CqlBitcoinContractTxPreview(it, txABlock, ins, outs)
             }
         )
         verify(contractTxRepository, times(1)).deleteAll(
             txABlock.allContractsUsedInTransaction().map { it ->
-                CqlBitcoinContractTxPreview(it, txABlock.mempoolState())
+                val ins = txABlock.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
+                val outs = txABlock.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
+                CqlBitcoinContractTxPreview(it, txABlock.mempoolState(), ins, outs)
             }
         )
     }
@@ -228,7 +246,7 @@ class TxDumpProcessTest {
         val record = record(PumpEvent.DROPPED_BLOCK, txADrop)
 
         val txDumpProcess = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository,
-            BitcoinFamilyChain.BITCOIN)
+            BitcoinFamilyChain.BITCOIN, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -238,7 +256,9 @@ class TxDumpProcessTest {
 
         verify(contractTxRepository, times(1)).deleteAll(
             txADrop.allContractsUsedInTransaction().map { it ->
-                CqlBitcoinContractTxPreview(it, txADrop)
+                val ins = txADrop.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
+                val outs = txADrop.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
+                CqlBitcoinContractTxPreview(it, txADrop, ins, outs)
             }
         )
     }
@@ -267,7 +287,7 @@ class TxDumpProcessTest {
         val record = record(PumpEvent.DROPPED_BLOCK, txADrop)
 
         val txDumpProcess = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository,
-            BitcoinFamilyChain.BITCOIN)
+            BitcoinFamilyChain.BITCOIN, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -278,7 +298,9 @@ class TxDumpProcessTest {
 
         verify(contractTxRepository, times(1)).deleteAll(
             txADrop.allContractsUsedInTransaction().map { it ->
-                CqlBitcoinContractTxPreview(it, txADrop)
+                val ins = txADrop.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
+                val outs = txADrop.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
+                CqlBitcoinContractTxPreview(it, txADrop, ins, outs)
             }
         )
     }
@@ -289,7 +311,9 @@ class TxDumpProcessTest {
 
         val txToSave = CqlBitcoinTx(txAPool)
         val contractTxesToSave = txAPool.allContractsUsedInTransaction().map { it ->
-            CqlBitcoinContractTxPreview(it, txAPool)
+            val ins = txAPool.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
+            val outs = txAPool.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
+            CqlBitcoinContractTxPreview(it, txAPool, ins, outs)
         }
 
         val txRepository = mock<BitcoinTxRepository> {
@@ -308,7 +332,7 @@ class TxDumpProcessTest {
         val record = record(PumpEvent.NEW_POOL_TX, txAPool)
 
         val txDumpProcess = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository,
-            BitcoinFamilyChain.BITCOIN)
+            BitcoinFamilyChain.BITCOIN, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -337,7 +361,7 @@ class TxDumpProcessTest {
         val record = record(PumpEvent.NEW_POOL_TX, txAPool)
 
         val txDumpProcess = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository,
-            BitcoinFamilyChain.BITCOIN)
+            BitcoinFamilyChain.BITCOIN, SimpleMeterRegistry())
 
         txDumpProcess.onMessage(listOf(record))
 

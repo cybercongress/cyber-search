@@ -12,6 +12,8 @@ import fund.cyber.common.kafka.defaultConsumerConfig
 import fund.cyber.common.with
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
+import fund.cyber.search.configuration.KAFKA_LISTENER_MAX_POLL_RECORDS
+import fund.cyber.search.configuration.KAFKA_LISTENER_MAX_POLL_RECORDS_DEFAULT
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
@@ -36,7 +38,9 @@ private const val AUTO_COMMIT_INTERVAL_MS_CONFIG = 10 * 1000
 
 @Configuration
 class ApplicationConfiguration(
-        private val chain: EthereumFamilyChain
+        private val chain: EthereumFamilyChain,
+        @Value("\${$KAFKA_LISTENER_MAX_POLL_RECORDS:$KAFKA_LISTENER_MAX_POLL_RECORDS_DEFAULT}")
+        private val maxPollRecords: Long
 ) {
 
     @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
@@ -127,7 +131,8 @@ class ApplicationConfiguration(
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to true,
             ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG to AUTO_COMMIT_INTERVAL_MS_CONFIG,
-            ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase()
+            ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase(),
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to maxPollRecords
     )
 
 }

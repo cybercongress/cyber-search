@@ -70,7 +70,8 @@ class BitcoinTxOutputsStorage(
             totalLinkedOutputs.set(linkedOutputs.size.toLong())
             linkedOutputsFromCache.set(outputsFromCache.size.toLong())
 
-            val nonCacheOutputs = client.getTxes(outputsIdsWithoutCacheHit.map { out -> out.first }.toSet())
+            val nonCacheOutputs = client
+                .getTxes(outputsIdsWithoutCacheHit.map { out -> out.first }.toSet())
                 .flatMap { tx -> tx.vout.map { out -> BitcoinCacheTxOutput(tx.txid, out) } }
             return outputsFromCache + nonCacheOutputs
         }

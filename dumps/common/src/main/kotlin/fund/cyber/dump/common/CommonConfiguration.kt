@@ -5,6 +5,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import javax.annotation.PostConstruct
 
 @Configuration
 class CommonConfiguration(
@@ -15,4 +16,10 @@ class CommonConfiguration(
     fun metricsCommonTags(): MeterRegistryCustomizer<MeterRegistry> {
         return MeterRegistryCustomizer { registry -> registry.config().commonTags("chain", chain.name) }
     }
+
+    @PostConstruct
+    fun initSystemProperties() {
+        System.setProperty("reactor.bufferSize.small", "8192")
+    }
+
 }

@@ -19,12 +19,12 @@ interface FlowableBlockchainInterface<T : BlockBundle> : BlockchainInterface<T> 
 private val log = LoggerFactory.getLogger(ConcurrentPulledBlockchain::class.java)!!
 
 private const val REAL_TIME_BLOCK_QUERYING_TIMEOUT = 1000L
-private const val MAX_CONCURRENCY = 6
 
 class ConcurrentPulledBlockchain<T : BlockBundle>(
         private val blockchainInterface: BlockchainInterface<T>,
         private val batchSize: Int = 20,
-        private val retryTemplate: RetryTemplate
+        private val retryTemplate: RetryTemplate,
+        private val maxConcurrency: Int
 ) : FlowableBlockchainInterface<T>, BlockchainInterface<T> by blockchainInterface {
 
     private var lastNetworkBlock = 0L
@@ -68,7 +68,7 @@ class ConcurrentPulledBlockchain<T : BlockBundle>(
 
         log.debug("Looking for ${blockNumbers.first}-${blockNumbers.last} blocks")
         return blockNumbers.toFlowable()
-                .flatMap({ number -> asyncDownloadBlock(number) }, MAX_CONCURRENCY)
+                .flatMap({ number -> asyncDownloadBlock(number) }, maxConcurrency)
                 .sorted { o1, o2 -> o1.number.compareTo(o2.number) }
     }
 

@@ -10,6 +10,8 @@ import fund.cyber.search.configuration.CHAIN_NAME
 import fund.cyber.search.configuration.CHAIN_NODE_URL
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
+import fund.cyber.search.configuration.PUMP_MAX_CONCURRENCY
+import fund.cyber.search.configuration.PUMP_MAX_CONCURRENCY_DEFAULT
 import fund.cyber.search.configuration.env
 import fund.cyber.search.model.chains.ChainFamily
 import fund.cyber.search.model.chains.ChainInfo
@@ -51,10 +53,13 @@ class DefaultRetryListenerSupport: RetryListenerSupport() {
 @EnableWebFlux
 @EnableScheduling
 @Configuration
-class CommonConfiguration {
-
+class CommonConfiguration(
     @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
-    private lateinit var kafkaBrokers: String
+    private val kafkaBrokers: String,
+    @Value("\${$PUMP_MAX_CONCURRENCY:$PUMP_MAX_CONCURRENCY_DEFAULT}")
+    private val maxConcurrency: Int
+) {
+
 
     @Bean
     fun chainInfo(): ChainInfo {
@@ -96,7 +101,8 @@ class CommonConfiguration {
             blockchainInterface: BlockchainInterface<T>,
             retryTemplate: RetryTemplate
     ): FlowableBlockchainInterface<T> {
-        return ConcurrentPulledBlockchain(blockchainInterface = blockchainInterface, retryTemplate = retryTemplate)
+        return ConcurrentPulledBlockchain(blockchainInterface = blockchainInterface, retryTemplate = retryTemplate,
+            maxConcurrency = maxConcurrency)
     }
 
     private fun consumerProperties() = Properties().apply {

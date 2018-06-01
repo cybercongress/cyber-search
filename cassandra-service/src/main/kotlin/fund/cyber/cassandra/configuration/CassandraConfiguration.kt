@@ -3,6 +3,8 @@ package fund.cyber.cassandra.configuration
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.HostDistance
 import com.datastax.driver.core.PoolingOptions
+import com.datastax.driver.core.policies.DCAwareRoundRobinPolicy
+import com.datastax.driver.core.policies.LoadBalancingPolicy
 import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.migration.DefaultMigrationsLoader
 import fund.cyber.search.model.chains.Chain
@@ -34,8 +36,8 @@ val Chain.keyspace: String get() = lowerCaseName
 const val REPOSITORY_NAME_DELIMETER = "__"
 
 fun mappingContext(
-        cluster: Cluster, keyspace: String, basePackage: String,
-        customConversions: CassandraCustomConversions = CassandraCustomConversions(emptyList<Any>())
+    cluster: Cluster, keyspace: String, basePackage: String,
+    customConversions: CassandraCustomConversions = CassandraCustomConversions(emptyList<Any>())
 ): CassandraMappingContext {
 
     val mappingContext = CassandraMappingContext()
@@ -50,21 +52,23 @@ fun mappingContext(
 fun getKeyspaceSession(cluster: Cluster,
                        keyspace: String,
                        converter: MappingCassandraConverter) = CassandraSessionFactoryBean()
-        .apply {
-            setCluster(cluster)
-            setConverter(converter)
-            setKeyspaceName(keyspace)
-            schemaAction = SchemaAction.NONE
-        }
+    .apply {
+        setCluster(cluster)
+        setConverter(converter)
+        setKeyspaceName(keyspace)
+        schemaAction = SchemaAction.NONE
+    }
 
 abstract class CassandraRepositoriesConfiguration(
-        private val cassandraHosts: String,
-        private val cassandraPort: Int
+    private val cassandraHosts: String,
+    private val cassandraPort: Int,
+    private val maxRequestLocal:  Int = MAX_CONCURRENT_REQUESTS,
+    private val maxRequestRemote: Int = MAX_CONCURRENT_REQUESTS
 ) : AbstractReactiveCassandraConfiguration() {
 
     override fun getPoolingOptions() = PoolingOptions()
-            .setMaxRequestsPerConnection(HostDistance.LOCAL, MAX_CONCURRENT_REQUESTS)
-            .setMaxRequestsPerConnection(HostDistance.REMOTE, MAX_CONCURRENT_REQUESTS)!!
+        .setMaxRequestsPerConnection(HostDistance.LOCAL, maxRequestLocal)
+        .setMaxRequestsPerConnection(HostDistance.REMOTE, maxRequestRemote)!!
 
     override fun getPort() = cassandraPort
     override fun getContactPoints() = cassandraHosts
@@ -78,6 +82,13 @@ abstract class CassandraRepositoriesConfiguration(
     override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
         return listOf(defaultKeyspaceSpecification("cyber_system"))
     }
+
+    override fun getLoadBalancingPolicy(): LoadBalancingPolicy? {
+        return DCAwareRoundRobinPolicy.builder().withLocalDc("WITHOUT_REPLICATION")
+            .withUsedHostsPerRemoteDc(0)
+            .build()
+    }
+
 }
 
 
@@ -91,13 +102,13 @@ class CassandraConfiguration {
 
     @Bean
     fun httpClient() = HttpClients.custom()
-            .setConnectionManager(connectionManager)
-            .setConnectionManagerShared(true)
-            .setDefaultHeaders(defaultHttpHeaders)
-            .build()!!
+        .setConnectionManager(connectionManager)
+        .setConnectionManagerShared(true)
+        .setDefaultHeaders(defaultHttpHeaders)
+        .build()!!
 
     @Bean
     fun migrationsLoader(resourceLoader: GenericApplicationContext) = DefaultMigrationsLoader(
-            resourceLoader = resourceLoader
+        resourceLoader = resourceLoader
     )
 }

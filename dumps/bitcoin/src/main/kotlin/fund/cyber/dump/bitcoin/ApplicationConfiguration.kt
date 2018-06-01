@@ -10,19 +10,21 @@ import fund.cyber.common.kafka.defaultConsumerConfig
 import fund.cyber.common.with
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
+import fund.cyber.search.configuration.KAFKA_LISTENER_MAX_POLL_RECORDS
+import fund.cyber.search.configuration.KAFKA_LISTENER_MAX_POLL_RECORDS_DEFAULT
 import fund.cyber.search.model.bitcoin.BitcoinBlock
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.chains.BitcoinFamilyChain
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.blockPumpTopic
 import fund.cyber.search.model.events.txPumpTopic
+import io.micrometer.core.instrument.MeterRegistry
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.requests.IsolationLevel
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.listener.KafkaMessageListenerContainer
 import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler
@@ -31,10 +33,11 @@ import org.springframework.kafka.listener.config.ContainerProperties
 private const val POLL_TIMEOUT = 5000L
 private const val AUTO_COMMIT_INTERVAL_MS_CONFIG = 10 * 1000
 
-@EnableKafka
 @Configuration
 class ApplicationConfiguration(
-        private val chain: BitcoinFamilyChain
+        private val chain: BitcoinFamilyChain,
+        @Value("\${$KAFKA_LISTENER_MAX_POLL_RECORDS:$KAFKA_LISTENER_MAX_POLL_RECORDS_DEFAULT}")
+        private val maxPollRecords: Int
 ) {
 
     @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
@@ -51,6 +54,8 @@ class ApplicationConfiguration(
     lateinit var contractTxRepository: BitcoinContractTxRepository
     @Autowired
     lateinit var blockTxRepository: BitcoinBlockTxRepository
+    @Autowired
+    lateinit var monitoring: MeterRegistry
 
     @Bean
     fun blocksListenerContainerFactory(): KafkaMessageListenerContainer<PumpEvent, BitcoinBlock> {
@@ -86,7 +91,7 @@ class ApplicationConfiguration(
 
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
-            messageListener = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository, chain)
+            messageListener = TxDumpProcess(txRepository, contractTxRepository, blockTxRepository, chain, monitoring)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }
@@ -99,6 +104,7 @@ class ApplicationConfiguration(
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to true,
             ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG to AUTO_COMMIT_INTERVAL_MS_CONFIG,
-            ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase()
+            ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase(),
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to maxPollRecords
     )
 }
