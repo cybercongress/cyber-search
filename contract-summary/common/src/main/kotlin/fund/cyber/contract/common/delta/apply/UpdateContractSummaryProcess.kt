@@ -1,11 +1,11 @@
 package fund.cyber.contract.common.delta.apply
 
+import fund.cyber.cassandra.common.CqlContractSummary
+import fund.cyber.common.kafka.reader.SinglePartitionTopicLastItemsReader
 import fund.cyber.contract.common.delta.ContractSummaryDelta
 import fund.cyber.contract.common.delta.DeltaMerger
 import fund.cyber.contract.common.delta.DeltaProcessor
 import fund.cyber.contract.common.summary.ContractSummaryStorage
-import fund.cyber.cassandra.common.CqlContractSummary
-import fund.cyber.common.kafka.reader.SinglePartitionTopicLastItemsReader
 import fund.cyber.search.model.events.PumpEvent
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
@@ -21,14 +21,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.BatchConsumerAwareMessageListener
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.util.concurrent.atomic.AtomicLong
+import reactor.core.publisher.toFlux
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.experimental.Continuation
 import kotlin.coroutines.experimental.suspendCoroutine
 
-fun <T> Flux<T>.await(): List<T> {
-    return this.collectList().block()!!
-}
 
 fun CqlContractSummary.hasSameTopicPartitionAs(delta: ContractSummaryDelta<*>) =
     this.kafkaDeltaTopic == delta.topic && this.kafkaDeltaPartition == delta.partition
@@ -70,11 +67,11 @@ data class UpdateInfo(
 //todo add tests
 //todo add deadlock catcher
 class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummaryDelta<S>>(
-        private val contractSummaryStorage: ContractSummaryStorage<S>,
-        private val deltaProcessor: DeltaProcessor<R, S, D>,
-        private val deltaMerger: DeltaMerger<D>,
-        private val monitoring: MeterRegistry,
-        private val kafkaBrokers: String
+    private val contractSummaryStorage: ContractSummaryStorage<S>,
+    private val deltaProcessor: DeltaProcessor<R, S, D>,
+    private val deltaMerger: DeltaMerger<D>,
+    private val monitoring: MeterRegistry,
+    private val kafkaBrokers: String
 ) : BatchConsumerAwareMessageListener<PumpEvent, R> {
 
     private lateinit var applyLockMonitor: Counter
@@ -82,7 +79,6 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
     private lateinit var commitKafkaTimer: Timer
     private lateinit var commitCassandraTimer: Timer
     private lateinit var downloadCassandraTimer: Timer
-    private lateinit var currentOffsetMonitor: AtomicLong
     private lateinit var recordsProcessingTimer: Timer
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, R>>, consumer: Consumer<*, *>) {
@@ -130,21 +126,15 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
             commitKafkaTimer.recordCallable { consumer.commitSync() }
 
             val newSummaries = downloadCassandraTimer.recordCallable {
-                contractSummaryStorage.findAllByIdIn(contracts).await()
+                contracts.toFlux().flatMap { contractId -> contractSummaryStorage.findById(contractId) }.await()
             }
 
             commitCassandraTimer.recordCallable {
-                runBlocking {
-                    newSummaries.map { summary ->
-                        async(applicationContext) {
-                            contractSummaryStorage.commitUpdate(summary.hash, summary.version + 1).await()
-                        }
-                    }.map { it.await() }
-                }
+
+                newSummaries.toFlux().flatMap { summary ->
+                    contractSummaryStorage.commitUpdate(summary.hash, summary.version + 1)
+                }.await()
             }
-
-            currentOffsetMonitor.set(info.maxOffset)
-
         } catch (e: ContractLockException) {
 
             log.debug("Possible contract lock for ${info.topic} topic," +
@@ -237,10 +227,6 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
         if (!(::downloadCassandraTimer.isInitialized)) {
             downloadCassandraTimer = monitoring.timer("contract_summary_download_cassandra", tags)
         }
-        if (!(::currentOffsetMonitor.isInitialized)) {
-            currentOffsetMonitor = monitoring.gauge("contract_summary_topic_current_offset", tags,
-                AtomicLong(info.maxOffset))!!
-        }
         if (!(::recordsProcessingTimer.isInitialized)) {
             recordsProcessingTimer = monitoring.timer("contract_summary_records_processing", tags)
         }
@@ -265,4 +251,6 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
             }.subscribe()
         }
     }
+
+    private fun <T> Flux<T>.await() = this.collectList().block()!!
 }
