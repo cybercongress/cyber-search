@@ -10,6 +10,7 @@ import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractMinedBlock
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinBlockTxRepository
 import fund.cyber.cassandra.common.NoChainCondition
+import fund.cyber.cassandra.common.SearchRepositoryFactoryBean
 import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.configuration.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
@@ -29,6 +30,7 @@ import fund.cyber.search.configuration.CASSANDRA_PORT_DEFAULT
 import fund.cyber.search.configuration.CHAIN
 import fund.cyber.search.configuration.env
 import fund.cyber.search.model.chains.BitcoinFamilyChain
+import fund.cyber.search.model.chains.Chain
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -59,7 +61,8 @@ import org.springframework.stereotype.Component
 @Configuration
 @EnableReactiveCassandraRepositories(
         basePackages = ["fund.cyber.cassandra.bitcoin.repository"],
-        reactiveCassandraTemplateRef = "bitcoinCassandraTemplate"
+        reactiveCassandraTemplateRef = "bitcoinCassandraTemplate",
+        repositoryFactoryBeanClass = SearchRepositoryFactoryBean::class
 )
 @Conditional(BitcoinFamilyChainCondition::class)
 class BitcoinRepositoryConfiguration(
@@ -73,18 +76,19 @@ class BitcoinRepositoryConfiguration(
         private val maxConnectionsRemote: Int
 ) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort, maxConnectionsLocal, maxConnectionsRemote) {
 
-    private val chain = BitcoinFamilyChain.valueOf(env(CHAIN, ""))
-
-    override fun getKeyspaceName(): String = chain.keyspace
+    override fun getKeyspaceName(): String = chain().keyspace
     override fun getEntityBasePackages(): Array<String> = arrayOf("fund.cyber.cassandra.bitcoin.model")
 
     override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
-        return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chain.lowerCaseName))
+        return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chain().lowerCaseName))
     }
 
     @Bean
+    fun chain(): Chain = BitcoinFamilyChain.valueOf(env(CHAIN, ""))
+
+    @Bean
     fun migrationSettings(): MigrationSettings {
-        return BlockchainMigrationSettings(chain)
+        return BlockchainMigrationSettings(chain())
     }
 
     @Bean("bitcoinCassandraTemplate")
