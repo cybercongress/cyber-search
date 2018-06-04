@@ -1,11 +1,11 @@
 package fund.cyber.cassandra.ethereum.repository
 
 import com.datastax.driver.core.ConsistencyLevel
+import fund.cyber.cassandra.common.RoutingReactiveCassandraRepository
 import fund.cyber.cassandra.ethereum.model.CqlEthereumContractSummary
 import org.springframework.data.cassandra.repository.Consistency
 import org.springframework.data.cassandra.repository.Query
 import org.springframework.data.repository.query.Param
-import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import reactor.core.publisher.Mono
 
 
@@ -14,7 +14,8 @@ import reactor.core.publisher.Mono
 /**
  * To archive atomic updates of contract summaries we should use CAS, two-phase commit, serial reads and quorum writes.
  */
-interface EthereumUpdateContractSummaryRepository : ReactiveCrudRepository<CqlEthereumContractSummary, String> {
+interface EthereumUpdateContractSummaryRepository
+    : RoutingReactiveCassandraRepository<CqlEthereumContractSummary, String> {
 
     @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
     fun findByHash(hash: String): Mono<CqlEthereumContractSummary>

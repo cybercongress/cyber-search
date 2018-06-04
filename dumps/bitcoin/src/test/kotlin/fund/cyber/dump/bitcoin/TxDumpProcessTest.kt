@@ -8,7 +8,6 @@ import com.nhaarman.mockito_kotlin.verify
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlockTxPreview
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractTxPreview
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTx
-import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTxPreviewIO
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
@@ -106,21 +105,17 @@ class TxDumpProcessTest {
 
         listOf(txH, txF, txC, txH.mempoolState(), txD.mempoolState(), txE.mempoolState(), txG.mempoolState(), txI.mempoolState())
             .forEach { tx ->
-                val ins = tx.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
-                val outs = tx.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
                 verify(contractTxRepository, times(1))
                     .deleteAll(
-                        tx.allContractsUsedInTransaction().map { it -> CqlBitcoinContractTxPreview(it, tx, ins, outs) }
+                        tx.allContractsUsedInTransaction().map { it -> CqlBitcoinContractTxPreview(it, tx) }
                     )
             }
 
         listOf(txH, txD, txE, txG, txI, txK)
             .forEach { tx ->
-                val ins = tx.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
-                val outs = tx.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
                 verify(contractTxRepository, times(1))
                     .saveAll(
-                        tx.allContractsUsedInTransaction().map { it -> CqlBitcoinContractTxPreview(it, tx, ins, outs) }
+                        tx.allContractsUsedInTransaction().map { it -> CqlBitcoinContractTxPreview(it, tx) }
                     )
             }
     }
@@ -158,16 +153,12 @@ class TxDumpProcessTest {
 
         verify(contractTxRepository, times(1)).saveAll(
             txABlock.allContractsUsedInTransaction().map { it ->
-                val ins = txABlock.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
-                val outs = txABlock.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
-                CqlBitcoinContractTxPreview(it, txABlock, ins, outs)
+                CqlBitcoinContractTxPreview(it, txABlock)
             }
         )
         verify(contractTxRepository, times(1)).deleteAll(
             txABlock.allContractsUsedInTransaction().map { it ->
-                val ins = txABlock.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
-                val outs = txABlock.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
-                CqlBitcoinContractTxPreview(it, txABlock.mempoolState(), ins, outs)
+                CqlBitcoinContractTxPreview(it, txABlock.mempoolState())
             }
         )
     }
@@ -209,16 +200,12 @@ class TxDumpProcessTest {
 
         verify(contractTxRepository, times(1)).saveAll(
             txABlock.allContractsUsedInTransaction().map { it ->
-                val ins = txABlock.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
-                val outs = txABlock.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
-                CqlBitcoinContractTxPreview(it, txABlock, ins, outs)
+                CqlBitcoinContractTxPreview(it, txABlock)
             }
         )
         verify(contractTxRepository, times(1)).deleteAll(
             txABlock.allContractsUsedInTransaction().map { it ->
-                val ins = txABlock.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
-                val outs = txABlock.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
-                CqlBitcoinContractTxPreview(it, txABlock.mempoolState(), ins, outs)
+                CqlBitcoinContractTxPreview(it, txABlock.mempoolState())
             }
         )
     }
@@ -256,9 +243,7 @@ class TxDumpProcessTest {
 
         verify(contractTxRepository, times(1)).deleteAll(
             txADrop.allContractsUsedInTransaction().map { it ->
-                val ins = txADrop.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
-                val outs = txADrop.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
-                CqlBitcoinContractTxPreview(it, txADrop, ins, outs)
+                CqlBitcoinContractTxPreview(it, txADrop)
             }
         )
     }
@@ -298,9 +283,7 @@ class TxDumpProcessTest {
 
         verify(contractTxRepository, times(1)).deleteAll(
             txADrop.allContractsUsedInTransaction().map { it ->
-                val ins = txADrop.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
-                val outs = txADrop.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
-                CqlBitcoinContractTxPreview(it, txADrop, ins, outs)
+                CqlBitcoinContractTxPreview(it, txADrop)
             }
         )
     }
@@ -311,9 +294,7 @@ class TxDumpProcessTest {
 
         val txToSave = CqlBitcoinTx(txAPool)
         val contractTxesToSave = txAPool.allContractsUsedInTransaction().map { it ->
-            val ins = txAPool.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
-            val outs = txAPool.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
-            CqlBitcoinContractTxPreview(it, txAPool, ins, outs)
+            CqlBitcoinContractTxPreview(it, txAPool)
         }
 
         val txRepository = mock<BitcoinTxRepository> {

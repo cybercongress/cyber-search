@@ -3,6 +3,7 @@ package fund.cyber.cassandra.ethereum.configuration
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.extras.codecs.jdk8.InstantCodec
 import fund.cyber.cassandra.common.NoChainCondition
+import fund.cyber.cassandra.common.RoutingReactiveCassandraRepositoryFactoryBean
 import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.configuration.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
@@ -32,6 +33,7 @@ import fund.cyber.search.configuration.CHAIN
 import fund.cyber.search.configuration.env
 import fund.cyber.search.jsonDeserializer
 import fund.cyber.search.jsonSerializer
+import fund.cyber.search.model.chains.Chain
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
@@ -65,7 +67,8 @@ import org.springframework.stereotype.Component
 @Configuration
 @EnableReactiveCassandraRepositories(
         basePackages = ["fund.cyber.cassandra.ethereum.repository"],
-        reactiveCassandraTemplateRef = "ethereumCassandraTemplate"
+        reactiveCassandraTemplateRef = "ethereumCassandraTemplate",
+        repositoryFactoryBeanClass = RoutingReactiveCassandraRepositoryFactoryBean::class
 )
 @Conditional(EthereumFamilyChainCondition::class)
 class EthereumRepositoryConfiguration(
@@ -79,18 +82,19 @@ class EthereumRepositoryConfiguration(
         private val maxConnectionsRemote: Int
 ) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort, maxConnectionsLocal, maxConnectionsRemote) {
 
-    private val chain = EthereumFamilyChain.valueOf(env(CHAIN, ""))
-
-    override fun getKeyspaceName(): String = chain.keyspace
+    override fun getKeyspaceName(): String = chain().keyspace
     override fun getEntityBasePackages(): Array<String> = arrayOf("fund.cyber.cassandra.ethereum.model")
 
     override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
-        return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chain.lowerCaseName))
+        return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chain().lowerCaseName))
     }
 
     @Bean
+    fun chain(): Chain = EthereumFamilyChain.valueOf(env(CHAIN, ""))
+
+    @Bean
     fun migrationSettings(): MigrationSettings {
-        return BlockchainMigrationSettings(chain)
+        return BlockchainMigrationSettings(chain())
     }
 
     @Bean("ethereumCassandraTemplate")

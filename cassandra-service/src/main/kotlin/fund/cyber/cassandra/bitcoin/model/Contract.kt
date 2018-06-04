@@ -35,25 +35,18 @@ data class CqlBitcoinContractSummary(
 @Table("tx_preview_by_contract")
 data class CqlBitcoinContractTxPreview(
 
-        @PrimaryKeyColumn(ordinal = 0, type = PARTITIONED, value = "contract_hash") val contractHash: String,
-        @PrimaryKeyColumn(ordinal = 1, type = CLUSTERED, value = "block_time") val blockTime: Long,
-        @PrimaryKeyColumn(ordinal = 2, type = CLUSTERED) val hash: String,
-        val fee: BigDecimal,
-        @Column("block_number") val blockNumber: Long,
-        val ins: List<CqlBitcoinTxPreviewIO>,
-        val outs: List<CqlBitcoinTxPreviewIO>
+    @PrimaryKeyColumn(ordinal = 0, type = PARTITIONED, value = "contract_hash") val contractHash: String,
+    @PrimaryKeyColumn(ordinal = 1, type = CLUSTERED, value = "block_time") val blockTime: Long,
+    @PrimaryKeyColumn(ordinal = 2, type = CLUSTERED) val hash: String,
+    val fee: BigDecimal,
+    @Column("block_number") val blockNumber: Long,
+    @Column("inputs_number") val inputsNumber: Int,
+    @Column("outputs_number") val outputsNumber: Int
 ) : CqlBitcoinItem {
 
-    constructor(
-        contract: String, tx: BitcoinTx, ins: List<CqlBitcoinTxPreviewIO>, outs: List<CqlBitcoinTxPreviewIO>
-    ) : this(
-            contractHash = contract, blockTime = tx.blockTime?.toEpochMilli() ?: -1, hash = tx.hash, fee = tx.fee,
-            blockNumber = tx.blockNumber, ins = emptyList(), outs = emptyList()
-    )
-
     constructor(contract: String, tx: BitcoinTx) : this(
-        contractHash = contract, blockTime = tx.blockTime?.toEpochMilli() ?: -1, hash = tx.hash, fee = tx.fee,
-        blockNumber = tx.blockNumber, ins = emptyList(), outs = emptyList()
+            contractHash = contract, blockTime = tx.blockTime?.toEpochMilli() ?: -1, hash = tx.hash, fee = tx.fee,
+            blockNumber = tx.blockNumber, inputsNumber = tx.ins.size, outputsNumber = tx.outs.size
     )
 }
 

@@ -3,7 +3,6 @@ package fund.cyber.dump.bitcoin
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlockTxPreview
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTx
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractTxPreview
-import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTxPreviewIO
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
@@ -74,9 +73,6 @@ class TxDumpProcess(
 
         val affectedContracts = this.allContractsUsedInTransaction().toSet()
 
-//        val ins = this.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
-//        val outs = this.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
-
         val contractTxesToDelete = affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this.mempoolState()) }
         val contractTxesToSave = affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this) }
 
@@ -89,7 +85,9 @@ class TxDumpProcess(
                 contractTxRepository.deleteAll(contractTxesToDelete)
             }
 
-        requestsCounter += 3 + 2 * affectedContracts.size
+        val contractTxRequestsFactor = if (this.blockNumber < realtimeIndexationThreshold) 1 else 2
+
+        requestsCounter += 3 + contractTxRequestsFactor * affectedContracts.size
 
         return Flux.merge(saveTxMono, saveBlockTxMono, saveContractTxesFlux, deleteContractTxesFlux)
     }
@@ -108,11 +106,8 @@ class TxDumpProcess(
 
         val affectedContracts = this.allContractsUsedInTransaction().toSet()
 
-        val ins = this.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
-        val outs = this.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
-
         val deleteContractTxesFlux = contractTxRepository.deleteAll(
-            affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this, ins, outs) }
+            affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this) }
         )
 
         requestsCounter += 3 + affectedContracts.size
@@ -126,10 +121,7 @@ class TxDumpProcess(
 
         val affectedContracts = this.allContractsUsedInTransaction().toSet()
 
-        val ins = this.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
-        val outs = this.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
-
-        val contractTxesToSave = affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this, ins, outs) }
+        val contractTxesToSave = affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this) }
 
         requestsCounter += 2 + affectedContracts.size
 

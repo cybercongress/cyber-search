@@ -25,21 +25,22 @@ import reactor.core.publisher.Mono
 import java.util.LinkedHashMap
 
 @NoRepositoryBean
-interface SearchRepository<S, ID> : ReactiveCassandraRepository<S, ID>
+interface RoutingReactiveCassandraRepository<S, ID> : ReactiveCassandraRepository<S, ID>
+
 
 @NoRepositoryBean
-class SearchRepositoryImpl<S, ID>(
+class RoutingReactiveCassandraRepositoryImpl<S, ID>(
     private val metadata: CassandraEntityInformation<S, ID>,
     private val operations: ReactiveCassandraOperations,
     private val clusterMetadata: Metadata,
     private val keyspace: String
-) : SimpleReactiveCassandraRepository<S, ID>(metadata, operations), SearchRepository<S, ID> {
+) : SimpleReactiveCassandraRepository<S, ID>(metadata, operations), RoutingReactiveCassandraRepository<S, ID> {
 
 
     override fun <E : S> save(entity: E): Mono<E> {
 
         Assert.notNull(entity, "Entity must not be null")
-        return operations.reactiveCqlOperations.execute(createRoutingInsert(entity as Any)).map { entity }
+        return operations.reactiveCqlOperations.execute(createInsertWithRoutingKey(entity as Any)).map { entity }
     }
 
     override fun <E : S> saveAll(entityStream: Publisher<E>): Flux<E> {
@@ -48,7 +49,7 @@ class SearchRepositoryImpl<S, ID>(
 
         return Flux.from(entityStream)
             .flatMap { entity ->
-                operations.reactiveCqlOperations.execute(createRoutingInsert(entity as Any)).map { entity }
+                operations.reactiveCqlOperations.execute(createInsertWithRoutingKey(entity as Any)).map { entity }
             }
     }
 
@@ -68,41 +69,7 @@ class SearchRepositoryImpl<S, ID>(
             .query(select) { row, _ -> operations.converter.read(entityClass, row) }.next()
     }
 
-//    override fun delete(entity: S): Mono<Void> {
-//        return super.delete(entity)
-//    }
-//
-//    override fun deleteAll(entities: MutableIterable<S>): Mono<Void> {
-//        return super.deleteAll(entities)
-//    }
-//
-//    private fun delete(entity: Any, options: QueryOptions) {
-//        Assert.notNull(entity, "Entity must not be null");
-//        Assert.notNull(options, "QueryOptions must not be null");
-//
-//        val delete = createDeleteQuery(entity, options)
-//
-//        return operations.reactiveCqlOperations.execute(StatementCallback(delete)).next()
-//    }
-//
-//    private fun createDeleteQuery(entity: Any, options: QueryOptions): Delete {
-//
-//        val persistentEntity = operations.converter.mappingContext.getRequiredPersistentEntity(entity::class.java)
-//
-//        Assert.hasText(persistentEntity.tableName.toCql(), "TableName must not be empty")
-//        Assert.notNull(entity, "Object to delete must not be null")
-//        Assert.notNull(operations.converter, "EntityWriter must not be null")
-//
-//        val deleteSelection = QueryBuilder.delete()
-//        val delete = deleteSelection.from(persistentEntity.tableMetadata())
-//        val where = QueryOptionsUtil.addQueryOptions<Delete.Where>(delete.where(), options)
-//
-//        operations.converter.write(entity, where)
-//
-//        return delete
-//    }
-
-    private fun createRoutingInsert(entity: Any): Insert {
+    private fun createInsertWithRoutingKey(entity: Any): Insert {
 
         val persistentEntity = operations.converter.mappingContext
             .getRequiredPersistentEntity(entity::class.java)
@@ -122,22 +89,23 @@ class SearchRepositoryImpl<S, ID>(
         return insert
     }
 
-    fun BasicCassandraPersistentEntity<*>.tableMetadata() =
+    private fun BasicCassandraPersistentEntity<*>.tableMetadata() =
         clusterMetadata.getKeyspace(keyspace).getTable(this.tableName.toCql())!!
 
 }
 
-class SearchRepositoryFactoryBean<T : Repository<S, ID>, S, ID>(
+
+class RoutingReactiveCassandraRepositoryFactoryBean<T : Repository<S, ID>, S, ID>(
     repositoryInterface: Class<out T>,
     private val cluster: Cluster,
     private val chain: Chain
 ) : ReactiveCassandraRepositoryFactoryBean<T, S, ID>(repositoryInterface) {
 
     override fun getFactoryInstance(operations: ReactiveCassandraOperations): RepositoryFactorySupport {
-        return SearchRepositoryFactory<S, ID>(operations, cluster.metadata, chain.keyspace)
+        return RoutingReactiveCassandraRepositoryFactory<S, ID>(operations, cluster.metadata, chain.keyspace)
     }
 
-    class SearchRepositoryFactory<S, ID>(
+    class RoutingReactiveCassandraRepositoryFactory<S, ID>(
         private val cassandraOperations: ReactiveCassandraOperations,
         private val metadata: Metadata,
         private val keyspace: String
@@ -145,11 +113,13 @@ class SearchRepositoryFactoryBean<T : Repository<S, ID>, S, ID>(
 
         override fun getTargetRepository(information: RepositoryInformation): Any {
             val entityInformation = getEntityInformation<S, ID>(information.domainType as Class<S>)
-            return SearchRepositoryImpl<S, ID>(entityInformation, cassandraOperations, metadata, keyspace)
+            return RoutingReactiveCassandraRepositoryImpl<S, ID>(
+                entityInformation, cassandraOperations, metadata, keyspace
+            )
         }
 
         override fun getRepositoryBaseClass(metadata: RepositoryMetadata): Class<*> {
-            return SearchRepository::class.java
+            return RoutingReactiveCassandraRepository::class.java
         }
     }
 
