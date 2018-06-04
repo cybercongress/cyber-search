@@ -74,13 +74,11 @@ class TxDumpProcess(
 
         val affectedContracts = this.allContractsUsedInTransaction().toSet()
 
-        val ins = this.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
-        val outs = this.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
+//        val ins = this.ins.map { txIn -> CqlBitcoinTxPreviewIO(txIn) }
+//        val outs = this.outs.map { txOut -> CqlBitcoinTxPreviewIO(txOut) }
 
-        val contractTxesToDelete = affectedContracts
-            .map { it -> CqlBitcoinContractTxPreview(it, this.mempoolState(), ins, outs) }
-
-        val contractTxesToSave = affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this, ins, outs) }
+        val contractTxesToDelete = affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this.mempoolState()) }
+        val contractTxesToSave = affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this) }
 
         val saveContractTxesFlux = contractTxRepository.saveAll(contractTxesToSave)
 
