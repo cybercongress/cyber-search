@@ -2,29 +2,19 @@ package fund.cyber.api.bitcoin.dto
 
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractSummary
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractTxPreview
-import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTxPreviewIO
 import java.math.BigDecimal
 import java.time.Instant
 
-data class ContractTxIODto(
-    val contracts: List<String>,
-    val amount: BigDecimal
-) {
-
-    constructor(io: CqlBitcoinTxPreviewIO) : this(
-        contracts = io.contracts, amount = io.amount
-    )
-}
-
 data class ContractTxSummaryDto(
+    val hash: String,
     val fee: BigDecimal,
-    val ins: List<ContractTxIODto>,
-    val outs: List<ContractTxIODto>
+    val inputsNumber: Int,
+    val outputsNumber: Int
 ) {
 
     constructor(contractTx: CqlBitcoinContractTxPreview) : this(
-        fee = contractTx.fee, ins = contractTx.ins.map { i -> ContractTxIODto(i) },
-        outs = contractTx.outs.map { o -> ContractTxIODto(o) }
+        fee = contractTx.fee, inputsNumber = contractTx.inputsNumber, hash = contractTx.contractHash,
+        outputsNumber = contractTx.outputsNumber
     )
 }
 

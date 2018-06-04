@@ -10,7 +10,7 @@ import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractMinedBlock
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinBlockTxRepository
 import fund.cyber.cassandra.common.NoChainCondition
-import fund.cyber.cassandra.common.SearchRepositoryFactoryBean
+import fund.cyber.cassandra.common.RoutingReactiveCassandraRepositoryFactoryBean
 import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.configuration.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
@@ -62,7 +62,7 @@ import org.springframework.stereotype.Component
 @EnableReactiveCassandraRepositories(
         basePackages = ["fund.cyber.cassandra.bitcoin.repository"],
         reactiveCassandraTemplateRef = "bitcoinCassandraTemplate",
-        repositoryFactoryBeanClass = SearchRepositoryFactoryBean::class
+        repositoryFactoryBeanClass = RoutingReactiveCassandraRepositoryFactoryBean::class
 )
 @Conditional(BitcoinFamilyChainCondition::class)
 class BitcoinRepositoryConfiguration(

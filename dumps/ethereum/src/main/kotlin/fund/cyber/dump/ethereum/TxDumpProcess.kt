@@ -24,7 +24,8 @@ class TxDumpProcess(
     private val txRepository: EthereumTxRepository,
     private val blockTxRepository: EthereumBlockTxRepository,
     private val contractTxRepository: EthereumContractTxRepository,
-    private val chain: EthereumFamilyChain
+    private val chain: EthereumFamilyChain,
+    private val realtimeIndexationThreshold: Long
 ) : BatchMessageListener<PumpEvent, EthereumTx> {
 
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
@@ -58,12 +59,16 @@ class TxDumpProcess(
         val contractTxesToSave = this.contractsUsedInTransaction().toSet()
             .map { it -> CqlEthereumContractTxPreview(this, it) }
 
-        val saveContractTxesFlux = Flux.merge(
-            contractTxRepository.saveAll(contractTxesToSave),
-            contractTxRepository.deleteAll(contractTxesToDelete)
-        )
+        val saveContractTxesFlux = contractTxRepository.saveAll(contractTxesToSave)
 
-        return Flux.merge(saveTxMono, saveBlockTxMono, saveContractTxesFlux)
+        val deleteContractTxesFlux =
+            if (this.blockNumber < realtimeIndexationThreshold) {
+                Flux.empty<CqlEthereumContractTxPreview>()
+            } else {
+                contractTxRepository.deleteAll(contractTxesToDelete)
+            }
+
+        return Flux.merge(saveTxMono, saveBlockTxMono, saveContractTxesFlux, deleteContractTxesFlux)
     }
 
     private fun EthereumTx.toDropBlockPublisher(): Publisher<Any> {
