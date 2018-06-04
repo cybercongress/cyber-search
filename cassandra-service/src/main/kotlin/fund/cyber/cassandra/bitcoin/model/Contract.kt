@@ -48,7 +48,12 @@ data class CqlBitcoinContractTxPreview(
         contract: String, tx: BitcoinTx, ins: List<CqlBitcoinTxPreviewIO>, outs: List<CqlBitcoinTxPreviewIO>
     ) : this(
             contractHash = contract, blockTime = tx.blockTime?.toEpochMilli() ?: -1, hash = tx.hash, fee = tx.fee,
-            blockNumber = tx.blockNumber, ins = ins, outs = outs
+            blockNumber = tx.blockNumber, ins = emptyList(), outs = emptyList()
+    )
+
+    constructor(contract: String, tx: BitcoinTx) : this(
+        contractHash = contract, blockTime = tx.blockTime?.toEpochMilli() ?: -1, hash = tx.hash, fee = tx.fee,
+        blockNumber = tx.blockNumber, ins = emptyList(), outs = emptyList()
     )
 }
 
