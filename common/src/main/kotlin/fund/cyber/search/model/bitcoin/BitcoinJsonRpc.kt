@@ -26,7 +26,7 @@ data class JsonRpcBitcoinBlock(
         val bits: String,
         val difficulty: BigDecimal,
         val previousblockhash: String?,
-        val nextblockhash: String
+        val nextblockhash: String?
 ) : Comparable<JsonRpcBitcoinBlock>, JsonRpcBitcoinElement() {
 
     override fun compareTo(other: JsonRpcBitcoinBlock) = this.height.compareTo(other.height)

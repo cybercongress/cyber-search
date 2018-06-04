@@ -29,6 +29,7 @@ class TxDumpProcess(
     private val contractTxRepository: BitcoinContractTxRepository,
     private val blockTxRepository: BitcoinBlockTxRepository,
     private val chain: BitcoinFamilyChain,
+    private val realtimeIndexationThreshold: Long,
     monitoring: MeterRegistry
 ) : BatchMessageListener<PumpEvent, BitcoinTx> {
 
@@ -81,14 +82,18 @@ class TxDumpProcess(
 
         val contractTxesToSave = affectedContracts.map { it -> CqlBitcoinContractTxPreview(it, this, ins, outs) }
 
-        val saveContractTxesFlux = Flux.merge(
-            contractTxRepository.saveAll(contractTxesToSave),
-            contractTxRepository.deleteAll(contractTxesToDelete)
-        )
+        val saveContractTxesFlux = contractTxRepository.saveAll(contractTxesToSave)
+
+        val deleteContractTxesFlux =
+            if (this.blockNumber < realtimeIndexationThreshold) {
+                Flux.empty<CqlBitcoinContractTxPreview>()
+            } else {
+                contractTxRepository.deleteAll(contractTxesToDelete)
+            }
 
         requestsCounter += 3 + 2 * affectedContracts.size
 
-        return Flux.merge(saveTxMono, saveBlockTxMono, saveContractTxesFlux)
+        return Flux.merge(saveTxMono, saveBlockTxMono, saveContractTxesFlux, deleteContractTxesFlux)
     }
 
     private fun BitcoinTx.toDropBlockPublisher(): Publisher<Any> {

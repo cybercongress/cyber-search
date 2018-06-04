@@ -5,6 +5,7 @@ import com.datastax.driver.core.HostDistance
 import com.datastax.driver.core.PoolingOptions
 import com.datastax.driver.core.policies.DCAwareRoundRobinPolicy
 import com.datastax.driver.core.policies.LoadBalancingPolicy
+import com.datastax.driver.core.policies.TokenAwarePolicy
 import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.migration.DefaultMigrationsLoader
 import fund.cyber.search.model.chains.Chain
@@ -84,9 +85,11 @@ abstract class CassandraRepositoriesConfiguration(
     }
 
     override fun getLoadBalancingPolicy(): LoadBalancingPolicy? {
-        return DCAwareRoundRobinPolicy.builder().withLocalDc("WITHOUT_REPLICATION")
-            .withUsedHostsPerRemoteDc(0)
-            .build()
+        return TokenAwarePolicy(
+            DCAwareRoundRobinPolicy.builder().withLocalDc("WITHOUT_REPLICATION")
+                .withUsedHostsPerRemoteDc(0)
+                .build()
+        )
     }
 
 }
