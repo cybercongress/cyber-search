@@ -2,15 +2,12 @@ apply plugin: "jacoco"
 
 jacoco {
     toolVersion = "0.8.1"
-    applyTo junitPlatformTest
 }
 
 test {
     jacoco {
         append = false
-        destinationFile = file("$buildDir/jacoco/junitPlatformTest.exec")
+        destinationFile = file("$buildDir/jacoco/moduleTestsCoverage.exec")
         includeNoLocationClasses = true
     }
 }
-
-test.dependsOn junitPlatformTest
