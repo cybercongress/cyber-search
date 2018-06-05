@@ -3,6 +3,7 @@ package fund.cyber.common.kafka
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.springframework.kafka.support.serializer.JsonSerializer
 import java.util.*
 
 private val jsonSerializer = JsonSerializer<Any>()
@@ -35,10 +36,13 @@ fun <K, V> sendRecords(kafkaBrokers: String, topic: String, records: List<Pair<K
 }
 
 
+private const val BUFFER_MEMORY_CONFIG_VALUE = 33554432
+private const val BATCH_SIZE_CONFIG_VALUE = 16384
+
 fun producerProperties(kafkaBrokers: String) = Properties().apply {
     put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers)
     put(ProducerConfig.RETRIES_CONFIG, 1)
-    put(ProducerConfig.BATCH_SIZE_CONFIG, 16384)
+    put(ProducerConfig.BATCH_SIZE_CONFIG, BATCH_SIZE_CONFIG_VALUE)
     put(ProducerConfig.LINGER_MS_CONFIG, 1)
-    put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432)
+    put(ProducerConfig.BUFFER_MEMORY_CONFIG, BUFFER_MEMORY_CONFIG_VALUE)
 }

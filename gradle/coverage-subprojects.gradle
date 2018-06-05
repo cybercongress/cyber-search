@@ -5,20 +5,6 @@ jacoco {
     applyTo junitPlatformTest
 }
 
-jacocoTestReport {
-    def coverageSourceDirs = ["src/main/kotlin"]
-
-    group = "Reporting"
-    description = "Generate Jacoco coverage report."
-    classDirectories = fileTree(dir: "$buildDir/classes/kotlin/main")
-    additionalSourceDirs = files(coverageSourceDirs)
-    sourceDirectories = files(coverageSourceDirs)
-    executionData = files("$buildDir/jacoco/junitPlatformTest.exec")
-    reports {
-        xml.enabled = true
-        html.enabled = true
-    }
-}
 test {
     jacoco {
         append = false
@@ -26,5 +12,5 @@ test {
         includeNoLocationClasses = true
     }
 }
-test.dependsOn junitPlatformTest
 
+test.dependsOn junitPlatformTest

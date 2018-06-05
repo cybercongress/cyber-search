@@ -3,11 +3,9 @@ package fund.cyber.cassandra.configuration
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.HostDistance
 import com.datastax.driver.core.PoolingOptions
-import com.datastax.driver.core.policies.DCAwareRoundRobinPolicy
-import com.datastax.driver.core.policies.LoadBalancingPolicy
 import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.migration.DefaultMigrationsLoader
-import fund.cyber.search.model.chains.Chain
+import fund.cyber.search.model.chains.ChainInfo
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.apache.http.message.BasicHeader
@@ -31,7 +29,7 @@ const val MAX_CONCURRENT_REQUESTS = 8182
 const val MAX_PER_ROUTE = 16
 const val MAX_TOTAL = 32
 
-val Chain.keyspace: String get() = lowerCaseName
+val ChainInfo.keyspace: String get() = fullNameLowerCase
 
 const val REPOSITORY_NAME_DELIMETER = "__"
 
@@ -62,7 +60,7 @@ fun getKeyspaceSession(cluster: Cluster,
 abstract class CassandraRepositoriesConfiguration(
     private val cassandraHosts: String,
     private val cassandraPort: Int,
-    private val maxRequestLocal:  Int = MAX_CONCURRENT_REQUESTS,
+    private val maxRequestLocal: Int = MAX_CONCURRENT_REQUESTS,
     private val maxRequestRemote: Int = MAX_CONCURRENT_REQUESTS
 ) : AbstractReactiveCassandraConfiguration() {
 
@@ -82,13 +80,6 @@ abstract class CassandraRepositoriesConfiguration(
     override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
         return listOf(defaultKeyspaceSpecification("cyber_system"))
     }
-
-    override fun getLoadBalancingPolicy(): LoadBalancingPolicy? {
-        return DCAwareRoundRobinPolicy.builder().withLocalDc("WITHOUT_REPLICATION")
-            .withUsedHostsPerRemoteDc(0)
-            .build()
-    }
-
 }
 
 
