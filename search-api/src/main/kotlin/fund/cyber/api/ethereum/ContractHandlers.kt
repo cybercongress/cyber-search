@@ -5,7 +5,7 @@ import fund.cyber.api.ethereum.dto.ContractSummaryDto
 import fund.cyber.api.ethereum.functions.ContractBlocksByHash
 import fund.cyber.api.ethereum.functions.ContractTxesByHash
 import fund.cyber.api.ethereum.functions.ContractUnclesByHash
-import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
+import fund.cyber.cassandra.common.REPOSITORY_NAME_DELIMITER
 import fund.cyber.cassandra.ethereum.repository.EthereumContractRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractMinedBlockRepository
@@ -23,7 +23,7 @@ import org.springframework.web.reactive.function.server.RouterFunctions
 import org.springframework.web.reactive.function.server.ServerResponse
 
 @Configuration
-@DependsOn("ethereum-cassandra-repositories")
+@DependsOn("ethereum-search-repositories")
 class EthereumContractHandlersConfiguration {
 
     @Autowired
@@ -33,12 +33,13 @@ class EthereumContractHandlersConfiguration {
     fun ethereumContractById(): RouterFunction<ServerResponse> {
 
         return applicationContext.getBeanNamesForType(EthereumContractRepository::class.java).map { beanName ->
-            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
+            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMITER)
 
             val repository = applicationContext.getBean(beanName, EthereumContractRepository::class.java)
 
             //todo: make variables with repositories names and common method to get bean name
-            val contractTxRepositoryBeanName = "$chainName${REPOSITORY_NAME_DELIMETER}contractTxRepository"
+            val contractTxRepositoryBeanName = "$chainName$REPOSITORY_NAME_DELIMITER" +
+                EthereumContractTxRepository::class.java.name
             val contractTxRepository = applicationContext
                 .getBean(contractTxRepositoryBeanName, EthereumContractTxRepository::class.java)
 
@@ -63,7 +64,7 @@ class EthereumContractHandlersConfiguration {
 
         return applicationContext.getBeanNamesForType(PageableEthereumContractTxRepository::class.java)
             .map { beanName ->
-                val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
+                val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMITER)
 
                 val repository = applicationContext
                     .getBean(beanName, PageableEthereumContractTxRepository::class.java)
@@ -81,7 +82,7 @@ class EthereumContractHandlersConfiguration {
 
         return applicationContext.getBeanNamesForType(PageableEthereumContractMinedBlockRepository::class.java)
             .map { beanName ->
-                val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
+                val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMITER)
 
                 val repository = applicationContext.getBean(
                     beanName,
@@ -101,7 +102,7 @@ class EthereumContractHandlersConfiguration {
 
         return applicationContext.getBeanNamesForType(PageableEthereumContractMinedUncleRepository::class.java)
             .map { beanName ->
-                val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
+                val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMITER)
 
                 val repository = applicationContext.getBean(
                     beanName,

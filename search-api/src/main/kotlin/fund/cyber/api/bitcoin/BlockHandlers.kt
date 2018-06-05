@@ -5,7 +5,7 @@ import fund.cyber.api.bitcoin.functions.BlockTxesByBlockNumber
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlock
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinBlockTxRepository
-import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
+import fund.cyber.cassandra.common.REPOSITORY_NAME_DELIMITER
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,7 +18,7 @@ import org.springframework.web.reactive.function.server.RouterFunctions
 import org.springframework.web.reactive.function.server.ServerResponse
 
 @Configuration
-@DependsOn("bitcoin-cassandra-repositories")
+@DependsOn("bitcoin-search-repositories")
 class BitcoinBlockHandlersConfiguration {
 
     @Autowired
@@ -28,7 +28,7 @@ class BitcoinBlockHandlersConfiguration {
     fun bitcoinBlockByNumber(): RouterFunction<ServerResponse> {
 
         return applicationContext.getBeanNamesForType(BitcoinBlockRepository::class.java).map { beanName ->
-            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
+            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMITER)
 
             val blockRepository = applicationContext
                     .getBean(beanName, BitcoinBlockRepository::class.java)
@@ -45,7 +45,7 @@ class BitcoinBlockHandlersConfiguration {
     @Bean
     fun bitcoinBlockTxesByNumber(): RouterFunction<ServerResponse> {
         return applicationContext.getBeanNamesForType(PageableBitcoinBlockTxRepository::class.java).map { beanName ->
-            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
+            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMITER)
 
             val repository = applicationContext.getBean(beanName, PageableBitcoinBlockTxRepository::class.java)
             val handler = BlockTxesByBlockNumber(repository)

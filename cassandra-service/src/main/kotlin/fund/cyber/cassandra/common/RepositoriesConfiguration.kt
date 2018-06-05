@@ -1,19 +1,16 @@
-package fund.cyber.cassandra.configuration
+package fund.cyber.cassandra.common
 
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.HostDistance
+import com.datastax.driver.core.KeyspaceMetadata
 import com.datastax.driver.core.PoolingOptions
 import com.datastax.driver.core.policies.DCAwareRoundRobinPolicy
 import com.datastax.driver.core.policies.LoadBalancingPolicy
 import com.datastax.driver.core.policies.TokenAwarePolicy
-import fund.cyber.cassandra.common.defaultKeyspaceSpecification
-import fund.cyber.cassandra.migration.DefaultMigrationsLoader
 import fund.cyber.search.model.chains.Chain
-import org.apache.http.impl.client.HttpClients
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
-import org.apache.http.message.BasicHeader
+import org.springframework.beans.factory.InitializingBean
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.data.cassandra.ReactiveSession
@@ -21,12 +18,18 @@ import org.springframework.data.cassandra.config.AbstractReactiveCassandraConfig
 import org.springframework.data.cassandra.config.CassandraEntityClassScanner
 import org.springframework.data.cassandra.config.CassandraSessionFactoryBean
 import org.springframework.data.cassandra.config.SchemaAction
+import org.springframework.data.cassandra.core.CassandraTemplate
+import org.springframework.data.cassandra.core.ReactiveCassandraTemplate
 import org.springframework.data.cassandra.core.convert.CassandraCustomConversions
 import org.springframework.data.cassandra.core.convert.MappingCassandraConverter
 import org.springframework.data.cassandra.core.cql.keyspace.CreateKeyspaceSpecification
+import org.springframework.data.cassandra.core.cql.session.DefaultBridgedReactiveSession
+import org.springframework.data.cassandra.core.cql.session.DefaultReactiveSessionFactory
 import org.springframework.data.cassandra.core.mapping.CassandraMappingContext
 import org.springframework.data.cassandra.core.mapping.SimpleUserTypeResolver
-
+import org.springframework.data.cassandra.repository.support.CassandraRepositoryFactory
+import org.springframework.data.cassandra.repository.support.ReactiveCassandraRepositoryFactory
+import org.springframework.data.repository.reactive.ReactiveCrudRepository
 
 const val MAX_CONCURRENT_REQUESTS = 8182
 const val MAX_PER_ROUTE = 16
@@ -34,7 +37,7 @@ const val MAX_TOTAL = 32
 
 val Chain.keyspace: String get() = lowerCaseName
 
-const val REPOSITORY_NAME_DELIMETER = "__"
+const val REPOSITORY_NAME_DELIMITER = "__"
 
 fun mappingContext(
     cluster: Cluster, keyspace: String, basePackage: String,
@@ -63,7 +66,7 @@ fun getKeyspaceSession(cluster: Cluster,
 abstract class CassandraRepositoriesConfiguration(
     private val cassandraHosts: String,
     private val cassandraPort: Int,
-    private val maxRequestLocal:  Int = MAX_CONCURRENT_REQUESTS,
+    private val maxRequestLocal: Int = MAX_CONCURRENT_REQUESTS,
     private val maxRequestRemote: Int = MAX_CONCURRENT_REQUESTS
 ) : AbstractReactiveCassandraConfiguration() {
 
@@ -94,24 +97,63 @@ abstract class CassandraRepositoriesConfiguration(
 
 }
 
+abstract class SearchRepositoriesConfiguration(
+    private val entityBasePackage: String,
+    private val keyspacePrefix: String
+) : InitializingBean {
 
-@Configuration
-class CassandraConfiguration {
-    private val defaultHttpHeaders = listOf(BasicHeader("Keep-Alive", "timeout=10, max=1024"))
-    private val connectionManager = PoolingHttpClientConnectionManager().apply {
-        defaultMaxPerRoute = MAX_PER_ROUTE
-        maxTotal = MAX_TOTAL
+    @Autowired
+    private lateinit var applicationContext: GenericApplicationContext
+    @Autowired
+    private lateinit var cluster: Cluster
+
+    abstract fun repositoriesClasses(): List<Class<*>>
+
+    abstract fun customConversions(): CassandraCustomConversions
+
+    override fun afterPropertiesSet() {
+        registerRepositories()
     }
 
-    @Bean
-    fun httpClient() = HttpClients.custom()
-        .setConnectionManager(connectionManager)
-        .setConnectionManagerShared(true)
-        .setDefaultHeaders(defaultHttpHeaders)
-        .build()!!
+    private fun registerRepositories() {
 
-    @Bean
-    fun migrationsLoader(resourceLoader: GenericApplicationContext) = DefaultMigrationsLoader(
-        resourceLoader = resourceLoader
-    )
+        val beanFactory = applicationContext.beanFactory
+
+        cluster.metadata.keyspaces
+            .filter { keyspace -> keyspace.name.startsWith(keyspacePrefix, true) }
+            .forEach { keyspace ->
+
+                //create sessions
+                val converter = mappingCassandraConverter(keyspace)
+                converter.customConversions = customConversions()
+                converter.afterPropertiesSet()
+                val session = getKeyspaceSession(cluster, keyspace.name, converter).also { it.afterPropertiesSet() }
+                val reactiveSession = DefaultReactiveSessionFactory(DefaultBridgedReactiveSession(session.`object`))
+
+                // create cassandra operations
+                val reactiveCassandraOperations = ReactiveCassandraTemplate(reactiveSession, converter)
+                val cassandraOperations = CassandraTemplate(session.`object`, converter)
+
+                // create repository factories
+                val reactiveRepositoryFactory = ReactiveCassandraRepositoryFactory(reactiveCassandraOperations)
+                val repositoryFactory = CassandraRepositoryFactory(cassandraOperations)
+
+                val repositoryPrefix = "${keyspace.name}$REPOSITORY_NAME_DELIMITER"
+
+                repositoriesClasses().forEach { clazz ->
+                    val repositoryBean = if (ReactiveCrudRepository::class.java.isAssignableFrom(clazz)) {
+                        reactiveRepositoryFactory.getRepository(clazz)
+                    } else {
+                        repositoryFactory.getRepository(clazz)
+                    }
+
+                    beanFactory.registerSingleton("$repositoryPrefix${clazz.name}", repositoryBean)
+
+                }
+
+            }
+    }
+
+    private fun mappingCassandraConverter(keyspace: KeyspaceMetadata) =
+        MappingCassandraConverter(mappingContext(cluster, keyspace.name, entityBasePackage, customConversions()))
 }

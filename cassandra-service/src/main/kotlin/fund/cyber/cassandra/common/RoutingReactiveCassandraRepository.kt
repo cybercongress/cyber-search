@@ -4,7 +4,6 @@ import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Metadata
 import com.datastax.driver.core.querybuilder.Insert
 import com.datastax.driver.core.querybuilder.QueryBuilder
-import fund.cyber.cassandra.configuration.keyspace
 import fund.cyber.search.model.chains.Chain
 import org.reactivestreams.Publisher
 import org.springframework.data.cassandra.core.ReactiveCassandraOperations

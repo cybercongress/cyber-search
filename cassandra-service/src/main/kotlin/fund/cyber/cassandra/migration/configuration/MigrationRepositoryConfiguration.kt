@@ -1,6 +1,6 @@
 package fund.cyber.cassandra.migration.configuration
 
-import fund.cyber.cassandra.configuration.CassandraRepositoriesConfiguration
+import fund.cyber.cassandra.common.CassandraRepositoriesConfiguration
 import fund.cyber.search.configuration.CASSANDRA_HOSTS
 import fund.cyber.search.configuration.CASSANDRA_HOSTS_DEFAULT
 import fund.cyber.search.configuration.CASSANDRA_PORT

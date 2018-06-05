@@ -8,7 +8,7 @@ import fund.cyber.cassandra.bitcoin.repository.BitcoinContractSummaryRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractMinedBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractTxRepository
-import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
+import fund.cyber.cassandra.common.REPOSITORY_NAME_DELIMITER
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,7 +21,7 @@ import org.springframework.web.reactive.function.server.RouterFunctions
 import org.springframework.web.reactive.function.server.ServerResponse
 
 @Configuration
-@DependsOn("bitcoin-cassandra-repositories")
+@DependsOn("bitcoin-search-repositories")
 class BitcoinContractHandlersConfiguration {
 
     @Autowired
@@ -31,12 +31,13 @@ class BitcoinContractHandlersConfiguration {
     fun bitcoinContractByHash(): RouterFunction<ServerResponse> {
 
         return applicationContext.getBeanNamesForType(BitcoinContractSummaryRepository::class.java).map { beanName ->
-            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
+            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMITER)
 
             val repository = applicationContext.getBean(beanName, BitcoinContractSummaryRepository::class.java)
 
             //todo: make variables with repositories names and common method to get bean name
-            val contractTxRepositoryBeanName = "$chainName${REPOSITORY_NAME_DELIMETER}contractTxRepository"
+            val contractTxRepositoryBeanName = "$chainName$REPOSITORY_NAME_DELIMITER" +
+                BitcoinContractTxRepository::class.java.name
             val contractTxRepository = applicationContext
                 .getBean(contractTxRepositoryBeanName, BitcoinContractTxRepository::class.java)
 
@@ -60,7 +61,7 @@ class BitcoinContractHandlersConfiguration {
     fun bitcoinContractTxesByHash(): RouterFunction<ServerResponse> {
 
         return applicationContext.getBeanNamesForType(PageableBitcoinContractTxRepository::class.java).map { beanName ->
-            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
+            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMITER)
 
             val repository = applicationContext.getBean(beanName, PageableBitcoinContractTxRepository::class.java)
             val handler = ContractTxesByHash(repository)
@@ -72,13 +73,13 @@ class BitcoinContractHandlersConfiguration {
     fun bitcoinContractBlocksByHash(): RouterFunction<ServerResponse> {
 
         return applicationContext.getBeanNamesForType(PageableBitcoinContractMinedBlockRepository::class.java)
-                .map { beanName ->
-                    val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
+            .map { beanName ->
+                val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMITER)
 
-                    val repository = applicationContext
-                            .getBean(beanName, PageableBitcoinContractMinedBlockRepository::class.java)
-                    val handler = ContractBlocksByHash(repository)
-                    RouterFunctions.route(path("/${chainName.toLowerCase()}/contract/{hash}/blocks"), handler)
-                }.asSingleRouterFunction()
+                val repository = applicationContext
+                    .getBean(beanName, PageableBitcoinContractMinedBlockRepository::class.java)
+                val handler = ContractBlocksByHash(repository)
+                RouterFunctions.route(path("/${chainName.toLowerCase()}/contract/{hash}/blocks"), handler)
+            }.asSingleRouterFunction()
     }
 }

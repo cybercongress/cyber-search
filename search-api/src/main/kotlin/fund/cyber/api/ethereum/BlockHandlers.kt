@@ -2,7 +2,7 @@ package fund.cyber.api.ethereum
 
 import fund.cyber.api.common.asSingleRouterFunction
 import fund.cyber.api.ethereum.functions.BlockTxesByBlockNumber
-import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
+import fund.cyber.cassandra.common.REPOSITORY_NAME_DELIMITER
 import fund.cyber.cassandra.ethereum.model.CqlEthereumBlock
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumBlockTxRepository
@@ -18,7 +18,7 @@ import org.springframework.web.reactive.function.server.HandlerFunction
 import org.springframework.web.reactive.function.server.RequestPredicates.path
 
 @Configuration
-@DependsOn("ethereum-cassandra-repositories")
+@DependsOn("ethereum-search-repositories")
 class EthereumBlockHandlersConfiguration {
 
     @Autowired
@@ -28,7 +28,7 @@ class EthereumBlockHandlersConfiguration {
     fun ethereumBlockByNumber(): RouterFunction<ServerResponse> {
 
         return applicationContext.getBeanNamesForType(EthereumBlockRepository::class.java).map { beanName ->
-            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
+            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMITER)
 
             val blockRepository = applicationContext.getBean(beanName, EthereumBlockRepository::class.java)
 
@@ -45,7 +45,7 @@ class EthereumBlockHandlersConfiguration {
     fun ethereumBlockTxesByNumber(): RouterFunction<ServerResponse> {
 
         return applicationContext.getBeanNamesForType(PageableEthereumBlockTxRepository::class.java).map { beanName ->
-            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
+            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMITER)
 
             val repository = applicationContext.getBean(beanName, PageableEthereumBlockTxRepository::class.java)
             val handler = BlockTxesByBlockNumber(repository)

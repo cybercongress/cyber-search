@@ -1,7 +1,7 @@
 package fund.cyber.api.ethereum
 
 import fund.cyber.api.common.asSingleRouterFunction
-import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
+import fund.cyber.cassandra.common.REPOSITORY_NAME_DELIMITER
 import fund.cyber.cassandra.ethereum.model.CqlEthereumTx
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
 import fund.cyber.common.toSearchHashFormat
@@ -17,7 +17,7 @@ import org.springframework.web.reactive.function.server.RouterFunctions
 import org.springframework.web.reactive.function.server.ServerResponse
 
 @Configuration
-@DependsOn("ethereum-cassandra-repositories")
+@DependsOn("ethereum-search-repositories")
 class EthereumTxHandlersConfiguration {
 
     @Autowired
@@ -27,7 +27,7 @@ class EthereumTxHandlersConfiguration {
     fun ethereumTxByHash(): RouterFunction<ServerResponse> {
 
         return applicationContext.getBeanNamesForType(EthereumTxRepository::class.java).map { beanName ->
-            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMETER)
+            val chainName = beanName.substringBefore(REPOSITORY_NAME_DELIMITER)
 
             val txRepository = applicationContext.getBean(beanName, EthereumTxRepository::class.java)
 
