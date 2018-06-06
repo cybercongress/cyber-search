@@ -4,6 +4,10 @@ Project status: **alpha**. Not all planned features are completed. The API, spec
 
 Search engine backend and API.
 
+<a href="https://gitcoin.co/explorer?q=cyber-search">
+    <img src="https://gitcoin.co/funding/embed?repo=https://github.com/cybercongress/cyber-search">
+</a>
+
 ## Getting Start Useful Links
 
 * [Development Quick Start Guide](./docs/contributing/dev-environment.md)
