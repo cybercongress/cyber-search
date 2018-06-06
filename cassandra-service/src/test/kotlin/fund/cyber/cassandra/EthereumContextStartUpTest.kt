@@ -4,7 +4,6 @@ import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
 import fund.cyber.search.model.chains.ChainFamily.ETHEREUM
 import fund.cyber.search.model.chains.ChainInfo
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,7 +20,6 @@ class EthereumContext {
     fun chainInfo() = ChainInfo(ETHEREUM)
 }
 
-@Disabled
 @TestPropertySource(properties = ["CHAIN_FAMILY:ETHEREUM"])
 @ContextConfiguration(classes = [EthereumContext::class])
 class EthereumContextStartUpTest : CassandraTestBase() {
@@ -32,6 +30,6 @@ class EthereumContextStartUpTest : CassandraTestBase() {
     @Test
     @DisplayName("Should successfully create context for Ethereum repositories")
     fun shouldUseTransactionMessageListenerContainer() {
-        Assertions.assertTrue(true)
+        Assertions.assertNull(blockRepository.findAll().blockFirst())
     }
 }

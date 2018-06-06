@@ -25,16 +25,16 @@ private const val SCHEMA_VERSION_CQL_LOCATION = "/migrations/schema_version_crea
 
 @Component
 class ElassandraSchemaMigrationEngine(
-        @Value("\${$CASSANDRA_HOSTS:$CASSANDRA_HOSTS_DEFAULT}")
-        private val cassandraHosts: String,
-        @Value("\${$ELASTIC_HTTP_PORT:$ELASTIC_HTTP_PORT_DEFAULT}")
-        private val elasticPort: Int,
-        private val httpClient: HttpClient,
-        @Qualifier("keyspaceMigrationCassandraTemplate")
-        private val cassandraTemplate: ReactiveCassandraOperations,
-        private val schemaVersionRepository: SchemaVersionRepository,
-        private val migrationsLoader: MigrationsLoader,
-        private val migrationSettings: MigrationSettings = defaultSettings
+    @Value("\${$CASSANDRA_HOSTS:$CASSANDRA_HOSTS_DEFAULT}")
+    private val cassandraHosts: String,
+    @Value("\${$ELASTIC_HTTP_PORT:$ELASTIC_HTTP_PORT_DEFAULT}")
+    private val elasticPort: Int,
+    private val httpClient: HttpClient,
+    @Qualifier("keyspaceMigrationCassandraTemplate")
+    private val cassandraTemplate: ReactiveCassandraOperations,
+    private val schemaVersionRepository: SchemaVersionRepository,
+    private val migrationsLoader: MigrationsLoader,
+    private val migrationSettings: MigrationSettings = defaultSettings
 ) : InitializingBean {
 
     private val elasticBaseUri = URI.create("http://${cassandraHosts.split(",").first()}:$elasticPort")
@@ -51,22 +51,22 @@ class ElassandraSchemaMigrationEngine(
         log.info("Found ${migrations.size} migrations")
 
         migrations.filter { it !is EmptyMigration }.groupBy { m -> m.applicationId }
-                .forEach { applicationId, applicationMigrations ->
+            .forEach { applicationId, applicationMigrations ->
 
-                    val executedMigrations = schemaVersionRepository
-                            .findAllByApplicationId(applicationId)
-                            .map(CqlSchemaVersion::id).collectList().block() ?: emptyList()
+                val executedMigrations = schemaVersionRepository
+                    .findAllByApplicationId(applicationId)
+                    .map(CqlSchemaVersion::id).collectList().block() ?: emptyList()
 
-                    applicationMigrations
-                            .filter { migration -> !executedMigrations.contains(migration.id) }
-                            .sortedBy { migration -> migration.id.substringBefore("_").toInt() }
-                            .forEach { migration ->
-                                log.info("Executing '$applicationId' application migration to '${migration.id}' id")
-                                executeMigration(migration)
-                                log.info("Succeeded '$applicationId' application migration to '${migration.id}' id")
-                            }
+                applicationMigrations
+                    .filter { migration -> !executedMigrations.contains(migration.id) }
+                    .sortedBy { migration -> migration.id.substringBefore("_").toInt() }
+                    .forEach { migration ->
+                        log.info("Executing '$applicationId' application migration to '${migration.id}' id")
+                        executeMigration(migration)
+                        log.info("Succeeded '$applicationId' application migration to '${migration.id}' id")
+                    }
 
-                }
+            }
 
         log.info("Elassandra schema update done")
     }
@@ -96,8 +96,8 @@ class ElassandraSchemaMigrationEngine(
         }
 
         val schemeMigrationRecord = CqlSchemaVersion(
-                applicationId = migration.applicationId, id = migration.id,
-                apply_time = Date(), migration_hash = migration.hashCode()
+            applicationId = migration.applicationId, id = migration.id,
+            apply_time = Date(), migration_hash = migration.hashCode()
         )
         schemaVersionRepository.save(schemeMigrationRecord).block()
     }
@@ -105,7 +105,7 @@ class ElassandraSchemaMigrationEngine(
     private fun createSchemaVersionTable() {
 
         val createSchemaVersionCql = MigrationRepositoryConfiguration::class.java
-                .getResourceAsStream(SCHEMA_VERSION_CQL_LOCATION).readAsString()
+            .getResourceAsStream(SCHEMA_VERSION_CQL_LOCATION).readAsString()
 
         cassandraTemplate.reactiveCqlOperations.execute(createSchemaVersionCql).block()
     }
