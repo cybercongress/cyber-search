@@ -2,13 +2,13 @@ package fund.cyber.cassandra.bitcoin.configuration
 
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.extras.codecs.jdk8.InstantCodec
-import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractSummaryRepository
+import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
-import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinBlockTxRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractMinedBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractTxRepository
+import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinBlockTxRepository
 import fund.cyber.cassandra.common.NoChainCondition
 import fund.cyber.cassandra.common.RoutingReactiveCassandraRepositoryFactoryBean
 import fund.cyber.cassandra.common.defaultKeyspaceSpecification
@@ -27,10 +27,10 @@ import fund.cyber.search.configuration.CASSANDRA_MAX_CONNECTIONS_REMOTE
 import fund.cyber.search.configuration.CASSANDRA_MAX_CONNECTIONS_REMOTE_DEFAULT
 import fund.cyber.search.configuration.CASSANDRA_PORT
 import fund.cyber.search.configuration.CASSANDRA_PORT_DEFAULT
-import fund.cyber.search.configuration.CHAIN_FAMILY
-import fund.cyber.search.configuration.CHAIN_NAME
-import fund.cyber.search.model.chains.ChainFamily
-import fund.cyber.search.model.chains.ChainInfo
+import fund.cyber.search.configuration.CHAIN
+import fund.cyber.search.configuration.env
+import fund.cyber.search.model.chains.BitcoinFamilyChain
+import fund.cyber.search.model.chains.Chain
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -66,48 +66,41 @@ import org.springframework.stereotype.Component
 )
 @Conditional(BitcoinFamilyChainCondition::class)
 class BitcoinRepositoryConfiguration(
-    @Value("\${$CASSANDRA_HOSTS:$CASSANDRA_HOSTS_DEFAULT}")
-    private val cassandraHosts: String,
-    @Value("\${$CASSANDRA_PORT:$CASSANDRA_PORT_DEFAULT}")
-    private val cassandraPort: Int,
-    @Value("\${$CASSANDRA_MAX_CONNECTIONS_LOCAL:$CASSANDRA_MAX_CONNECTIONS_LOCAL_DEFAULT}")
-    private val maxConnectionsLocal: Int,
-    @Value("\${$CASSANDRA_MAX_CONNECTIONS_REMOTE:$CASSANDRA_MAX_CONNECTIONS_REMOTE_DEFAULT}")
-    private val maxConnectionsRemote: Int
+        @Value("\${$CASSANDRA_HOSTS:$CASSANDRA_HOSTS_DEFAULT}")
+        private val cassandraHosts: String,
+        @Value("\${$CASSANDRA_PORT:$CASSANDRA_PORT_DEFAULT}")
+        private val cassandraPort: Int,
+        @Value("\${$CASSANDRA_MAX_CONNECTIONS_LOCAL:$CASSANDRA_MAX_CONNECTIONS_LOCAL_DEFAULT}")
+        private val maxConnectionsLocal: Int,
+        @Value("\${$CASSANDRA_MAX_CONNECTIONS_REMOTE:$CASSANDRA_MAX_CONNECTIONS_REMOTE_DEFAULT}")
+        private val maxConnectionsRemote: Int
 ) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort, maxConnectionsLocal, maxConnectionsRemote) {
 
-    //todo move into common module
-    @Value("\${$CHAIN_FAMILY:}")
-    private lateinit var chainFamily: String
-
-    @Value("\${$CHAIN_NAME:}")
-    private lateinit var chainName: String
-
-    @Bean
-    fun chainInfo() = ChainInfo(ChainFamily.valueOf(chainFamily), chainName)
-
-    override fun getKeyspaceName(): String = chainInfo().keyspace
+    override fun getKeyspaceName(): String = chain().keyspace
     override fun getEntityBasePackages(): Array<String> = arrayOf("fund.cyber.cassandra.bitcoin.model")
 
     override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
-        return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chainInfo().keyspace))
+        return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chain().lowerCaseName))
     }
 
     @Bean
+    fun chain(): Chain = BitcoinFamilyChain.valueOf(env(CHAIN, ""))
+
+    @Bean
     fun migrationSettings(): MigrationSettings {
-        return BlockchainMigrationSettings(chainInfo())
+        return BlockchainMigrationSettings(chain())
     }
 
     @Bean("bitcoinCassandraTemplate")
     fun reactiveCassandraTemplate(
-        @Qualifier("bitcoinReactiveSession") session: ReactiveSession
+            @Qualifier("bitcoinReactiveSession") session: ReactiveSession
     ): ReactiveCassandraOperations {
         return ReactiveCassandraTemplate(DefaultReactiveSessionFactory(session), cassandraConverter())
     }
 
     @Bean("bitcoinReactiveSession")
     fun reactiveSession(
-        @Qualifier("bitcoinSession") session: CassandraSessionFactoryBean
+            @Qualifier("bitcoinSession") session: CassandraSessionFactoryBean
     ): ReactiveSession {
         return DefaultBridgedReactiveSession(session.`object`)
     }
@@ -132,8 +125,8 @@ private class BitcoinFamilyChainCondition : Condition {
 
     override fun matches(context: ConditionContext, metadata: AnnotatedTypeMetadata): Boolean {
 
-        val chain = context.environment.getProperty(CHAIN_FAMILY) ?: ""
-        return ChainFamily.BITCOIN.toString() == chain
+        val chain = context.environment.getProperty(CHAIN) ?: ""
+        return BitcoinFamilyChain.values().map(BitcoinFamilyChain::name).contains(chain)
     }
 }
 
@@ -156,55 +149,55 @@ class BitcoinRepositoriesConfiguration : InitializingBean {
         val beanFactory = applicationContext.beanFactory
 
         cluster.metadata.keyspaces
-            .filter { keyspace -> keyspace.name.startsWith("bitcoin", true) }
-            .forEach { keyspace ->
+                .filter { keyspace -> keyspace.name.startsWith("bitcoin", true) }
+                .forEach { keyspace ->
 
-                //create sessions
-                val converter = MappingCassandraConverter(mappingContext(cluster, keyspace.name,
-                    "fund.cyber.cassandra.bitcoin.model"))
-                val session = getKeyspaceSession(cluster, keyspace.name, converter).also { it.afterPropertiesSet() }
-                val reactiveSession = DefaultReactiveSessionFactory(DefaultBridgedReactiveSession(session.`object`))
+                    //create sessions
+                    val converter = MappingCassandraConverter(mappingContext(cluster, keyspace.name,
+                        "fund.cyber.cassandra.bitcoin.model"))
+                    val session = getKeyspaceSession(cluster, keyspace.name, converter).also { it.afterPropertiesSet() }
+                    val reactiveSession = DefaultReactiveSessionFactory(DefaultBridgedReactiveSession(session.`object`))
 
-                // create cassandra operations
-                val reactiveCassandraOperations = ReactiveCassandraTemplate(reactiveSession, converter)
-                val cassandraOperations = CassandraTemplate(session.`object`, converter)
+                    // create cassandra operations
+                    val reactiveCassandraOperations = ReactiveCassandraTemplate(reactiveSession, converter)
+                    val cassandraOperations = CassandraTemplate(session.`object`, converter)
 
-                // create repository factories
-                val reactiveRepositoryFactory = ReactiveCassandraRepositoryFactory(reactiveCassandraOperations)
-                val repositoryFactory = CassandraRepositoryFactory(cassandraOperations)
+                    // create repository factories
+                    val reactiveRepositoryFactory = ReactiveCassandraRepositoryFactory(reactiveCassandraOperations)
+                    val repositoryFactory = CassandraRepositoryFactory(cassandraOperations)
 
-                // create repositories
-                val blockRepository = reactiveRepositoryFactory.getRepository(BitcoinBlockRepository::class.java)
-                val blockTxRepository = repositoryFactory
-                    .getRepository(PageableBitcoinBlockTxRepository::class.java)
+                    // create repositories
+                    val blockRepository = reactiveRepositoryFactory.getRepository(BitcoinBlockRepository::class.java)
+                    val blockTxRepository = repositoryFactory
+                            .getRepository(PageableBitcoinBlockTxRepository::class.java)
 
-                val txRepository = reactiveRepositoryFactory.getRepository(BitcoinTxRepository::class.java)
+                    val txRepository = reactiveRepositoryFactory.getRepository(BitcoinTxRepository::class.java)
 
-                val contractRepository = reactiveRepositoryFactory
-                    .getRepository(BitcoinContractSummaryRepository::class.java)
-                val contractTxRepository = reactiveRepositoryFactory
-                    .getRepository(BitcoinContractTxRepository::class.java)
-                val pageableContractTxRepository = repositoryFactory
-                    .getRepository(PageableBitcoinContractTxRepository::class.java)
-                val contractBlockRepository = repositoryFactory
-                    .getRepository(PageableBitcoinContractMinedBlockRepository::class.java)
+                    val contractRepository = reactiveRepositoryFactory
+                            .getRepository(BitcoinContractSummaryRepository::class.java)
+                    val contractTxRepository = reactiveRepositoryFactory
+                        .getRepository(BitcoinContractTxRepository::class.java)
+                    val pageableContractTxRepository = repositoryFactory
+                            .getRepository(PageableBitcoinContractTxRepository::class.java)
+                    val contractBlockRepository = repositoryFactory
+                            .getRepository(PageableBitcoinContractMinedBlockRepository::class.java)
 
-                val repositoryPrefix = "${keyspace.name}$REPOSITORY_NAME_DELIMETER"
+                    val repositoryPrefix = "${keyspace.name}$REPOSITORY_NAME_DELIMETER"
 
-                // register repositories
-                beanFactory.registerSingleton("${repositoryPrefix}blockRepository", blockRepository)
-                beanFactory.registerSingleton("${repositoryPrefix}pageableBlockTxRepository", blockTxRepository)
+                    // register repositories
+                    beanFactory.registerSingleton("${repositoryPrefix}blockRepository", blockRepository)
+                    beanFactory.registerSingleton("${repositoryPrefix}pageableBlockTxRepository", blockTxRepository)
 
-                beanFactory.registerSingleton("${repositoryPrefix}txRepository", txRepository)
+                    beanFactory.registerSingleton("${repositoryPrefix}txRepository", txRepository)
 
-                beanFactory.registerSingleton("${repositoryPrefix}contractRepository", contractRepository)
-                beanFactory.registerSingleton("${repositoryPrefix}contractTxRepository",
-                    contractTxRepository)
-                beanFactory.registerSingleton("${repositoryPrefix}pageableContractTxRepository",
-                    pageableContractTxRepository)
-                beanFactory.registerSingleton("${repositoryPrefix}pageableContractBlockRepository",
-                    contractBlockRepository)
-            }
+                    beanFactory.registerSingleton("${repositoryPrefix}contractRepository", contractRepository)
+                    beanFactory.registerSingleton("${repositoryPrefix}contractTxRepository",
+                        contractTxRepository)
+                    beanFactory.registerSingleton("${repositoryPrefix}pageableContractTxRepository",
+                                    pageableContractTxRepository)
+                    beanFactory.registerSingleton("${repositoryPrefix}pageableContractBlockRepository",
+                                    contractBlockRepository)
+                }
     }
 
 }

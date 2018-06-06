@@ -8,7 +8,7 @@ import com.datastax.driver.core.policies.LoadBalancingPolicy
 import com.datastax.driver.core.policies.TokenAwarePolicy
 import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.migration.DefaultMigrationsLoader
-import fund.cyber.search.model.chains.ChainInfo
+import fund.cyber.search.model.chains.Chain
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.apache.http.message.BasicHeader
@@ -32,7 +32,7 @@ const val MAX_CONCURRENT_REQUESTS = 8182
 const val MAX_PER_ROUTE = 16
 const val MAX_TOTAL = 32
 
-val ChainInfo.keyspace: String get() = fullNameLowerCase
+val Chain.keyspace: String get() = lowerCaseName
 
 const val REPOSITORY_NAME_DELIMETER = "__"
 
@@ -63,7 +63,7 @@ fun getKeyspaceSession(cluster: Cluster,
 abstract class CassandraRepositoriesConfiguration(
     private val cassandraHosts: String,
     private val cassandraPort: Int,
-    private val maxRequestLocal: Int = MAX_CONCURRENT_REQUESTS,
+    private val maxRequestLocal:  Int = MAX_CONCURRENT_REQUESTS,
     private val maxRequestRemote: Int = MAX_CONCURRENT_REQUESTS
 ) : AbstractReactiveCassandraConfiguration() {
 
@@ -91,6 +91,7 @@ abstract class CassandraRepositoriesConfiguration(
                 .build()
         )
     }
+
 }
 
 
