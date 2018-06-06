@@ -10,7 +10,7 @@ import org.springframework.context.support.GenericApplicationContext
 
 
 @Configuration
-class CommonConfiguration {
+class CassandraServiceCommonConfiguration {
     private val defaultHttpHeaders = listOf(BasicHeader("Keep-Alive", "timeout=10, max=1024"))
     private val connectionManager = PoolingHttpClientConnectionManager().apply {
         defaultMaxPerRoute = MAX_PER_ROUTE

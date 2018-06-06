@@ -97,6 +97,14 @@ abstract class CassandraRepositoriesConfiguration(
 
 }
 
+/**
+ * Return bean name of search repository by specific chainName
+ *
+ * @param chainName chain name
+ * @return search repository bean name
+ */
+fun Class<*>.searchRepositoryBeanName(chainName: String) = "$chainName$REPOSITORY_NAME_DELIMITER${this.name}"
+
 abstract class SearchRepositoriesConfiguration(
     private val entityBasePackage: String,
     private val keyspacePrefix: String
@@ -138,8 +146,6 @@ abstract class SearchRepositoriesConfiguration(
                 val reactiveRepositoryFactory = ReactiveCassandraRepositoryFactory(reactiveCassandraOperations)
                 val repositoryFactory = CassandraRepositoryFactory(cassandraOperations)
 
-                val repositoryPrefix = "${keyspace.name}$REPOSITORY_NAME_DELIMITER"
-
                 repositoriesClasses().forEach { clazz ->
                     val repositoryBean = if (ReactiveCrudRepository::class.java.isAssignableFrom(clazz)) {
                         reactiveRepositoryFactory.getRepository(clazz)
@@ -147,7 +153,7 @@ abstract class SearchRepositoriesConfiguration(
                         repositoryFactory.getRepository(clazz)
                     }
 
-                    beanFactory.registerSingleton("$repositoryPrefix${clazz.name}", repositoryBean)
+                    beanFactory.registerSingleton(clazz.searchRepositoryBeanName(keyspace.name), repositoryBean)
 
                 }
 
