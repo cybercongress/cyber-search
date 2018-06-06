@@ -8,7 +8,6 @@ import org.apache.http.HttpStatus
 import org.apache.http.StatusLine
 import org.apache.http.client.HttpClient
 import org.apache.http.message.BasicHttpResponse
-import org.cassandraunit.spring.CassandraUnitDependencyInjectionIntegrationTestExecutionListener
 import org.cassandraunit.spring.EmbeddedCassandra
 import org.junit.jupiter.api.Tag
 import org.springframework.context.annotation.Bean
@@ -54,9 +53,9 @@ class ElassandraContext {
 @SpringJUnitConfig
 @Tag("elassandra-integration")
 @ContextConfiguration(classes = [ElassandraContext::class])
-@EmbeddedCassandra
+@EmbeddedCassandra(configuration = "cassandra-cs.yaml")
 @TestExecutionListeners(listeners = [
-    CassandraUnitDependencyInjectionIntegrationTestExecutionListener::class,
+    CassandraTestExecutionListhener::class,
     DependencyInjectionTestExecutionListener::class,
     DirtiesContextBeforeModesTestExecutionListener::class,
     DirtiesContextTestExecutionListener::class
