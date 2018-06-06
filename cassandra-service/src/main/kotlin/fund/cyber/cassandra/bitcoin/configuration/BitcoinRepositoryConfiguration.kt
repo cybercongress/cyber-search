@@ -10,6 +10,7 @@ import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinBlockTxRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractMinedBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractTxRepository
 import fund.cyber.cassandra.common.NoChainCondition
+import fund.cyber.cassandra.common.RoutingReactiveCassandraRepositoryFactoryBean
 import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.configuration.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
@@ -58,8 +59,9 @@ import org.springframework.stereotype.Component
 
 @Configuration
 @EnableReactiveCassandraRepositories(
-    basePackages = ["fund.cyber.cassandra.bitcoin.repository"],
-    reactiveCassandraTemplateRef = "bitcoinCassandraTemplate"
+        basePackages = ["fund.cyber.cassandra.bitcoin.repository"],
+        reactiveCassandraTemplateRef = "bitcoinCassandraTemplate",
+        repositoryFactoryBeanClass = RoutingReactiveCassandraRepositoryFactoryBean::class
 )
 @Conditional(BitcoinFamilyChainCondition::class)
 class BitcoinRepositoryConfiguration(
@@ -80,6 +82,9 @@ class BitcoinRepositoryConfiguration(
     override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
         return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chainInfo.keyspace))
     }
+
+    @Bean
+    fun chain(): Chain = BitcoinFamilyChain.valueOf(env(CHAIN, ""))
 
     @Bean
     fun migrationSettings(): MigrationSettings {

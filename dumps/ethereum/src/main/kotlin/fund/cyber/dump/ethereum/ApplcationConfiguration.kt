@@ -14,6 +14,8 @@ import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
 import fund.cyber.search.configuration.KAFKA_LISTENER_MAX_POLL_RECORDS
 import fund.cyber.search.configuration.KAFKA_LISTENER_MAX_POLL_RECORDS_DEFAULT
+import fund.cyber.search.configuration.REALTIME_INDEXATION_TRESHOLD
+import fund.cyber.search.configuration.REALTIME_INDEXATION_TRESHOLD_DEFAULT
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
@@ -40,7 +42,9 @@ private const val AUTO_COMMIT_INTERVAL_MS_CONFIG = 10 * 1000
 class ApplicationConfiguration(
         private val chain: EthereumFamilyChain,
         @Value("\${$KAFKA_LISTENER_MAX_POLL_RECORDS:$KAFKA_LISTENER_MAX_POLL_RECORDS_DEFAULT}")
-        private val maxPollRecords: Long
+        private val maxPollRecords: Int,
+        @Value("\${$REALTIME_INDEXATION_TRESHOLD:$REALTIME_INDEXATION_TRESHOLD_DEFAULT}")
+        private val realtimeIndexationThreshold: Long
 ) {
 
     @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
@@ -97,7 +101,7 @@ class ApplicationConfiguration(
         //todo add to error handler exponential wait before retries
         val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
             messageListener = TxDumpProcess(ethereumTxRepository, ethereumBlockTxRepository,
-                    ethereumContractTxRepository, chain)
+                    ethereumContractTxRepository, chain, realtimeIndexationThreshold)
             pollTimeout = POLL_TIMEOUT
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
         }

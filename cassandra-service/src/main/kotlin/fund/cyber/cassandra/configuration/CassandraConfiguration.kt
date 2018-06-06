@@ -3,6 +3,9 @@ package fund.cyber.cassandra.configuration
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.HostDistance
 import com.datastax.driver.core.PoolingOptions
+import com.datastax.driver.core.policies.DCAwareRoundRobinPolicy
+import com.datastax.driver.core.policies.LoadBalancingPolicy
+import com.datastax.driver.core.policies.TokenAwarePolicy
 import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.migration.DefaultMigrationsLoader
 import fund.cyber.search.model.chains.ChainInfo
@@ -79,6 +82,14 @@ abstract class CassandraRepositoriesConfiguration(
 
     override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
         return listOf(defaultKeyspaceSpecification("cyber_system"))
+    }
+
+    override fun getLoadBalancingPolicy(): LoadBalancingPolicy? {
+        return TokenAwarePolicy(
+            DCAwareRoundRobinPolicy.builder().withLocalDc("WITHOUT_REPLICATION")
+                .withUsedHostsPerRemoteDc(0)
+                .build()
+        )
     }
 }
 

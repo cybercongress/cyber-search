@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS bitcoin_cash.tx_preview_by_contract (
     block_number bigint,
     block_time bigint,
     hash text,
-    ins FROZEN < list < bitcoin_cash.tx_preview_io > >,
-    outs FROZEN < list < bitcoin_cash.tx_preview_io > >,
+    inputs_number int,
+    outputs_number int,
     PRIMARY KEY ( contract_hash, block_time, hash )
 ) WITH CLUSTERING ORDER BY ( block_time DESC );
 

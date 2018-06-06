@@ -3,6 +3,7 @@ package fund.cyber.cassandra.ethereum.configuration
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.extras.codecs.jdk8.InstantCodec
 import fund.cyber.cassandra.common.NoChainCondition
+import fund.cyber.cassandra.common.RoutingReactiveCassandraRepositoryFactoryBean
 import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.configuration.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.configuration.REPOSITORY_NAME_DELIMETER
@@ -64,8 +65,9 @@ import org.springframework.stereotype.Component
 
 @Configuration
 @EnableReactiveCassandraRepositories(
-    basePackages = ["fund.cyber.cassandra.ethereum.repository"],
-    reactiveCassandraTemplateRef = "ethereumCassandraTemplate"
+        basePackages = ["fund.cyber.cassandra.ethereum.repository"],
+        reactiveCassandraTemplateRef = "ethereumCassandraTemplate",
+        repositoryFactoryBeanClass = RoutingReactiveCassandraRepositoryFactoryBean::class
 )
 @Conditional(EthereumFamilyChainCondition::class)
 class EthereumRepositoryConfiguration(
@@ -80,13 +82,15 @@ class EthereumRepositoryConfiguration(
     private val chainInfo: ChainInfo
 ) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort, maxConnectionsLocal, maxConnectionsRemote) {
 
-
     override fun getKeyspaceName(): String = chainInfo.keyspace
     override fun getEntityBasePackages(): Array<String> = arrayOf("fund.cyber.cassandra.ethereum.model")
 
     override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
         return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chainInfo.keyspace))
     }
+
+    @Bean
+    fun chain(): Chain = EthereumFamilyChain.valueOf(env(CHAIN, ""))
 
     @Bean
     fun migrationSettings(): MigrationSettings {

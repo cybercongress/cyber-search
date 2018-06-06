@@ -2,17 +2,18 @@ package fund.cyber.cassandra.bitcoin.repository
 
 import com.datastax.driver.core.ConsistencyLevel
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractSummary
+import fund.cyber.cassandra.common.RoutingReactiveCassandraRepository
 import org.springframework.data.cassandra.repository.Consistency
 import org.springframework.data.cassandra.repository.Query
 import org.springframework.data.repository.query.Param
-import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import reactor.core.publisher.Mono
 
 
 /**
  * To archive atomic updates of contract summaries we should use CAS, two-phase commit, serial reads and quorum writes.
  */
-interface BitcoinUpdateContractSummaryRepository : ReactiveCrudRepository<CqlBitcoinContractSummary, String> {
+interface BitcoinUpdateContractSummaryRepository
+    : RoutingReactiveCassandraRepository<CqlBitcoinContractSummary, String> {
 
     @Consistency(value = ConsistencyLevel.LOCAL_QUORUM)
     fun findByHash(hash: String): Mono<CqlBitcoinContractSummary>

@@ -1,5 +1,6 @@
 package fund.cyber.cassandra.ethereum.repository
 
+import fund.cyber.cassandra.common.RoutingReactiveCassandraRepository
 import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedBlock
 import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedUncle
 import fund.cyber.cassandra.ethereum.model.CqlEthereumContractSummary
@@ -8,18 +9,18 @@ import org.springframework.data.cassandra.core.mapping.MapId
 import org.springframework.data.cassandra.repository.CassandraRepository
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
-import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import reactor.core.publisher.Flux
 
-interface EthereumContractRepository : ReactiveCrudRepository<CqlEthereumContractSummary, String>
+interface EthereumContractRepository : RoutingReactiveCassandraRepository<CqlEthereumContractSummary, String>
 
-interface EthereumContractTxRepository : ReactiveCrudRepository<CqlEthereumContractTxPreview, MapId>{
+interface EthereumContractTxRepository : RoutingReactiveCassandraRepository<CqlEthereumContractTxPreview, MapId>{
     fun findAllByContractHashAndBlockTime(contractHash: String, blockTime: Long): Flux<CqlEthereumContractTxPreview>
 }
 
-interface EthereumContractMinedBlockRepository : ReactiveCrudRepository<CqlEthereumContractMinedBlock, MapId>
+interface EthereumContractMinedBlockRepository
+    : RoutingReactiveCassandraRepository<CqlEthereumContractMinedBlock, MapId>
 
-interface EthereumContractUncleRepository : ReactiveCrudRepository<CqlEthereumContractMinedUncle, MapId>
+interface EthereumContractUncleRepository : RoutingReactiveCassandraRepository<CqlEthereumContractMinedUncle, MapId>
 
 interface PageableEthereumContractTxRepository : CassandraRepository<CqlEthereumContractTxPreview, MapId> {
     fun findAllByContractHash(contractHash: String, page: Pageable): Slice<CqlEthereumContractTxPreview>
