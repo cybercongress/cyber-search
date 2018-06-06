@@ -55,7 +55,7 @@ class ElassandraContext {
 @ContextConfiguration(classes = [ElassandraContext::class])
 @EmbeddedCassandra(configuration = "cassandra-cs.yaml")
 @TestExecutionListeners(listeners = [
-    CassandraTestExecutionListhener::class,
+    CassandraTestExecutionListener::class,
     DependencyInjectionTestExecutionListener::class,
     DirtiesContextBeforeModesTestExecutionListener::class,
     DirtiesContextTestExecutionListener::class

@@ -28,6 +28,7 @@ import fund.cyber.search.configuration.CASSANDRA_MAX_CONNECTIONS_REMOTE_DEFAULT
 import fund.cyber.search.configuration.CASSANDRA_PORT
 import fund.cyber.search.configuration.CASSANDRA_PORT_DEFAULT
 import fund.cyber.search.configuration.CHAIN_FAMILY
+import fund.cyber.search.configuration.CHAIN_NAME
 import fund.cyber.search.model.chains.ChainFamily
 import fund.cyber.search.model.chains.ChainInfo
 import org.springframework.beans.factory.InitializingBean
@@ -72,23 +73,29 @@ class BitcoinRepositoryConfiguration(
     @Value("\${$CASSANDRA_MAX_CONNECTIONS_LOCAL:$CASSANDRA_MAX_CONNECTIONS_LOCAL_DEFAULT}")
     private val maxConnectionsLocal: Int,
     @Value("\${$CASSANDRA_MAX_CONNECTIONS_REMOTE:$CASSANDRA_MAX_CONNECTIONS_REMOTE_DEFAULT}")
-    private val maxConnectionsRemote: Int,
-    private val chainInfo: ChainInfo
+    private val maxConnectionsRemote: Int
 ) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort, maxConnectionsLocal, maxConnectionsRemote) {
 
-    override fun getKeyspaceName(): String = chainInfo.keyspace
+    //todo move into common module
+    @Value("\${$CHAIN_FAMILY:}")
+    private lateinit var chainFamily: String
+
+    @Value("\${$CHAIN_NAME:}")
+    private lateinit var chainName: String
+
+    @Bean
+    fun chainInfo() = ChainInfo(ChainFamily.valueOf(chainFamily), chainName)
+
+    override fun getKeyspaceName(): String = chainInfo().keyspace
     override fun getEntityBasePackages(): Array<String> = arrayOf("fund.cyber.cassandra.bitcoin.model")
 
     override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
-        return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chainInfo.keyspace))
+        return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chainInfo().keyspace))
     }
 
     @Bean
-    fun chain(): Chain = BitcoinFamilyChain.valueOf(env(CHAIN, ""))
-
-    @Bean
     fun migrationSettings(): MigrationSettings {
-        return BlockchainMigrationSettings(chainInfo)
+        return BlockchainMigrationSettings(chainInfo())
     }
 
     @Bean("bitcoinCassandraTemplate")

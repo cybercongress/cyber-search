@@ -14,7 +14,7 @@ import java.nio.file.Paths
  * This is temp solution.
  * After https://github.com/jsevellec/cassandra-unit/issues/273 resolved, should be closed.
  */
-class CassandraTestExecutionListhener : CassandraUnitDependencyInjectionIntegrationTestExecutionListener() {
+class CassandraTestExecutionListener : CassandraUnitDependencyInjectionIntegrationTestExecutionListener() {
 
 
     override fun beforeTestClass(testContext: TestContext) {
