@@ -1,8 +1,11 @@
 package fund.cyber.contract.common
 
-import fund.cyber.search.model.chains.Chain
+import fund.cyber.search.configuration.CHAIN_FAMILY
+import fund.cyber.search.configuration.CHAIN_NAME
+import fund.cyber.search.model.chains.ChainFamily
+import fund.cyber.search.model.chains.ChainInfo
 import io.micrometer.core.instrument.MeterRegistry
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -12,11 +15,17 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @Configuration
 class CommonConfiguration {
 
-    @Autowired
-    private lateinit var chain: Chain
+    @Value("\${$CHAIN_FAMILY:}")
+    private lateinit var chainFamily: String
+
+    @Value("\${$CHAIN_NAME:}")
+    private lateinit var chainName: String
+
+    @Bean
+    fun chainInfo() = ChainInfo(ChainFamily.valueOf(chainFamily), chainName)
 
     @Bean
     fun metricsCommonTags(): MeterRegistryCustomizer<MeterRegistry> {
-        return MeterRegistryCustomizer { registry -> registry.config().commonTags("chain", chain.name) }
+        return MeterRegistryCustomizer { registry -> registry.config().commonTags("chain", chainInfo().fullName) }
     }
 }

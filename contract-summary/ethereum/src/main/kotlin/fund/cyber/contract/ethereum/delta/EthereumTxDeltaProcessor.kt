@@ -2,7 +2,6 @@ package fund.cyber.contract.ethereum.delta
 
 import fund.cyber.cassandra.ethereum.model.CqlEthereumContractSummary
 import fund.cyber.contract.common.delta.DeltaProcessor
-import fund.cyber.contract.ethereum.summary.EthereumContractSummaryDelta
 import fund.cyber.search.model.ethereum.CallOperation
 import fund.cyber.search.model.ethereum.CreateContractOperation
 import fund.cyber.search.model.ethereum.CreateContractOperationResult

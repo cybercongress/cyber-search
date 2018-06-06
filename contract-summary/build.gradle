@@ -25,7 +25,6 @@ project(":contract-summary:bitcoin") {
     apply plugin: "org.springframework.boot"
 
     dependencies {
-
         compile project(":contract-summary:common")
     }
 }
@@ -36,8 +35,6 @@ project(":contract-summary:ethereum") {
     apply plugin: "org.springframework.boot"
 
     dependencies {
-
         compile project(":contract-summary:common")
-
     }
 }

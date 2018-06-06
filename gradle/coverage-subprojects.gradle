@@ -2,29 +2,12 @@ apply plugin: "jacoco"
 
 jacoco {
     toolVersion = "0.8.1"
-    applyTo junitPlatformTest
 }
 
-jacocoTestReport {
-    def coverageSourceDirs = ["src/main/kotlin"]
-
-    group = "Reporting"
-    description = "Generate Jacoco coverage report."
-    classDirectories = fileTree(dir: "$buildDir/classes/kotlin/main")
-    additionalSourceDirs = files(coverageSourceDirs)
-    sourceDirectories = files(coverageSourceDirs)
-    executionData = files("$buildDir/jacoco/junitPlatformTest.exec")
-    reports {
-        xml.enabled = true
-        html.enabled = true
-    }
-}
 test {
     jacoco {
         append = false
-        destinationFile = file("$buildDir/jacoco/junitPlatformTest.exec")
+        destinationFile = file("$buildDir/jacoco/moduleTestsCoverage.exec")
         includeNoLocationClasses = true
     }
 }
-test.dependsOn junitPlatformTest
-

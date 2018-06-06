@@ -1,0 +1,16 @@
+allprojects {
+
+    apply plugin: "io.gitlab.arturbosch.detekt"
+
+    detekt {
+        profile("main") {
+            config = "$rootDir/detekt.yml"
+            filters = ".*/pumps-old/.*"
+            parallel = true
+        }
+    }
+}
+
+task build {
+    dependsOn "detektCheck"
+}

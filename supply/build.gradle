@@ -24,14 +24,8 @@ project(":supply:ethereum") {
     apply plugin: "org.springframework.boot"
 
     dependencies {
-
         compile project(":supply:common")
-
-        testCompile 'org.springframework:spring-test'
-        testCompile 'org.springframework.kafka:spring-kafka-test'
-
-        //noinspection GroovyAssignabilityCheck
+        testCompile project(':common-test')
         testCompile project(':common-kafka').sourceSets.test.output
-        testCompile('log4j:log4j:1.2.17') // https://github.com/spring-projects/spring-kafka/issues/422
     }
 }
