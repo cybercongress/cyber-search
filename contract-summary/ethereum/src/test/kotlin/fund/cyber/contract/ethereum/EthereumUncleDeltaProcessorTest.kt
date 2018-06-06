@@ -1,7 +1,7 @@
 package fund.cyber.contract.ethereum
 
-import fund.cyber.contract.ethereum.summary.EthereumContractSummaryDelta
-import fund.cyber.contract.ethereum.summary.EthereumUncleDeltaProcessor
+import fund.cyber.contract.ethereum.delta.EthereumContractSummaryDelta
+import fund.cyber.contract.ethereum.delta.EthereumUncleDeltaProcessor
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumUncle
 import fund.cyber.search.model.events.PumpEvent
@@ -18,19 +18,19 @@ import java.time.Instant
 class EthereumUncleDeltaProcessorTest {
 
     private val expectedDelta = EthereumContractSummaryDelta(
-            contract = "0xea674fdde714fd979de3edf0f56aa9716b898ec8", balanceDelta = BigDecimal("1.875"),
-            smartContract = null, totalReceivedDelta = BigDecimal("1.875"), txNumberDelta = 0,
-            uncleNumberDelta = 1, minedBlockNumberDelta = 0,
-            topic = EthereumFamilyChain.ETHEREUM.unclePumpTopic, partition = 0, offset = 0,
-            lastOpTime = Instant.ofEpochMilli(100000)
+        contract = "0xea674fdde714fd979de3edf0f56aa9716b898ec8", balanceDelta = BigDecimal("1.875"),
+        smartContract = null, totalReceivedDelta = BigDecimal("1.875"), txNumberDelta = 0,
+        uncleNumberDelta = 1, minedBlockNumberDelta = 0,
+        topic = EthereumFamilyChain.ETHEREUM.unclePumpTopic, partition = 0, offset = 0,
+        lastOpTime = Instant.ofEpochMilli(100000)
     )
 
     private val expectedDroppedDelta = EthereumContractSummaryDelta(
-            contract = "0xea674fdde714fd979de3edf0f56aa9716b898ec8", balanceDelta = BigDecimal("1.875").negate(),
-            smartContract = null, totalReceivedDelta = BigDecimal("1.875").negate(), txNumberDelta = 0,
-            uncleNumberDelta = -1, minedBlockNumberDelta = 0,
-            topic = EthereumFamilyChain.ETHEREUM.unclePumpTopic, partition = 0, offset = 0,
-            lastOpTime = Instant.ofEpochMilli(100000)
+        contract = "0xea674fdde714fd979de3edf0f56aa9716b898ec8", balanceDelta = BigDecimal("1.875").negate(),
+        smartContract = null, totalReceivedDelta = BigDecimal("1.875").negate(), txNumberDelta = 0,
+        uncleNumberDelta = -1, minedBlockNumberDelta = 0,
+        topic = EthereumFamilyChain.ETHEREUM.unclePumpTopic, partition = 0, offset = 0,
+        lastOpTime = Instant.ofEpochMilli(100000)
     )
 
     private val uncle = EthereumUncle(

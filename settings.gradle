@@ -1,5 +1,7 @@
 include "common"
 include "common-kafka"
+include "common-test"
+
 include "cassandra-service"
 
 include "supply:common"

@@ -8,10 +8,10 @@ import java.util.concurrent.CountDownLatch
 
 
 class SinglePartitionTopicDataPresentLatch<out K, out V>(
-        private val kafkaBrokers: String,
-        topic: String,
-        keyClass: Class<K>,
-        valueClass: Class<V>
+    private val kafkaBrokers: String,
+    topic: String,
+    keyClass: Class<K>,
+    valueClass: Class<V>
 ) {
 
     private val countDownLatch = CountDownLatch(1)
@@ -25,7 +25,7 @@ class SinglePartitionTopicDataPresentLatch<out K, out V>(
     }
 
     private val consumer =
-            KafkaConsumer<K, V>(consumerProperties, JsonDeserializer(keyClass), JsonDeserializer(valueClass))
+        KafkaConsumer<K, V>(consumerProperties, JsonDeserializer(keyClass), JsonDeserializer(valueClass))
 
     init {
         val partitions = consumer.partitionsFor(topic)

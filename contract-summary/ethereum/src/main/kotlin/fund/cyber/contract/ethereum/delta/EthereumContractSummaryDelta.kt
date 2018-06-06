@@ -1,4 +1,4 @@
-package fund.cyber.contract.ethereum.summary
+package fund.cyber.contract.ethereum.delta
 
 import fund.cyber.cassandra.common.CqlContractSummary
 import fund.cyber.cassandra.ethereum.model.CqlEthereumContractSummary

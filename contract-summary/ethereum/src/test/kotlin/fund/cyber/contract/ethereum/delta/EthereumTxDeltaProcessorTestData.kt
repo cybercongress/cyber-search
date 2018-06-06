@@ -1,6 +1,5 @@
 package fund.cyber.contract.ethereum.delta
 
-import fund.cyber.contract.ethereum.summary.EthereumContractSummaryDelta
 import fund.cyber.search.model.chains.EthereumFamilyChain.ETHEREUM
 import fund.cyber.search.model.ethereum.CallOperation
 import fund.cyber.search.model.ethereum.CallOperationResult

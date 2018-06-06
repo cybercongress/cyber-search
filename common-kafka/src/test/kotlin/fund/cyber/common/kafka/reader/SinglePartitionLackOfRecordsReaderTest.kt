@@ -3,18 +3,21 @@ package fund.cyber.common.kafka.reader
 import fund.cyber.common.kafka.BaseKafkaIntegrationTest
 import fund.cyber.common.kafka.SinglePartitionTopicDataPresentLatch
 import fund.cyber.common.kafka.sendRecords
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import org.springframework.kafka.test.context.EmbeddedKafka
 
 
 const val EXISTING_TOPIC_WITH_RECORDS_LACK = "EXISTING_EMPTY_TOPIC"
 
 @EmbeddedKafka(
-        partitions = 1, topics = [EXISTING_TOPIC_WITH_RECORDS_LACK],
-        brokerProperties = [
-            "auto.create.topics.enable=false", "transaction.state.log.replication.factor=1",
-            "transaction.state.log.min.isr=1"
-        ]
+    partitions = 1, topics = [EXISTING_TOPIC_WITH_RECORDS_LACK],
+    brokerProperties = [
+        "auto.create.topics.enable=false", "transaction.state.log.replication.factor=1",
+        "transaction.state.log.min.isr=1"
+    ]
 )
 @DisplayName("Single-partitioned topic lack of records reader test")
 class SinglePartitionLackOfRecordsReaderTest : BaseKafkaIntegrationTest() {
@@ -29,7 +32,7 @@ class SinglePartitionLackOfRecordsReaderTest : BaseKafkaIntegrationTest() {
         sendRecords(embeddedKafka.brokersAsString, EXISTING_TOPIC_WITH_RECORDS_LACK, records)
 
         SinglePartitionTopicDataPresentLatch(
-                embeddedKafka.brokersAsString, EXISTING_TOPIC_WITH_RECORDS_LACK, String::class.java, Int::class.java
+            embeddedKafka.brokersAsString, EXISTING_TOPIC_WITH_RECORDS_LACK, String::class.java, Int::class.java
         ).await()
     }
 
@@ -40,8 +43,8 @@ class SinglePartitionLackOfRecordsReaderTest : BaseKafkaIntegrationTest() {
         val itemsCount = 4
 
         val reader = SinglePartitionTopicLastItemsReader(
-                kafkaBrokers = embeddedKafka.brokersAsString, topic = EXISTING_TOPIC_WITH_RECORDS_LACK,
-                keyClass = String::class.java, valueClass = Int::class.java
+            kafkaBrokers = embeddedKafka.brokersAsString, topic = EXISTING_TOPIC_WITH_RECORDS_LACK,
+            keyClass = String::class.java, valueClass = Int::class.java
         )
         val records = reader.readLastRecords(itemsCount + 1)
 

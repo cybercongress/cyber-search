@@ -8,7 +8,7 @@ import fund.cyber.search.model.ethereum.EthereumUncle
 
 interface ChainEntity
 
-interface BlockEntity: ChainEntity {
+interface BlockEntity : ChainEntity {
     val number: Long
 }
 
@@ -52,11 +52,9 @@ class ChainInfo(
     val nodeUrl: String = family.defaultNodeUrl
 ) {
 
-    val fullName
-        get() = family.name + if (name.isEmpty()) "" else "_$name"
-
-    val entityTypes
-        get() = family.entityTypes.keys
+    val fullName get() = family.name + if (name.isEmpty()) "" else "_$name"
+    val fullNameLowerCase get() = fullName.toLowerCase()
+    val entityTypes get() = family.entityTypes.keys
 
     fun entityClassByType(type: ChainEntityType) = family.entityTypes[type]
 }
