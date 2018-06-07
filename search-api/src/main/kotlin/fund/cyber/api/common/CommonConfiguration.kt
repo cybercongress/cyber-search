@@ -53,7 +53,7 @@ class CommonConfiguration {
     private lateinit var applicationContext: GenericApplicationContext
 
     @Bean
-    fun repositoryItemsRouter(handlers: List<RepositoryItemRequestHandler<*>>): RouterFunction<ServerResponse> {
+    fun repositoryItemsRouter(handlers: List<ContextAwareRequestHandler>): RouterFunction<ServerResponse> {
         return handlers.map { handler -> handler.toRouterFunction(applicationContext) }.asSingleRouterFunction()
     }
 

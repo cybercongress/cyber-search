@@ -1,6 +1,6 @@
 package fund.cyber.api.ethereum.handlers
 
-import fund.cyber.api.common.RepositoryItemRequestHandler
+import fund.cyber.api.common.SingleRepositoryItemRequestHandler
 import fund.cyber.cassandra.ethereum.model.CqlEthereumTx
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
 import fund.cyber.common.toSearchHashFormat
@@ -14,10 +14,10 @@ import org.springframework.web.reactive.function.server.ServerResponse
 class EthereumTxHandlersConfiguration {
 
     @Bean
-    fun ethereumTxItemHandler() = RepositoryItemRequestHandler(
+    fun ethereumTxItemHandler() = SingleRepositoryItemRequestHandler(
         "/tx/{hash}",
         EthereumTxRepository::class.java
-    ) { request, repository, _ ->
+    ) { request, repository ->
 
         val hash = request.pathVariable("hash")
         val tx = repository.findById(hash.toSearchHashFormat())

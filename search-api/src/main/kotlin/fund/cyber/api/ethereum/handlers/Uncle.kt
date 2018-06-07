@@ -1,6 +1,6 @@
 package fund.cyber.api.ethereum.handlers
 
-import fund.cyber.api.common.RepositoryItemRequestHandler
+import fund.cyber.api.common.SingleRepositoryItemRequestHandler
 import fund.cyber.cassandra.ethereum.model.CqlEthereumUncle
 import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
 import fund.cyber.common.toSearchHashFormat
@@ -14,10 +14,10 @@ import org.springframework.web.reactive.function.server.ServerResponse
 class EthereumUncleHandlersConfiguration {
 
     @Bean
-    fun ethereumUncleItemHandler() = RepositoryItemRequestHandler(
+    fun ethereumUncleItemHandler() = SingleRepositoryItemRequestHandler(
         "/uncle/{hash}",
         EthereumUncleRepository::class.java
-    ) { request, repository, _ ->
+    ) { request, repository ->
 
         val hash = request.pathVariable("hash")
         val uncle = repository.findById(hash.toSearchHashFormat())

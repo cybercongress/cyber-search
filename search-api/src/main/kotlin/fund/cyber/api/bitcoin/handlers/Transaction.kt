@@ -1,6 +1,6 @@
 package fund.cyber.api.bitcoin.handlers
 
-import fund.cyber.api.common.RepositoryItemRequestHandler
+import fund.cyber.api.common.SingleRepositoryItemRequestHandler
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTx
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
 import org.springframework.context.annotation.Bean
@@ -13,10 +13,10 @@ import org.springframework.web.reactive.function.server.ServerResponse
 class BitcoinTxHandlersConfiguration {
 
     @Bean
-    fun bitcoinTxItemHandler() = RepositoryItemRequestHandler(
+    fun bitcoinTxItemHandler() = SingleRepositoryItemRequestHandler(
         "/tx/{hash}",
         BitcoinTxRepository::class.java
-    ) { request, repository, _ ->
+    ) { request, repository ->
 
         val hash = request.pathVariable("hash")
         val tx = repository.findById(hash)

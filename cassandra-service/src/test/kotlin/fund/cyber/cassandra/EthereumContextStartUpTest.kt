@@ -2,13 +2,11 @@ package fund.cyber.cassandra
 
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.TestPropertySource
 
-@Disabled
 @TestPropertySource(properties = ["CHAIN:ETHEREUM"])
 class EthereumContextStartUpTest : CassandraTestBase() {
 

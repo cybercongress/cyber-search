@@ -53,10 +53,8 @@ fun mappingContext(
     return mappingContext
 }
 
-fun getKeyspaceSession(cluster: Cluster,
-                       keyspace: String,
-                       converter: MappingCassandraConverter) = CassandraSessionFactoryBean()
-    .apply {
+fun getKeyspaceSession(cluster: Cluster, keyspace: String, converter: MappingCassandraConverter) =
+    CassandraSessionFactoryBean().apply {
         setCluster(cluster)
         setConverter(converter)
         setKeyspaceName(keyspace)

@@ -25,7 +25,6 @@ import fund.cyber.search.configuration.CASSANDRA_MAX_CONNECTIONS_REMOTE_DEFAULT
 import fund.cyber.search.configuration.CASSANDRA_PORT
 import fund.cyber.search.configuration.CASSANDRA_PORT_DEFAULT
 import fund.cyber.search.configuration.CHAIN
-import fund.cyber.search.configuration.env
 import fund.cyber.search.model.chains.BitcoinFamilyChain
 import fund.cyber.search.model.chains.Chain
 import org.springframework.beans.factory.annotation.Qualifier
@@ -77,6 +76,9 @@ class BitcoinRepositoriesConfiguration(
     private val maxConnectionsRemote: Int
 ) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort, maxConnectionsLocal, maxConnectionsRemote) {
 
+    @Value("\${$CHAIN:}")
+    private lateinit var chain: String
+
     override fun getKeyspaceName(): String = chain().keyspace
     override fun getEntityBasePackages(): Array<String> = arrayOf("fund.cyber.cassandra.bitcoin.model")
 
@@ -85,7 +87,7 @@ class BitcoinRepositoriesConfiguration(
     }
 
     @Bean
-    fun chain(): Chain = BitcoinFamilyChain.valueOf(env(CHAIN, ""))
+    fun chain(): Chain = BitcoinFamilyChain.valueOf(chain)
 
     @Bean
     fun migrationSettings(): MigrationSettings {

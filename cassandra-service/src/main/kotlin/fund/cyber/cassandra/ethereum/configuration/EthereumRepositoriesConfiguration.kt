@@ -27,7 +27,6 @@ import fund.cyber.search.configuration.CASSANDRA_MAX_CONNECTIONS_REMOTE_DEFAULT
 import fund.cyber.search.configuration.CASSANDRA_PORT
 import fund.cyber.search.configuration.CASSANDRA_PORT_DEFAULT
 import fund.cyber.search.configuration.CHAIN
-import fund.cyber.search.configuration.env
 import fund.cyber.search.jsonDeserializer
 import fund.cyber.search.jsonSerializer
 import fund.cyber.search.model.chains.Chain
@@ -81,6 +80,9 @@ class EthereumRepositoriesConfiguration(
     private val maxConnectionsRemote: Int
 ) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort, maxConnectionsLocal, maxConnectionsRemote) {
 
+    @Value("\${$CHAIN:}")
+    private lateinit var chain: String
+
     override fun getKeyspaceName(): String = chain().keyspace
     override fun getEntityBasePackages(): Array<String> = arrayOf("fund.cyber.cassandra.ethereum.model")
 
@@ -89,7 +91,7 @@ class EthereumRepositoriesConfiguration(
     }
 
     @Bean
-    fun chain(): Chain = EthereumFamilyChain.valueOf(env(CHAIN, ""))
+    fun chain(): Chain = EthereumFamilyChain.valueOf(chain)
 
     @Bean
     fun migrationSettings(): MigrationSettings {
