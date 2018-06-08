@@ -1,6 +1,6 @@
 package fund.cyber.cassandra
 
-import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
+import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -9,15 +9,15 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 
 @DirtiesContext
-@TestPropertySource(properties = ["CHAIN:ETHEREUM"])
-class EthereumContextStartUpTest : CassandraTestBase() {
+@TestPropertySource(properties = ["CHAIN:BITCOIN"])
+class BitcoinContextStartUpTest : CassandraTestBase() {
 
     @Autowired
-    lateinit var blockRepository: EthereumBlockRepository
+    lateinit var blockRepository: BitcoinBlockRepository
 
     @Test
-    @DisplayName("Should successfully create context for Ethereum repositories")
-    fun shouldCreateContextForEthereumChain() {
+    @DisplayName("Should successfully create context for Bitcoin repositories")
+    fun shouldCreateContextForBitcoinChain() {
         Assertions.assertNull(blockRepository.findAll().blockFirst())
     }
 }
