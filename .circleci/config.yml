@@ -34,6 +34,17 @@ jobs:
       - run:
           name: Build And Test Project
           command: ./gradlew clean build coveralls
+      # Circle CI doesn't allow persisting of root of workspace,
+      # so we will persist individual folders used in jobs
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./pumps
+            - ./dumps
+            - ./contract-summary
+            - ./supply
+            - ./search-api
+            - ./docs
       - save_cache:
           key: project-dependencies-{{ checksum "build.gradle" }}
           paths:
@@ -44,13 +55,14 @@ jobs:
   deploy_chain_pumps_ethereum_image:
      <<: *defaults
      steps:
-       - checkout
        - setup_remote_docker:
            version: 17.11.0-ce
+       - attach_workspace:
+           at: ~/build
        - run:
            name: Build Ethereum Pump Image
            command: |
-             docker build -t build/pump-ethereum -f ./pumps/ethereum/Dockerfile ./
+             docker build -t build/pump-ethereum -f ./pumps/ethereum/Dockerfile ./pumps/ethereum
              docker login -u $DOCKER_USER -p $DOCKER_PASS
              docker tag build/pump-ethereum cybernode/chain-pump-ethereum:$CIRCLE_TAG
              docker push cybernode/chain-pump-ethereum:$CIRCLE_TAG
@@ -60,13 +72,14 @@ jobs:
   deploy_chain_dumps_cassandra_ethereum_image:
      <<: *defaults
      steps:
-       - checkout
        - setup_remote_docker:
            version: 17.11.0-ce
+       - attach_workspace:
+           at: ~/build
        - run:
            name: Build Ethereum Dump Image
            command: |
-             docker build -t build/dump-cassandra-ethereum -f ./dumps/ethereum/Dockerfile ./
+             docker build -t build/dump-cassandra-ethereum -f ./dumps/ethereum/Dockerfile ./dumps/ethereum
              docker login -u $DOCKER_USER -p $DOCKER_PASS
              docker tag build/dump-cassandra-ethereum cybernode/chain-dump-cassandra-ethereum:$CIRCLE_TAG
              docker push cybernode/chain-dump-cassandra-ethereum:$CIRCLE_TAG
@@ -76,13 +89,14 @@ jobs:
   deploy_chain_contract_summary_ethereum_image:
      <<: *defaults
      steps:
-       - checkout
        - setup_remote_docker:
            version: 17.11.0-ce
+       - attach_workspace:
+           at: ~/build
        - run:
            name: Build Ethereum Contract Summary Image
            command: |
-             docker build -t build/chain-contract-summary-ethereum -f ./contract-summary/ethereum/Dockerfile ./
+             docker build -t build/chain-contract-summary-ethereum -f ./contract-summary/ethereum/Dockerfile ./contract-summary/ethereum
              docker login -u $DOCKER_USER -p $DOCKER_PASS
              docker tag build/chain-contract-summary-ethereum cybernode/chain-contract-summary-ethereum:$CIRCLE_TAG
              docker push cybernode/chain-contract-summary-ethereum:$CIRCLE_TAG
@@ -92,13 +106,14 @@ jobs:
   deploy_chain_supply_ethereum_image:
      <<: *defaults
      steps:
-       - checkout
        - setup_remote_docker:
            version: 17.11.0-ce
+       - attach_workspace:
+           at: ~/build
        - run:
            name: Build Ethereum Supply Service
            command: |
-             docker build -t build/ethereum_suply_service -f ./supply/ethereum/Dockerfile ./
+             docker build -t build/ethereum_suply_service -f ./supply/ethereum/Dockerfile ./supply/ethereum
              docker login -u $DOCKER_USER -p $DOCKER_PASS
              docker tag build/ethereum_suply_service cybernode/ethereum_suply_service:$CIRCLE_TAG
              docker push cybernode/ethereum_suply_service:$CIRCLE_TAG
@@ -109,13 +124,14 @@ jobs:
   deploy_chain_pumps_bitcoin_image:
      <<: *defaults
      steps:
-       - checkout
        - setup_remote_docker:
            version: 17.11.0-ce
+       - attach_workspace:
+           at: ~/build
        - run:
            name: Build Bitcoin Pump Image
            command: |
-             docker build -t build/pump-bitcoin -f ./pumps/bitcoin/Dockerfile ./
+             docker build -t build/pump-bitcoin -f ./pumps/bitcoin/Dockerfile ./pumps/bitcoin
              docker login -u $DOCKER_USER -p $DOCKER_PASS
              docker tag build/pump-bitcoin cybernode/chain-pump-bitcoin:$CIRCLE_TAG
              docker push cybernode/chain-pump-bitcoin:$CIRCLE_TAG
@@ -125,13 +141,14 @@ jobs:
   deploy_chain_dumps_cassandra_bitcoin_image:
      <<: *defaults
      steps:
-       - checkout
        - setup_remote_docker:
            version: 17.11.0-ce
+       - attach_workspace:
+           at: ~/build
        - run:
            name: Build Bitcoin Dump Image
            command: |
-             docker build -t build/dump-cassandra-bitcoin -f ./dumps/bitcoin/Dockerfile ./
+             docker build -t build/dump-cassandra-bitcoin -f ./dumps/bitcoin/Dockerfile ./dumps/bitcoin
              docker login -u $DOCKER_USER -p $DOCKER_PASS
              docker tag build/dump-cassandra-bitcoin cybernode/chain-dump-cassandra-bitcoin:$CIRCLE_TAG
              docker push cybernode/chain-dump-cassandra-bitcoin:$CIRCLE_TAG
@@ -141,13 +158,14 @@ jobs:
   deploy_chain_contract_summary_bitcoin_image:
      <<: *defaults
      steps:
-       - checkout
        - setup_remote_docker:
            version: 17.11.0-ce
+       - attach_workspace:
+           at: ~/build
        - run:
            name: Build Bitcoin Contract Summary Image
            command: |
-             docker build -t build/chain-contract-summary-bitcoin -f ./contract-summary/bitcoin/Dockerfile ./
+             docker build -t build/chain-contract-summary-bitcoin -f ./contract-summary/bitcoin/Dockerfile ./contract-summary/bitcoin
              docker login -u $DOCKER_USER -p $DOCKER_PASS
              docker tag build/chain-contract-summary-bitcoin cybernode/chain-contract-summary-bitcoin:$CIRCLE_TAG
              docker push cybernode/chain-contract-summary-bitcoin:$CIRCLE_TAG
@@ -159,13 +177,14 @@ jobs:
   deploy_search_api_image:
      <<: *defaults
      steps:
-       - checkout
        - setup_remote_docker:
            version: 17.11.0-ce
+       - attach_workspace:
+           at: ~/build
        - run:
            name: Chains Search Api Image
            command: |
-             docker build -t build/search-api -f ./search-api/Dockerfile ./
+             docker build -t build/search-api -f ./search-api/Dockerfile ./search-api
              docker login -u $DOCKER_USER -p $DOCKER_PASS
              docker tag build/search-api cybernode/search-api:$CIRCLE_TAG
              docker push cybernode/search-api:$CIRCLE_TAG
@@ -175,9 +194,10 @@ jobs:
   deploy_search_api_docs_image:
      <<: *defaults
      steps:
-       - checkout
        - setup_remote_docker:
            version: 17.11.0-ce
+       - attach_workspace:
+           at: ~/build
        - run:
            name: Chains Search Api Documentation Image
            command: |
