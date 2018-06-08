@@ -10,7 +10,7 @@ import fund.cyber.contract.ethereum.delta.EthereumTxDeltaProcessor
 import fund.cyber.contract.ethereum.delta.EthereumUncleDeltaProcessor
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
-import fund.cyber.search.model.chains.ChainInfo
+import fund.cyber.search.model.chains.Chain
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
@@ -62,7 +62,7 @@ class EthereumTxConsumerConfiguration {
     private lateinit var monitoring: MeterRegistry
 
     @Autowired
-    private lateinit var chainInfo: ChainInfo
+    private lateinit var chain: Chain
 
 
     //todo generate containers on the fly from DeltaProcessor information
@@ -73,7 +73,7 @@ class EthereumTxConsumerConfiguration {
             consumerConfigs(), JsonDeserializer(PumpEvent::class.java), JsonDeserializer(EthereumTx::class.java)
         )
 
-        val containerProperties = ContainerProperties(chainInfo.txPumpTopic).apply {
+        val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
             messageListener = UpdateContractSummaryProcess(contractSummaryStorage, txDeltaProcessor, deltaMerger,
                 monitoring, kafkaBrokers)
@@ -93,7 +93,7 @@ class EthereumTxConsumerConfiguration {
             consumerConfigs(), JsonDeserializer(PumpEvent::class.java), JsonDeserializer(EthereumBlock::class.java)
         )
 
-        val containerProperties = ContainerProperties(chainInfo.blockPumpTopic).apply {
+        val containerProperties = ContainerProperties(chain.blockPumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
             messageListener = UpdateContractSummaryProcess(contractSummaryStorage, blockDeltaProcessor, deltaMerger,
                 monitoring, kafkaBrokers)
@@ -113,7 +113,7 @@ class EthereumTxConsumerConfiguration {
             consumerConfigs(), JsonDeserializer(PumpEvent::class.java), JsonDeserializer(EthereumUncle::class.java)
         )
 
-        val containerProperties = ContainerProperties(chainInfo.unclePumpTopic).apply {
+        val containerProperties = ContainerProperties(chain.unclePumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
             messageListener = UpdateContractSummaryProcess(contractSummaryStorage, uncleDeltaProcessor, deltaMerger,
                 monitoring, kafkaBrokers)

@@ -7,9 +7,9 @@ import java.time.Instant
 
 data class ContractSummaryDto(
     val hash: String,
-    val confirmedBalance: String,
+    val confirmedBalance: BigDecimal,
     val smartContract: Boolean,
-    val confirmedTotalReceived: String,
+    val confirmedTotalReceived: BigDecimal,
     val txNumber: Int,
     val minedUncleNumber: Int,
     val minedBlockNumber: Int,
@@ -19,10 +19,11 @@ data class ContractSummaryDto(
 ) {
 
     constructor(contract: CqlEthereumContractSummary, txes: List<CqlEthereumContractTxPreview>) : this(
-        hash = contract.hash, confirmedBalance = contract.confirmedBalance, smartContract = contract.smartContract,
-        confirmedTotalReceived = contract.confirmedTotalReceived, txNumber = contract.txNumber,
-        minedUncleNumber = contract.minedUncleNumber, minedBlockNumber = contract.minedBlockNumber,
-        firstActivityDate = contract.firstActivityDate, lastActivityDate = contract.lastActivityDate,
+        hash = contract.hash, confirmedBalance = BigDecimal(contract.confirmedBalance),
+        smartContract = contract.smartContract, confirmedTotalReceived = BigDecimal(contract.confirmedTotalReceived),
+        txNumber = contract.txNumber, minedUncleNumber = contract.minedUncleNumber,
+        minedBlockNumber = contract.minedBlockNumber, firstActivityDate = contract.firstActivityDate,
+        lastActivityDate = contract.lastActivityDate,
         unconfirmedTxValues = txes.map { contractTx -> contractTx.hash to BigDecimal(contractTx.value) }.toMap()
     )
 }

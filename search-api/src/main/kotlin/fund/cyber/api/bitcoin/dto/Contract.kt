@@ -20,8 +20,8 @@ data class ContractTxSummaryDto(
 
 data class ContractSummaryDto(
     val hash: String,
-    val confirmedBalance: String,
-    val confirmedTotalReceived: String,
+    val confirmedBalance: BigDecimal,
+    val confirmedTotalReceived: BigDecimal,
     val confirmedTxNumber: Int,
     val firstActivityDate: Instant,
     val lastActivityDate: Instant,
@@ -29,8 +29,9 @@ data class ContractSummaryDto(
 ) {
 
     constructor(contract: CqlBitcoinContractSummary, txes: List<CqlBitcoinContractTxPreview>) : this(
-        hash = contract.hash, confirmedBalance = contract.confirmedBalance,
-        confirmedTotalReceived = contract.confirmedTotalReceived, confirmedTxNumber = contract.confirmedTxNumber,
+        hash = contract.hash, confirmedBalance = BigDecimal(contract.confirmedBalance),
+        confirmedTotalReceived = BigDecimal(contract.confirmedTotalReceived),
+        confirmedTxNumber = contract.confirmedTxNumber,
         firstActivityDate = contract.firstActivityDate, lastActivityDate = contract.lastActivityDate,
         unconfirmedTxValues = txes.map { contractTx -> contractTx.hash to ContractTxSummaryDto(contractTx) }.toMap()
     )

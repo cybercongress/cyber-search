@@ -3,6 +3,7 @@ package fund.cyber.api.bitcoin.handlers
 import fund.cyber.api.bitcoin.dto.ContractSummaryDto
 import fund.cyber.api.common.BiRepositoryItemRequestHandler
 import fund.cyber.api.common.SingleRepositoryItemRequestHandler
+import fund.cyber.api.common.asServerResponse
 import fund.cyber.api.common.toPageableResponse
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractSummaryRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
@@ -11,7 +12,6 @@ import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractTxReposito
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.DependsOn
-import org.springframework.web.reactive.function.server.ServerResponse
 
 @Configuration
 @DependsOn("bitcoin-search-repositories")
@@ -32,7 +32,7 @@ class BitcoinContractHandlersConfiguration {
         val result = contract.zipWith(contractUnconfirmedTxes.collectList()) { contr, txes ->
             ContractSummaryDto(contr, txes)
         }
-        ServerResponse.ok().body(result, ContractSummaryDto::class.java)
+        result.asServerResponse()
     }
 
     @Bean

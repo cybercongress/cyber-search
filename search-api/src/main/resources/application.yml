@@ -16,3 +16,7 @@ management:
         enabled: true
       processor:
         enabled: false
+server:
+  error:
+    whitelabel:
+      enabled: false
