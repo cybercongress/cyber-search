@@ -21,15 +21,21 @@ import org.springframework.context.support.GenericApplicationContext
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.reactive.CorsWebFilter
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
+import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.server.HandlerFunction
 import org.springframework.web.reactive.function.server.RequestPredicates.path
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.RouterFunctions
 import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.ServerResponse.notFound
+import org.springframework.web.reactive.function.server.ServerResponse.ok
 import org.springframework.web.util.pattern.PathPatternParser
 import reactor.core.publisher.Mono
 import java.net.InetAddress
 
+
+fun <T> Mono<T>.asServerResponse() = this.flatMap { obj -> ok().body(BodyInserters.fromObject(obj)) }
+    .switchIfEmpty(notFound().build())
 
 fun <E : ServerResponse> List<RouterFunction<E>>.asSingleRouterFunction(): RouterFunction<E> {
     return if (isEmpty()) {
