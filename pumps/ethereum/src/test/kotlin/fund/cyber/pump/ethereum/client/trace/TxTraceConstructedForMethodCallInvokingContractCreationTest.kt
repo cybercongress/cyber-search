@@ -36,9 +36,9 @@ class TxTraceConstructedForMethodCallInvokingContractCreationTest : BaseTxTraceC
     private fun expectedTxTrace(): TxTrace {
 
         val expectedOperation = CallOperation(
-            type = "call", from = "0xa7f3659c53820346176f7e0e350780df304db179", gasLimit = 476552,
+            type = "call", from = "a7f3659c53820346176f7e0e350780df304db179", gasLimit = 476552,
             input = "0xce92dcede1c2010acd783af4f07bb862661e8a1b65f260baf1b64a5a09f62b631a67c5de",
-            to = "0x6090a6e47849629b7245dfa1ca21d94cd15878ef", value = BigDecimal("1.030000000000000000")
+            to = "6090a6e47849629b7245dfa1ca21d94cd15878ef", value = BigDecimal("1.030000000000000000")
         )
 
         val expectedOperationResult = CallOperationResult(output = "0x", gasUsed = 394988)
@@ -53,13 +53,13 @@ class TxTraceConstructedForMethodCallInvokingContractCreationTest : BaseTxTraceC
     private fun okCreateContractSuboperationTrace(): OperationTrace {
 
         val expectedOperation = CreateContractOperation(
-            from = "0x6090a6e47849629b7245dfa1ca21d94cd15878ef", gasLimit = 436209,
+            from = "6090a6e47849629b7245dfa1ca21d94cd15878ef", gasLimit = 436209,
             value = BigDecimal("1.030000000000000000"),
             init = "0x606060405236156100885763ffffffff60e060020a60003504166305b34410811461008a5780630b5ab3d5146100"
         )
 
         val expectedOperationResult = CreateContractOperationResult(
-            address = "0xe8a3c515fd7d0914dc56a4e6dbbb77a7f58bc6ce", gasUsed = 339168,
+            address = "e8a3c515fd7d0914dc56a4e6dbbb77a7f58bc6ce", gasUsed = 339168,
             code = "0x606060405236156100885763ffffffff60e060020a60003504166305b34410811461008a5780630b5ab3d5146100"
         )
 
@@ -69,7 +69,7 @@ class TxTraceConstructedForMethodCallInvokingContractCreationTest : BaseTxTraceC
     private fun failedCreateContractSuboperationTrace(): OperationTrace {
 
         val expectedOperation = CreateContractOperation(
-            from = "0x6090a6e47849629b7245dfa1ca21d94cd15878ef", gasLimit = 436209,
+            from = "6090a6e47849629b7245dfa1ca21d94cd15878ef", gasLimit = 436209,
             value = BigDecimal("1.030000000000000000"),
             init = ""
         )
