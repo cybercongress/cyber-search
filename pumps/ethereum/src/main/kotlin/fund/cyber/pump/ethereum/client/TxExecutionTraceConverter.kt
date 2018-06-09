@@ -2,6 +2,7 @@ package fund.cyber.pump.ethereum.client
 
 import fund.cyber.common.hexToLong
 import fund.cyber.common.isEmptyHexValue
+import fund.cyber.common.toSearchHashFormat
 import fund.cyber.search.model.ethereum.CallOperation
 import fund.cyber.search.model.ethereum.CallOperationResult
 import fund.cyber.search.model.ethereum.CreateContractOperation
@@ -184,7 +185,7 @@ private fun convertResult(trace: Trace): OperationResult? {
         is CallAction -> CallOperationResult(gasUsed, result.output)
         is CreateAction -> {
             if (trace.isFailed()) ErroredOperationResult(CREATE_CONTRACT_ERROR)
-            else CreateContractOperationResult(result.address, result.code, gasUsed)
+            else CreateContractOperationResult(result.address.toSearchHashFormat(), result.code, gasUsed)
         }
         else -> throw RuntimeException("Unknown trace call result")
     }
@@ -195,24 +196,28 @@ private fun convertOperation(trace: Trace): Operation {
     return when (action) {
         is CallAction -> {
             CallOperation(
-                type = action.callType, from = action.from, to = action.to, input = action.input,
+                type = action.callType, from = action.from.toSearchHashFormat(),
+                to = action.to.toSearchHashFormat(), input = action.input,
                 value = BigDecimal(action.value) * weiToEthRate, gasLimit = action.gasRaw.hexToLong()
             )
         }
         is CreateAction -> {
             CreateContractOperation(
-                from = action.from, init = if (trace.isFailed()) "" else action.init,
+                from = action.from.toSearchHashFormat(), init = if (trace.isFailed()) "" else action.init,
                 value = BigDecimal(action.value) * weiToEthRate, gasLimit = action.gasRaw.hexToLong()
             )
         }
         is SuicideAction -> {
             DestroyContractOperation(
-                contractToDestroy = action.address, refundContract = action.refundAddress,
+                contractToDestroy = action.address.toSearchHashFormat(),
+                refundContract = action.refundAddress.toSearchHashFormat(),
                 refundValue = BigDecimal(action.balance) * weiToEthRate
             )
         }
         is RewardAction -> {
-            RewardOperation(action.author, BigDecimal(action.value) * weiToEthRate, action.rewardType)
+            RewardOperation(
+                action.author.toSearchHashFormat(), BigDecimal(action.value) * weiToEthRate, action.rewardType
+            )
         }
         else -> throw RuntimeException("Unknown trace call")
     }

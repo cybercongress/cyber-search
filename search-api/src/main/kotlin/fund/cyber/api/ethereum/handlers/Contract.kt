@@ -26,7 +26,7 @@ class EthereumContractHandlersConfiguration {
         EthereumContractTxRepository::class.java
     ) { request, conractRepository, contractTxRepository ->
 
-        val contractId = request.pathVariable("hash")
+        val contractId = request.pathVariable("hash").toSearchHashFormat()
 
         val contract = conractRepository.findById(contractId)
         val contractUnconfirmedTxes = contractTxRepository.findAllByContractHashAndBlockTime(contractId, -1)
@@ -43,9 +43,9 @@ class EthereumContractHandlersConfiguration {
         PageableEthereumContractTxRepository::class.java
     ) { request, repository ->
 
-        val hash = request.pathVariable("hash")
+        val hash = request.pathVariable("hash").toSearchHashFormat()
         request.toPageableResponse { pageable ->
-            repository.findAllByContractHash(hash.toSearchHashFormat(), pageable)
+            repository.findAllByContractHash(hash, pageable)
         }
     }
 
@@ -55,9 +55,9 @@ class EthereumContractHandlersConfiguration {
         PageableEthereumContractMinedBlockRepository::class.java
     ) { request, repository ->
 
-        val hash = request.pathVariable("hash")
+        val hash = request.pathVariable("hash").toSearchHashFormat()
         request.toPageableResponse { pageable ->
-            repository.findAllByMinerContractHash(hash.toSearchHashFormat(), pageable)
+            repository.findAllByMinerContractHash(hash, pageable)
         }
     }
 
@@ -67,9 +67,9 @@ class EthereumContractHandlersConfiguration {
         PageableEthereumContractMinedUncleRepository::class.java
     ) { request, repository ->
 
-        val hash = request.pathVariable("hash")
+        val hash = request.pathVariable("hash").toSearchHashFormat()
         request.toPageableResponse { pageable ->
-            repository.findAllByMinerContractHash(hash.toSearchHashFormat(), pageable)
+            repository.findAllByMinerContractHash(hash, pageable)
         }
     }
 

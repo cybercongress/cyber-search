@@ -18,8 +18,8 @@ class EthereumUncleHandlersConfiguration {
         EthereumUncleRepository::class.java
     ) { request, repository ->
 
-        val hash = request.pathVariable("hash")
-        val uncle = repository.findById(hash.toSearchHashFormat())
+        val hash = request.pathVariable("hash").toSearchHashFormat()
+        val uncle = repository.findById(hash)
         uncle.asServerResponse()
     }
 
