@@ -18,8 +18,8 @@ class EthereumTxHandlersConfiguration {
         EthereumTxRepository::class.java
     ) { request, repository ->
 
-        val hash = request.pathVariable("hash")
-        val tx = repository.findById(hash.toSearchHashFormat())
+        val hash = request.pathVariable("hash").toSearchHashFormat()
+        val tx = repository.findById(hash)
         tx.asServerResponse()
     }
 
