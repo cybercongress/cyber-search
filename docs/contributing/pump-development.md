@@ -238,13 +238,13 @@ It contains only one method that should return `io.reactivex.Flowable` of pool i
 Put Docker file in root folder of your module. Here is template of Dockerfile:
 ```
 # Build Stage
-FROM openjdk:10-jdk-slim AS build
+FROM openjdk:8-jdk-slim AS build
 COPY ./ /build
 WORKDIR /build
 RUN ./gradlew clean :pumps:${your_chain_name}:assemble
 
 # Container with application
-FROM openjdk:10-jre-slim
+FROM openjdk:8-jre-slim
 COPY --from=build /build/pumps/${your_chain_name}/build/libs /cyberapp/bin
 ENTRYPOINT exec java $JAVA_OPTS -jar /cyberapp/bin/${your_chain_name}.jar
 ```
