@@ -1,6 +1,6 @@
 {
   "method": "PUT",
-  "url": "/bitcoin.contract_summary/_mapping/contract_summary",
+  "url": "/${chainName}.contract_summary/_mapping/contract_summary",
   "data": {
     "contract_summary": {
       "properties": {

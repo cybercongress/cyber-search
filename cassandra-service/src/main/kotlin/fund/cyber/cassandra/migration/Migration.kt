@@ -19,18 +19,18 @@ class EmptyMigration : Migration {
 }
 
 class CqlFileBasedMigration(
-        override val id: String,
-        override val applicationId: String,
-        private val fileContent: String
+    override val id: String,
+    override val applicationId: String,
+    private val fileContent: String
 ) : CassandraMigration {
 
     override fun getStatements(): List<Statement> {
 
         return fileContent
-                .split(";").map(String::trim)
-                .filter { statement -> statement.isNotEmpty() }
-                .map { statement -> statement + ";" }
-                .map { statement -> SimpleStatement(statement) }
+            .split(";").map(String::trim)
+            .filter { statement -> statement.isNotEmpty() }
+            .map { statement -> "$statement;" }
+            .map { statement -> SimpleStatement(statement) }
     }
 }
 

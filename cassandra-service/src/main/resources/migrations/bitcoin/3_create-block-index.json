@@ -1,9 +1,9 @@
 {
   "method": "PUT",
-  "url": "/bitcoin.block/",
+  "url": "/${chainName}.block/",
   "data": {
     "settings": {
-      "keyspace": "bitcoin"
+      "keyspace": "${chainName}"
     }
   }
 }

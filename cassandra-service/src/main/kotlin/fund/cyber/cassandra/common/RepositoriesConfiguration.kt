@@ -35,7 +35,7 @@ const val MAX_CONCURRENT_REQUESTS = 8182
 const val MAX_PER_ROUTE = 16
 const val MAX_TOTAL = 32
 
-val ChainInfo.keyspace: String get() = name.toLowerCase()
+val ChainInfo.keyspace: String get() = nameLowerCase
 
 const val REPOSITORY_NAME_DELIMITER = "__"
 

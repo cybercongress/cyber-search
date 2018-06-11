@@ -53,6 +53,8 @@ class ChainInfo(
 ) {
 
     val entityTypes get() = family.entityTypes.keys
+    val familyNameLowerCase get() = family.toString().toLowerCase()
+    val nameLowerCase get() = name.toLowerCase()
 
     fun entityClassByType(type: ChainEntityType) = family.entityTypes[type]
 }
