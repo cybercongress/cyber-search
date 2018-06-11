@@ -9,7 +9,7 @@ val Chain.blockPumpTopic: String get() = name + "_BLOCK_PUMP"
 val Chain.unclePumpTopic: String get() = name + "_UNCLE_PUMP"
 
 
-val ChainInfo.txPumpTopic: String get() = fullName + "_TX_PUMP"
-val ChainInfo.blockPumpTopic: String get() = fullName + "_BLOCK_PUMP"
-val ChainInfo.unclePumpTopic: String get() = fullName + "_UNCLE_PUMP"
-val ChainInfo.supplyTopic: String get() = fullName + "_SUPPLY"
+val ChainInfo.txPumpTopic: String get() = name + "_TX_PUMP"
+val ChainInfo.blockPumpTopic: String get() = name + "_BLOCK_PUMP"
+val ChainInfo.unclePumpTopic: String get() = name + "_UNCLE_PUMP"
+val ChainInfo.supplyTopic: String get() = name + "_SUPPLY"

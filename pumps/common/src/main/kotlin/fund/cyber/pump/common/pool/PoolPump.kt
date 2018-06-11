@@ -7,6 +7,7 @@ import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.context.annotation.DependsOn
+import org.springframework.retry.support.RetryTemplate
 import org.springframework.stereotype.Component
 
 private val log = LoggerFactory.getLogger(PoolPump::class.java)!!
@@ -17,7 +18,8 @@ private val log = LoggerFactory.getLogger(PoolPump::class.java)!!
 class PoolPump<T : PoolItem>(
     private val poolInterface: PoolInterface<T>,
     private val poolItemProducer: KafkaPoolItemProducer,
-    monitoring: MeterRegistry
+    monitoring: MeterRegistry,
+    private val retryTemplate: RetryTemplate
 ) {
 
     val mempoolTxCountMonitor = monitoring.counter("mempool_tx_counter")
@@ -28,11 +30,13 @@ class PoolPump<T : PoolItem>(
         poolInterface.subscribePool()
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.computation())
-            .subscribe (
+            .subscribe(
                 { item ->
                     log.debug("New pool item received $item")
                     mempoolTxCountMonitor.increment()
-                    poolItemProducer.storeItem(PumpEvent.NEW_POOL_TX to item)
+                    retryTemplate.execute<Unit, Exception> {
+                        poolItemProducer.storeItem(PumpEvent.NEW_POOL_TX to item)
+                    }
                 },
                 { error ->
                     log.error("Error during processing pool...", error)

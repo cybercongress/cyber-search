@@ -37,7 +37,7 @@ data class EthereumBlock(
 //todo change to use block trace rewards operations
 //todo: 1) add properly support of new classic fork. 2) add support of custom reward functions in forks
 fun getBlockReward(chainInfo: ChainInfo, number: Long): BigDecimal {
-    return if (chainInfo.fullName == "ETHEREUM_CLASSIC") {
+    return if (chainInfo.name == "ETHEREUM_CLASSIC") {
         if (number < ETHEREUM_CLASSIC_REWARD_CHANGED_BLOCK_NUMBER) BigDecimal("5") else BigDecimal("4")
     } else {
         if (number < ETHEREUM_REWARD_CHANGED_BLOCK_NUMBER) BigDecimal("5") else BigDecimal("3")

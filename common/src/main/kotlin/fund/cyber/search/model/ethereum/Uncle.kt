@@ -26,7 +26,7 @@ data class EthereumUncle(
 fun getUncleReward(chainInfo: ChainInfo, uncleNumber: Long, blockNumber: Long): BigDecimal {
 
     val blockReward = getBlockReward(chainInfo, blockNumber)
-    return if (chainInfo.fullName == "ETHEREUM_CLASSIC") {
+    return if (chainInfo.name == "ETHEREUM_CLASSIC") {
         getBlockReward(chainInfo, blockNumber).divide(decimal32, DIVIDE_SCALE, RoundingMode.FLOOR).stripTrailingZeros()
     } else {
         ((uncleNumber.toBigDecimal() + decimal8 - blockNumber.toBigDecimal()) * blockReward)
