@@ -8,6 +8,8 @@ import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedUncle
 import fund.cyber.cassandra.ethereum.model.CqlEthereumUncle
 import fund.cyber.cassandra.ethereum.repository.EthereumContractUncleRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
+import fund.cyber.search.model.chains.ChainFamily
+import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumUncle
 import fund.cyber.search.model.events.PumpEvent
@@ -19,6 +21,9 @@ import java.math.BigDecimal
 import java.time.Instant
 
 class UncleDumpProcessTest {
+
+
+    private val chainInfo = ChainInfo(ChainFamily.ETHEREUM)
 
 
     //        --- D --- E --- G --- I
@@ -54,7 +59,7 @@ class UncleDumpProcessTest {
             on { delete(any()) }.thenReturn(Mono.empty())
         }
 
-        val blockDumpProcess = UncleDumpProcess(uncleRepository, contractUncleRepository, EthereumFamilyChain.ETHEREUM)
+        val blockDumpProcess = UncleDumpProcess(uncleRepository, contractUncleRepository, chainInfo)
 
         blockDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8))
 

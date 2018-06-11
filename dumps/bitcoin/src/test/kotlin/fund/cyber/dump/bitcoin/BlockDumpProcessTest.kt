@@ -10,6 +10,8 @@ import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractMinedBlockRepository
 import fund.cyber.search.model.bitcoin.BitcoinBlock
 import fund.cyber.search.model.chains.BitcoinFamilyChain
+import fund.cyber.search.model.chains.ChainFamily
+import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.blockPumpTopic
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -21,6 +23,8 @@ import java.time.Instant
 
 class BlockDumpProcessTest {
 
+
+    private val chainInfo = ChainInfo(ChainFamily.BITCOIN)
 
     //        --- D --- E --- G --- I
     //A --- B --- C --- F --- H
@@ -56,8 +60,7 @@ class BlockDumpProcessTest {
             on { delete(any()) }.thenReturn(Mono.empty<Void>())
         }
 
-        val blockDumpProcess = BlockDumpProcess(blockRepository, contractMinedBlockRepository,
-            BitcoinFamilyChain.BITCOIN)
+        val blockDumpProcess = BlockDumpProcess(blockRepository, contractMinedBlockRepository, chainInfo)
 
         blockDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8))
 

@@ -12,7 +12,7 @@ import org.springframework.test.context.TestPropertySource
 import java.time.Instant
 
 @DirtiesContext
-@TestPropertySource(properties = ["CHAIN:ETHEREUM"])
+@TestPropertySource(properties = ["CHAIN_FAMILY:ETHEREUM"])
 class EthereumContextStartUpTest : CassandraTestBase() {
 
     @Autowired

@@ -5,13 +5,14 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
-import fund.cyber.cassandra.ethereum.model.CqlEthereumContractTxPreview
 import fund.cyber.cassandra.ethereum.model.CqlEthereumBlockTxPreview
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractTxPreview
 import fund.cyber.cassandra.ethereum.model.CqlEthereumTx
-import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockTxRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
-import fund.cyber.search.model.chains.EthereumFamilyChain
+import fund.cyber.search.model.chains.ChainFamily
+import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.txPumpTopic
@@ -24,6 +25,9 @@ import java.time.Instant
 
 @Suppress("LargeClass")
 class TxDumpProcessTest {
+
+
+    private val chainInfo = ChainInfo(ChainFamily.ETHEREUM)
 
 
     @Test
@@ -64,8 +68,7 @@ class TxDumpProcessTest {
             on { deleteAll(any<Iterable<CqlEthereumContractTxPreview>>()) }.thenReturn(Mono.empty())
         }
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository,
-            EthereumFamilyChain.ETHEREUM, 0)
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0)
 
         txDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8, record9))
 
@@ -134,8 +137,7 @@ class TxDumpProcessTest {
 
         val record = record(PumpEvent.NEW_BLOCK, txABlock)
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository,
-            EthereumFamilyChain.ETHEREUM, 0)
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0)
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -178,8 +180,7 @@ class TxDumpProcessTest {
 
         val record = record(PumpEvent.NEW_BLOCK, txABlock)
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository,
-            EthereumFamilyChain.ETHEREUM, 0)
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0)
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -224,8 +225,7 @@ class TxDumpProcessTest {
 
         val record = record(PumpEvent.DROPPED_BLOCK, txADrop)
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository,
-            EthereumFamilyChain.ETHEREUM, 0)
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0)
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -263,8 +263,7 @@ class TxDumpProcessTest {
 
         val record = record(PumpEvent.DROPPED_BLOCK, txADrop)
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository,
-            EthereumFamilyChain.ETHEREUM, 0)
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0)
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -304,8 +303,7 @@ class TxDumpProcessTest {
 
         val record = record(PumpEvent.NEW_POOL_TX, txAPool)
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository,
-            EthereumFamilyChain.ETHEREUM, 0)
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0)
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -333,8 +331,7 @@ class TxDumpProcessTest {
 
         val record = record(PumpEvent.NEW_POOL_TX, txAPool)
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository,
-            EthereumFamilyChain.ETHEREUM, 0)
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0)
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -352,6 +349,6 @@ class TxDumpProcessTest {
     )
 
     fun record(event: PumpEvent, tx: EthereumTx) =
-        ConsumerRecord<PumpEvent, EthereumTx>(EthereumFamilyChain.ETHEREUM.txPumpTopic, 0, 0, event, tx)
+        ConsumerRecord<PumpEvent, EthereumTx>(chainInfo.txPumpTopic, 0, 0, event, tx)
 
 }

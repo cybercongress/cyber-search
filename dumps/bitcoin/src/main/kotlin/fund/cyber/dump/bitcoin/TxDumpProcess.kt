@@ -1,14 +1,14 @@
 package fund.cyber.dump.bitcoin
 
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinBlockTxPreview
-import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTx
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractTxPreview
-import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
+import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTx
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockTxRepository
+import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
 import fund.cyber.dump.common.toFlux
 import fund.cyber.search.model.bitcoin.BitcoinTx
-import fund.cyber.search.model.chains.BitcoinFamilyChain
+import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.txPumpTopic
 import io.micrometer.core.instrument.MeterRegistry
@@ -27,7 +27,7 @@ class TxDumpProcess(
     private val txRepository: BitcoinTxRepository,
     private val contractTxRepository: BitcoinContractTxRepository,
     private val blockTxRepository: BitcoinBlockTxRepository,
-    private val chain: BitcoinFamilyChain,
+    private val chainInfo: ChainInfo,
     private val realtimeIndexationThreshold: Long,
     monitoring: MeterRegistry
 ) : BatchMessageListener<PumpEvent, BitcoinTx> {
@@ -36,7 +36,7 @@ class TxDumpProcess(
 
     private val requestCountMonitor = monitoring.gauge(
         "dump_cs_requests_per_batch",
-        Tags.of("topic", chain.txPumpTopic),
+        Tags.of("topic", chainInfo.txPumpTopic),
         AtomicLong(0)
     )!!
 
@@ -44,7 +44,8 @@ class TxDumpProcess(
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, BitcoinTx>>) {
 
-        log.info("Dumping batch of ${records.size} $chain transactions from offset ${records.first().offset()}")
+        log.info("Dumping batch of ${records.size} ${chainInfo.name} transactions" +
+            " from offset ${records.first().offset()}")
         requestsCounter = 0
 
         val queriesFlux = records.toFlux { event, tx ->
@@ -58,7 +59,8 @@ class TxDumpProcess(
         log.info("Performing $requestsCounter queries to Cassandra")
         queriesFlux.collectList().block()
         requestCountMonitor.set(requestsCounter)
-        log.info("Finish dump batch of ${records.size} $chain transactions from offset ${records.first().offset()}")
+        log.info("Finish dump batch of ${records.size} ${chainInfo.name} transactions" +
+            " from offset ${records.first().offset()}")
     }
 
     private fun BitcoinTx.toNewBlockPublisher(): Publisher<Any> {

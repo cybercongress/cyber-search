@@ -1,11 +1,11 @@
 package fund.cyber.cassandra.ethereum.configuration
 
 import com.datastax.driver.extras.codecs.jdk8.InstantCodec
+import fund.cyber.cassandra.common.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.common.NoChainCondition
 import fund.cyber.cassandra.common.RoutingReactiveCassandraRepositoryFactoryBean
-import fund.cyber.cassandra.common.defaultKeyspaceSpecification
-import fund.cyber.cassandra.common.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.common.SearchRepositoriesConfiguration
+import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.common.keyspace
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumContractRepository
@@ -26,11 +26,12 @@ import fund.cyber.search.configuration.CASSANDRA_MAX_CONNECTIONS_REMOTE
 import fund.cyber.search.configuration.CASSANDRA_MAX_CONNECTIONS_REMOTE_DEFAULT
 import fund.cyber.search.configuration.CASSANDRA_PORT
 import fund.cyber.search.configuration.CASSANDRA_PORT_DEFAULT
-import fund.cyber.search.configuration.CHAIN
+import fund.cyber.search.configuration.CHAIN_FAMILY
+import fund.cyber.search.configuration.CHAIN_NAME
 import fund.cyber.search.jsonDeserializer
 import fund.cyber.search.jsonSerializer
-import fund.cyber.search.model.chains.Chain
-import fund.cyber.search.model.chains.EthereumFamilyChain
+import fund.cyber.search.model.chains.ChainFamily
+import fund.cyber.search.model.chains.ChainInfo
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -56,8 +57,9 @@ import org.springframework.stereotype.Component
 private class EthereumFamilyChainCondition : Condition {
 
     override fun matches(context: ConditionContext, metadata: AnnotatedTypeMetadata): Boolean {
-        val chain = context.environment.getProperty(CHAIN) ?: ""
-        return EthereumFamilyChain.values().map(EthereumFamilyChain::name).contains(chain)
+
+        val chain = context.environment.getProperty(CHAIN_FAMILY) ?: ""
+        return chain == ChainFamily.ETHEREUM.toString()
     }
 }
 
@@ -80,22 +82,29 @@ class EthereumRepositoriesConfiguration(
     private val maxConnectionsRemote: Int
 ) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort, maxConnectionsLocal, maxConnectionsRemote) {
 
-    @Value("\${$CHAIN:}")
-    private lateinit var chain: String
 
-    override fun getKeyspaceName(): String = chain().keyspace
+    @Value("\${$CHAIN_FAMILY:}")
+    private lateinit var chainFamily: String
+
+    @Value("\${$CHAIN_NAME:}")
+    private lateinit var chainName: String
+
+    @Bean
+    fun chainInfo() = ChainInfo(
+        ChainFamily.valueOf(chainFamily),
+        if (chainName.isEmpty()) chainFamily else chainName
+    )
+
+    override fun getKeyspaceName(): String = chainInfo().keyspace
     override fun getEntityBasePackages(): Array<String> = arrayOf("fund.cyber.cassandra.ethereum.model")
 
     override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
-        return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chain().lowerCaseName))
+        return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chainInfo().keyspace))
     }
 
     @Bean
-    fun chain(): Chain = EthereumFamilyChain.valueOf(chain)
-
-    @Bean
     fun migrationSettings(): MigrationSettings {
-        return BlockchainMigrationSettings(chain())
+        return BlockchainMigrationSettings(chainInfo())
     }
 
     @Bean("ethereumCassandraTemplate")
