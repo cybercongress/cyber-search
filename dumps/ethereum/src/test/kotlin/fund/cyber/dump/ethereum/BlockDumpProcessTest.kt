@@ -8,6 +8,8 @@ import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedBlock
 import fund.cyber.cassandra.ethereum.model.CqlEthereumBlock
 import fund.cyber.cassandra.ethereum.repository.EthereumContractMinedBlockRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
+import fund.cyber.search.model.chains.ChainFamily
+import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.events.PumpEvent
@@ -21,6 +23,8 @@ import java.time.Instant
 
 class BlockDumpProcessTest {
 
+
+    private val chainInfo = ChainInfo(ChainFamily.ETHEREUM)
 
     //        --- D --- E --- G --- I
     //A --- B --- C --- F --- H
@@ -56,8 +60,7 @@ class BlockDumpProcessTest {
             on { delete(any()) }.thenReturn(Mono.empty<Void>())
         }
 
-        val blockDumpProcess = BlockDumpProcess(blockRepository, contractMinedBlockRepository,
-            EthereumFamilyChain.ETHEREUM)
+        val blockDumpProcess = BlockDumpProcess(blockRepository, contractMinedBlockRepository, chainInfo)
 
         blockDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8))
 

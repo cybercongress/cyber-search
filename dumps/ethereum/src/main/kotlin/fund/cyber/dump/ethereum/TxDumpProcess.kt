@@ -7,7 +7,7 @@ import fund.cyber.cassandra.ethereum.repository.EthereumBlockTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
 import fund.cyber.dump.common.toFlux
-import fund.cyber.search.model.chains.EthereumFamilyChain
+import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.events.PumpEvent
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -24,7 +24,7 @@ class TxDumpProcess(
     private val txRepository: EthereumTxRepository,
     private val blockTxRepository: EthereumBlockTxRepository,
     private val contractTxRepository: EthereumContractTxRepository,
-    private val chain: EthereumFamilyChain,
+    private val chain: ChainInfo,
     private val realtimeIndexationThreshold: Long
 ) : BatchMessageListener<PumpEvent, EthereumTx> {
 
@@ -32,7 +32,7 @@ class TxDumpProcess(
 
     override fun onMessage(records: List<ConsumerRecord<PumpEvent, EthereumTx>>) {
 
-        log.info("Dumping batch of ${records.size} $chain transactions from offset ${records.first().offset()}")
+        log.info("Dumping batch of ${records.size} ${chain.name} transactions from offset ${records.first().offset()}")
 
         records.toFlux { event, tx ->
             return@toFlux when (event) {

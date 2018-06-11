@@ -1,18 +1,18 @@
 package fund.cyber.cassandra.bitcoin.configuration
 
 import com.datastax.driver.extras.codecs.jdk8.InstantCodec
-import fund.cyber.cassandra.bitcoin.repository.BitcoinContractSummaryRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
+import fund.cyber.cassandra.bitcoin.repository.BitcoinContractSummaryRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
+import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinBlockTxRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractMinedBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractTxRepository
-import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinBlockTxRepository
+import fund.cyber.cassandra.common.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.common.NoChainCondition
 import fund.cyber.cassandra.common.RoutingReactiveCassandraRepositoryFactoryBean
-import fund.cyber.cassandra.common.defaultKeyspaceSpecification
-import fund.cyber.cassandra.common.CassandraRepositoriesConfiguration
 import fund.cyber.cassandra.common.SearchRepositoriesConfiguration
+import fund.cyber.cassandra.common.defaultKeyspaceSpecification
 import fund.cyber.cassandra.common.keyspace
 import fund.cyber.cassandra.migration.BlockchainMigrationSettings
 import fund.cyber.cassandra.migration.MigrationSettings
@@ -24,9 +24,10 @@ import fund.cyber.search.configuration.CASSANDRA_MAX_CONNECTIONS_REMOTE
 import fund.cyber.search.configuration.CASSANDRA_MAX_CONNECTIONS_REMOTE_DEFAULT
 import fund.cyber.search.configuration.CASSANDRA_PORT
 import fund.cyber.search.configuration.CASSANDRA_PORT_DEFAULT
-import fund.cyber.search.configuration.CHAIN
-import fund.cyber.search.model.chains.BitcoinFamilyChain
-import fund.cyber.search.model.chains.Chain
+import fund.cyber.search.configuration.CHAIN_FAMILY
+import fund.cyber.search.configuration.CHAIN_NAME
+import fund.cyber.search.model.chains.ChainFamily
+import fund.cyber.search.model.chains.ChainInfo
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -52,8 +53,8 @@ private class BitcoinFamilyChainCondition : Condition {
 
     override fun matches(context: ConditionContext, metadata: AnnotatedTypeMetadata): Boolean {
 
-        val chain = context.environment.getProperty(CHAIN) ?: ""
-        return BitcoinFamilyChain.values().map(BitcoinFamilyChain::name).contains(chain)
+        val chain = context.environment.getProperty(CHAIN_FAMILY) ?: ""
+        return chain == ChainFamily.BITCOIN.toString()
     }
 }
 
@@ -76,22 +77,28 @@ class BitcoinRepositoriesConfiguration(
     private val maxConnectionsRemote: Int
 ) : CassandraRepositoriesConfiguration(cassandraHosts, cassandraPort, maxConnectionsLocal, maxConnectionsRemote) {
 
-    @Value("\${$CHAIN:}")
-    private lateinit var chain: String
+    @Value("\${$CHAIN_FAMILY:}")
+    private lateinit var chainFamily: String
 
-    override fun getKeyspaceName(): String = chain().keyspace
+    @Value("\${$CHAIN_NAME:}")
+    private lateinit var chainName: String
+
+    @Bean
+    fun chainInfo() = ChainInfo(
+        ChainFamily.valueOf(chainFamily),
+        if (chainName.isEmpty()) chainFamily else chainName
+    )
+
+    override fun getKeyspaceName(): String = chainInfo().keyspace
     override fun getEntityBasePackages(): Array<String> = arrayOf("fund.cyber.cassandra.bitcoin.model")
 
     override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
-        return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chain().lowerCaseName))
+        return super.getKeyspaceCreations() + listOf(defaultKeyspaceSpecification(chainInfo().keyspace))
     }
 
     @Bean
-    fun chain(): Chain = BitcoinFamilyChain.valueOf(chain)
-
-    @Bean
     fun migrationSettings(): MigrationSettings {
-        return BlockchainMigrationSettings(chain())
+        return BlockchainMigrationSettings(chainInfo())
     }
 
     @Bean("bitcoinCassandraTemplate")

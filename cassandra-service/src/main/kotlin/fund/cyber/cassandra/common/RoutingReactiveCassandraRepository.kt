@@ -4,7 +4,7 @@ import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.Metadata
 import com.datastax.driver.core.querybuilder.Insert
 import com.datastax.driver.core.querybuilder.QueryBuilder
-import fund.cyber.search.model.chains.Chain
+import fund.cyber.search.model.chains.ChainInfo
 import org.reactivestreams.Publisher
 import org.springframework.data.cassandra.core.ReactiveCassandraOperations
 import org.springframework.data.cassandra.core.mapping.BasicCassandraPersistentEntity
@@ -21,7 +21,7 @@ import org.springframework.data.repository.core.support.RepositoryFactorySupport
 import org.springframework.util.Assert
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.util.LinkedHashMap
+import java.util.*
 
 @NoRepositoryBean
 interface RoutingReactiveCassandraRepository<S, ID> : ReactiveCassandraRepository<S, ID>
@@ -97,11 +97,11 @@ class RoutingReactiveCassandraRepositoryImpl<S, ID>(
 class RoutingReactiveCassandraRepositoryFactoryBean<T : Repository<S, ID>, S, ID>(
     repositoryInterface: Class<out T>,
     private val cluster: Cluster,
-    private val chain: Chain
+    private val chainInfo: ChainInfo
 ) : ReactiveCassandraRepositoryFactoryBean<T, S, ID>(repositoryInterface) {
 
     override fun getFactoryInstance(operations: ReactiveCassandraOperations): RepositoryFactorySupport {
-        return RoutingReactiveCassandraRepositoryFactory<S, ID>(operations, cluster.metadata, chain.keyspace)
+        return RoutingReactiveCassandraRepositoryFactory<S, ID>(operations, cluster.metadata, chainInfo.keyspace)
     }
 
     class RoutingReactiveCassandraRepositoryFactory<S, ID>(
