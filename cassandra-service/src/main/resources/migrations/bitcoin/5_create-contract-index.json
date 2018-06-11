@@ -1,9 +1,9 @@
 {
   "method": "PUT",
-  "url": "/bitcoin.contract_summary/",
+  "url": "/${chainName}.contract_summary/",
   "data": {
     "settings": {
-      "keyspace": "bitcoin"
+      "keyspace": "${chainName}"
     }
   }
 }

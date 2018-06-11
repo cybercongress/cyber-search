@@ -5,13 +5,13 @@ import fund.cyber.search.model.chains.ChainInfo
 val defaultSettings = MigrationSettings("default", "default")
 
 open class MigrationSettings(
-        val migrationDirectory: String,
-        val applicationId: String
+    val migrationDirectory: String,
+    val applicationId: String
 )
 
 open class BlockchainMigrationSettings(
-        chainInfo: ChainInfo
+    chainInfo: ChainInfo
 ) : MigrationSettings(
-        migrationDirectory = chainInfo.name.toLowerCase(),
-        applicationId = chainInfo.name.toLowerCase()
+    migrationDirectory = chainInfo.familyNameLowerCase,
+    applicationId = chainInfo.nameLowerCase
 )

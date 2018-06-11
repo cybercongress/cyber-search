@@ -1,5 +1,5 @@
 
-CREATE TABLE IF NOT exists ethereum.block (
+CREATE TABLE IF NOT exists ${chainName}.block (
     number bigint PRIMARY KEY,
     hash text,
     parent_hash text,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT exists ethereum.block (
     uncles FROZEN < list < text > >
 );
 
-CREATE TABLE IF NOT exists ethereum.tx (
+CREATE TABLE IF NOT exists ${chainName}.tx (
     hash text PRIMARY KEY,
     status text,
     nonce bigint,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT exists ethereum.tx (
     trace_json blob
 );
 
-CREATE TABLE IF NOT exists ethereum.tx_preview_by_contract (
+CREATE TABLE IF NOT exists ${chainName}.tx_preview_by_contract (
     contract_hash text,
     hash text,
     block_time bigint,
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT exists ethereum.tx_preview_by_contract (
     PRIMARY KEY (contract_hash, block_time, hash)
 )  WITH CLUSTERING ORDER BY ( block_time DESC );
 
-CREATE TABLE IF NOT exists ethereum.tx_preview_by_block (
+CREATE TABLE IF NOT exists ${chainName}.tx_preview_by_block (
     block_number bigint,
     position_in_block int,
     fee decimal,
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT exists ethereum.tx_preview_by_block (
 );
 
 
-CREATE TABLE IF NOT exists ethereum.contract_summary (
+CREATE TABLE IF NOT exists ${chainName}.contract_summary (
     hash text PRIMARY KEY,
     confirmed_balance text,
     smart_contract boolean,
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT exists ethereum.contract_summary (
     kafka_delta_offset_committed boolean
 );
 
-CREATE TABLE IF NOT exists ethereum.mined_block_by_contract (
+CREATE TABLE IF NOT exists ${chainName}.mined_block_by_contract (
     miner_contract_hash text,
     block_number bigint,
     block_time timestamp,
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT exists ethereum.mined_block_by_contract (
 )  WITH CLUSTERING ORDER BY ( block_number DESC );
 
 
-CREATE TABLE IF NOT exists ethereum.uncle (
+CREATE TABLE IF NOT exists ${chainName}.uncle (
      hash text PRIMARY KEY,
      position int,
      number bigint,
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT exists ethereum.uncle (
 );
 
 
-CREATE TABLE IF NOT exists ethereum.mined_uncle_by_contract (
+CREATE TABLE IF NOT exists ${chainName}.mined_uncle_by_contract (
      hash text,
      position int,
      number bigint,

@@ -1,6 +1,6 @@
 {
   "method": "PUT",
-  "url": "/bitcoin.block/_mapping/block",
+  "url": "/${chainName}.block/_mapping/block",
   "data": {
     "block": {
       "properties": {
