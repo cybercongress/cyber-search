@@ -43,7 +43,10 @@ class CommonConfiguration {
 
 
     @Bean
-    fun chainInfo() = ChainInfo(ChainFamily.valueOf(chainFamily), chainName)
+    fun chainInfo() = ChainInfo(
+        ChainFamily.valueOf(chainFamily),
+        if (chainName.isEmpty()) chainFamily else chainName
+    )
 
     @Bean
     fun producerFactory(): ProducerFactory<PumpEvent, Any> {
@@ -52,7 +55,7 @@ class CommonConfiguration {
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers
         )
         return DefaultKafkaProducerFactory<PumpEvent, Any>(config, JsonSerializer(), JsonSerializer())
-            .apply { setTransactionIdPrefix(chainInfo().fullName + "_SUPPLY") }
+            .apply { setTransactionIdPrefix(chainInfo().name + "_SUPPLY") }
     }
 
     @Bean
