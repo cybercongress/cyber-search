@@ -2,7 +2,8 @@ package fund.cyber.contract.ethereum
 
 import fund.cyber.contract.ethereum.delta.EthereumContractSummaryDelta
 import fund.cyber.contract.ethereum.delta.EthereumBlockDeltaProcessor
-import fund.cyber.search.model.chains.EthereumFamilyChain
+import fund.cyber.search.model.chains.ChainFamily
+import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.blockPumpTopic
@@ -18,12 +19,14 @@ import java.time.Instant
 @DisplayName("Ethereum block delta processor test: ")
 class EthereumBlockDeltaProcessorTest {
 
+    private val chainInfo = ChainInfo(ChainFamily.ETHEREUM)
+
     private val expectedDelta = EthereumContractSummaryDelta(
         contract = "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
         balanceDelta = BigDecimal("5.089262252548096035"),
         smartContract = null, totalReceivedDelta = BigDecimal("5.089262252548096035"), txNumberDelta = 0,
         uncleNumberDelta = 0, minedBlockNumberDelta = 1,
-        topic = EthereumFamilyChain.ETHEREUM.blockPumpTopic, partition = 0, offset = 0,
+        topic = chainInfo.blockPumpTopic, partition = 0, offset = 0,
         lastOpTime = Instant.ofEpochMilli(100000)
     )
 
@@ -32,7 +35,7 @@ class EthereumBlockDeltaProcessorTest {
         balanceDelta = BigDecimal("5.089262252548096035").negate(),
         smartContract = null, totalReceivedDelta = BigDecimal("5.089262252548096035").negate(),
         txNumberDelta = 0, uncleNumberDelta = 0, minedBlockNumberDelta = -1,
-        topic = EthereumFamilyChain.ETHEREUM.blockPumpTopic, partition = 0, offset = 0,
+        topic = chainInfo.blockPumpTopic, partition = 0, offset = 0,
         lastOpTime = Instant.ofEpochMilli(100000)
     )
 
@@ -52,7 +55,7 @@ class EthereumBlockDeltaProcessorTest {
     @Test
     @DisplayName("Should correctly convert ethereum block to contract deltas")
     fun testRecordToDeltas() {
-        val record = ConsumerRecord<PumpEvent, EthereumBlock>(EthereumFamilyChain.ETHEREUM.blockPumpTopic, 0, 0, PumpEvent.NEW_BLOCK, block)
+        val record = ConsumerRecord<PumpEvent, EthereumBlock>(chainInfo.blockPumpTopic, 0, 0, PumpEvent.NEW_BLOCK, block)
 
         val deltas = EthereumBlockDeltaProcessor().recordToDeltas(record)
         Assertions.assertEquals(deltas, listOf(expectedDelta))
@@ -61,7 +64,7 @@ class EthereumBlockDeltaProcessorTest {
     @Test
     @DisplayName("Should correctly convert ethereum block with dropped block event to contract deltas")
     fun testRecordToDeltasDroppedBlock() {
-        val record = ConsumerRecord<PumpEvent, EthereumBlock>(EthereumFamilyChain.ETHEREUM.blockPumpTopic, 0, 0, PumpEvent.DROPPED_BLOCK, block)
+        val record = ConsumerRecord<PumpEvent, EthereumBlock>(chainInfo.blockPumpTopic, 0, 0, PumpEvent.DROPPED_BLOCK, block)
 
         val deltas = EthereumBlockDeltaProcessor().recordToDeltas(record)
         Assertions.assertEquals(deltas, listOf(expectedDroppedDelta))

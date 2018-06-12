@@ -1,6 +1,7 @@
 package fund.cyber.contract.ethereum.delta
 
-import fund.cyber.search.model.chains.EthereumFamilyChain.ETHEREUM
+import fund.cyber.search.model.chains.ChainFamily
+import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.ethereum.CallOperation
 import fund.cyber.search.model.ethereum.CallOperationResult
 import fund.cyber.search.model.ethereum.CreateContractOperation
@@ -30,6 +31,8 @@ internal const val rootTxTo = "88e61af"
 internal const val txFrom = "48f2hl3"
 internal const val txTo = "1g42hl3"
 
+private val chainInfo = ChainInfo(ChainFamily.ETHEREUM)
+
 @SuppressWarnings("LongParameterList", "ComplexMethod")
 internal fun delta(
     contract: String, balanceDelta: BigDecimal, reverted: Boolean = false,
@@ -40,7 +43,7 @@ internal fun delta(
     totalReceivedDelta = if (reverted && balanceDelta > ZERO) -balanceDelta else if (balanceDelta > ZERO) balanceDelta else ZERO,
     txNumberDelta = if (!txDelta) 0 else if (reverted) -1 else 1,
     successfulOpNumberDelta = if (!opDelta) 0 else if (reverted) -1 else 1,
-    topic = ETHEREUM.txPumpTopic, partition = 0, offset = 0, lastOpTime = time
+    topic = chainInfo.txPumpTopic, partition = 0, offset = 0, lastOpTime = time
 )
 
 
@@ -54,7 +57,7 @@ internal fun txRecord(
         from = rootTxFrom, to = rootTxTo, value = value, gasPrice = BigDecimal("0.000000023"), gasLimit = 21000L,
         gasUsed = 20000L, fee = BigDecimal("0.00046"), input = input, createdSmartContract = null, trace = trace
     )
-    return ConsumerRecord(ETHEREUM.txPumpTopic, 0, 0, event, tx)
+    return ConsumerRecord(chainInfo.txPumpTopic, 0, 0, event, tx)
 }
 
 

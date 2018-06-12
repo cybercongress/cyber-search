@@ -10,7 +10,6 @@ import fund.cyber.cassandra.ethereum.repository.EthereumContractUncleRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumUncleRepository
 import fund.cyber.search.model.chains.ChainFamily
 import fund.cyber.search.model.chains.ChainInfo
-import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumUncle
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.unclePumpTopic
@@ -91,7 +90,7 @@ class UncleDumpProcessTest {
     )
 
     fun record(event: PumpEvent, uncle: EthereumUncle) =
-        ConsumerRecord<PumpEvent, EthereumUncle>(EthereumFamilyChain.ETHEREUM.unclePumpTopic, 0, 0, event, uncle)
+        ConsumerRecord<PumpEvent, EthereumUncle>(chainInfo.unclePumpTopic, 0, 0, event, uncle)
 
 
 }

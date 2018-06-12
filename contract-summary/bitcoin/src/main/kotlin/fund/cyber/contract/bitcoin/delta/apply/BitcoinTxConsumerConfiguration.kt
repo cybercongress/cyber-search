@@ -1,16 +1,16 @@
 package fund.cyber.contract.bitcoin.delta.apply
 
-import fund.cyber.contract.common.delta.apply.UpdateContractSummaryProcess
 import fund.cyber.common.kafka.JsonDeserializer
+import fund.cyber.common.kafka.defaultConsumerConfig
+import fund.cyber.common.with
 import fund.cyber.contract.bitcoin.BitcoinContractSummaryStorage
 import fund.cyber.contract.bitcoin.summary.BitcoinDeltaMerger
 import fund.cyber.contract.bitcoin.summary.BitcoinTxDeltaProcessor
-import fund.cyber.common.kafka.defaultConsumerConfig
-import fund.cyber.common.with
+import fund.cyber.contract.common.delta.apply.UpdateContractSummaryProcess
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
 import fund.cyber.search.model.bitcoin.BitcoinTx
-import fund.cyber.search.model.chains.Chain
+import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.txPumpTopic
 import io.micrometer.core.instrument.MeterRegistry
@@ -39,7 +39,7 @@ class BitcoinTxConsumerConfiguration {
     private lateinit var kafkaBrokers: String
 
     @Autowired
-    private lateinit var chain: Chain
+    private lateinit var chainInfo: ChainInfo
 
     @Autowired
     private lateinit var txDeltaProcessor: BitcoinTxDeltaProcessor
@@ -60,7 +60,7 @@ class BitcoinTxConsumerConfiguration {
                 consumerConfigs(), JsonDeserializer(PumpEvent::class.java), JsonDeserializer(BitcoinTx::class.java)
         )
 
-        val containerProperties = ContainerProperties(chain.txPumpTopic).apply {
+        val containerProperties = ContainerProperties(chainInfo.txPumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
             messageListener = UpdateContractSummaryProcess(contractSummaryStorage, txDeltaProcessor, deltaMerger,
                     monitoring, kafkaBrokers)
