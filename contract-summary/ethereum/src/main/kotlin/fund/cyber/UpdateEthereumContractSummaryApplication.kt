@@ -7,12 +7,12 @@ import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
 
 
 @SpringBootApplication(exclude = [CassandraDataAutoConfiguration::class, KafkaAutoConfiguration::class])
-class ApplicationConfiguration {
+class UpdateEthereumContractSummaryApplication {
 
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            SpringApplication.run(ApplicationConfiguration::class.java, *args)
+            SpringApplication.run(UpdateEthereumContractSummaryApplication::class.java, *args)
         }
     }
 }

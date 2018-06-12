@@ -1,9 +1,9 @@
 {
   "method": "PUT",
-  "url": "/ethereum.contract_summary/",
+  "url": "/${chainName}.contract_summary/",
   "data": {
     "settings": {
-      "keyspace": "ethereum"
+      "keyspace": "${chainName}"
     }
   }
 }

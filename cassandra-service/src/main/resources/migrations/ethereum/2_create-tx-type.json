@@ -1,6 +1,6 @@
 {
   "method": "PUT",
-  "url": "/ethereum.tx/_mapping/tx",
+  "url": "/${chainName}.tx/_mapping/tx",
   "data": {
     "tx": {
       "properties": {

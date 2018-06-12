@@ -7,7 +7,7 @@ import com.datastax.driver.core.PoolingOptions
 import com.datastax.driver.core.policies.DCAwareRoundRobinPolicy
 import com.datastax.driver.core.policies.LoadBalancingPolicy
 import com.datastax.driver.core.policies.TokenAwarePolicy
-import fund.cyber.search.model.chains.Chain
+import fund.cyber.search.model.chains.ChainInfo
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -35,7 +35,7 @@ const val MAX_CONCURRENT_REQUESTS = 8182
 const val MAX_PER_ROUTE = 16
 const val MAX_TOTAL = 32
 
-val Chain.keyspace: String get() = lowerCaseName
+val ChainInfo.keyspace: String get() = nameLowerCase
 
 const val REPOSITORY_NAME_DELIMITER = "__"
 

@@ -18,17 +18,17 @@ interface ElasticMigration : Migration {
 }
 
 class ElasticHttpMigration(
-        override val id: String,
-        override val applicationId: String,
-        private val fileContent: String
+    override val id: String,
+    override val applicationId: String,
+    private val fileContent: String
 ) : ElasticMigration {
 
     private val jsonDeserializer = ObjectMapper().registerKotlinModule()
 
     private data class HttpMigrationDescription(
-            val method: String,
-            val url: String,
-            val data: JsonNode
+        val method: String,
+        val url: String,
+        val data: JsonNode
     )
 
     override fun getRequest(): HttpUriRequest {
@@ -36,8 +36,8 @@ class ElasticHttpMigration(
         val migration = jsonDeserializer.readValue(fileContent, HttpMigrationDescription::class.java)
 
         return RequestBuilder.create(migration.method)
-                .setUri(URI.create(migration.url))
-                .setEntity(ByteArrayEntity(migration.data.toString().toByteArray()))
-                .build()
+            .setUri(URI.create(migration.url))
+            .setEntity(ByteArrayEntity(migration.data.toString().toByteArray()))
+            .build()
     }
 }

@@ -7,12 +7,14 @@ import fund.cyber.pump.common.node.BlockchainInterface
 import fund.cyber.pump.common.pool.PoolInterface
 import fund.cyber.search.model.bitcoin.BitcoinBlock
 import fund.cyber.search.model.bitcoin.BitcoinTx
+import fund.cyber.search.model.bitcoin.JsonRpcBitcoinTransaction
 import fund.cyber.search.model.chains.ChainEntity
 import fund.cyber.search.model.chains.ChainEntityType
 import io.micrometer.core.instrument.MeterRegistry
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import org.ehcache.Cache
+import org.springframework.retry.support.RetryTemplate
 import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
 
@@ -43,7 +45,8 @@ class BitcoinBlockchainInterface(
     private val bitcoinJsonRpcClient: BitcoinJsonRpcClient,
     private val rpcToBundleEntitiesConverter: JsonRpcBlockToBitcoinBundleConverter,
     monitoring: MeterRegistry,
-    private val mempoolHashesCache: Cache<String, String>
+    private val mempoolHashesCache: Cache<String, String>,
+    private val retryTemplate: RetryTemplate
 ) : BlockchainInterface<BitcoinBlockBundle>, PoolInterface<BitcoinTx> {
 
     private val downloadSpeedMonitor = monitoring.timer("pump_bundle_download")
@@ -68,7 +71,7 @@ class BitcoinBlockchainInterface(
         return Flowable
             .interval(MEMPOOL_TXES_QUERYING_INTERVAL, TimeUnit.SECONDS)
             .onBackpressureDrop()
-            .map { _ ->  bitcoinJsonRpcClient.getTxMempool()}
+            .map { _ ->  bitcoinJsonRpcClient.getTxMempool()}.onErrorReturn { emptyList() }
             .flatMap({ txes ->
                 Flowable
                     .fromIterable(txes)
@@ -85,6 +88,8 @@ class BitcoinBlockchainInterface(
 
     private fun getMempoolTx(hash: String): BitcoinTx {
         mempoolHashesCache.put(hash, mempoolCacheValue)
-        return rpcToBundleEntitiesConverter.convertToMempoolTx(bitcoinJsonRpcClient.getTx(hash))
+        return rpcToBundleEntitiesConverter.convertToMempoolTx(
+            retryTemplate.execute<JsonRpcBitcoinTransaction, Exception> { bitcoinJsonRpcClient.getTx(hash) }
+        )
     }
 }

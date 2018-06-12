@@ -11,60 +11,49 @@ import reactor.core.publisher.Mono
 
 @RestController
 class SearchController(
-        private val elasticClient: TransportClient
+    private val elasticClient: TransportClient
 ) {
 
     //todo slice caching, general web caching
     @GetMapping("/search")
     fun search(
-            @RequestParam query: String,
-            @RequestParam(required = false, defaultValue = "0") page: Int,
-            @RequestParam(required = false, defaultValue = "10") pageSize: Int,
-            @RequestParam(required = false, defaultValue = "") chains: Array<String>,
-            @RequestParam(required = false, defaultValue = "") types: Array<String>
+        @RequestParam query: String,
+        @RequestParam(required = false, defaultValue = "0") page: Int,
+        @RequestParam(required = false, defaultValue = "10") pageSize: Int,
+        @RequestParam(required = false, defaultValue = "") chains: Array<String>,
+        @RequestParam(required = false, defaultValue = "") types: Array<String>
     ): Mono<SearchResponse> {
 
-        val elasticQuery = QueryBuilders.matchQuery("_all", query)
-                .fuzziness(Fuzziness.ZERO)
+        val elasticQuery = QueryBuilders.matchQuery("_all", query).fuzziness(Fuzziness.ZERO)
 
-        val elasticResponse = elasticClient.prepareSearch(*prepareIndices(chains, types))
+        return Mono.fromCallable {
+            elasticClient.prepareSearch(*prepareIndices(chains, types))
                 .setIndicesOptions(IndicesOptions.lenientExpandOpen())
                 .setTypes()
                 .setQuery(elasticQuery)
                 .setFrom(page * pageSize).setSize(pageSize).setExplain(true)
                 .get()
-
-        val responseItems = elasticResponse.hits.map { hit ->
-            val chain = hit.index.substringBefore(".")
-            val entity = hit.index.substringAfter(".")
-            ItemPreview(chain, entity, hit.sourceAsString)
-        }
-
-        return Mono.just(
-                SearchResponse(
-                        query = query, page = page, pageSize = pageSize, totalHits = elasticResponse.hits.totalHits,
-                        items = responseItems, searchTime = elasticResponse.tookInMillis
-                )
-        )
+        }.map { elasticResponse -> elasticResponse.toCyberSearchResponse(query, page, pageSize) }
     }
 
     @GetMapping("/search/stats")
-    fun searchStats() : Mono<SearchStatsResponse> {
+    fun searchStats(): Mono<SearchStatsResponse> {
 
-        val indicesStats = elasticClient.admin().indices().prepareStats().setStore(true).setDocs(true).execute().get()
+        return Mono.fromCallable {
+            elasticClient.admin().indices().prepareStats().setStore(true).setDocs(true).execute().get()
+        }.map { indicesStats -> indicesStats.searchStats() }
+    }
 
-        val indexSizeBytes = indicesStats.total.store.sizeInBytes
+    @GetMapping("/search/chains")
+    fun searchChains(): Mono<Map<String, List<String>>> {
 
-        val transactionsCount = indicesStats.indices
-            .filterKeys { indexName ->  indexName.endsWith("tx", true)}
-            .values.map { txIndexStat -> txIndexStat.primaries.docs.count }.sum()
-
-        val chains = indicesStats.indices.keys.map { indexName -> indexName.substringBefore(".") }.toSet()
-
-        return Mono.just(SearchStatsResponse(chains.size, transactionsCount, indexSizeBytes))
+        return Mono
+            .fromCallable { elasticClient.admin().indices().prepareStats().execute().get() }
+            .map { indicesStats -> indicesStats.chainEntities() }
     }
 
     private fun prepareIndices(chains: Array<String>, types: Array<String>): Array<String> {
+
         val chainsToFilter = if (chains.isEmpty()) arrayOf("*") else chains
         val typesToFilter = if (types.isEmpty()) arrayOf("*") else types
 

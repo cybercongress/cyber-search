@@ -14,7 +14,7 @@ import java.math.BigInteger
 import java.time.Instant
 
 @DirtiesContext
-@TestPropertySource(properties = ["CHAIN:BITCOIN"])
+@TestPropertySource(properties = ["CHAIN_FAMILY:BITCOIN"])
 class RoutingReactiveCassandraRepositoryTest : CassandraTestBase() {
 
     @Autowired

@@ -53,7 +53,7 @@ class KafkaProducerConfiguration {
     fun producerFactory(): ProducerFactory<PumpEvent, Any> {
         return DefaultKafkaProducerFactory<PumpEvent, Any>(producerConfigs(), JsonSerializer(), JsonSerializer())
                 .apply {
-                    setTransactionIdPrefix(chainInfo.fullName + "_PUMP")
+                    setTransactionIdPrefix(chainInfo.name + "_PUMP")
                 }
     }
 

@@ -3,15 +3,16 @@ package fund.cyber.api.bitcoin.handlers
 import fund.cyber.api.bitcoin.dto.ContractSummaryDto
 import fund.cyber.api.common.BiRepositoryItemRequestHandler
 import fund.cyber.api.common.SingleRepositoryItemRequestHandler
+import fund.cyber.api.common.asServerResponse
 import fund.cyber.api.common.toPageableResponse
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractSummaryRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractMinedBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractTxRepository
+import fund.cyber.common.toSearchHashFormat
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.DependsOn
-import org.springframework.web.reactive.function.server.ServerResponse
 
 @Configuration
 @DependsOn("bitcoin-search-repositories")
@@ -24,7 +25,7 @@ class BitcoinContractHandlersConfiguration {
         BitcoinContractTxRepository::class.java
     ) { request, contractSummaryRepository, contractTxRepository ->
 
-        val contractHash = request.pathVariable("hash")
+        val contractHash = request.pathVariable("hash").toSearchHashFormat()
 
         val contract = contractSummaryRepository.findById(contractHash)
         val contractUnconfirmedTxes = contractTxRepository.findAllByContractHashAndBlockTime(contractHash, -1)
@@ -32,7 +33,7 @@ class BitcoinContractHandlersConfiguration {
         val result = contract.zipWith(contractUnconfirmedTxes.collectList()) { contr, txes ->
             ContractSummaryDto(contr, txes)
         }
-        ServerResponse.ok().body(result, ContractSummaryDto::class.java)
+        result.asServerResponse()
     }
 
     @Bean
@@ -41,7 +42,7 @@ class BitcoinContractHandlersConfiguration {
         PageableBitcoinContractTxRepository::class.java
     ) { request, repository ->
 
-        val hash = request.pathVariable("hash")
+        val hash = request.pathVariable("hash").toSearchHashFormat()
         request.toPageableResponse { pageable -> repository.findAllByContractHash(hash, pageable) }
     }
 
@@ -51,7 +52,7 @@ class BitcoinContractHandlersConfiguration {
         PageableBitcoinContractMinedBlockRepository::class.java
     ) { request, repository ->
 
-        val hash = request.pathVariable("hash")
+        val hash = request.pathVariable("hash").toSearchHashFormat()
         request.toPageableResponse { pageable -> repository.findAllByMinerContractHash(hash, pageable) }
     }
 

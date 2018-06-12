@@ -1,10 +1,10 @@
 
-CREATE TYPE IF NOT EXISTS bitcoin.tx_preview_io (
+CREATE TYPE IF NOT EXISTS ${chainName}.tx_preview_io (
     contracts FROZEN < list < text > >,
     amount decimal
 );
 
-CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_contract (
+CREATE TABLE IF NOT EXISTS ${chainName}.tx_preview_by_contract (
     contract_hash text,
     fee decimal,
     block_number bigint,
@@ -15,22 +15,22 @@ CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_contract (
     PRIMARY KEY ( contract_hash, block_time, hash )
 ) WITH CLUSTERING ORDER BY ( block_time DESC );
 
-CREATE TABLE IF NOT EXISTS bitcoin.tx_preview_by_block (
+CREATE TABLE IF NOT EXISTS ${chainName}.tx_preview_by_block (
     block_number bigint,
     "index" int,
     fee decimal,
     hash text,
-    ins FROZEN < list < bitcoin.tx_preview_io > >,
-    outs FROZEN < list < bitcoin.tx_preview_io > >,
+    ins FROZEN < list < ${chainName}.tx_preview_io > >,
+    outs FROZEN < list < ${chainName}.tx_preview_io > >,
     PRIMARY KEY ( block_number, "index" )
 ) WITH CLUSTERING ORDER BY ( "index" ASC );
 
-CREATE TYPE IF NOT EXISTS bitcoin.script_sig (
+CREATE TYPE IF NOT EXISTS ${chainName}.script_sig (
     asm text,
     hex text
 );
 
-CREATE TYPE IF NOT EXISTS bitcoin.tx_out (
+CREATE TYPE IF NOT EXISTS ${chainName}.tx_out (
     contracts FROZEN < list < text > >,
     amount decimal,
     asm text,
@@ -38,16 +38,16 @@ CREATE TYPE IF NOT EXISTS bitcoin.tx_out (
     required_signatures int
 );
 
-CREATE TYPE IF NOT EXISTS bitcoin.tx_in (
+CREATE TYPE IF NOT EXISTS ${chainName}.tx_in (
     contracts FROZEN < list < text > >,
     amount decimal,
-    scriptSig FROZEN < bitcoin.script_sig >,
+    scriptSig FROZEN < ${chainName}.script_sig >,
     txinwitness FROZEN < list < text > >,
     tx_hash text,
     tx_out int
 );
 
-CREATE TABLE IF NOT EXISTS bitcoin.tx (
+CREATE TABLE IF NOT EXISTS ${chainName}.tx (
      hash text PRIMARY KEY,
      block_number bigint,
      block_hash text,
@@ -58,13 +58,13 @@ CREATE TABLE IF NOT EXISTS bitcoin.tx (
      fee text,
      total_input text,
      total_output text,
-     ins FROZEN < list < bitcoin.tx_in > >,
-     outs FROZEN < list < bitcoin.tx_out > >
+     ins FROZEN < list < ${chainName}.tx_in > >,
+     outs FROZEN < list < ${chainName}.tx_out > >
 );
 
 
 
-CREATE TABLE IF NOT EXISTS bitcoin.block (
+CREATE TABLE IF NOT EXISTS ${chainName}.block (
      hash text,
      parent_hash text,
      number bigint PRIMARY KEY,
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS bitcoin.block (
      difficulty varint
 );
 
-CREATE TABLE IF NOT exists bitcoin.mined_block_by_contract (
+CREATE TABLE IF NOT exists ${chainName}.mined_block_by_contract (
     miner_contract_hash text,
     block_number bigint,
     block_time timestamp,
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT exists bitcoin.mined_block_by_contract (
 )  WITH CLUSTERING ORDER BY ( block_number DESC );
 
 
-CREATE TABLE IF NOT EXISTS bitcoin.contract_summary (
+CREATE TABLE IF NOT EXISTS ${chainName}.contract_summary (
     hash text PRIMARY KEY,
     confirmed_balance text,
     confirmed_total_received text,

@@ -22,21 +22,20 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.requests.IsolationLevel
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.scheduling.annotation.EnableScheduling
-import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer
 import org.springframework.retry.RetryCallback
 import org.springframework.retry.RetryContext
 import org.springframework.retry.backoff.ExponentialBackOffPolicy
 import org.springframework.retry.listener.RetryListenerSupport
 import org.springframework.retry.policy.AlwaysRetryPolicy
 import org.springframework.retry.support.RetryTemplate
+import org.springframework.scheduling.TaskScheduler
+import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
 import org.springframework.web.reactive.config.EnableWebFlux
 import java.util.*
-import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
-import org.springframework.scheduling.TaskScheduler
-
 
 
 private val log = LoggerFactory.getLogger(DefaultRetryListenerSupport::class.java)!!
@@ -65,7 +64,7 @@ class CommonConfiguration(
     fun chainInfo(): ChainInfo {
         val chainFamilyAsString = env(CHAIN_FAMILY, "")
         val chainFamily = ChainFamily.valueOf(chainFamilyAsString)
-        val chainName = env(CHAIN_NAME, "")
+        val chainName = env(CHAIN_NAME, chainFamily.toString())
         val chainNodeUrl = env(CHAIN_NODE_URL, chainFamily.defaultNodeUrl)
 
         return ChainInfo(ChainFamily.valueOf(chainFamilyAsString), chainName, chainNodeUrl)
@@ -75,7 +74,7 @@ class CommonConfiguration(
     fun metricsCommonTags(
         chainInfo: ChainInfo
     ): MeterRegistryCustomizer<MeterRegistry> {
-        return MeterRegistryCustomizer { registry -> registry.config().commonTags("chain", chainInfo.fullName) }
+        return MeterRegistryCustomizer { registry -> registry.config().commonTags("chain", chainInfo.name) }
     }
 
     @Bean

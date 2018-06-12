@@ -1,9 +1,0 @@
-{
-  "method": "PUT",
-  "url": "/bitcoin_cash.block/",
-  "data": {
-    "settings": {
-      "keyspace": "bitcoin_cash"
-    }
-  }
-}

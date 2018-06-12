@@ -48,13 +48,13 @@ enum class ChainFamily(
 
 class ChainInfo(
     val family: ChainFamily,
-    val name: String = "",
+    val name: String = family.toString(),
     val nodeUrl: String = family.defaultNodeUrl
 ) {
 
-    val fullName get() = family.name + if (name.isEmpty()) "" else "_$name"
-    val fullNameLowerCase get() = fullName.toLowerCase()
     val entityTypes get() = family.entityTypes.keys
+    val familyNameLowerCase get() = family.toString().toLowerCase()
+    val nameLowerCase get() = name.toLowerCase()
 
     fun entityClassByType(type: ChainEntityType) = family.entityTypes[type]
 }

@@ -9,7 +9,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 
 @DirtiesContext
-@TestPropertySource(properties = ["CHAIN:BITCOIN"])
+@TestPropertySource(properties = ["CHAIN_FAMILY:BITCOIN"])
 class BitcoinContextStartUpTest : CassandraTestBase() {
 
     @Autowired

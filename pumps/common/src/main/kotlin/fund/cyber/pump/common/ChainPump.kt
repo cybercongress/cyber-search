@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.DependsOn
+import org.springframework.retry.support.RetryTemplate
 import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
@@ -34,9 +35,10 @@ class ChainPump<T : BlockBundle>(
     private val lastPumpedBlockNumberProvider: LastPumpedBlockNumberProvider,
     private val monitoring: MeterRegistry,
     @Value("\${$STACK_CACHE_SIZE:$STACK_CACHE_SIZE_DEFAULT}")
-        private val stackCacheSize: Int,
+    private val stackCacheSize: Int,
     private val blockBundleEventGenerator: BlockBundleEventGenerator<T>,
-    private val applicationContext: ConfigurableApplicationContext
+    private val applicationContext: ConfigurableApplicationContext,
+    private val retryTemplate: RetryTemplate
 ) {
 
     fun startPump() {
@@ -59,29 +61,31 @@ class ChainPump<T : BlockBundle>(
         val history = initializeStackCache()
 
         flowableBlockchainInterface.subscribeBlocks(startBlockNumber)
-                .flatMap { blockBundle -> blockBundleEventGenerator.generate(blockBundle, history).toFlowable() }
-                .buffer(BLOCK_BUFFER_TIMESPAN, TimeUnit.SECONDS)
-                .blockingSubscribe(
-                        { blockBundleEvents ->
-                            if (blockBundleEvents.isEmpty()) return@blockingSubscribe
-                            blockBundleEvents.forEach { event ->
-                                val bundle = event.second
-                                lastProcessedBlockMonitor.set(bundle.number)
-                                blockSizeMonitor.record(bundle.blockSize.toDouble())
-                            }
-                            val blocksToWrite = blockBundleEvents.filter { e -> e.first == PumpEvent.NEW_BLOCK }
-                                    .map { e -> e.second }
-                            log.trace("Writing ${blocksToWrite.first().number}-${blocksToWrite.last().number} blocks")
-                            kafkaWriteMonitor.recordCallable {
-                                kafkaBlockBundleProducer.storeBlockBundle(blockBundleEvents)
-                            }
-                        },
-                        { error ->
-                            log.error("Error during processing stream", error)
-                            log.info("Closing application context...")
-                            applicationContext.close()
+            .flatMap { blockBundle -> blockBundleEventGenerator.generate(blockBundle, history).toFlowable() }
+            .buffer(BLOCK_BUFFER_TIMESPAN, TimeUnit.SECONDS)
+            .blockingSubscribe(
+                { blockBundleEvents ->
+                    if (blockBundleEvents.isEmpty()) return@blockingSubscribe
+                    blockBundleEvents.forEach { event ->
+                        val bundle = event.second
+                        lastProcessedBlockMonitor.set(bundle.number)
+                        blockSizeMonitor.record(bundle.blockSize.toDouble())
+                    }
+                    val blocksToWrite = blockBundleEvents.filter { e -> e.first == PumpEvent.NEW_BLOCK }
+                        .map { e -> e.second }
+                    log.trace("Writing ${blocksToWrite.first().number}-${blocksToWrite.last().number} blocks")
+                    kafkaWriteMonitor.recordCallable {
+                        retryTemplate.execute<Unit, Exception> {
+                            kafkaBlockBundleProducer.storeBlockBundle(blockBundleEvents)
                         }
-                )
+                    }
+                },
+                { error ->
+                    log.error("Error during processing stream", error)
+                    log.info("Closing application context...")
+                    applicationContext.close()
+                }
+            )
     }
 
     private fun initializeStackCache() = StackCache<T>(stackCacheSize)
