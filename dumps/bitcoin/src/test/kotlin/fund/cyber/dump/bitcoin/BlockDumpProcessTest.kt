@@ -9,7 +9,6 @@ import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractMinedBlock
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractMinedBlockRepository
 import fund.cyber.search.model.bitcoin.BitcoinBlock
-import fund.cyber.search.model.chains.BitcoinFamilyChain
 import fund.cyber.search.model.chains.ChainFamily
 import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.events.PumpEvent
@@ -96,7 +95,7 @@ class BlockDumpProcessTest {
     )
 
     fun record(event: PumpEvent, block: BitcoinBlock) =
-        ConsumerRecord<PumpEvent, BitcoinBlock>(BitcoinFamilyChain.BITCOIN.blockPumpTopic, 0, 0, event, block)
+        ConsumerRecord<PumpEvent, BitcoinBlock>(chainInfo.blockPumpTopic, 0, 0, event, block)
 
 
 }

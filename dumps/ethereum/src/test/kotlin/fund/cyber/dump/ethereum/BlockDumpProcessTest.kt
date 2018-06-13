@@ -4,13 +4,12 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
-import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedBlock
 import fund.cyber.cassandra.ethereum.model.CqlEthereumBlock
-import fund.cyber.cassandra.ethereum.repository.EthereumContractMinedBlockRepository
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractMinedBlock
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
+import fund.cyber.cassandra.ethereum.repository.EthereumContractMinedBlockRepository
 import fund.cyber.search.model.chains.ChainFamily
 import fund.cyber.search.model.chains.ChainInfo
-import fund.cyber.search.model.chains.EthereumFamilyChain
 import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.blockPumpTopic
@@ -99,7 +98,7 @@ class BlockDumpProcessTest {
     )
 
     fun record(event: PumpEvent, block: EthereumBlock) =
-        ConsumerRecord<PumpEvent, EthereumBlock>(EthereumFamilyChain.ETHEREUM.blockPumpTopic, 0, 0, event, block)
+        ConsumerRecord<PumpEvent, EthereumBlock>(chainInfo.blockPumpTopic, 0, 0, event, block)
 
 
 }
