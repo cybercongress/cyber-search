@@ -11,10 +11,6 @@ import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
 import io.micrometer.core.instrument.Timer
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.newFixedThreadPoolContext
-import kotlinx.coroutines.experimental.runBlocking
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -22,10 +18,10 @@ import org.springframework.kafka.listener.BatchConsumerAwareMessageListener
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
-import java.util.concurrent.TimeUnit
-import kotlin.coroutines.experimental.Continuation
-import kotlin.coroutines.experimental.suspendCoroutine
+import reactor.core.scheduler.Schedulers
 
+
+private fun <T> Flux<T>.await() = this.collectList().block()!!
 
 fun CqlContractSummary.hasSameTopicPartitionAs(delta: ContractSummaryDelta<*>) =
     this.kafkaDeltaTopic == delta.topic && this.kafkaDeltaPartition == delta.partition
@@ -41,7 +37,7 @@ fun CqlContractSummary.committed() = this.kafkaDeltaOffsetCommitted
 fun CqlContractSummary.notCommitted() = committed().not()
 
 @Suppress("MagicNumber")
-private val applicationContext = newFixedThreadPoolContext(8, "Coroutines Concurrent Pool")
+private val storeDeltasThreadPool = Schedulers.newParallel("store-deltas", 8)
 private val log = LoggerFactory.getLogger(UpdateContractSummaryProcess::class.java)!!
 
 private const val MAX_STORE_ATTEMPTS = 20
@@ -114,13 +110,10 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
         try {
 
             deltaStoreTimer.recordCallable {
-                runBlocking {
-                    mergedDeltas.values.map { delta ->
-                        async(applicationContext) {
-                            store(contractsSummary[delta.contract], delta, storeAttempts, previousStates)
-                        }
-                    }.map { it.await() }
-                }
+                mergedDeltas.values.toFlux().flatMap { delta ->
+                    Mono.fromCallable { store(contractsSummary[delta.contract], delta, storeAttempts, previousStates) }
+                        .subscribeOn(storeDeltasThreadPool)
+                }.await()
             }
 
             commitKafkaTimer.recordCallable { consumer.commitSync() }
@@ -162,8 +155,8 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
     }
 
     @Suppress("ComplexMethod", "NestedBlockDepth")
-    private suspend fun store(summary: S?, delta: D, storeAttempts: MutableMap<String, Int>,
-                              previousStates: MutableMap<String, S?>) {
+    private fun store(summary: S?, delta: D, storeAttempts: MutableMap<String, Int>,
+                      previousStates: MutableMap<String, S?>) {
 
         previousStates[delta.contract] = summary
         if (summary != null) {
@@ -190,7 +183,7 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
                         throw ContractLockException()
                     }
                 } else {
-                    delay(STORE_RETRY_TIMEOUT, TimeUnit.MILLISECONDS)
+                    Thread.sleep(STORE_RETRY_TIMEOUT)
                     val inc = storeAttempts.getOrPut(delta.contract, { 1 }).inc()
                     storeAttempts[delta.contract] = inc
                     store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
@@ -205,10 +198,10 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
         }
     }
 
-    private suspend fun D.applyTo(summary: S): Boolean =
-        contractSummaryStorage.update(this.updateSummary(summary), summary.version).await()!!
+    private fun D.applyTo(summary: S): Boolean =
+        contractSummaryStorage.update(this.updateSummary(summary), summary.version).block()!!
 
-    private suspend fun getSummaryByDelta(delta: D) = contractSummaryStorage.findById(delta.contract).await()
+    private fun getSummaryByDelta(delta: D) = contractSummaryStorage.findById(delta.contract).block()!!
 
     private fun initMonitors(info: UpdateInfo) {
         val tags = Tags.of("topic", info.topic)
@@ -244,15 +237,4 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
         return reader.readLastOffset(partition)
     }
 
-    private suspend fun <T> Mono<T>.await(): T? {
-        return suspendCoroutine { cont: Continuation<T> ->
-            doOnSuccessOrError { data, error ->
-                if (error == null) cont.resume(data) else cont.resumeWithException(error)
-            }.subscribe()
-        }
-    }
-
 }
-
-private fun <T> Flux<T>.await() = this.collectList().block()!!
-
