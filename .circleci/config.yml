@@ -51,6 +51,29 @@ jobs:
             - ~/.gradle/caches/
             - ~/.gradle/wrapper/
 
+
+  update_changelog:
+    <<: *defaults
+    steps:
+      - setup_remote_docker:
+          version: 17.11.0-ce
+      - checkout
+      - run:
+          name: Build And Test Project
+          command: |
+            cid=$(docker run -d -it ferrarimarco/github-changelog-generator cybercongress/cyber-search --exclude-tags-regex .*[.].*[.].*[.].* --token $CHANGELOG_GITHUB_TOKEN )
+            docker attach $cid
+            docker cp $cid:/usr/local/src/your-app/CHANGELOG.md ./CHANGELOG.md
+            diff=$(git diff CHANGELOG.md)
+            if [[ "diff" != "" ]]; then
+              git config --global user.email "hleb.albau@gmail.com"
+              git config --global user.name "Hleb Albau"
+              git add CHANGELOG.md
+              git commit -m "Circle CI: Update Changelog"
+              git push --set-upstream origin master
+            fi
+
+
 # Ethereum Images
   deploy_chain_pumps_ethereum_image:
      <<: *defaults
@@ -217,6 +240,12 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - update_changelog:
+          requires:
+            - build_project
+          filters:
+            branches:
+              only: master
       - deploy_chain_pumps_ethereum_image:
           <<: *release_filter
           requires:
