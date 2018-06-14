@@ -65,7 +65,7 @@ jobs:
             docker attach $cid
             docker cp $cid:/usr/local/src/your-app/CHANGELOG.md ./CHANGELOG.md
             diff=$(git diff CHANGELOG.md)
-            if [[ "diff" != "" ]]; then
+            if [[  -n  "$diff" ]]; then
               git config --global user.email "hleb.albau@gmail.com"
               git config --global user.name "Hleb Albau"
               git add CHANGELOG.md
