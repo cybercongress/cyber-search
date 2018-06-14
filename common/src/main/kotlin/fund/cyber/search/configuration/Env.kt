@@ -1,6 +1,5 @@
 package fund.cyber.search.configuration
 
-const val CHAIN = "CHAIN"
 const val CHAIN_FAMILY = "CHAIN_FAMILY"
 const val CHAIN_NAME = "CHAIN_NAME"
 const val CHAIN_NODE_URL = "CHAIN_NODE_URL"

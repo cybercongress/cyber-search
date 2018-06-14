@@ -33,14 +33,14 @@ services:
   prometheus:
     container_name: eth-demo-prometheus
     restart: on-failure
-    image: prom/prometheus:v2.1.0
+    image: prom/prometheus:v2.2.1
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
 
   grafana:
     container_name: eth-demo-grafana
     restart: on-failure
-    image: grafana/grafana:5.0.4
+    image: grafana/grafana:5.1.3
     ports:
       - "3000:3000"
     volumes:
@@ -51,7 +51,7 @@ services:
     restart: on-failure
     image: cybernode/chain-pump-ethereum:latest
     environment:
-      CHAIN: ETHEREUM
+      CHAIN_FAMILY: ETHEREUM
       CHAIN_NODE_URL: https://mainnet.infura.io/GMVKMsZ5obvCbSIJFrfU
       KAFKA_BROKERS: eth-demo-fast-data-dev-search:9092
 
@@ -60,7 +60,7 @@ services:
     restart: on-failure
     image: cybernode/chain-dump-cassandra-ethereum:latest
     environment:
-      CHAIN: ETHEREUM
+      CHAIN_FAMILY: ETHEREUM
       KAFKA_BROKERS: eth-demo-fast-data-dev-search:9092
       CASSANDRA_HOSTS: eth-demo-elassandra-search
 
@@ -72,12 +72,3 @@ services:
       CASSANDRA_HOSTS: eth-demo-elassandra-search
     ports:
       - "8080:8080"
-
-  browser:
-    container_name: eth-demo-browser
-    restart: on-failure
-    image: cybernode/cui-browser:latest
-    environment:
-      CYBER_SEARCH_API: eth-demo-search-api:8080
-    ports:
-      - "8081:80"
