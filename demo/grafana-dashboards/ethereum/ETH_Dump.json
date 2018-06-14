@@ -15,10 +15,536 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
   "links": [],
   "panels": [
     {
+      "cacheTimeout": null,
+      "colorBackground": true,
+      "colorValue": false,
+      "colors": [
+        "#629e51",
+        "#629e51",
+        "#d44a3a"
+      ],
+      "datasource": "PROMETHEUS",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "id": 10,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "$$hashKey": "object:1544",
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "$$hashKey": "object:1545",
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "$$hashKey": "object:651",
+          "expr": "sum(kafka_topic_partition_current_offset{topic=\"ETHEREUM_TX_PUMP\"}) - sum(kafka_consumergroup_current_offset{consumergroup=\"ethereum-txs-dump-process\",topic=\"ETHEREUM_TX_PUMP\"})",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "thresholds": "",
+      "title": "Txs Offsets Remaining",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "$$hashKey": "object:1547",
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": true,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "#629e51",
+        "#d44a3a"
+      ],
+      "datasource": "PROMETHEUS",
+      "format": "s",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "id": 12,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "$$hashKey": "object:748",
+          "expr": "(sum(kafka_topic_partition_current_offset{topic=\"ETHEREUM_TX_PUMP\"}) - sum(kafka_consumergroup_current_offset{consumergroup=\"ethereum-txs-dump-process\", topic=\"ETHEREUM_TX_PUMP\"})) / sum(rate(kafka_consumergroup_current_offset{consumergroup=\"ethereum-txs-dump-process\", topic=\"ETHEREUM_TX_PUMP\"}[10m]))",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "refId": "A"
+        }
+      ],
+      "thresholds": "",
+      "title": "Tx Dump Remaining Time",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": true,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "#5195ce",
+        "#d44a3a"
+      ],
+      "datasource": "PROMETHEUS",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 8,
+        "y": 0
+      },
+      "id": 14,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "$$hashKey": "object:1116",
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "$$hashKey": "object:1117",
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "$$hashKey": "object:943",
+          "expr": "sum(kafka_topic_partition_current_offset{topic=\"ETHEREUM_BLOCK_PUMP\"}) - sum(kafka_consumergroup_current_offset{consumergroup=\"ethereum-blocks-dump-process\",topic=\"ETHEREUM_BLOCK_PUMP\"})",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "thresholds": "",
+      "title": "Blocks Offsets Remaining",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "$$hashKey": "object:1119",
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": true,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "#5195ce",
+        "#d44a3a"
+      ],
+      "datasource": "PROMETHEUS",
+      "format": "s",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 12,
+        "y": 0
+      },
+      "id": 16,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "$$hashKey": "object:1220",
+          "expr": "(sum(kafka_topic_partition_current_offset{topic=\"ETHEREUM_BLOCK_PUMP\"}) - sum(kafka_consumergroup_current_offset{consumergroup=\"ethereum-blocks-dump-process\", topic=\"ETHEREUM_BLOCK_PUMP\"})) / sum(rate(kafka_consumergroup_current_offset{consumergroup=\"ethereum-blocks-dump-process\", topic=\"ETHEREUM_BLOCK_PUMP\"}[10m]))",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "refId": "A"
+        }
+      ],
+      "thresholds": "",
+      "title": "Block Dump Remaining Time",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": true,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "#511749",
+        "#d44a3a"
+      ],
+      "datasource": "PROMETHEUS",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 16,
+        "y": 0
+      },
+      "id": 18,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "$$hashKey": "object:1330",
+          "expr": "sum(kafka_topic_partition_current_offset{topic=\"ETHEREUM_UNCLE_PUMP\"}) - sum(kafka_consumergroup_current_offset{consumergroup=\"ethereum-uncles-dump-process\",topic=\"ETHEREUM_UNCLE_PUMP\"})",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "refId": "A"
+        }
+      ],
+      "thresholds": "",
+      "title": "Uncles Offsets Remaining",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": true,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "#511749",
+        "#d44a3a"
+      ],
+      "datasource": "PROMETHEUS",
+      "format": "s",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "id": 20,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "$$hashKey": "object:1438",
+          "expr": "(sum(kafka_topic_partition_current_offset{topic=\"ETHEREUM_UNCLE_PUMP\"}) - sum(kafka_consumergroup_current_offset{consumergroup=\"ethereum-uncles-dump-process\", topic=\"ETHEREUM_UNCLE_PUMP\"})) / sum(rate(kafka_consumergroup_current_offset{consumergroup=\"ethereum-uncles-dump-process\", topic=\"ETHEREUM_UNCLE_PUMP\"}[10m]))",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "refId": "A"
+        }
+      ],
+      "thresholds": "",
+      "title": "Uncle Dump Remaining Time",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "alert": {
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [
+                10000
+              ],
+              "type": "gt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": [
+                "C",
+                "1s",
+                "now"
+              ]
+            },
+            "reducer": {
+              "params": [],
+              "type": "last"
+            },
+            "type": "query"
+          }
+        ],
+        "executionErrorState": "alerting",
+        "frequency": "600s",
+        "handler": 1,
+        "name": "ETH Cassandra Dump Tx Processing",
+        "noDataState": "alerting",
+        "notifications": []
+      },
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
@@ -26,10 +552,10 @@
       "datasource": "PROMETHEUS",
       "fill": 1,
       "gridPos": {
-        "h": 9,
-        "w": 12,
+        "h": 8,
+        "w": 8,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 6,
       "legend": {
@@ -55,23 +581,22 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(dump_topic_current_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_TX_PUMP\"})",
+          "expr": "sum(kafka_consumergroup_current_offset{consumergroup=\"ethereum-txs-dump-process\",topic=\"ETHEREUM_TX_PUMP\"})",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "Current Dump Tx Offset",
           "refId": "A"
         },
         {
-          "expr": "sum(pump_topic_last_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_TX_PUMP\"})",
+          "expr": "sum(kafka_topic_partition_current_offset{topic=\"ETHEREUM_TX_PUMP\"})",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "Last Dump Tx Offset",
           "refId": "B"
         },
         {
-          "expr": "sum(pump_topic_last_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_TX_PUMP\"}) - sum(dump_topic_current_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_TX_PUMP\"})",
+          "expr": "sum(kafka_topic_partition_current_offset{topic=\"ETHEREUM_TX_PUMP\"}) - sum(kafka_consumergroup_current_offset{consumergroup=\"ethereum-txs-dump-process\",topic=\"ETHEREUM_TX_PUMP\"})",
           "format": "time_series",
-          "hide": true,
           "intervalFactor": 1,
           "refId": "C"
         }
@@ -118,253 +643,46 @@
           "min": null,
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "PROMETHEUS",
-      "format": "short",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "alert": {
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [
+                10
+              ],
+              "type": "gt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": [
+                "C",
+                "1s",
+                "now"
+              ]
+            },
+            "reducer": {
+              "params": [],
+              "type": "last"
+            },
+            "type": "query"
+          }
+        ],
+        "executionErrorState": "alerting",
+        "frequency": "600s",
+        "handler": 1,
+        "name": "ETH Cassandra Dump Block Processing",
+        "noDataState": "alerting",
+        "notifications": []
       },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 12,
-        "y": 0
-      },
-      "id": 8,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "Remaining",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
-      },
-      "tableColumn": "",
-      "targets": [
-        {
-          "expr": "sum(pump_topic_last_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_TX_PUMP\"}) - sum(dump_topic_current_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_TX_PUMP\"})",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "Tx Offsets To Dump Remaining",
-          "refId": "A"
-        }
-      ],
-      "thresholds": "100,1000",
-      "title": "Tx Offsets To Dump Remaining",
-      "type": "singlestat",
-      "valueFontSize": "50%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "PROMETHEUS",
-      "format": "short",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 16,
-        "y": 0
-      },
-      "id": 10,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "Remaining",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
-      },
-      "tableColumn": "",
-      "targets": [
-        {
-          "expr": "sum(pump_topic_last_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_BLOCK_PUMP\"}) - sum(dump_topic_current_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_BLOCK_PUMP\"})",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "Block Offsets To Dump Remaining",
-          "refId": "A"
-        }
-      ],
-      "thresholds": "1,5",
-      "title": "Block Offsets To Dump Remaining",
-      "type": "singlestat",
-      "valueFontSize": "50%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "PROMETHEUS",
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 20,
-        "y": 0
-      },
-      "id": 12,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "Remaining",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
-      },
-      "tableColumn": "",
-      "targets": [
-        {
-          "expr": "sum(pump_topic_last_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_UNCLE_PUMP\"}) - sum(dump_topic_current_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_UNCLE_PUMP\"})",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "Uncle Offsets To Dump Remaining",
-          "refId": "A"
-        }
-      ],
-      "thresholds": "1,5",
-      "timeShift": null,
-      "title": "Uncle Offsets To Dump Remaining",
-      "type": "singlestat",
-      "valueFontSize": "50%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
@@ -372,114 +690,10 @@
       "datasource": "PROMETHEUS",
       "fill": 1,
       "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 12,
+        "h": 8,
+        "w": 8,
+        "x": 8,
         "y": 3
-      },
-      "id": 2,
-      "legend": {
-        "alignAsTable": true,
-        "avg": false,
-        "current": true,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "sum(dump_topic_current_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_UNCLE_PUMP\"})",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "Current Dump Uncle Offset",
-          "refId": "A"
-        },
-        {
-          "expr": "sum(pump_topic_last_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_UNCLE_PUMP\"})",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "Last Uncle Offset",
-          "refId": "B"
-        },
-        {
-          "expr": "sum(pump_topic_last_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_UNCLE_PUMP\"}) - sum(dump_topic_current_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_UNCLE_PUMP\"})",
-          "format": "time_series",
-          "hide": true,
-          "intervalFactor": 1,
-          "refId": "C"
-        }
-      ],
-      "thresholds": [
-        {
-          "colorMode": "critical",
-          "fill": true,
-          "line": true,
-          "op": "gt",
-          "value": 20
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Last Dumped Uncle Offset",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": 0,
-          "format": "none",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": false
-        }
-      ]
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "PROMETHEUS",
-      "fill": 1,
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 0,
-        "y": 9
       },
       "id": 4,
       "legend": {
@@ -506,21 +720,21 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(dump_topic_current_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_BLOCK_PUMP\"})",
+          "expr": "sum(kafka_consumergroup_current_offset{consumergroup=\"ethereum-blocks-dump-process\",topic=\"ETHEREUM_BLOCK_PUMP\"})",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "Current Dump Block Offset",
           "refId": "A"
         },
         {
-          "expr": "sum(pump_topic_last_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_BLOCK_PUMP\"})",
+          "expr": "sum(kafka_topic_partition_current_offset{topic=\"ETHEREUM_BLOCK_PUMP\"})",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "Last Block Offset",
           "refId": "B"
         },
         {
-          "expr": "sum(pump_topic_last_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_BLOCK_PUMP\"}) - sum(dump_topic_current_offset{chain=\"ETHEREUM\",topic=\"ETHEREUM_BLOCK_PUMP\"})",
+          "expr": "sum(kafka_topic_partition_current_offset{topic=\"ETHEREUM_BLOCK_PUMP\"}) - sum(kafka_consumergroup_current_offset{consumergroup=\"ethereum-blocks-dump-process\",topic=\"ETHEREUM_BLOCK_PUMP\"})",
           "format": "time_series",
           "hide": true,
           "intervalFactor": 1,
@@ -571,7 +785,256 @@
           "min": null,
           "show": false
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "alert": {
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [
+                20
+              ],
+              "type": "gt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": [
+                "C",
+                "1s",
+                "now"
+              ]
+            },
+            "reducer": {
+              "params": [],
+              "type": "last"
+            },
+            "type": "query"
+          }
+        ],
+        "executionErrorState": "alerting",
+        "frequency": "600s",
+        "handler": 1,
+        "name": "ETH Cassandra Dump Uncle Processing",
+        "noDataState": "alerting",
+        "notifications": []
+      },
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "PROMETHEUS",
+      "fill": 1,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 3
+      },
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "sum(kafka_consumergroup_current_offset{consumergroup=\"ethereum-uncles-dump-process\",topic=\"ETHEREUM_UNCLE_PUMP\"})",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "Current Dump Uncle Offset",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kafka_topic_partition_current_offset{topic=\"ETHEREUM_UNCLE_PUMP\"})",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "Last Uncle Offset",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kafka_topic_partition_current_offset{topic=\"ETHEREUM_UNCLE_PUMP\"}) - sum(kafka_consumergroup_current_offset{consumergroup=\"ethereum-uncles-dump-process\",topic=\"ETHEREUM_UNCLE_PUMP\"})",
+          "format": "time_series",
+          "hide": true,
+          "intervalFactor": 1,
+          "refId": "C"
+        }
+      ],
+      "thresholds": [
+        {
+          "colorMode": "critical",
+          "fill": true,
+          "line": true,
+          "op": "gt",
+          "value": 20
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Last Dumped Uncle Offset",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": 0,
+          "format": "none",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "PROMETHEUS",
+      "fill": 1,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 6,
+        "y": 11
+      },
+      "id": 8,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "$$hashKey": "object:481",
+          "expr": "rate(kafka_consumergroup_current_offset{consumergroup=\"ethereum-txs-dump-process\", topic=\"ETHEREUM_TX_PUMP\"}[1h])",
+          "format": "time_series",
+          "instant": false,
+          "intervalFactor": 1,
+          "legendFormat": "Transaction Per Second",
+          "refId": "A"
+        },
+        {
+          "$$hashKey": "object:533",
+          "expr": "rate(kafka_consumergroup_current_offset{consumergroup=\"ethereum-blocks-dump-process\", topic=\"ETHEREUM_BLOCK_PUMP\"}[1h])",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "Blocks Per Second",
+          "refId": "B"
+        },
+        {
+          "$$hashKey": "object:555",
+          "expr": "rate(kafka_consumergroup_current_offset{consumergroup=\"ethereum-uncles-dump-process\", topic=\"ETHEREUM_UNCLE_PUMP\"}[1h])",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "Uncles Per Second",
+          "refId": "C"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Dump Records Per Second",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:583",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:584",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": "10s",
