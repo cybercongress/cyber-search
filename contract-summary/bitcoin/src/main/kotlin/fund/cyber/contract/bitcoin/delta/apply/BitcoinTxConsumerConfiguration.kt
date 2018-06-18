@@ -76,7 +76,7 @@ class BitcoinTxConsumerConfiguration {
     private fun consumerConfigs(): MutableMap<String, Any> = defaultConsumerConfig().with(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
-            ConsumerConfig.GROUP_ID_CONFIG to "bitcoin-contract-summary-update-process-1",
+            ConsumerConfig.GROUP_ID_CONFIG to "bitcoin-contract-summary-update-process",
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
             ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase(),
             ConsumerConfig.MAX_POLL_RECORDS_CONFIG to MAX_POLL_RECORDS_CONFIG

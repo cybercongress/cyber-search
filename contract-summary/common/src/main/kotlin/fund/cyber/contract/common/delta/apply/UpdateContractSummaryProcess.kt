@@ -141,17 +141,20 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
 
     private fun revertChanges(contracts: Set<String>, previousStates: MutableMap<String, S?>, info: UpdateInfo) {
 
-        contractSummaryStorage.findAllByIdIn(contracts).await().forEach { summary ->
+        contractSummaryStorage.findAllByIdIn(contracts).flatMap { summary ->
+
             if (summary.notCommitted() && summary.hasSameTopicPartitionAs(info.topic, info.partition)
                 && summary.kafkaDeltaOffset in info.minOffset..info.maxOffset) {
+
                 val previousState = previousStates[summary.hash]
-                if (previousState != null) {
-                    contractSummaryStorage.update(previousState)
-                } else {
-                    contractSummaryStorage.remove(summary.hash)
+                when (previousState) {
+                    null -> return@flatMap contractSummaryStorage.remove(summary.hash)
+                    else -> return@flatMap contractSummaryStorage.update(previousState)
                 }
             }
-        }
+            Mono.empty<S>()
+        }.await()
+
     }
 
     @Suppress("ComplexMethod", "NestedBlockDepth", "ReturnCount")
@@ -166,7 +169,7 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
                 return delta.applyTo(summary).flatMap { result ->
                     when {
                         result -> Mono.empty<Unit>()
-                        else -> store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
+                        else -> getSummaryByDelta(delta).flatMap { store(it, delta, storeAttempts, previousStates) }
                     }
                 }
             }
@@ -185,13 +188,12 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
                                 result -> Mono.empty<Unit>()
                                 else -> {
                                     storeAttempts[delta.contract] = 0
-                                    store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
+                                    getSummaryByDelta(delta).flatMap { store(it, delta, storeAttempts, previousStates) }
                                 }
                             }
                         }
 
                     } else {
-
                         throw ContractLockException()
                     }
                 } else {
@@ -199,7 +201,7 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
                     Thread.sleep(STORE_RETRY_TIMEOUT)
                     val inc = storeAttempts.getOrPut(delta.contract) { 1 }.inc()
                     storeAttempts[delta.contract] = inc
-                    return store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
+                    return getSummaryByDelta(delta).flatMap { store(it, delta, storeAttempts, previousStates) }
                 }
             }
 
@@ -211,16 +213,15 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
             return contractSummaryStorage.insertIfNotRecord(newSummary).flatMap { result ->
                 when {
                     result -> Mono.empty<Unit>()
-                    else -> store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
+                    else -> getSummaryByDelta(delta).flatMap { store(it, delta, storeAttempts, previousStates) }
                 }
             }
         }
     }
 
-    private fun D.applyTo(summary: S): Mono<Boolean> =
-        contractSummaryStorage.update(this.updateSummary(summary), summary.version)
+    private fun D.applyTo(summary: S) = contractSummaryStorage.update(this.updateSummary(summary), summary.version)
 
-    private fun getSummaryByDelta(delta: D) = contractSummaryStorage.findById(delta.contract).block()!!
+    private fun getSummaryByDelta(delta: D) = contractSummaryStorage.findById(delta.contract)
 
     private fun initMonitors(info: UpdateInfo) {
         val tags = Tags.of("topic", info.topic)
