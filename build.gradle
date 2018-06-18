@@ -92,6 +92,16 @@ subprojects {
 
         testCompile("org.junit.jupiter:junit-jupiter-api")
         testRuntime("org.junit.jupiter:junit-jupiter-engine")
+
+        testCompile 'org.springframework:spring-test'
+        testCompile('log4j:log4j:1.2.17') // https://github.com/spring-projects/spring-kafka/issues/422
+
+        testCompile 'org.springframework.kafka:spring-kafka-test'
+        testCompile "org.springframework.kafka:spring-kafka"
+        testCompile "org.apache.kafka:kafka-clients"
+        testCompile 'org.apache.kafka:kafka_2.11'
+
+        testCompile 'org.cassandraunit:cassandra-unit-spring'
     }
 }
 
@@ -120,30 +130,6 @@ project(":common") {
     }
 }
 
-project(":common-test") {
-
-    dependencies {
-
-        compile project(":common")
-
-        compile("org.junit.jupiter:junit-jupiter-api")
-        compile("org.junit.jupiter:junit-jupiter-engine")
-
-        compile("org.mockito:mockito-core")
-        compile("com.nhaarman:mockito-kotlin")
-        compile("org.assertj:assertj-core")
-        compile("io.projectreactor:reactor-test")
-
-        compile 'org.springframework:spring-test'
-        compile('log4j:log4j:1.2.17') // https://github.com/spring-projects/spring-kafka/issues/422
-
-        compile 'org.springframework.kafka:spring-kafka-test'
-        compile "org.springframework.kafka:spring-kafka"
-        compile "org.apache.kafka:kafka-clients"
-        compile 'org.apache.kafka:kafka_2.11'
-    }
-}
-
 project(":common-kafka") {
 
     dependencies {
@@ -152,8 +138,6 @@ project(":common-kafka") {
 
         compile "org.springframework.kafka:spring-kafka"
         compile "org.apache.kafka:kafka-clients"
-
-        testCompile project(':common-test')
     }
 }
 

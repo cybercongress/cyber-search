@@ -36,5 +36,7 @@ project(":dumps:ethereum") {
     dependencies {
 
         compile project(":dumps:common")
+
+        testCompile project(':cassandra-service').sourceSets.test.output
     }
 }

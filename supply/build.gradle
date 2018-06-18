@@ -25,7 +25,7 @@ project(":supply:ethereum") {
 
     dependencies {
         compile project(":supply:common")
-        testCompile project(':common-test')
+
         testCompile project(':common-kafka').sourceSets.test.output
     }
 }
