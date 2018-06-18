@@ -1,4 +1,4 @@
-# Contributing to Cyber Search [![GitHub contributors](https://img.shields.io/github/contributors/cybercongress/cyber-search.svg?style=flat-square&longCache=true)](https://github.com/cybercongress/cyber-search)
+# Contributing to Cyber Search 
 Thank you for considering a contribution to Cyber Search! This guide explains how to:
 * Get started
 * Development workflow
@@ -47,6 +47,7 @@ The commit messages that accompany your code changes are an important piece of d
 #123 Refactor CONTRIBUTING.md
 
 --Add Creating Commits And Writing Commit Messages Section
+--Another Section
 ```
 
 ### Submitting Your Change
