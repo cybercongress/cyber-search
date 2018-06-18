@@ -28,7 +28,7 @@ import org.springframework.transaction.support.AbstractPlatformTransactionManage
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
-private const val CLEANUP_RETENTION_POLICY_TIME_DAYS = 14L
+private const val CLEANUP_RETENTION_POLICY_TIME_DAYS = 365L * 1000L
 
 @EnableKafka
 @Configuration
