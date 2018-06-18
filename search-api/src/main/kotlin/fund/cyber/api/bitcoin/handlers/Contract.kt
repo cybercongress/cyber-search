@@ -3,10 +3,12 @@ package fund.cyber.api.bitcoin.handlers
 import fund.cyber.api.bitcoin.dto.ContractSummaryDto
 import fund.cyber.api.common.BiRepositoryItemRequestHandler
 import fund.cyber.api.common.SingleRepositoryItemRequestHandler
+import fund.cyber.api.common.TripleRepositoryItemRequestHandler
 import fund.cyber.api.common.asServerResponse
-import fund.cyber.api.common.toPageableResponse
+import fund.cyber.api.common.toPageableFlux
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractSummaryRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
+import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractMinedBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinContractTxRepository
 import fund.cyber.common.toSearchHashFormat
@@ -19,31 +21,37 @@ import org.springframework.context.annotation.DependsOn
 class BitcoinContractHandlersConfiguration {
 
     @Bean
-    fun bitcoinContractItemHandler() = BiRepositoryItemRequestHandler(
+    fun bitcoinContractItemHandler() = TripleRepositoryItemRequestHandler(
         "/contract/{hash}",
         BitcoinContractSummaryRepository::class.java,
-        BitcoinContractTxRepository::class.java
-    ) { request, contractSummaryRepository, contractTxRepository ->
+        BitcoinContractTxRepository::class.java,
+        BitcoinTxRepository::class.java
+    ) { request, contractSummaryRepository, contractTxRepository, txRepository ->
 
         val contractHash = request.pathVariable("hash").toSearchHashFormat()
 
         val contract = contractSummaryRepository.findById(contractHash)
-        val contractUnconfirmedTxes = contractTxRepository.findAllByContractHashAndBlockTime(contractHash, -1)
 
-        val result = contract.zipWith(contractUnconfirmedTxes.collectList()) { contr, txes ->
-            ContractSummaryDto(contr, txes)
+        val result = contract.flatMap { contractSummary ->
+            contractTxRepository.findAllByContractHashAndBlockTime(contractSummary.hash, -1)
+                .flatMap { txPreview -> txRepository.findById(txPreview.hash) }.collectList()
+                .map { txes -> ContractSummaryDto(contractSummary, txes) }
         }
         result.asServerResponse()
     }
 
     @Bean
-    fun bitcoinContractTxesItemHandler() = SingleRepositoryItemRequestHandler(
+    fun bitcoinContractTxesItemHandler() = BiRepositoryItemRequestHandler(
         "/contract/{hash}/transactions",
-        PageableBitcoinContractTxRepository::class.java
-    ) { request, repository ->
+        PageableBitcoinContractTxRepository::class.java,
+        BitcoinTxRepository::class.java
+    ) { request, contractTxRepository, txRepository ->
 
         val hash = request.pathVariable("hash").toSearchHashFormat()
-        request.toPageableResponse { pageable -> repository.findAllByContractHash(hash, pageable) }
+        request
+            .toPageableFlux { pageable -> contractTxRepository.findAllByContractHash(hash, pageable) }
+            .flatMap { contractTx -> txRepository.findById(contractTx.hash) }
+            .asServerResponse()
     }
 
     @Bean
@@ -53,7 +61,7 @@ class BitcoinContractHandlersConfiguration {
     ) { request, repository ->
 
         val hash = request.pathVariable("hash").toSearchHashFormat()
-        request.toPageableResponse { pageable -> repository.findAllByMinerContractHash(hash, pageable) }
+        request.toPageableFlux { pageable -> repository.findAllByMinerContractHash(hash, pageable) }.asServerResponse()
     }
 
 }

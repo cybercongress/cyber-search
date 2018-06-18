@@ -30,12 +30,20 @@ import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.ServerResponse.notFound
 import org.springframework.web.reactive.function.server.ServerResponse.ok
 import org.springframework.web.util.pattern.PathPatternParser
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.net.InetAddress
 
 
 fun <T> Mono<T>.asServerResponse() = this.flatMap { obj -> ok().body(BodyInserters.fromObject(obj)) }
     .switchIfEmpty(notFound().build())
+
+inline fun <reified T> Flux<T>.asServerResponse() = this.collectList().flatMap { obj ->
+    when {
+        obj.isNotEmpty() -> ok().body(BodyInserters.fromObject(obj))
+        else -> notFound().build()
+    }
+}
 
 fun <E : ServerResponse> List<RouterFunction<E>>.asSingleRouterFunction(): RouterFunction<E> {
     return if (isEmpty()) {

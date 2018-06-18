@@ -6,12 +6,8 @@ CREATE TYPE IF NOT EXISTS ${chainName}.tx_preview_io (
 
 CREATE TABLE IF NOT EXISTS ${chainName}.tx_preview_by_contract (
     contract_hash text,
-    fee decimal,
-    block_number bigint,
     block_time bigint,
     hash text,
-    inputs_number int,
-    outputs_number int,
     PRIMARY KEY ( contract_hash, block_time, hash )
 ) WITH CLUSTERING ORDER BY ( block_time DESC );
 
