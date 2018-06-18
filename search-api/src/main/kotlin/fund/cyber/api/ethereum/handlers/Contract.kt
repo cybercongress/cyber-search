@@ -3,7 +3,7 @@ package fund.cyber.api.ethereum.handlers
 import fund.cyber.api.common.BiRepositoryItemRequestHandler
 import fund.cyber.api.common.SingleRepositoryItemRequestHandler
 import fund.cyber.api.common.asServerResponse
-import fund.cyber.api.common.toPageableResponse
+import fund.cyber.api.common.toPageableFlux
 import fund.cyber.api.ethereum.dto.ContractSummaryDto
 import fund.cyber.cassandra.ethereum.repository.EthereumContractRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
@@ -44,9 +44,9 @@ class EthereumContractHandlersConfiguration {
     ) { request, repository ->
 
         val hash = request.pathVariable("hash").toSearchHashFormat()
-        request.toPageableResponse { pageable ->
+        request.toPageableFlux { pageable ->
             repository.findAllByContractHash(hash, pageable)
-        }
+        }.asServerResponse()
     }
 
     @Bean
@@ -56,9 +56,9 @@ class EthereumContractHandlersConfiguration {
     ) { request, repository ->
 
         val hash = request.pathVariable("hash").toSearchHashFormat()
-        request.toPageableResponse { pageable ->
+        request.toPageableFlux { pageable ->
             repository.findAllByMinerContractHash(hash, pageable)
-        }
+        }.asServerResponse()
     }
 
     @Bean
@@ -68,9 +68,9 @@ class EthereumContractHandlersConfiguration {
     ) { request, repository ->
 
         val hash = request.pathVariable("hash").toSearchHashFormat()
-        request.toPageableResponse { pageable ->
+        request.toPageableFlux { pageable ->
             repository.findAllByMinerContractHash(hash, pageable)
-        }
+        }.asServerResponse()
     }
 
 }

@@ -1,22 +1,9 @@
 package fund.cyber.api.bitcoin.dto
 
 import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractSummary
-import fund.cyber.cassandra.bitcoin.model.CqlBitcoinContractTxPreview
+import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTx
 import java.math.BigDecimal
 import java.time.Instant
-
-data class ContractTxSummaryDto(
-    val hash: String,
-    val fee: BigDecimal,
-    val inputsNumber: Int,
-    val outputsNumber: Int
-) {
-
-    constructor(contractTx: CqlBitcoinContractTxPreview) : this(
-        fee = contractTx.fee, inputsNumber = contractTx.inputsNumber, hash = contractTx.contractHash,
-        outputsNumber = contractTx.outputsNumber
-    )
-}
 
 data class ContractSummaryDto(
     val hash: String,
@@ -25,14 +12,14 @@ data class ContractSummaryDto(
     val confirmedTxNumber: Int,
     val firstActivityDate: Instant,
     val lastActivityDate: Instant,
-    val unconfirmedTxValues: Map<String, ContractTxSummaryDto> = emptyMap()
+    val unconfirmedTxValues: Map<String, CqlBitcoinTx> = emptyMap()
 ) {
 
-    constructor(contract: CqlBitcoinContractSummary, txes: List<CqlBitcoinContractTxPreview>) : this(
+    constructor(contract: CqlBitcoinContractSummary, txes: List<CqlBitcoinTx>) : this(
         hash = contract.hash, confirmedBalance = BigDecimal(contract.confirmedBalance),
         confirmedTotalReceived = BigDecimal(contract.confirmedTotalReceived),
         confirmedTxNumber = contract.confirmedTxNumber,
         firstActivityDate = contract.firstActivityDate, lastActivityDate = contract.lastActivityDate,
-        unconfirmedTxValues = txes.map { contractTx -> contractTx.hash to ContractTxSummaryDto(contractTx) }.toMap()
+        unconfirmedTxValues = txes.associateBy { tx -> tx.hash }
     )
 }

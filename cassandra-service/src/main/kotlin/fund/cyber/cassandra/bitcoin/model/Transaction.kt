@@ -37,10 +37,6 @@ data class CqlBitcoinTx(
             ins = tx.ins.map { txIn -> CqlBitcoinTxIn(txIn) }, outs = tx.outs.map { txOut -> CqlBitcoinTxOut(txOut) }
     )
 
-    fun getOutputByNumber(number: Int) = outs.find { out -> out.out == number }!!
-
-    fun allContractsUsedInTransaction() = ins.flatMap { input -> input.contracts } +
-            outs.flatMap { output -> output.contracts }
 }
 
 @UserDefinedType("tx_in")

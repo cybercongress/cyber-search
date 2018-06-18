@@ -111,7 +111,7 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
 
             deltaStoreTimer.recordCallable {
                 mergedDeltas.values.toFlux().flatMap { delta ->
-                    Mono.fromCallable { store(contractsSummary[delta.contract], delta, storeAttempts, previousStates) }
+                    store(contractsSummary[delta.contract], delta, storeAttempts, previousStates)
                         .subscribeOn(storeDeltasThreadPool)
                 }.await()
             }
@@ -154,52 +154,71 @@ class UpdateContractSummaryProcess<R, S : CqlContractSummary, D : ContractSummar
         }
     }
 
-    @Suppress("ComplexMethod", "NestedBlockDepth")
+    @Suppress("ComplexMethod", "NestedBlockDepth", "ReturnCount")
     private fun store(summary: S?, delta: D, storeAttempts: MutableMap<String, Int>,
-                      previousStates: MutableMap<String, S?>) {
+                      previousStates: MutableMap<String, S?>): Mono<Unit> {
 
         previousStates[delta.contract] = summary
         if (summary != null) {
+
             if (summary.committed()) {
-                val result = delta.applyTo(summary)
-                if (!result) {
-                    store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
+
+                return delta.applyTo(summary).flatMap { result ->
+                    when {
+                        result -> Mono.empty<Unit>()
+                        else -> store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
+                    }
                 }
             }
 
             if (summary.notCommitted() && summary.hasSameTopicPartitionAs(delta)) {
-                delta.applyTo(summary)
+                return delta.applyTo(summary).map { }
             }
 
             if (summary.notCommitted() && summary.notSameTopicPartitionAs(delta)) {
                 if (storeAttempts[delta.contract] ?: 0 > MAX_STORE_ATTEMPTS) {
+
                     if (summary.currentTopicPartitionWentFurther()) {
-                        val result = delta.applyTo(summary)
-                        if (!result) {
-                            storeAttempts[delta.contract] = 0
-                            store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
+
+                        return delta.applyTo(summary).flatMap { result ->
+                            when {
+                                result -> Mono.empty<Unit>()
+                                else -> {
+                                    storeAttempts[delta.contract] = 0
+                                    store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
+                                }
+                            }
                         }
+
                     } else {
+
                         throw ContractLockException()
                     }
                 } else {
+
                     Thread.sleep(STORE_RETRY_TIMEOUT)
-                    val inc = storeAttempts.getOrPut(delta.contract, { 1 }).inc()
+                    val inc = storeAttempts.getOrPut(delta.contract) { 1 }.inc()
                     storeAttempts[delta.contract] = inc
-                    store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
+                    return store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
                 }
             }
+
+            return Mono.empty()
         } else {
+
             val newSummary = delta.createSummary()
-            val result = contractSummaryStorage.insertIfNotRecord(newSummary).block()!!
-            if (!result) {
-                store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
+
+            return contractSummaryStorage.insertIfNotRecord(newSummary).flatMap { result ->
+                when {
+                    result -> Mono.empty<Unit>()
+                    else -> store(getSummaryByDelta(delta), delta, storeAttempts, previousStates)
+                }
             }
         }
     }
 
-    private fun D.applyTo(summary: S): Boolean =
-        contractSummaryStorage.update(this.updateSummary(summary), summary.version).block()!!
+    private fun D.applyTo(summary: S): Mono<Boolean> =
+        contractSummaryStorage.update(this.updateSummary(summary), summary.version)
 
     private fun getSummaryByDelta(delta: D) = contractSummaryStorage.findById(delta.contract).block()!!
 
