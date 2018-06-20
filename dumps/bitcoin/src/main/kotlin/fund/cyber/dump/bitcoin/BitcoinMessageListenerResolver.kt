@@ -15,6 +15,8 @@ import fund.cyber.search.model.chains.ChainEntityType.TX
 import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.events.PumpEvent
 import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Timer
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.listener.BatchMessageListener
@@ -30,15 +32,18 @@ class BitcoinMessageListenerResolver(
     private val txRepository: BitcoinTxRepository,
     private val contractTxRepository: BitcoinContractTxRepository,
     private val blockTxRepository: BitcoinBlockTxRepository,
-    private val monitoring: MeterRegistry
+    private val monitoring: MeterRegistry,
+    @Qualifier("txLatencyMetrics") private val txLatencyMetric: Timer
 ) : MessageListenerResolver {
 
 
     override fun getListenerByType(chainEntityType: ChainEntityType): BatchMessageListener<PumpEvent, *> {
         return when (chainEntityType) {
             BLOCK -> BlockDumpProcess(blockRepository, contractMinedBlockRepository, chainInfo)
-            TX -> TxDumpProcess(txRepository, contractTxRepository, blockTxRepository, chainInfo,
-                realtimeIndexationThreshold, monitoring)
+            TX -> TxDumpProcess(
+                txRepository, contractTxRepository, blockTxRepository, chainInfo,
+                realtimeIndexationThreshold, txLatencyMetric, monitoring
+            )
             else -> throw NoMessageListenerFoundException(chainEntityType, chainInfo)
         }
     }

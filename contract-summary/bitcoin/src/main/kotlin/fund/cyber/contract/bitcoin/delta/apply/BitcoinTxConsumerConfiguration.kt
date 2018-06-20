@@ -1,8 +1,6 @@
 package fund.cyber.contract.bitcoin.delta.apply
 
 import fund.cyber.common.kafka.JsonDeserializer
-import fund.cyber.common.kafka.defaultConsumerConfig
-import fund.cyber.common.with
 import fund.cyber.contract.bitcoin.BitcoinContractSummaryStorage
 import fund.cyber.contract.bitcoin.summary.BitcoinDeltaMerger
 import fund.cyber.contract.bitcoin.summary.BitcoinTxDeltaProcessor
@@ -14,8 +12,6 @@ import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.txPumpTopic
 import io.micrometer.core.instrument.MeterRegistry
-import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.common.requests.IsolationLevel
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -27,8 +23,8 @@ import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
 import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler
 import org.springframework.kafka.listener.config.ContainerProperties
 import org.springframework.transaction.annotation.EnableTransactionManagement
+import javax.annotation.Resource
 
-private const val MAX_POLL_RECORDS_CONFIG = 500
 
 @EnableKafka
 @Configuration
@@ -53,17 +49,21 @@ class BitcoinTxConsumerConfiguration {
     @Autowired
     private lateinit var monitoring: MeterRegistry
 
+    @Resource(name = "consumerConfigs")
+    private lateinit var consumerConfigs: Map<String, Any>
+
     @Bean
     fun txListenerContainer(): ConcurrentMessageListenerContainer<PumpEvent, BitcoinTx> {
 
         val consumerFactory = DefaultKafkaConsumerFactory(
-                consumerConfigs(), JsonDeserializer(PumpEvent::class.java), JsonDeserializer(BitcoinTx::class.java)
+            consumerConfigs, JsonDeserializer(PumpEvent::class.java), JsonDeserializer(BitcoinTx::class.java)
         )
 
         val containerProperties = ContainerProperties(chainInfo.txPumpTopic).apply {
             setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
-            messageListener = UpdateContractSummaryProcess(contractSummaryStorage, txDeltaProcessor, deltaMerger,
-                    monitoring, kafkaBrokers)
+            messageListener = UpdateContractSummaryProcess(
+                contractSummaryStorage, txDeltaProcessor, deltaMerger, monitoring, kafkaBrokers
+            )
             isAckOnError = false
             ackMode = BATCH
         }
@@ -72,13 +72,4 @@ class BitcoinTxConsumerConfiguration {
             concurrency = 1
         }
     }
-
-    private fun consumerConfigs(): MutableMap<String, Any> = defaultConsumerConfig().with(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
-            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
-            ConsumerConfig.GROUP_ID_CONFIG to "bitcoin-contract-summary-update-process",
-            ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
-            ConsumerConfig.ISOLATION_LEVEL_CONFIG to IsolationLevel.READ_COMMITTED.toString().toLowerCase(),
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to MAX_POLL_RECORDS_CONFIG
-    )
 }

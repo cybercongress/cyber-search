@@ -6,10 +6,12 @@ import fund.cyber.cassandra.ethereum.model.CqlEthereumTx
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
+import fund.cyber.common.millisFromNow
 import fund.cyber.dump.common.toFlux
 import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.events.PumpEvent
+import io.micrometer.core.instrument.Timer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
@@ -17,6 +19,8 @@ import org.springframework.kafka.listener.BatchMessageListener
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
+import reactor.core.publisher.toMono
+import java.util.concurrent.TimeUnit
 
 
 //todo in dump add label for smart contract from calls
@@ -25,7 +29,8 @@ class TxDumpProcess(
     private val blockTxRepository: EthereumBlockTxRepository,
     private val contractTxRepository: EthereumContractTxRepository,
     private val chain: ChainInfo,
-    private val realtimeIndexationThreshold: Long
+    private val realtimeIndexationThreshold: Long,
+    private val txLatencyMetric: Timer
 ) : BatchMessageListener<PumpEvent, EthereumTx> {
 
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
@@ -44,7 +49,7 @@ class TxDumpProcess(
 
     }
 
-    private fun EthereumTx.toNewBlockPublisher(): Publisher<Any> {
+    private fun EthereumTx.toNewBlockPublisher(): Publisher<Unit> {
 
         val saveTxMono = txRepository.findById(this.hash)
             .flatMap { cqlTx -> txRepository.save(CqlEthereumTx(this.copy(firstSeenTime = cqlTx.firstSeenTime))) }
@@ -68,7 +73,9 @@ class TxDumpProcess(
                 contractTxRepository.deleteAll(contractTxesToDelete)
             }
 
-        return Flux.merge(saveTxMono, saveBlockTxMono, saveContractTxesFlux, deleteContractTxesFlux)
+        return Flux.merge(saveTxMono, saveBlockTxMono, saveContractTxesFlux, deleteContractTxesFlux).then(
+            txLatencyMetric.record(this.blockTime!!.millisFromNow(), TimeUnit.MILLISECONDS).toMono()
+        )
     }
 
     private fun EthereumTx.toDropBlockPublisher(): Publisher<Any> {
