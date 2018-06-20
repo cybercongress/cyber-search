@@ -16,6 +16,7 @@ import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.txPumpTopic
+import io.micrometer.core.instrument.Timer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
@@ -28,6 +29,8 @@ class TxDumpProcessTest {
 
 
     private val chainInfo = ChainInfo(ChainFamily.ETHEREUM)
+
+    private val txLatencyMetric = mock<Timer>()
 
 
     @Test
@@ -68,7 +71,7 @@ class TxDumpProcessTest {
             on { deleteAll(any<Iterable<CqlEthereumContractTxPreview>>()) }.thenReturn(Mono.empty())
         }
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0)
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0, txLatencyMetric)
 
         txDumpProcess.onMessage(listOf(record1, record2, record3, record4, record5, record6, record7, record8, record9))
 
@@ -137,7 +140,7 @@ class TxDumpProcessTest {
 
         val record = record(PumpEvent.NEW_BLOCK, txABlock)
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0)
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0, txLatencyMetric)
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -180,7 +183,7 @@ class TxDumpProcessTest {
 
         val record = record(PumpEvent.NEW_BLOCK, txABlock)
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0)
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0, txLatencyMetric)
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -225,7 +228,7 @@ class TxDumpProcessTest {
 
         val record = record(PumpEvent.DROPPED_BLOCK, txADrop)
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0)
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0, txLatencyMetric)
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -263,7 +266,7 @@ class TxDumpProcessTest {
 
         val record = record(PumpEvent.DROPPED_BLOCK, txADrop)
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0)
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0, txLatencyMetric)
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -303,7 +306,7 @@ class TxDumpProcessTest {
 
         val record = record(PumpEvent.NEW_POOL_TX, txAPool)
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0)
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0, txLatencyMetric)
 
         txDumpProcess.onMessage(listOf(record))
 
@@ -331,7 +334,7 @@ class TxDumpProcessTest {
 
         val record = record(PumpEvent.NEW_POOL_TX, txAPool)
 
-        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0)
+        val txDumpProcess = TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chainInfo, 0, txLatencyMetric)
 
         txDumpProcess.onMessage(listOf(record))
 

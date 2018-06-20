@@ -40,7 +40,7 @@ import java.util.*
 
 private val log = LoggerFactory.getLogger(DefaultRetryListenerSupport::class.java)!!
 
-class DefaultRetryListenerSupport: RetryListenerSupport() {
+class DefaultRetryListenerSupport : RetryListenerSupport() {
 
     override fun <T : Any?, E : Throwable?> onError(context: RetryContext, callback: RetryCallback<T, E>?,
                                                     throwable: Throwable) {
@@ -71,10 +71,11 @@ class CommonConfiguration(
     }
 
     @Bean
-    fun metricsCommonTags(
-        chainInfo: ChainInfo
-    ): MeterRegistryCustomizer<MeterRegistry> {
-        return MeterRegistryCustomizer { registry -> registry.config().commonTags("chain", chainInfo.name) }
+    fun metricsCommonTags(chainInfo: ChainInfo) = MeterRegistryCustomizer<MeterRegistry> { registry ->
+        registry.config().commonTags(
+            "chainName", chainInfo.name,
+            "chainFamily", chainInfo.family.name
+        )
     }
 
     @Bean
@@ -83,7 +84,7 @@ class CommonConfiguration(
     @Bean
     fun commonPumpConsumer(): Consumer<Any, Any> {
         return KafkaConsumer<Any, Any>(consumerProperties(), JsonDeserializer(Any::class.java),
-                JsonDeserializer(Any::class.java))
+            JsonDeserializer(Any::class.java))
     }
 
     @Bean
@@ -96,9 +97,9 @@ class CommonConfiguration(
     }
 
     @Bean
-    fun <T: BlockBundle> blockchainInterface(
-            blockchainInterface: BlockchainInterface<T>,
-            retryTemplate: RetryTemplate
+    fun <T : BlockBundle> blockchainInterface(
+        blockchainInterface: BlockchainInterface<T>,
+        retryTemplate: RetryTemplate
     ): FlowableBlockchainInterface<T> {
         return ConcurrentPulledBlockchain(blockchainInterface = blockchainInterface, retryTemplate = retryTemplate,
             maxConcurrency = maxConcurrency)
