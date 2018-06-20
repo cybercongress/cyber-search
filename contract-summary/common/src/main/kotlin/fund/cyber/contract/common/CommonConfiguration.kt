@@ -18,6 +18,7 @@ import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCusto
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
+import javax.annotation.PostConstruct
 
 @EnableScheduling
 @Configuration
@@ -29,7 +30,8 @@ class CommonConfiguration(
     @Value("\${$KAFKA_LISTENER_MAX_POLL_RECORDS:$KAFKA_LISTENER_MAX_POLL_RECORDS_DEFAULT}")
     private val maxPollRecords: Int,
     @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
-    private val kafkaBrokers: String
+    private val kafkaBrokers: String,
+    private val monitoring: MeterRegistry
 ) {
 
     @Bean
@@ -46,8 +48,8 @@ class CommonConfiguration(
         )
     }
 
-    @Bean
-    fun initializeBatchSizeMetrics(monitoring: MeterRegistry) {
+    @PostConstruct
+    fun initializeBatchSizeMetrics() {
         monitoring.gauge("contract-summary-process-batch-size", maxPollRecords)
     }
 

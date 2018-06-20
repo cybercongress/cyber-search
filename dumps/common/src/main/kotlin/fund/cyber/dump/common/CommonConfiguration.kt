@@ -42,7 +42,8 @@ class CommonConfiguration(
     @Value("\${$CHAIN_FAMILY:}")
     private val chainFamily: String,
     @Value("\${$CHAIN_NAME:}")
-    private val chainName: String
+    private val chainName: String,
+    private val monitoring: MeterRegistry
 ) : InitializingBean {
 
     @Autowired
@@ -65,18 +66,11 @@ class CommonConfiguration(
     @PostConstruct
     fun initSystemProperties() {
         System.setProperty("reactor.bufferSize.small", "8192")
-    }
-
-    @Bean
-    fun initializeBatchSizeMetrics(monitoring: MeterRegistry) {
         monitoring.gauge("dump-process-batch-size", maxPollRecords)
     }
 
     @Bean
-    fun txLatencyMetrics(monitoring: MeterRegistry): Timer {
-        return monitoring.timer("dump-process-tx-latency")
-    }
-
+    fun txLatencyMetrics() = monitoring.timer("dump-process-tx-latency")
 
     private fun consumerConfigs(): MutableMap<String, Any> = defaultConsumerConfig().with(
         ConsumerConfig.GROUP_ID_CONFIG to "dump-process",
@@ -112,7 +106,6 @@ class CommonConfiguration(
 
             beanFactory.registerSingleton(topic + "_listenerContainer", listener)
         }
-
     }
 
 }
