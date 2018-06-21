@@ -33,6 +33,7 @@
 
 **Merged pull requests:**
 
+- Replicate kafka consumer group commited offsets [\#223](https://github.com/cybercongress/cyber-search/pull/223) ([arturalbov](https://github.com/arturalbov))
 - Rename elassandra DC [\#222](https://github.com/cybercongress/cyber-search/pull/222) ([hleb-albau](https://github.com/hleb-albau))
 - cybercongress/cybernode\#90 Make chains monitoring templateable. [\#221](https://github.com/cybercongress/cyber-search/pull/221) ([hleb-albau](https://github.com/hleb-albau))
 - Update bitcoin contract summary search API [\#216](https://github.com/cybercongress/cyber-search/pull/216) ([arturalbov](https://github.com/arturalbov))
