@@ -6,11 +6,14 @@
 
 **Closed issues:**
 
+- Bitcoin pump zoombied on error [\#220](https://github.com/cybercongress/cyber-search/issues/220)
+- Increase pump history stack size to 1000 [\#218](https://github.com/cybercongress/cyber-search/issues/218)
 - Pump: Retry kafka store operation after exception [\#209](https://github.com/cybercongress/cyber-search/issues/209)
 - Add Context Loading Unit Tests [\#199](https://github.com/cybercongress/cyber-search/issues/199)
 - Favicon and logo for cybersearch.live [\#196](https://github.com/cybercongress/cyber-search/issues/196)
 - Make Circle Ci docker builds cacheable [\#184](https://github.com/cybercongress/cyber-search/issues/184)
 - Search API metrics [\#181](https://github.com/cybercongress/cyber-search/issues/181)
+- Setup monitoring [\#180](https://github.com/cybercongress/cyber-search/issues/180)
 - Refactoring of search API [\#178](https://github.com/cybercongress/cyber-search/issues/178)
 -  Refactor contract summary to support chain {customName} logic [\#177](https://github.com/cybercongress/cyber-search/issues/177)
 - Refactor dump to support chain {customName} logic [\#176](https://github.com/cybercongress/cyber-search/issues/176)
@@ -30,6 +33,7 @@
 
 **Merged pull requests:**
 
+- Rename elassandra DC [\#222](https://github.com/cybercongress/cyber-search/pull/222) ([hleb-albau](https://github.com/hleb-albau))
 - cybercongress/cybernode\#90 Make chains monitoring templateable. [\#221](https://github.com/cybercongress/cyber-search/pull/221) ([hleb-albau](https://github.com/hleb-albau))
 - Update bitcoin contract summary search API [\#216](https://github.com/cybercongress/cyber-search/pull/216) ([arturalbov](https://github.com/arturalbov))
 - Update test dependencies. Remove common-test module [\#215](https://github.com/cybercongress/cyber-search/pull/215) ([arturalbov](https://github.com/arturalbov))
