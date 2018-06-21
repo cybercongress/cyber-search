@@ -30,7 +30,7 @@ class LastPumpedBlockNumberProvider(
         )
 
         val (event, block) = blockTopicReader
-            .readLastRecords(1, { event -> event == PumpEvent.NEW_BLOCK })
+            .readLastRecords(1) { event -> event == PumpEvent.NEW_BLOCK }
             .firstOrNull() ?: return -1L
 
         return (block as BlockEntity).number
