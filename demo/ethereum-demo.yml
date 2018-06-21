@@ -27,7 +27,7 @@ services:
     container_name: eth-demo-elassandra-search
     image: strapdata/elassandra:5.5.0.13
     environment:
-      CASSANDRA_DC: WITHOUT_REPLICATION
+      CASSANDRA_DC: DC1
       CASSANDRA_CLUSTER_NAME: CYBER_SEARCH
 
   prometheus:

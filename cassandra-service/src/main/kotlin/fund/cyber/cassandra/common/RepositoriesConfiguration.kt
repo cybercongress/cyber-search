@@ -87,7 +87,7 @@ abstract class CassandraRepositoriesConfiguration(
 
     override fun getLoadBalancingPolicy(): LoadBalancingPolicy? {
         return TokenAwarePolicy(
-            DCAwareRoundRobinPolicy.builder().withLocalDc("WITHOUT_REPLICATION")
+            DCAwareRoundRobinPolicy.builder().withLocalDc("DC1")
                 .withUsedHostsPerRemoteDc(0)
                 .build()
         )

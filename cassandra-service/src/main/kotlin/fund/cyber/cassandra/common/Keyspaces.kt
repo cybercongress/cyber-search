@@ -5,6 +5,6 @@ import org.springframework.data.cassandra.core.cql.keyspace.DataCenterReplicatio
 
 fun defaultKeyspaceSpecification(keyspaces: String): CreateKeyspaceSpecification {
     return CreateKeyspaceSpecification.createKeyspace(keyspaces)
-        .withNetworkReplication(DataCenterReplication.of("WITHOUT_REPLICATION", 1))
+        .withNetworkReplication(DataCenterReplication.of("DC1", 1))
         .ifNotExists()
 }
