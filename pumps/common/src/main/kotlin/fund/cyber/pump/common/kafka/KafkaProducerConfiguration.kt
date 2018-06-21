@@ -89,7 +89,8 @@ class KafkaProducerConfiguration {
         return mapOf(
                 TopicConfig.RETENTION_MS_CONFIG to TimeUnit.DAYS.toMillis(CLEANUP_RETENTION_POLICY_TIME_DAYS)
                         .toString(),
-                TopicConfig.CLEANUP_POLICY_CONFIG to TopicConfig.CLEANUP_POLICY_DELETE
+                TopicConfig.CLEANUP_POLICY_CONFIG to TopicConfig.CLEANUP_POLICY_DELETE,
+                TopicConfig.UNCLEAN_LEADER_ELECTION_ENABLE_CONFIG to "false"
         )
     }
 
@@ -99,7 +100,7 @@ class KafkaProducerConfiguration {
 
         val newTopics = mutableListOf<NewTopic>()
         chainInfo.family.entityTypes.keys.forEach { entity ->
-            newTopics.add(NewTopic(entity.kafkaTopicName(chainInfo), 1, 1).configs(topicConfigs()))
+            newTopics.add(NewTopic(entity.kafkaTopicName(chainInfo), 1, 3).configs(topicConfigs()))
         }
 
         kafkaClient.createTopics(newTopics)
