@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
 private const val CLEANUP_RETENTION_POLICY_TIME_DAYS = 365L * 1000L
+private const val TOPIC_REPLICATION_FACTOR: Short = 3
 
 @EnableKafka
 @Configuration
@@ -100,7 +101,8 @@ class KafkaProducerConfiguration {
 
         val newTopics = mutableListOf<NewTopic>()
         chainInfo.family.entityTypes.keys.forEach { entity ->
-            newTopics.add(NewTopic(entity.kafkaTopicName(chainInfo), 1, 3).configs(topicConfigs()))
+            newTopics
+                .add(NewTopic(entity.kafkaTopicName(chainInfo), 1, TOPIC_REPLICATION_FACTOR).configs(topicConfigs()))
         }
 
         kafkaClient.createTopics(newTopics)
