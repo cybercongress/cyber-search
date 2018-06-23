@@ -8,6 +8,7 @@
 
 - Bitcoin pump zoombied on error [\#220](https://github.com/cybercongress/cyber-search/issues/220)
 - Increase pump history stack size to 1000 [\#218](https://github.com/cybercongress/cyber-search/issues/218)
+- Replicate kafka consumer group commited offsets [\#217](https://github.com/cybercongress/cyber-search/issues/217)
 - Pump: Retry kafka store operation after exception [\#209](https://github.com/cybercongress/cyber-search/issues/209)
 - Add Context Loading Unit Tests [\#199](https://github.com/cybercongress/cyber-search/issues/199)
 - Favicon and logo for cybersearch.live [\#196](https://github.com/cybercongress/cyber-search/issues/196)
@@ -33,6 +34,7 @@
 
 **Merged pull requests:**
 
+- Add callbacks on kafka producers send\(\) operations in pump [\#224](https://github.com/cybercongress/cyber-search/pull/224) ([arturalbov](https://github.com/arturalbov))
 - Replicate kafka consumer group commited offsets [\#223](https://github.com/cybercongress/cyber-search/pull/223) ([arturalbov](https://github.com/arturalbov))
 - Rename elassandra DC [\#222](https://github.com/cybercongress/cyber-search/pull/222) ([hleb-albau](https://github.com/hleb-albau))
 - cybercongress/cybernode\#90 Make chains monitoring templateable. [\#221](https://github.com/cybercongress/cyber-search/pull/221) ([hleb-albau](https://github.com/hleb-albau))
