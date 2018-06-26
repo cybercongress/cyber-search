@@ -1,5 +1,6 @@
 package fund.cyber.contract.ethereum.delta
 
+import fund.cyber.cassandra.ethereum.model.CqlEthereumContractSummary
 import fund.cyber.search.model.chains.ChainFamily
 import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.ethereum.CallOperation
@@ -33,17 +34,25 @@ internal const val txTo = "1g42hl3"
 
 private val chainInfo = ChainInfo(ChainFamily.ETHEREUM)
 
+internal fun contractSummary(contract: String, offset: Long) = CqlEthereumContractSummary(
+    hash = contract, smartContract = false, confirmedBalance = "1", confirmedTotalReceived = "1",
+    firstActivityDate = Instant.ofEpochMilli(100000), lastActivityDate = Instant.ofEpochMilli(100000),
+    version = 0, kafkaDeltaOffset = offset, kafkaDeltaPartition = 0, kafkaDeltaTopic = chainInfo.txPumpTopic,
+    kafkaDeltaOffsetCommitted = true, txNumber = 1, successfulOpNumber = 1, minedUncleNumber = 0, minedBlockNumber = 0
+)
+
 @SuppressWarnings("LongParameterList", "ComplexMethod")
 internal fun delta(
     contract: String, balanceDelta: BigDecimal, reverted: Boolean = false,
-    txDelta: Boolean = false, opDelta: Boolean = true, smartContract: Boolean = false
+    txDelta: Boolean = false, opDelta: Boolean = true, smartContract: Boolean = false,
+    offset: Long = 0
 ) = EthereumContractSummaryDelta(
     contract = contract, smartContract = smartContract,
     balanceDelta = if (reverted) -balanceDelta else balanceDelta,
     totalReceivedDelta = if (reverted && balanceDelta > ZERO) -balanceDelta else if (balanceDelta > ZERO) balanceDelta else ZERO,
     txNumberDelta = if (!txDelta) 0 else if (reverted) -1 else 1,
     successfulOpNumberDelta = if (!opDelta) 0 else if (reverted) -1 else 1,
-    topic = chainInfo.txPumpTopic, partition = 0, offset = 0, lastOpTime = time
+    topic = chainInfo.txPumpTopic, partition = 0, offset = offset, lastOpTime = time
 )
 
 

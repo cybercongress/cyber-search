@@ -1,4 +1,4 @@
-package fund.cyber.contract.bitcoin.summary
+package fund.cyber.contract.bitcoin.delta
 
 import fund.cyber.contract.common.delta.ContractSummaryDelta
 import fund.cyber.contract.common.delta.DeltaMerger
@@ -26,9 +26,9 @@ data class BitcoinContractSummaryDelta(
 ) : ContractSummaryDelta<CqlBitcoinContractSummary> {
 
     fun revertedDelta(): BitcoinContractSummaryDelta = BitcoinContractSummaryDelta(
-            contract = contract, balanceDelta = -balanceDelta, txNumberDelta = -txNumberDelta,
-            totalReceivedDelta = -totalReceivedDelta, topic = topic,
-            partition = partition, offset = offset, time = time
+        contract = contract, balanceDelta = -balanceDelta, txNumberDelta = -txNumberDelta,
+        totalReceivedDelta = -totalReceivedDelta, topic = topic,
+        partition = partition, offset = offset, time = time
     )
 
     override fun createSummary(): CqlBitcoinContractSummary {
@@ -127,10 +127,10 @@ class BitcoinDeltaMerger: DeltaMerger<BitcoinContractSummaryDelta> {
         val txNumber = deltasToApply.sumBy { delta -> delta.txNumberDelta }
 
         return if (deltasToApply.isEmpty()) null else BitcoinContractSummaryDelta(
-                contract = first.contract, balanceDelta = balance, txNumberDelta = txNumber,
-                totalReceivedDelta = totalReceived, topic = first.topic, partition = first.partition,
-                offset = deltasToApply.maxBy { it -> it.offset }!!.offset,
-                time = deltasToApply.sortedByDescending { it -> it.time }.first().time
+            contract = first.contract, balanceDelta = balance, txNumberDelta = txNumber,
+            totalReceivedDelta = totalReceived, topic = first.topic, partition = first.partition,
+            offset = deltasToApply.maxBy { it -> it.offset }!!.offset,
+            time = deltasToApply.sortedByDescending { it -> it.time }.first().time
         )
     }
 }
