@@ -10,7 +10,7 @@ import org.springframework.test.context.TestPropertySource
 
 @DirtiesContext
 @TestPropertySource(properties = ["CHAIN_FAMILY:BITCOIN"])
-class BitcoinContextStartUpTest : CassandraTestBase() {
+class BitcoinContextStartUpTest : BaseCassandraServiceTest() {
 
     @Autowired
     lateinit var blockRepository: BitcoinBlockRepository

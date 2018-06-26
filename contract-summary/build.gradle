@@ -36,5 +36,9 @@ project(":contract-summary:ethereum") {
 
     dependencies {
         compile project(":contract-summary:common")
+
+        testCompile project(':common-kafka').sourceSets.test.output
+        testCompile project(':cassandra-service').sourceSets.test.output
+        testCompile project(':cassandra-service').sourceSets.main.output
     }
 }
