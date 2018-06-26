@@ -14,7 +14,7 @@ import org.springframework.test.annotation.DirtiesContext
 
 @DirtiesContext
 @CassandraDataSet(value = ["create-chains-keyspaces.cql"])
-class AllChainsContextStartUpTest : CassandraTestBase() {
+class AllChainsContextStartUpTest : BaseCassandraServiceTest() {
 
     @Autowired
     private lateinit var applicationContext: GenericApplicationContext

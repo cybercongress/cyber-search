@@ -19,9 +19,7 @@ import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
 import org.springframework.test.context.support.AnnotationConfigContextLoader
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
-import org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener
-import org.springframework.test.context.support.DirtiesContextTestExecutionListener
+import java.lang.annotation.Inherited
 
 
 @Configuration
@@ -52,13 +50,25 @@ class ElassandraContext {
 
 @SpringJUnitConfig
 @Tag("elassandra-integration")
-@ContextConfiguration(classes = [ElassandraContext::class])
 @EmbeddedCassandra(configuration = "cassandra-cs.yaml")
-@TestExecutionListeners(listeners = [
-    CassandraTestExecutionListener::class,
-    DependencyInjectionTestExecutionListener::class,
-    DirtiesContextBeforeModesTestExecutionListener::class,
-    DirtiesContextTestExecutionListener::class
-])
+@TestExecutionListeners(
+    listeners = [CassandraTestExecutionListener::class],
+    mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
+)
 @TestPropertySource(properties = ["CASSANDRA_PORT:9142"])
-abstract class CassandraTestBase
+@Inherited
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.CLASS)
+annotation class CassandraTestBase
+
+
+@CassandraTestBase
+@ContextConfiguration(classes = [ElassandraContext::class])
+@Inherited
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.CLASS)
+annotation class CassandraTestBaseWithContext
+
+
+@CassandraTestBaseWithContext
+abstract class BaseCassandraServiceTest
