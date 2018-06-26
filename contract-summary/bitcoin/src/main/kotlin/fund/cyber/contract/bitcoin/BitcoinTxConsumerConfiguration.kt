@@ -1,9 +1,8 @@
-package fund.cyber.contract.bitcoin.delta.apply
+package fund.cyber.contract.bitcoin
 
 import fund.cyber.common.kafka.JsonDeserializer
-import fund.cyber.contract.bitcoin.BitcoinContractSummaryStorage
-import fund.cyber.contract.bitcoin.summary.BitcoinDeltaMerger
-import fund.cyber.contract.bitcoin.summary.BitcoinTxDeltaProcessor
+import fund.cyber.contract.bitcoin.delta.BitcoinDeltaMerger
+import fund.cyber.contract.bitcoin.delta.BitcoinTxDeltaProcessor
 import fund.cyber.contract.common.delta.apply.UpdateContractSummaryProcess
 import fund.cyber.search.configuration.KAFKA_BROKERS
 import fund.cyber.search.configuration.KAFKA_BROKERS_DEFAULT
