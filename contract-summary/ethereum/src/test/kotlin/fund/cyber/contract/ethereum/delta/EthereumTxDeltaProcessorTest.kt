@@ -11,7 +11,7 @@ import java.math.BigDecimal
 import java.math.BigDecimal.ZERO
 
 
-@DisplayName("Ethereum transaction delta processor test: ")
+@DisplayName("Ethereum transaction delta processor normalFlowWithoutContractInDbTest: ")
 class EthereumTxDeltaProcessorTest {
 
     private val deltaProcessor = EthereumTxDeltaProcessor()
