@@ -2,13 +2,13 @@
 <h3 align="center">cyber.Search</h3>
 
 <div align="center">
-   <img src="https://img.shields.io/circleci/project/github/cybercongress/cyber-search.svg?style=flat-square" alt="">
-   <img src="https://img.shields.io/coveralls/github/cybercongress/cyber-search.svg?style=flat-square" alt="">
-   <img src="https://img.shields.io/github/release/cybercongress/cyber-search.svg?style=flat-square" alt="">
-   <img src="https://img.shields.io/github/license/cybercongress/cyber-search.svg?style=flat-square" alt="">
-   <img src="https://img.shields.io/github/contributors/cybercongress/cyber-search.svg?style=flat-square" alt="">
-   <img src="https://img.shields.io/badge/contributions-welcome-orange.svg?style=flat-square" alt="" />
-   <a href="https://t.me/fuckgoogle"><img src="https://img.shields.io/badge/Join%20Us%20On-Telegram-2599D2.svg?style=flat-square" alt=""></a>
+   <img src="https://img.shields.io/circleci/project/github/cybercongress/cyber-search.svg?style=flat-square&longCache=true" alt="">
+   <img src="https://img.shields.io/coveralls/github/cybercongress/cyber-search.svg?style=flat-square&longCache=true" alt="">
+   <img src="https://img.shields.io/github/release/cybercongress/cyber-search.svg?style=flat-square&longCache=true" alt="">
+   <img src="https://img.shields.io/github/license/cybercongress/cyber-search.svg?style=flat-square&longCache=true" alt="">
+   <img src="https://img.shields.io/github/contributors/cybercongress/cyber-search.svg?style=flat-square&longCache=true" alt="">
+   <img src="https://img.shields.io/badge/contributions-welcome-orange.svg?style=flat-square&longCache=true" alt="" />
+   <a href="https://t.me/fuckgoogle"><img src="https://img.shields.io/badge/Join%20Us%20On-Telegram-2599D2.svg?style=flat-square&longCache=true" alt=""></a>
 </div>  
 
 </br>
