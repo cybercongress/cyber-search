@@ -2,6 +2,7 @@ package fund.cyber.pump.common.kafka
 
 import fund.cyber.common.kafka.JsonSerializer
 import fund.cyber.common.kafka.defaultProducerConfig
+import fund.cyber.common.kafka.idempotentProducerDefaultConfig
 import fund.cyber.common.kafka.kafkaTopicName
 import fund.cyber.common.with
 import fund.cyber.search.configuration.KAFKA_BROKERS
@@ -22,17 +23,14 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaAdmin
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
-import org.springframework.kafka.transaction.KafkaTransactionManager
-import org.springframework.transaction.annotation.EnableTransactionManagement
-import org.springframework.transaction.support.AbstractPlatformTransactionManager.SYNCHRONIZATION_ALWAYS
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
 private const val CLEANUP_RETENTION_POLICY_TIME_DAYS = 365L * 1000L
+private const val TOPIC_REPLICATION_FACTOR: Short = 3
 
 @EnableKafka
 @Configuration
-@EnableTransactionManagement
 class KafkaProducerConfiguration {
 
     @Value("\${$KAFKA_BROKERS:$KAFKA_BROKERS_DEFAULT}")
@@ -44,17 +42,17 @@ class KafkaProducerConfiguration {
     @Bean
     fun kafkaAdmin(): KafkaAdmin {
         val configs = mapOf(
-                AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers
+            AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers
         )
         return KafkaAdmin(configs)
     }
 
     @Bean
     fun producerFactory(): ProducerFactory<PumpEvent, Any> {
-        return DefaultKafkaProducerFactory<PumpEvent, Any>(producerConfigs(), JsonSerializer(), JsonSerializer())
-                .apply {
-                    setTransactionIdPrefix(chainInfo.name + "_PUMP")
-                }
+
+        val configs = idempotentProducerDefaultConfig().with(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers)
+        return DefaultKafkaProducerFactory<PumpEvent, Any>(configs, JsonSerializer(), JsonSerializer())
+            .apply { setTransactionIdPrefix(chainInfo.name + "_PUMP") }
     }
 
     @Bean
@@ -64,7 +62,9 @@ class KafkaProducerConfiguration {
 
     @Bean
     fun producerFactoryPool(): ProducerFactory<PumpEvent, Any> {
-        return DefaultKafkaProducerFactory<PumpEvent, Any>(producerConfigs(), JsonSerializer(), JsonSerializer())
+
+        val configs = defaultProducerConfig().with(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers)
+        return DefaultKafkaProducerFactory<PumpEvent, Any>(configs, JsonSerializer(), JsonSerializer())
     }
 
     @Bean
@@ -73,23 +73,12 @@ class KafkaProducerConfiguration {
     }
 
     @Bean
-    fun producerConfigs(): Map<String, Any> = defaultProducerConfig().with(
-            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers
-    )
-
-    @Bean
-    fun transactionManager(): KafkaTransactionManager<PumpEvent, Any> {
-        return KafkaTransactionManager(producerFactory()).apply {
-            transactionSynchronization = SYNCHRONIZATION_ALWAYS
-        }
-    }
-
-    @Bean
     fun topicConfigs(): Map<String, String> {
         return mapOf(
-                TopicConfig.RETENTION_MS_CONFIG to TimeUnit.DAYS.toMillis(CLEANUP_RETENTION_POLICY_TIME_DAYS)
-                        .toString(),
-                TopicConfig.CLEANUP_POLICY_CONFIG to TopicConfig.CLEANUP_POLICY_DELETE
+            TopicConfig.RETENTION_MS_CONFIG to TimeUnit.DAYS.toMillis(CLEANUP_RETENTION_POLICY_TIME_DAYS)
+                .toString(),
+            TopicConfig.CLEANUP_POLICY_CONFIG to TopicConfig.CLEANUP_POLICY_DELETE,
+            TopicConfig.UNCLEAN_LEADER_ELECTION_ENABLE_CONFIG to "false"
         )
     }
 
@@ -99,7 +88,8 @@ class KafkaProducerConfiguration {
 
         val newTopics = mutableListOf<NewTopic>()
         chainInfo.family.entityTypes.keys.forEach { entity ->
-            newTopics.add(NewTopic(entity.kafkaTopicName(chainInfo), 1, 1).configs(topicConfigs()))
+            newTopics
+                .add(NewTopic(entity.kafkaTopicName(chainInfo), 1, TOPIC_REPLICATION_FACTOR).configs(topicConfigs()))
         }
 
         kafkaClient.createTopics(newTopics)

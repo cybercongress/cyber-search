@@ -41,7 +41,8 @@ class CommonConfiguration(
     @Value("\${$CHAIN_FAMILY:}")
     private val chainFamily: String,
     @Value("\${$CHAIN_NAME:}")
-    private val chainName: String
+    private val chainName: String,
+    private val monitoring: MeterRegistry
 ) : InitializingBean {
 
     @Autowired
@@ -54,14 +55,21 @@ class CommonConfiguration(
     )
 
     @Bean
-    fun metricsCommonTags(): MeterRegistryCustomizer<MeterRegistry> {
-        return MeterRegistryCustomizer { registry -> registry.config().commonTags("chain", chainInfo().name) }
+    fun metricsCommonTags(chainInfo: ChainInfo) = MeterRegistryCustomizer<MeterRegistry> { registry ->
+        registry.config().commonTags(
+            "chainName", chainInfo.name,
+            "chainFamily", chainInfo.family.name
+        )
     }
 
     @PostConstruct
     fun initSystemProperties() {
         System.setProperty("reactor.bufferSize.small", "8192")
+        monitoring.gauge("dump-process-batch-size", maxPollRecords)
     }
+
+    @Bean
+    fun txLatencyMetrics() = monitoring.timer("dump-process-tx-latency")
 
     private fun consumerConfigs(): MutableMap<String, Any> = defaultConsumerConfig().with(
         ConsumerConfig.GROUP_ID_CONFIG to "dump-process",
@@ -97,7 +105,6 @@ class CommonConfiguration(
 
             beanFactory.registerSingleton(topic + "_listenerContainer", listener)
         }
-
     }
 
 }

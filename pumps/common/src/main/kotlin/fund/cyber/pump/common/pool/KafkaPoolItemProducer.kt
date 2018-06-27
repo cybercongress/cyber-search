@@ -23,7 +23,6 @@ class KafkaPoolItemProducer(
         kafkaTemplatePool.send(ChainEntityType.TX.kafkaTopicName(chainInfo), event, item)
             .addCallback({ _ -> }) { error ->
                 log.error("Error during sending mempool item to kafka", error)
-                storeItem(itemEvent)
             }
     }
 }

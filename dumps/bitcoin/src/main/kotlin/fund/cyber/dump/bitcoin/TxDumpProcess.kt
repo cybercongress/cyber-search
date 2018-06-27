@@ -6,6 +6,7 @@ import fund.cyber.cassandra.bitcoin.model.CqlBitcoinTx
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
+import fund.cyber.common.millisFromNow
 import fund.cyber.dump.common.toFlux
 import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.chains.ChainInfo
@@ -13,6 +14,7 @@ import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.txPumpTopic
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
+import io.micrometer.core.instrument.Timer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
@@ -20,6 +22,8 @@ import org.springframework.kafka.listener.BatchMessageListener
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
+import reactor.core.publisher.toMono
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
 @Suppress("MagicNumber")
@@ -29,13 +33,14 @@ class TxDumpProcess(
     private val blockTxRepository: BitcoinBlockTxRepository,
     private val chainInfo: ChainInfo,
     private val realtimeIndexationThreshold: Long,
+    private val txLatencyMetric: Timer,
     monitoring: MeterRegistry
 ) : BatchMessageListener<PumpEvent, BitcoinTx> {
 
     private val log = LoggerFactory.getLogger(BatchMessageListener::class.java)
 
     private val requestCountMonitor = monitoring.gauge(
-        "dump_cs_requests_per_batch",
+        "dump-process-tx-cs-requests-per-batch",
         Tags.of("topic", chainInfo.txPumpTopic),
         AtomicLong(0)
     )!!
@@ -63,7 +68,7 @@ class TxDumpProcess(
             " from offset ${records.first().offset()}")
     }
 
-    private fun BitcoinTx.toNewBlockPublisher(): Publisher<Any> {
+    private fun BitcoinTx.toNewBlockPublisher(): Publisher<Unit> {
 
         log.debug("NEW_BLOCK tx ${this.hash}")
 
@@ -91,7 +96,9 @@ class TxDumpProcess(
 
         requestsCounter += 3 + contractTxRequestsFactor * affectedContracts.size
 
-        return Flux.merge(saveTxMono, saveBlockTxMono, saveContractTxesFlux, deleteContractTxesFlux)
+        return Flux.merge(saveTxMono, saveBlockTxMono, saveContractTxesFlux, deleteContractTxesFlux).then(
+            txLatencyMetric.record(this.blockTime!!.millisFromNow(), TimeUnit.MILLISECONDS).toMono()
+        )
     }
 
     private fun BitcoinTx.toDropBlockPublisher(): Publisher<Any> {

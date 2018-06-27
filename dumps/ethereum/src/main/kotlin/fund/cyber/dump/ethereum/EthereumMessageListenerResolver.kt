@@ -16,6 +16,8 @@ import fund.cyber.search.model.chains.ChainEntityType.TX
 import fund.cyber.search.model.chains.ChainEntityType.UNCLE
 import fund.cyber.search.model.chains.ChainInfo
 import fund.cyber.search.model.events.PumpEvent
+import io.micrometer.core.instrument.Timer
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.kafka.listener.BatchMessageListener
 import org.springframework.stereotype.Component
@@ -32,14 +34,17 @@ class EthereumMessageListenerResolver(
     private val blockTxRepository: EthereumBlockTxRepository,
     private val contractTxRepository: EthereumContractTxRepository,
     private val uncleRepository: EthereumUncleRepository,
-    private val contractUncleRepository: EthereumContractUncleRepository
+    private val contractUncleRepository: EthereumContractUncleRepository,
+    @Qualifier("txLatencyMetrics") private val txLatencyMetric: Timer
 ) : MessageListenerResolver {
 
     override fun getListenerByType(chainEntityType: ChainEntityType): BatchMessageListener<PumpEvent, *> {
         return when (chainEntityType) {
             BLOCK -> BlockDumpProcess(blockRepository, contractMinedBlockRepository, chain)
-            TX -> TxDumpProcess(txRepository, blockTxRepository, contractTxRepository, chain,
-                realtimeIndexationThreshold)
+            TX -> TxDumpProcess(
+                txRepository, blockTxRepository, contractTxRepository,
+                chain, realtimeIndexationThreshold, txLatencyMetric
+            )
             UNCLE -> UncleDumpProcess(uncleRepository, contractUncleRepository, chain)
         }
     }
