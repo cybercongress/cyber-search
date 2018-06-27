@@ -1,14 +1,24 @@
-# Cyber Search [![CircleCI](https://img.shields.io/circleci/project/github/cybercongress/cyber-search.svg?longCache=true&style=flat-square)](https://circleci.com/gh/cybercongress/cyber-search) [![Latest Release](https://img.shields.io/github/release/cybercongress/cyber-search.svg?longCache=true&style=flat-square)](https://circleci.com/gh/cybercongress/cyber-search/releases) [![GitHub license](https://img.shields.io/github/license/cybercongress/cyber-search.svg?style=flat-square&longCache=true)](https://github.com/cybercongress/cyber-search/blob/master/LICENSE) [![GitHub contributors](https://img.shields.io/github/contributors/cybercongress/cyber-search.svg?style=flat-square&longCache=true)](https://github.com/cybercongress/cyber-search) [![Telegram](https://img.shields.io/badge/Join%20Us%20On-Telegram-2599D2.svg?style=flat-square&longCache=true)](https://t.me/joinchat/Bze3dEPj5YrvZ3REnMrfPg)
 
+<h3 align="center">cyber.Search</h3>
+
+<div align="center">
+   <img src="https://img.shields.io/circleci/project/github/cybercongress/cyber-search.svg?style=flat-square" alt="">
+   <img src="https://img.shields.io/coveralls/github/cybercongress/cyber-search.svg?style=flat-square" alt="">
+   <img src="https://img.shields.io/github/release/cybercongress/cyber-search.svg?style=flat-square" alt="">
+   <img src="https://img.shields.io/github/license/cybercongress/cyber-search.svg?style=flat-square" alt="">
+   <img src="https://img.shields.io/github/contributors/cybercongress/cyber-search.svg?style=flat-square" alt="">
+   <img src="https://img.shields.io/badge/contributions-welcome-orange.svg?style=flat-square" alt="" />
+   <a href="https://t.me/fuckgoogle"><img src="https://img.shields.io/badge/Join%20Us%20On-Telegram-2599D2.svg?style=flat-square" alt=""></a>
+</div>  
+
+</br>
+
+<dev align="center">
+  <img src="/design/read_logo.png" alt="cyber.Search" width="970"></a>
+</dev>
+
+## Project Status
 Project status: **alpha**. Not all planned features are completed. The API, spec, status and other user facing objects may change.
-
-Search engine backend and API.
-
-
-## Gitcoin Tasks
-<a href="https://gitcoin.co/explorer?q=cyber-search">
-    <img src="https://gitcoin.co/funding/embed?repo=https://github.com/cybercongress/cyber-search">
-</a>
 
 ## Getting Start Useful Links
 
@@ -33,6 +43,17 @@ You are invited to contribute new features, fixes, or updates, large or small; W
  requests, and do our best to process them as fast as We can. You can find detailed information in our 
  [contribution guide](./docs/contributing/contributing.md).
  
+## Gitcoin Tasks
+<a href="https://gitcoin.co/explorer?q=cyber-search">
+    <img src="https://gitcoin.co/funding/embed?repo=https://github.com/cybercongress/cyber-search">
+</a>
+ 
 ## Roadmap & Changelog
 
 Stay tuned with our [Changelog](./CHANGELOG.md) and [Roadmap](./ROADMAP.md).
+
+<div align="center">
+  <sub>Built by
+  <a href="https://twitter.com/cyber_devs">cyber•Congress</a> and
+  <a href="https://github.com/cybercongress/cyber-search/graphs/contributors">contributors</a>
+</div>
