@@ -1,16 +1,14 @@
-package fund.cyber.contract.ethereum
+package fund.cyber.contract.bitcoin.delta
 
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
-import fund.cyber.UpdateEthereumContractSummaryApplication
+import fund.cyber.UpdateBitcoinContractSummaryApplication
 import fund.cyber.cassandra.CassandraTestBase
 import fund.cyber.common.kafka.BaseKafkaIntegrationTestWithStartedKafka
+import fund.cyber.search.model.bitcoin.BitcoinTx
 import fund.cyber.search.model.chains.ChainFamily
 import fund.cyber.search.model.chains.ChainInfo
-import fund.cyber.search.model.ethereum.EthereumBlock
-import fund.cyber.search.model.ethereum.EthereumTx
-import fund.cyber.search.model.ethereum.EthereumUncle
 import fund.cyber.search.model.events.PumpEvent
 import org.apache.http.HttpResponse
 import org.apache.http.HttpStatus
@@ -29,7 +27,7 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 
 @Configuration
-class BaseEthereumContextTestConfig {
+class BaseBitcoinContextTestConfig {
 
     @Bean
     @Primary
@@ -49,30 +47,22 @@ class BaseEthereumContextTestConfig {
 
 @CassandraTestBase
 @DirtiesContext
-@ContextConfiguration(classes = [UpdateEthereumContractSummaryApplication::class, BaseEthereumContextTestConfig::class])
-abstract class BaseEthereumContextTest: BaseKafkaIntegrationTestWithStartedKafka()
+@ContextConfiguration(classes = [UpdateBitcoinContractSummaryApplication::class, BaseBitcoinContextTestConfig::class])
+abstract class BaseBitcoinContextTest: BaseKafkaIntegrationTestWithStartedKafka()
 
-@TestPropertySource(properties = ["CHAIN_FAMILY:ETHEREUM"])
-class ContextStartUpTest: BaseEthereumContextTest() {
+@TestPropertySource(properties = ["CHAIN_FAMILY:BITCOIN"])
+class ContextStartUpTest: BaseBitcoinContextTest() {
 
     @Autowired
     lateinit var chainInfo: ChainInfo
 
     @Autowired
-    lateinit var txListener: ConcurrentMessageListenerContainer<PumpEvent, EthereumTx>
-
-    @Autowired
-    lateinit var blockListener: ConcurrentMessageListenerContainer<PumpEvent, EthereumBlock>
-
-    @Autowired
-    lateinit var uncleListener: ConcurrentMessageListenerContainer<PumpEvent, EthereumUncle>
+    lateinit var txListener: ConcurrentMessageListenerContainer<PumpEvent, BitcoinTx>
 
     @Test
     fun shouldCreateContextWithListeners() {
         Assertions.assertThat(chainInfo).isNotNull()
-        Assertions.assertThat(chainInfo.family).isEqualTo(ChainFamily.ETHEREUM)
+        Assertions.assertThat(chainInfo.family).isEqualTo(ChainFamily.BITCOIN)
         Assertions.assertThat(txListener).isNotNull()
-        Assertions.assertThat(blockListener).isNotNull()
-        Assertions.assertThat(uncleListener).isNotNull()
     }
 }

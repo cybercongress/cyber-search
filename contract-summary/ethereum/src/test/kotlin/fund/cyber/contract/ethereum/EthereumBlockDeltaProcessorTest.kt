@@ -16,7 +16,7 @@ import java.math.BigInteger
 import java.time.Instant
 
 
-@DisplayName("Ethereum block delta processor test: ")
+@DisplayName("Ethereum block delta processor normalFlowWithoutContractInDbTest: ")
 class EthereumBlockDeltaProcessorTest {
 
     private val chainInfo = ChainInfo(ChainFamily.ETHEREUM)
