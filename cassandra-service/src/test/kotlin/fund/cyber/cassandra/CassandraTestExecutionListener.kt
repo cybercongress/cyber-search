@@ -16,13 +16,27 @@ import java.nio.file.Paths
  */
 class CassandraTestExecutionListener : CassandraUnitDependencyInjectionIntegrationTestExecutionListener() {
 
+    private var initialized = false
+
+    override fun prepareTestInstance(testContext: TestContext) {
+        if (!initialized) {
+            rmdir(DEFAULT_TMP_DIR + "1")
+            copy("/cassandra-rackdc_cs.properties", DEFAULT_TMP_DIR + "1")
+            val file = File(DEFAULT_TMP_DIR + "1/cassandra-rackdc_cs.properties")
+            System.setProperty("cassandra-rackdc.properties", "file:" + file.absolutePath)
+            super.beforeTestClass(testContext)
+        }
+    }
 
     override fun beforeTestClass(testContext: TestContext) {
-        rmdir(DEFAULT_TMP_DIR + "1")
-        copy("/cassandra-rackdc_cs.properties", DEFAULT_TMP_DIR + "1")
-        val file = File(DEFAULT_TMP_DIR + "1/cassandra-rackdc_cs.properties")
-        System.setProperty("cassandra-rackdc.properties", "file:" + file.getAbsolutePath())
-        super.beforeTestClass(testContext)
+        if (!initialized) {
+            initialized = true
+            rmdir(DEFAULT_TMP_DIR + "1")
+            copy("/cassandra-rackdc_cs.properties", DEFAULT_TMP_DIR + "1")
+            val file = File(DEFAULT_TMP_DIR + "1/cassandra-rackdc_cs.properties")
+            System.setProperty("cassandra-rackdc.properties", "file:" + file.absolutePath)
+            super.beforeTestClass(testContext)
+        }
     }
 
     @Throws(IOException::class)

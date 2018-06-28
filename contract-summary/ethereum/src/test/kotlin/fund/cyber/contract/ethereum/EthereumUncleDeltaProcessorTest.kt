@@ -8,14 +8,14 @@ import fund.cyber.search.model.ethereum.EthereumUncle
 import fund.cyber.search.model.events.PumpEvent
 import fund.cyber.search.model.events.unclePumpTopic
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.junit.jupiter.api.Assertions
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
 
 
-@DisplayName("Ethereum uncle delta processor test: ")
+@DisplayName("Ethereum uncle delta processor normalFlowWithoutContractInDbTest: ")
 class EthereumUncleDeltaProcessorTest {
 
     private val chainInfo = ChainInfo(ChainFamily.ETHEREUM)
@@ -43,6 +43,16 @@ class EthereumUncleDeltaProcessorTest {
             miner = "0xea674fdde714fd979de3edf0f56aa9716b898ec8", uncleReward = BigDecimal("1.875")
     )
 
+    @Test
+    fun affectedContractsTest() {
+        val record = ConsumerRecord<PumpEvent, EthereumUncle>(chainInfo.unclePumpTopic, 0, 0, PumpEvent.NEW_BLOCK, uncle)
+
+        val contracts = EthereumUncleDeltaProcessor().affectedContracts(listOf(record))
+
+        Assertions.assertThat(contracts).hasSize(1)
+        Assertions.assertThat(contracts).containsExactly("0xea674fdde714fd979de3edf0f56aa9716b898ec8")
+    }
+
 
     @Test
     @DisplayName("Should correctly convert ethereum uncle to contract deltas")
@@ -50,7 +60,7 @@ class EthereumUncleDeltaProcessorTest {
         val record = ConsumerRecord<PumpEvent, EthereumUncle>(chainInfo.unclePumpTopic, 0, 0, PumpEvent.NEW_BLOCK, uncle)
 
         val deltas = EthereumUncleDeltaProcessor().recordToDeltas(record)
-        Assertions.assertEquals(deltas, listOf(expectedDelta))
+        Assertions.assertThat(deltas).containsExactly(expectedDelta)
     }
 
     @Test
@@ -59,7 +69,7 @@ class EthereumUncleDeltaProcessorTest {
         val record = ConsumerRecord<PumpEvent, EthereumUncle>(chainInfo.unclePumpTopic, 0, 0, PumpEvent.DROPPED_BLOCK, uncle)
 
         val deltas = EthereumUncleDeltaProcessor().recordToDeltas(record)
-        Assertions.assertEquals(deltas, listOf(expectedDroppedDelta))
+        Assertions.assertThat(deltas).containsExactly(expectedDroppedDelta)
     }
 
 }

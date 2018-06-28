@@ -13,7 +13,7 @@ import java.time.Instant
 
 @DirtiesContext
 @TestPropertySource(properties = ["CHAIN_FAMILY:ETHEREUM"])
-class EthereumContextStartUpTest : CassandraTestBase() {
+class EthereumContextStartUpTest : BaseCassandraServiceTest() {
 
     @Autowired
     lateinit var blockRepository: EthereumBlockRepository
