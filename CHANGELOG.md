@@ -8,11 +8,13 @@
 
 - Contract Summary Module Tests [\#225](https://github.com/cybercongress/cyber-search/issues/225)
 - Add callbacks on kafka producers send\(\) operations in pump [\#219](https://github.com/cybercongress/cyber-search/issues/219)
+- Draw logo and patern for cyber•Search [\#186](https://github.com/cybercongress/cyber-search/issues/186)
 - Kafka Replication [\#182](https://github.com/cybercongress/cyber-search/issues/182)
 
 **Merged pull requests:**
 
 - Contract Summary Module Tests [\#227](https://github.com/cybercongress/cyber-search/pull/227) ([arturalbov](https://github.com/arturalbov))
+- logo cyber search [\#226](https://github.com/cybercongress/cyber-search/pull/226) ([Olga584](https://github.com/Olga584))
 
 ## [0.7.0](https://github.com/cybercongress/cyber-search/tree/0.7.0) (2018-06-23)
 [Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.6.0...0.7.0)
