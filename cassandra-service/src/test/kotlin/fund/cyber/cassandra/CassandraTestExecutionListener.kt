@@ -20,6 +20,7 @@ class CassandraTestExecutionListener : CassandraUnitDependencyInjectionIntegrati
 
     override fun prepareTestInstance(testContext: TestContext) {
         if (!initialized) {
+            initialized = true
             rmdir(DEFAULT_TMP_DIR + "1")
             copy("/cassandra-rackdc_cs.properties", DEFAULT_TMP_DIR + "1")
             val file = File(DEFAULT_TMP_DIR + "1/cassandra-rackdc_cs.properties")
