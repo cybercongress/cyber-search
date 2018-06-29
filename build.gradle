@@ -1,4 +1,3 @@
-
 apply from: "$rootDir/gradle/repositories.gradle"
 
 buildscript {
@@ -30,6 +29,7 @@ buildscript {
         mockitoKotlinVersion = "1.6.0"
         assertjVersion = "3.9.0"
         coverallsVersion = "2.8.2"
+        jsonassertVersion = "1.5.0"
 
         // metrics
         micrometerVersion = "1.0.4"
@@ -158,6 +158,10 @@ project(":search-api") {
         compile 'io.micrometer:micrometer-core'
         compile 'com.strapdata.elasticsearch:elasticsearch:5.5.0'
         compile 'com.strapdata.elasticsearch.client:transport:5.5.0'
+
+        testCompile project(':cassandra-service').sourceSets.test.output
+        testCompile project(':cassandra-service').sourceSets.main.output
+        testCompile 'org.skyscreamer:jsonassert'
     }
 }
 

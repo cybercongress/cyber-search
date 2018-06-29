@@ -64,11 +64,4 @@ annotation class CassandraTestBase
 
 @CassandraTestBase
 @ContextConfiguration(classes = [ElassandraContext::class])
-@Inherited
-@Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.CLASS)
-annotation class CassandraTestBaseWithContext
-
-
-@CassandraTestBaseWithContext
 abstract class BaseCassandraServiceTest
