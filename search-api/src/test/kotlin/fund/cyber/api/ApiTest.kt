@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.http.MediaType
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
 
@@ -47,7 +48,9 @@ class BaseApiContextTestConfig {
 @ContextConfiguration(classes = [SearchApiApplication::class, BaseApiContextTestConfig::class])
 abstract class BaseApiContextTest
 
+//todo: ElasticSearch tests. Possible solutions: https://stackoverflow.com/questions/41298467/how-to-start-elasticsearch-5-1-embedded-in-my-java-application
 @CassandraDataSet(value = ["cassandra-bitcoin-data.cql", "cassandra-ethereum-data.cql"])
+@DirtiesContext
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ApiTest : BaseApiContextTest() {
 
