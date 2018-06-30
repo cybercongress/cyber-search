@@ -33,7 +33,7 @@ jobs:
             - ~/.gradle/wrapper/
       - run:
           name: Build And Test Project
-          command: ./gradlew clean build coveralls --debug
+          command: ./gradlew clean build coveralls
       # Circle CI doesn't allow persisting of root of workspace,
       # so we will persist individual folders used in jobs
       - persist_to_workspace:
