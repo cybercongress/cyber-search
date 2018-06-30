@@ -86,7 +86,7 @@ class ApiTest : BaseApiContextTest() {
                 "  \"blockReward\": 50,\n" +
                 "  \"txFees\": 0,\n" +
                 "  \"coinbaseData\": \"\",\n" +
-                "  \"timestamp\": 1.2309336E9,\n" +
+                "  \"timestamp\": 1.491045719001E9,\n" +
                 "  \"nonce\": 0,\n" +
                 "  \"merkleroot\": \"a\",\n" +
                 "  \"size\": 100,\n" +
@@ -153,8 +153,8 @@ class ApiTest : BaseApiContextTest() {
                 "  \"confirmedBalance\": 50,\n" +
                 "  \"confirmedTotalReceived\": 50,\n" +
                 "  \"confirmedTxNumber\": 1,\n" +
-                "  \"firstActivityDate\": 1.2309336E9,\n" +
-                "  \"lastActivityDate\": 1.2309336E9,\n" +
+                "  \"firstActivityDate\": 1.491045719001E9,\n" +
+                "  \"lastActivityDate\": 1.491045719001E9,\n" +
                 "  \"unconfirmedTxValues\": {}\n" +
                 "}")
     }
@@ -180,8 +180,8 @@ class ApiTest : BaseApiContextTest() {
                 "    \"blockNumber\": 0,\n" +
                 "    \"blockHash\": \"a\",\n" +
                 "    \"coinbase\": \"\",\n" +
-                "    \"firstSeenTime\": 1.2309336E9,\n" +
-                "    \"blockTime\": 1.2309336E9,\n" +
+                "    \"firstSeenTime\": 1.491045719001E9,\n" +
+                "    \"blockTime\": 1.491045719001E9,\n" +
                 "    \"size\": 0,\n" +
                 "    \"fee\": \"0\",\n" +
                 "    \"totalInput\": \"0\",\n" +
@@ -221,7 +221,7 @@ class ApiTest : BaseApiContextTest() {
                 "  {\n" +
                 "    \"minerContractHash\": \"a\",\n" +
                 "    \"blockNumber\": 0,\n" +
-                "    \"blockTime\": 1.2309336E9,\n" +
+                "    \"blockTime\": 1.491045719001E9,\n" +
                 "    \"blockReward\": 50,\n" +
                 "    \"txFees\": 0,\n" +
                 "    \"txNumber\": 1\n" +
@@ -249,8 +249,8 @@ class ApiTest : BaseApiContextTest() {
                 "  \"blockNumber\": 0,\n" +
                 "  \"blockHash\": \"a\",\n" +
                 "  \"coinbase\": \"\",\n" +
-                "  \"firstSeenTime\": 1.2309336E9,\n" +
-                "  \"blockTime\": 1.2309336E9,\n" +
+                "  \"firstSeenTime\": 1.491045719001E9,\n" +
+                "  \"blockTime\": 1.491045719001E9,\n" +
                 "  \"size\": 0,\n" +
                 "  \"fee\": \"0\",\n" +
                 "  \"totalInput\": \"0\",\n" +
@@ -289,7 +289,7 @@ class ApiTest : BaseApiContextTest() {
                 "  \"number\": 0,\n" +
                 "  \"hash\": \"a\",\n" +
                 "  \"parent_hash\": \"\",\n" +
-                "  \"timestamp\": 1.2309336E9,\n" +
+                "  \"timestamp\": 1.491045719001E9,\n" +
                 "  \"sha3Uncles\": \"\",\n" +
                 "  \"logsBloom\": \"\",\n" +
                 "  \"transactionsRoot\": \"txroot\",\n" +
@@ -362,8 +362,8 @@ class ApiTest : BaseApiContextTest() {
                 "  \"txNumber\": 1,\n" +
                 "  \"minedUncleNumber\": 0,\n" +
                 "  \"minedBlockNumber\": 1,\n" +
-                "  \"firstActivityDate\": 1.2309336E9,\n" +
-                "  \"lastActivityDate\": 1.2309336E9,\n" +
+                "  \"firstActivityDate\": 1.491045719001E9,\n" +
+                "  \"lastActivityDate\": 1.491045719001E9,\n" +
                 "  \"unconfirmedTxValues\": {}\n" +
                 "}")
     }
@@ -389,7 +389,7 @@ class ApiTest : BaseApiContextTest() {
                 "    \"blockTime\": 1230933600,\n" +
                 "    \"hash\": \"txa\",\n" +
                 "    \"fee\": 0,\n" +
-                "    \"firstSeenTime\": 1.2309336E9,\n" +
+                "    \"firstSeenTime\": 1.491045719001E9,\n" +
                 "    \"from\": \"b\",\n" +
                 "    \"to\": \"a\",\n" +
                 "    \"value\": \"10\"\n" +
@@ -416,7 +416,7 @@ class ApiTest : BaseApiContextTest() {
                 "  {\n" +
                 "    \"minerContractHash\": \"a\",\n" +
                 "    \"blockNumber\": 0,\n" +
-                "    \"blockTime\": 1.2309336E9,\n" +
+                "    \"blockTime\": 1.491045719001E9,\n" +
                 "    \"blockReward\": 5,\n" +
                 "    \"unclesReward\": 5,\n" +
                 "    \"txFees\": 0,\n" +
@@ -447,8 +447,8 @@ class ApiTest : BaseApiContextTest() {
                 "    \"hash\": \"ua\",\n" +
                 "    \"position\": 0,\n" +
                 "    \"number\": 0,\n" +
-                "    \"timestamp\": 1.2309336E9,\n" +
-                "    \"blockTime\": 1.2309336E9,\n" +
+                "    \"timestamp\": 1.491045719001E9,\n" +
+                "    \"blockTime\": 1.491045719001E9,\n" +
                 "    \"blockHash\": \"a\",\n" +
                 "    \"uncleReward\": \"5\"\n" +
                 "  }\n" +
@@ -476,8 +476,8 @@ class ApiTest : BaseApiContextTest() {
                 "  \"nonce\": 0,\n" +
                 "  \"blockHash\": \"a\",\n" +
                 "  \"blockNumber\": 0,\n" +
-                "  \"firstSeenTime\": 1.2309336E9,\n" +
-                "  \"blockTime\": 1.2309336E9,\n" +
+                "  \"firstSeenTime\": 1.491045719001E9,\n" +
+                "  \"blockTime\": 1.491045719001E9,\n" +
                 "  \"from\": \"b\",\n" +
                 "  \"to\": \"a\",\n" +
                 "  \"value\": \"10\",\n" +
@@ -510,9 +510,9 @@ class ApiTest : BaseApiContextTest() {
                 "  \"hash\": \"ua\",\n" +
                 "  \"position\": 0,\n" +
                 "  \"number\": 0,\n" +
-                "  \"timestamp\": 1.2309336E9,\n" +
+                "  \"timestamp\": 1.491045719001E9,\n" +
                 "  \"blockNumber\": 0,\n" +
-                "  \"blockTime\": 1.2309336E9,\n" +
+                "  \"blockTime\": 1.491045719001E9,\n" +
                 "  \"blockHash\": \"a\",\n" +
                 "  \"miner\": \"a\",\n" +
                 "  \"uncleReward\": \"5\"\n" +

@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS bitcoin.contract_summary (
 INSERT INTO bitcoin.block
 (hash, parent_hash, number, miner_contract_hash, block_reward, tx_fees, coinbase_data,
  timestamp, nonce, merkleroot, size, version, weight, bits, tx_number, total_outputs_value, difficulty)
-VALUES ('a', '', 0, 'a', 50, 0, '', '2009-01-03', 0, 'a', 100, 0, 100, '', 1, '50', 1);
+VALUES ('a', '', 0, 'a', 50, 0, '', '2017-04-01T11:21:59.001+0000', 0, 'a', 100, 0, 100, '', 1, '50', 1);
 
 
 INSERT INTO bitcoin.tx_preview_by_block
@@ -125,7 +125,7 @@ INSERT INTO bitcoin.contract_summary
 (hash, confirmed_balance, confirmed_total_received, confirmed_tx_number, unconfirmed_tx_values, first_activity_date,
  last_activity_date, version, kafka_delta_offset, kafka_delta_partition, kafka_delta_topic, kafka_delta_offset_committed)
 VALUES
-('a', '50', '50', 1, {}, '2009-01-03', '2009-01-03', 0, 0, 0, 'tx-pump', true);
+('a', '50', '50', 1, {}, '2017-04-01T11:21:59.001+0000', '2017-04-01T11:21:59.001+0000', 0, 0, 0, 'tx-pump', true);
 
 
 INSERT INTO bitcoin.tx_preview_by_contract
@@ -135,11 +135,11 @@ VALUES ('a', 1231006505, 'txa');
 
 INSERT INTO bitcoin.mined_block_by_contract
 (miner_contract_hash, block_number, block_time, block_reward, tx_fees, tx_number)
-VALUES ('a', 0, '2009-01-03', 50, 0, 1);
+VALUES ('a', 0, '2017-04-01T11:21:59.001+0000', 50, 0, 1);
 
 
 INSERT INTO bitcoin.tx
 (hash, block_number, block_hash, block_time, first_seen_time, size, coinbase, fee, total_input, total_output, ins, outs)
 VALUES
-('txa', 0, 'a', '2009-01-03', '2009-01-03', 0, '', '0', '0', '50', [], [{contracts: ['a'], amount: 50, asm: '', out: 0, required_signatures: 1}]);
+('txa', 0, 'a', '2017-04-01T11:21:59.001+0000', '2017-04-01T11:21:59.001+0000', 0, '', '0', '0', '50', [], [{contracts: ['a'], amount: 50, asm: '', out: 0, required_signatures: 1}]);
 
