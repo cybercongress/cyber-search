@@ -6,6 +6,7 @@
 
 **Closed issues:**
 
+- Search API Module Tests [\#228](https://github.com/cybercongress/cyber-search/issues/228)
 - Contract Summary Module Tests [\#225](https://github.com/cybercongress/cyber-search/issues/225)
 - Add callbacks on kafka producers send\(\) operations in pump [\#219](https://github.com/cybercongress/cyber-search/issues/219)
 - Draw logo and patern for cyber•Search [\#186](https://github.com/cybercongress/cyber-search/issues/186)
@@ -13,6 +14,7 @@
 
 **Merged pull requests:**
 
+- Search API Module Tests [\#229](https://github.com/cybercongress/cyber-search/pull/229) ([arturalbov](https://github.com/arturalbov))
 - Contract Summary Module Tests [\#227](https://github.com/cybercongress/cyber-search/pull/227) ([arturalbov](https://github.com/arturalbov))
 - logo cyber search [\#226](https://github.com/cybercongress/cyber-search/pull/226) ([Olga584](https://github.com/Olga584))
 
