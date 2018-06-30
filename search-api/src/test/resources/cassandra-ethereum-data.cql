@@ -134,7 +134,7 @@ INSERT INTO ethereum.block
  miner_contract_hash, difficulty, total_difficulty, extra_data, size, gas_limit, gas_used, tx_number, tx_fees,
  block_reward, uncles_reward, uncles)
 VALUES
-(0, 'a', '', 0, '2009-01-03', '', '', 'txroot', '', '', 'a', 0, 0, '', 0, 100, 100, 1, '0', '5', '5', []);
+(0, 'a', '', 0, '2017-04-01T11:21:59.001+0000', '', '', 'txroot', '', '', 'a', 0, 0, '', 0, 100, 100, 1, '0', '5', '5', []);
 
 
 INSERT INTO ethereum.tx_preview_by_block
@@ -148,35 +148,35 @@ INSERT INTO ethereum.contract_summary
 uncle_number, mined_block_number, first_activity_date, last_activity_date, version, kafka_delta_offset, kafka_delta_partition,
 kafka_delta_topic, kafka_delta_offset_committed)
 VALUES
-('a', '10', false, '10', 1, 0, 0, 1, '2009-01-03', '2009-01-03', 0, 0, 0, 'tx_pump', true);
+('a', '10', false, '10', 1, 0, 0, 1, '2017-04-01T11:21:59.001+0000', '2017-04-01T11:21:59.001+0000', 0, 0, 0, 'tx_pump', true);
 
 
 INSERT INTO ethereum.tx_preview_by_contract
 (contract_hash, hash, block_time, first_seen_time, fee, block_number, "from", "to", value)
 VALUES
-('a', 'txa', 1230933600, '2009-01-03', 0, 0, 'b', 'a', '10');
+('a', 'txa', 1230933600, '2017-04-01T11:21:59.001+0000', 0, 0, 'b', 'a', '10');
 
 
 INSERT INTO ethereum.mined_block_by_contract
 (miner_contract_hash, block_number, block_time, block_reward, uncles_reward, tx_fees, tx_number)
 VALUES
-('a', 0, '2009-01-03', 5, 5, 0, 1);
+('a', 0, '2017-04-01T11:21:59.001+0000', 5, 5, 0, 1);
 
 
 INSERT INTO ethereum.mined_uncle_by_contract
 (hash, position, number, timestamp, block_number, block_time, block_hash, miner_contract_hash, uncle_reward)
 VALUES
-('ua', 0, 0, '2009-01-03', 0, '2009-01-03', 'a', 'a', '5');
+('ua', 0, 0, '2017-04-01T11:21:59.001+0000', 0, '2017-04-01T11:21:59.001+0000', 'a', 'a', '5');
 
 
 INSERT INTO ethereum.tx
 (hash, status, nonce, block_hash, block_time, first_seen_time, block_number, "from", "to", value, gas_price, gas_limit,
 gas_used, fee, input, created_contract)
 VALUES
-('txa', 'OK', 0, 'a', '2009-01-03', '2009-01-03', 0, 'b', 'a', '10', 0, 0, 0, '0', '', '');
+('txa', 'OK', 0, 'a', '2017-04-01T11:21:59.001+0000', '2017-04-01T11:21:59.001+0000', 0, 'b', 'a', '10', 0, 0, 0, '0', '', '');
 
 
 INSERT INTO ethereum.uncle
 (hash, position, number, timestamp, block_number, block_time, block_hash, miner, uncle_reward)
 VALUES
-('ua', 0, 0, '2009-01-03', 0, '2009-01-03', 'a', 'a', '5');
+('ua', 0, 0, '2017-04-01T11:21:59.001+0000', 0, '2017-04-01T11:21:59.001+0000', 'a', 'a', '5');
