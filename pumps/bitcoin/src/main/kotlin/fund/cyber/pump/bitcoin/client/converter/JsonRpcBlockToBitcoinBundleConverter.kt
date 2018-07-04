@@ -36,6 +36,7 @@ class JsonRpcBlockToBitcoinBundleConverter(
     }
 
     fun convertToMempoolTx(jsonRpcTx: JsonRpcBitcoinTransaction): BitcoinTx {
+
         val linkedOutputs = outputsStorage.getLinkedOutputsByTx(jsonRpcTx)
 
         val outputsByIds = linkedOutputs.associateBy { out -> (out.txid to out.n) }.toMutableMap()

@@ -24,7 +24,8 @@ class JsonRpcToDaoBitcoinBlockConverter {
         val coinbaseTxMinerOutput = coinbaseTx?.outs?.firstOrNull()
 
         return BitcoinBlock(
-            hash = jsonRpcBlock.hash.toSearchHashFormat(), parentHash = jsonRpcBlock.previousblockhash ?: "",
+            hash = jsonRpcBlock.hash.toSearchHashFormat(),
+            parentHash = jsonRpcBlock.previousblockhash?.toSearchHashFormat() ?: "",
             size = jsonRpcBlock.size,
             minerContractHash = coinbaseTxMinerOutput?.contracts?.first()?.toSearchHashFormat() ?: "",
             version = jsonRpcBlock.version, blockReward = getBlockReward(jsonRpcBlock.height),

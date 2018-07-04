@@ -87,7 +87,7 @@ data class SignatureScript(
         val hex: String
 )
 
-private class TransactionInputDeserializer : JsonDeserializer<List<TransactionInput>>() {
+class TransactionInputDeserializer : JsonDeserializer<List<TransactionInput>>() {
 
     private val objectMapper = ObjectMapper().registerKotlinModule()
 

@@ -29,6 +29,8 @@ project(":pumps:bitcoin") {
 
         compile 'org.ehcache:ehcache'
         compile 'org.apache.httpcomponents:httpasyncclient'
+
+        testCompile project(':common-kafka').sourceSets.test.output
     }
 }
 
