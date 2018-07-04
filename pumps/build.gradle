@@ -45,5 +45,7 @@ project(":pumps:ethereum") {
         compile 'org.apache.httpcomponents:httpasyncclient'
         compile 'org.web3j:core'
         compile 'org.web3j:parity'
+
+        testCompile project(':common-kafka').sourceSets.test.output
     }
 }

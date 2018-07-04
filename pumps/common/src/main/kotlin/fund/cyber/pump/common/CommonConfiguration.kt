@@ -9,7 +9,6 @@ import fund.cyber.search.configuration.CHAIN_NAME
 import fund.cyber.search.configuration.CHAIN_NODE_URL
 import fund.cyber.search.configuration.PUMP_MAX_CONCURRENCY
 import fund.cyber.search.configuration.PUMP_MAX_CONCURRENCY_DEFAULT
-import fund.cyber.search.configuration.env
 import fund.cyber.search.model.chains.ChainFamily
 import fund.cyber.search.model.chains.ChainInfo
 import io.micrometer.core.instrument.MeterRegistry
@@ -49,16 +48,21 @@ class CommonConfiguration(
     private val maxConcurrency: Int
 ) {
 
+    @Value("\${$CHAIN_FAMILY:}")
+    private lateinit var chainFamily: String
+
+    @Value("\${$CHAIN_NAME:}")
+    private lateinit var chainName: String
+
+    @Value("\${$CHAIN_NODE_URL:}")
+    private lateinit var chainNodeUrl: String
 
     @Bean
-    fun chainInfo(): ChainInfo {
-        val chainFamilyAsString = env(CHAIN_FAMILY, "")
-        val chainFamily = ChainFamily.valueOf(chainFamilyAsString)
-        val chainName = env(CHAIN_NAME, chainFamily.toString())
-        val chainNodeUrl = env(CHAIN_NODE_URL, chainFamily.defaultNodeUrl)
-
-        return ChainInfo(ChainFamily.valueOf(chainFamilyAsString), chainName, chainNodeUrl)
-    }
+    fun chainInfo() = ChainInfo(
+        ChainFamily.valueOf(chainFamily),
+        if (chainName.isEmpty()) chainFamily else chainName,
+        if (chainNodeUrl.isEmpty()) ChainFamily.valueOf(chainFamily).defaultNodeUrl else chainNodeUrl
+    )
 
     @Bean
     fun metricsCommonTags(chainInfo: ChainInfo) = MeterRegistryCustomizer<MeterRegistry> { registry ->
