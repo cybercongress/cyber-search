@@ -1,51 +1,20 @@
 package fund.cyber.api
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.mock
 import fund.cyber.SearchApiApplication
 import fund.cyber.cassandra.CassandraTestBase
-import org.apache.http.HttpResponse
-import org.apache.http.HttpStatus
-import org.apache.http.StatusLine
-import org.apache.http.client.HttpClient
-import org.apache.http.message.BasicHttpResponse
 import org.cassandraunit.spring.CassandraDataSet
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
 
-
-@Configuration
-class BaseApiContextTestConfig {
-
-    @Bean
-    @Primary
-    fun mockedHttpClient() = mock<HttpClient> {
-        on { execute(any()) } doReturn httpResponseOk()
-    }
-
-    private fun httpResponseOk(): HttpResponse {
-        val statusLineOk = object : StatusLine {
-            override fun getStatusCode() = HttpStatus.SC_OK
-            override fun getProtocolVersion() = null
-            override fun getReasonPhrase() = null
-        }
-        return BasicHttpResponse(statusLineOk)
-    }
-}
-
 @CassandraTestBase
-@ContextConfiguration(classes = [SearchApiApplication::class, BaseApiContextTestConfig::class])
+@ContextConfiguration(classes = [SearchApiApplication::class])
 abstract class BaseApiContextTest
 
 //todo: ElasticSearch tests. Possible solutions: https://stackoverflow.com/questions/41298467/how-to-start-elasticsearch-5-1-embedded-in-my-java-application
