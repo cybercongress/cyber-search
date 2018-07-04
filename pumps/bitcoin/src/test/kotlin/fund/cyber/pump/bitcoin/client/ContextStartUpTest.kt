@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 
@@ -23,6 +24,7 @@ class TestBitcoinPumpContext {
 
 }
 
+@DirtiesContext
 @ContextConfiguration(classes = [BitcoinPumpApplication::class, TestBitcoinPumpContext::class])
 @TestPropertySource(properties = ["CHAIN_FAMILY:BITCOIN"])
 class ContextStartUpTest: BaseKafkaIntegrationTestWithStartedKafka() {

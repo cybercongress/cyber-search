@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import org.web3j.protocol.Web3jService
@@ -34,6 +35,7 @@ class TestEthereumPumpContext {
 
 }
 
+@DirtiesContext
 @ContextConfiguration(classes = [EthereumPumpApplication::class, TestEthereumPumpContext::class])
 @TestPropertySource(properties = ["CHAIN_FAMILY:ETHEREUM"])
 class ContextStartUpTest: BaseKafkaIntegrationTestWithStartedKafka() {
