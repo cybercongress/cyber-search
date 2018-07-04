@@ -73,7 +73,7 @@ val expectedRegularTx = BitcoinTx(
 )
 
 
-@DisplayName("Btcd raw transaction to dao transaction conversion test: ")
+@DisplayName("Btcd raw transaction to dao transaction conversion convertTest: ")
 class BtcdToDaoTxConverterTest {
 
     private val deserializer = ObjectMapper().registerKotlinModule()
