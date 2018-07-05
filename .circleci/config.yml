@@ -74,6 +74,33 @@ jobs:
             fi
 
 
+  update_docs:
+    <<: *defaults
+    machine: true
+    steps:
+    - checkout
+    - run:
+        name: Clone congress repo
+        working_directory: ~/workdir
+        command: |
+          git clone -q --depth 1 https://${CHANGELOG_GITHUB_TOKEN}@github.com/cybercongress/congress.git
+    - deploy:
+        name: Update docs from search
+        working_directory: ~/workdir/congress
+        command: |
+          cp -r ~/project/docs/. ./knowledge/docs/cyber-search/
+          git add -N knowledge/docs/cyber-search
+          diff=$(git diff knowledge/docs/cyber-search/)
+          if [[  -n  "$diff" ]]; then
+            git config user.email "cybercongress42@gmail.com"
+            git config user.name "Cyber Admin"
+            git add knowledge/docs/cyber-search/
+            git commit -m "Circle CI: Update Docs"
+            # Push quietly to prevent showing the token in log
+            git push -q https://${CHANGELOG_GITHUB_TOKEN}@github.com/cybercongress/congress.git master
+          fi
+
+
 # Ethereum Images
   deploy_chain_pumps_ethereum_image:
      <<: *defaults
@@ -246,6 +273,12 @@ workflows:
           filters:
             branches:
               only: master
+      - update_docs:
+          requires:
+            - build_project
+          filters:
+            branches:
+              only: cybercongress/congress#42_collecting_docs
       - deploy_chain_pumps_ethereum_image:
           <<: *release_filter
           requires:
