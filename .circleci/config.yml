@@ -84,7 +84,7 @@ jobs:
         command: |
           git clone -q --depth 1 https://${CHANGELOG_GITHUB_TOKEN}@github.com/cybercongress/congress.git
     - deploy:
-        name: Update docs from search
+        name: Update docs from cyber search repo
         working_directory: ~/workdir/congress
         command: |
           # We need to remove current files in folder to avoid duplicating renamed files
