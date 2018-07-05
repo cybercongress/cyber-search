@@ -66,8 +66,8 @@ jobs:
             docker cp $cid:/usr/local/src/your-app/CHANGELOG.md ./CHANGELOG.md
             diff=$(git diff CHANGELOG.md)
             if [[  -n  "$diff" ]]; then
-              git config --global user.email "hleb.albau@gmail.com"
-              git config --global user.name "Hleb Albau"
+              git config --global user.email "cybercongress42@gmail.com"
+              git config --global user.name "Cyber Admin"
               git add CHANGELOG.md
               git commit -m "Circle CI: Update Changelog"
               git push --set-upstream origin master
