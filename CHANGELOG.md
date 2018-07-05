@@ -7,11 +7,13 @@
 **Closed issues:**
 
 - Transfer ownership for chaingear app [\#231](https://github.com/cybercongress/cyber-search/issues/231)
+- Pump Modules Tests [\#230](https://github.com/cybercongress/cyber-search/issues/230)
 - Search API Module Tests [\#228](https://github.com/cybercongress/cyber-search/issues/228)
 - Contract Summary Module Tests [\#225](https://github.com/cybercongress/cyber-search/issues/225)
 - Add callbacks on kafka producers send\(\) operations in pump [\#219](https://github.com/cybercongress/cyber-search/issues/219)
 - Draw logo and patern for cyber•Search [\#186](https://github.com/cybercongress/cyber-search/issues/186)
 - Kafka Replication [\#182](https://github.com/cybercongress/cyber-search/issues/182)
+- Unit/Integration Testing [\#179](https://github.com/cybercongress/cyber-search/issues/179)
 
 **Merged pull requests:**
 
