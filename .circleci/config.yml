@@ -87,6 +87,8 @@ jobs:
         name: Update docs from search
         working_directory: ~/workdir/congress
         command: |
+          # We need to remove current files in folder to avoid duplicating renamed files
+          rm -rf ./knowledge/docs/cyber-search/*
           cp -r ~/build/docs/. ./knowledge/docs/cyber-search/
           git add -N knowledge/docs/cyber-search
           diff=$(git diff knowledge/docs/cyber-search/)

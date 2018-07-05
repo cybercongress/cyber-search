@@ -1,4 +1,4 @@
-# Ethereum Components
+# Bitcoin Components
 
 | Component                 | Scale | Description                                        |  Cluster Address              | Metrics                   | External |
 | ------------------------- | ----- |--------------------------------------------------- | --------------------------    | ------------------------  | -------- |
