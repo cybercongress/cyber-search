@@ -2,7 +2,14 @@
 
 ## [Unreleased](https://github.com/cybercongress/cyber-search/tree/HEAD)
 
-[Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.7.0...HEAD)
+[Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.8.0...HEAD)
+
+**Merged pull requests:**
+
+- Script collecting docs from project /docs folder [\#240](https://github.com/cybercongress/cyber-search/pull/240) ([arturalbov](https://github.com/arturalbov))
+
+## [0.8.0](https://github.com/cybercongress/cyber-search/tree/0.8.0) (2018-07-05)
+[Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.7.0...0.8.0)
 
 **Closed issues:**
 
