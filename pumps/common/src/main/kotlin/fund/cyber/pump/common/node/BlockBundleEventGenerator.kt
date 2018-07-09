@@ -4,6 +4,7 @@ import fund.cyber.common.StackCache
 import fund.cyber.search.model.events.PumpEvent
 import io.micrometer.core.instrument.MeterRegistry
 import org.slf4j.LoggerFactory
+import org.springframework.retry.support.RetryTemplate
 import org.springframework.stereotype.Component
 
 interface BlockBundleEventGenerator<T : BlockBundle> {
@@ -14,8 +15,9 @@ private val log = LoggerFactory.getLogger(ChainReorganizationBlockBundleEventGen
 
 @Component
 class ChainReorganizationBlockBundleEventGenerator<T : BlockBundle>(
-        private val blockchainInterface: FlowableBlockchainInterface<T>,
-        monitoring: MeterRegistry
+    private val blockchainInterface: FlowableBlockchainInterface<T>,
+    monitoring: MeterRegistry,
+    private val retryTemplate: RetryTemplate
 ) : BlockBundleEventGenerator<T> {
 
     private val chainReorganizationMonitor = monitoring.counter("pump_chain_reorganization_counter")
@@ -40,23 +42,26 @@ class ChainReorganizationBlockBundleEventGenerator<T : BlockBundle>(
 
         log.info("Starting reorganization...")
         log.info("New block: {number: ${tempBlockBundle.number}, hash: ${tempBlockBundle.hash}," +
-                " parentHash: ${tempBlockBundle.parentHash}}")
+            " parentHash: ${tempBlockBundle.parentHash}}")
         do {
             if (prevBlockBundle != null) {
                 revertBlocks += PumpEvent.DROPPED_BLOCK to prevBlockBundle
-                tempBlockBundle = blockchainInterface.blockBundleByNumber(tempBlockBundle.number - 1L)
+                tempBlockBundle = retryTemplate.execute<T, Exception> {
+                    blockchainInterface.blockBundleByNumber(tempBlockBundle.number - 1L)
+                }
                 newBlocks += PumpEvent.NEW_BLOCK to tempBlockBundle
+                history.pop()
 
                 log.info("Block to revert: {number: ${prevBlockBundle.number}, hash: ${prevBlockBundle.hash}," +
-                        " parentHash: ${prevBlockBundle.parentHash}}")
+                    " parentHash: ${prevBlockBundle.parentHash}}")
                 log.info("New block: {number: ${tempBlockBundle.number}, hash: ${tempBlockBundle.hash}," +
-                        " parentHash: ${tempBlockBundle.parentHash}}")
+                    " parentHash: ${tempBlockBundle.parentHash}}")
             }
 
-            prevBlockBundle = history.pop()
+            prevBlockBundle = history.peek()
             if (prevBlockBundle == null) {
                 throw HistoryStackIsEmptyException("History stack is empty while chain reorganization is not" +
-                        " finished yet! Please adjust stack capacity and try again.")
+                    " finished yet! Please adjust stack capacity and try again.")
             }
         } while (prevBlockBundle?.hash != tempBlockBundle.parentHash)
 
@@ -64,7 +69,7 @@ class ChainReorganizationBlockBundleEventGenerator<T : BlockBundle>(
         newBlocks.forEach { history.push(it.second) }
 
         log.info("Finishing reorganization... Total blocks to revert: ${revertBlocks.size};" +
-                " Total new blocks: ${newBlocks.size}")
+            " Total new blocks: ${newBlocks.size}")
 
         return (revertBlocks + newBlocks)
     }
