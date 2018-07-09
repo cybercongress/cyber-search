@@ -8,6 +8,7 @@ import fund.cyber.search.model.events.PumpEvent
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
+import org.springframework.retry.support.RetryTemplate
 
 data class TestBlockBundle(
         override val hash: String,
@@ -34,7 +35,7 @@ class BlockBundleEventGeneratorTest {
         history.push(blockB)
         history.push(blockC)
 
-        val blockBundleMapper = ChainReorganizationBlockBundleEventGenerator<TestBlockBundle>(mock(), SimpleMeterRegistry())
+        val blockBundleMapper = ChainReorganizationBlockBundleEventGenerator<TestBlockBundle>(mock(), SimpleMeterRegistry(), RetryTemplate())
 
 
         val result = blockBundleMapper.generate(blockD, history)
@@ -43,6 +44,12 @@ class BlockBundleEventGeneratorTest {
         Assertions.assertThat(result).containsExactly(
                 PumpEvent.NEW_BLOCK to blockD
         )
+
+        Assertions.assertThat(history.pop()).isEqualTo(blockD)
+        Assertions.assertThat(history.pop()).isEqualTo(blockC)
+        Assertions.assertThat(history.pop()).isEqualTo(blockB)
+        Assertions.assertThat(history.pop()).isEqualTo(blockA)
+        Assertions.assertThat(history.peek()).isNull()
 
     }
 
@@ -73,7 +80,7 @@ class BlockBundleEventGeneratorTest {
             on { blockBundleByNumber(5) }.thenReturn(blockH)
         }
 
-        val blockBundleMapper = ChainReorganizationBlockBundleEventGenerator(blockchainInterface, SimpleMeterRegistry())
+        val blockBundleMapper = ChainReorganizationBlockBundleEventGenerator(blockchainInterface, SimpleMeterRegistry(), RetryTemplate())
 
 
         val result = blockBundleMapper.generate(blockK, history)
@@ -91,7 +98,13 @@ class BlockBundleEventGeneratorTest {
                 PumpEvent.NEW_BLOCK to blockK
         )
 
-
+        Assertions.assertThat(history.pop()).isEqualTo(blockK)
+        Assertions.assertThat(history.pop()).isEqualTo(blockH)
+        Assertions.assertThat(history.pop()).isEqualTo(blockG)
+        Assertions.assertThat(history.pop()).isEqualTo(blockF)
+        Assertions.assertThat(history.pop()).isEqualTo(blockB)
+        Assertions.assertThat(history.pop()).isEqualTo(blockA)
+        Assertions.assertThat(history.peek()).isNull()
     }
 
     @Test
@@ -121,11 +134,13 @@ class BlockBundleEventGeneratorTest {
             on { blockBundleByNumber(5) }.thenReturn(blockH)
         }
 
-        val blockBundleMapper = ChainReorganizationBlockBundleEventGenerator(blockchainInterface, SimpleMeterRegistry())
+        val blockBundleMapper = ChainReorganizationBlockBundleEventGenerator(blockchainInterface, SimpleMeterRegistry(), RetryTemplate())
 
         Assertions
                 .assertThatExceptionOfType(HistoryStackIsEmptyException::class.java)
                 .isThrownBy { blockBundleMapper.generate(blockK, history) }
+
+        Assertions.assertThat(history.peek()).isNull()
 
     }
 
