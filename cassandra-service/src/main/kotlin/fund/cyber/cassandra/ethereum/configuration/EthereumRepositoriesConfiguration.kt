@@ -51,6 +51,7 @@ import org.springframework.data.cassandra.core.cql.session.DefaultBridgedReactiv
 import org.springframework.data.cassandra.core.cql.session.DefaultReactiveSessionFactory
 import org.springframework.data.cassandra.repository.config.EnableReactiveCassandraRepositories
 import org.springframework.data.convert.CustomConversions
+import org.springframework.data.repository.Repository
 import org.springframework.stereotype.Component
 
 
@@ -155,7 +156,7 @@ class EthereumSearchRepositoriesConfiguration : SearchRepositoriesConfiguration(
     entityBasePackage = "fund.cyber.cassandra.ethereum.model", keyspacePrefix = "ethereum"
 ) {
 
-    override fun repositoriesClasses(): List<Class<*>> = listOf(
+    override fun repositoriesClasses(): List<Class<out Repository<*, *>>> = listOf(
         EthereumBlockRepository::class.java,
         PageableEthereumBlockTxRepository::class.java,
         EthereumTxRepository::class.java,

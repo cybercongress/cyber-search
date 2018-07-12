@@ -2,6 +2,7 @@ package fund.cyber.api.common
 
 import fund.cyber.cassandra.common.REPOSITORY_NAME_DELIMITER
 import org.springframework.context.support.GenericApplicationContext
+import org.springframework.data.repository.Repository
 import org.springframework.web.reactive.function.server.HandlerFunction
 import org.springframework.web.reactive.function.server.RequestPredicates
 import org.springframework.web.reactive.function.server.RouterFunction
@@ -14,7 +15,7 @@ interface ContextAwareRequestHandler {
     fun toRouterFunction(applicationContext: GenericApplicationContext): RouterFunction<ServerResponse>
 }
 
-class SingleRepositoryItemRequestHandler<R>(
+class SingleRepositoryItemRequestHandler<R : Repository<*, *>>(
     private val path: String,
     private val repositoryClass: Class<R>,
     private val handle: (ServerRequest, R) -> Mono<ServerResponse>
@@ -33,7 +34,7 @@ class SingleRepositoryItemRequestHandler<R>(
     }
 }
 
-class BiRepositoryItemRequestHandler<R1, R2>(
+class BiRepositoryItemRequestHandler<R1 : Repository<*, *>, R2 : Repository<*, *>>(
     private val path: String,
     private val repositoryClass1: Class<R1>,
     private val repositoryClass2: Class<R2>,
@@ -54,7 +55,7 @@ class BiRepositoryItemRequestHandler<R1, R2>(
     }
 }
 
-class TripleRepositoryItemRequestHandler<R1, R2, R3>(
+class TripleRepositoryItemRequestHandler<R1 : Repository<*, *>, R2 : Repository<*, *>, R3 : Repository<*, *>>(
     private val path: String,
     private val repositoryClass1: Class<R1>,
     private val repositoryClass2: Class<R2>,

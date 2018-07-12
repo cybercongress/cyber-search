@@ -29,6 +29,7 @@ import org.springframework.data.cassandra.core.mapping.CassandraMappingContext
 import org.springframework.data.cassandra.core.mapping.SimpleUserTypeResolver
 import org.springframework.data.cassandra.repository.support.CassandraRepositoryFactory
 import org.springframework.data.cassandra.repository.support.ReactiveCassandraRepositoryFactory
+import org.springframework.data.repository.Repository
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 
 const val MAX_CONCURRENT_REQUESTS = 8182
@@ -101,7 +102,9 @@ abstract class CassandraRepositoriesConfiguration(
  * @param chainName chain name
  * @return search repository bean name
  */
-fun Class<*>.searchRepositoryBeanName(chainName: String) = "$chainName$REPOSITORY_NAME_DELIMITER${this.name}"
+fun Class<out Repository<*, *>>.searchRepositoryBeanName(
+    chainName: String
+) = "$chainName$REPOSITORY_NAME_DELIMITER${this.name}"
 
 abstract class SearchRepositoriesConfiguration(
     private val entityBasePackage: String,
@@ -113,7 +116,7 @@ abstract class SearchRepositoriesConfiguration(
     @Autowired
     private lateinit var cluster: Cluster
 
-    abstract fun repositoriesClasses(): List<Class<*>>
+    abstract fun repositoriesClasses(): List<Class<out Repository<*, *>>>
 
     abstract fun customConversions(): CassandraCustomConversions
 

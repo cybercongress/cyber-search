@@ -46,6 +46,7 @@ import org.springframework.data.cassandra.core.cql.keyspace.CreateKeyspaceSpecif
 import org.springframework.data.cassandra.core.cql.session.DefaultBridgedReactiveSession
 import org.springframework.data.cassandra.core.cql.session.DefaultReactiveSessionFactory
 import org.springframework.data.cassandra.repository.config.EnableReactiveCassandraRepositories
+import org.springframework.data.repository.Repository
 import org.springframework.stereotype.Component
 
 
@@ -137,7 +138,7 @@ class BitcoinSearchRepositoriesConfiguration : SearchRepositoriesConfiguration(
     entityBasePackage = "fund.cyber.cassandra.bitcoin.model", keyspacePrefix = "bitcoin"
 ) {
 
-    override fun repositoriesClasses(): List<Class<*>> = listOf(
+    override fun repositoriesClasses(): List<Class<out Repository<*, *>>> = listOf(
         BitcoinBlockRepository::class.java,
         PageableBitcoinBlockTxRepository::class.java,
         BitcoinTxRepository::class.java,
