@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.support.GenericApplicationContext
+import org.springframework.data.repository.Repository
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.reactive.CorsWebFilter
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
@@ -53,7 +54,7 @@ fun <E : ServerResponse> List<RouterFunction<E>>.asSingleRouterFunction(): Route
     }
 }
 
-fun <T> GenericApplicationContext.getSearchRepositoryBean(clazz: Class<T>, chainName: String): T {
+fun <T: Repository<*, *>> GenericApplicationContext.getSearchRepositoryBean(clazz: Class<T>, chainName: String): T {
     return this.getBean(clazz.searchRepositoryBeanName(chainName), clazz)
 }
 
