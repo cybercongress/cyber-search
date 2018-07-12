@@ -8,9 +8,13 @@
 
 - Chain reorganization going wrong [\#242](https://github.com/cybercongress/cyber-search/issues/242)
 - Add retry to chain reorganization handler [\#241](https://github.com/cybercongress/cyber-search/issues/241)
+- Provide statistics for cyber search landing [\#239](https://github.com/cybercongress/cyber-search/issues/239)
+- Landing for cyberSearch prototype  [\#232](https://github.com/cybercongress/cyber-search/issues/232)
+- Describe cassandra-service context start-up [\#203](https://github.com/cybercongress/cyber-search/issues/203)
 
 **Merged pull requests:**
 
+- Describe cassandra-service context start-up [\#244](https://github.com/cybercongress/cyber-search/pull/244) ([arturalbov](https://github.com/arturalbov))
 - Chain reorganization going wrong [\#243](https://github.com/cybercongress/cyber-search/pull/243) ([arturalbov](https://github.com/arturalbov))
 - Script collecting docs from project /docs folder [\#240](https://github.com/cybercongress/cyber-search/pull/240) ([arturalbov](https://github.com/arturalbov))
 - Add cyberSearch landing prototype [\#235](https://github.com/cybercongress/cyber-search/pull/235) ([SaveTheAles](https://github.com/SaveTheAles))
