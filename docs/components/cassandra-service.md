@@ -9,12 +9,21 @@
 
 ### Specifying `CHAIN_FAMILY`
 
-1. Only to interact with specific keyspace (bitcoin, ethereum). F.e. in dumps, contract-summary
-2. To run migrations on keyspace
-3. Logic in abstract `CassandraRepositoriesConfiguration`. See examples of implementations
+When you're specifying `CHAIN_FAMILY` environment variable cassandra-service module will work in the context of one keyspace based on this family.
+For example if `CHAIN_FAMILY=BITCOIN` it will create `bitcoin` keyspace if it doesn't exists and do all migrations for this keyspace if they're not applied.
+In spring context only repositories beans related to this keyspace will be available 
+
+All of the cassandra work handled by `CassandraRepositoriesConfiguration` and it specific inheritor.
+
+This kind of interaction with cassandra-service used in dumps and contract summaries modules.
 
 ### Without `CHAIN_FAMILY`
 
-1. No migrations
-2. Initializing repositories for all available keyspaces and put them in spring context.
-3. Logic in `SearchRepositoriesConfiguration`
+Without specifying `CHAIN_FAMILY` environment variable cassandra-service module will act like this:
+
+1. It will run no migrations and creations of keyspaces
+2. It will look on available keyspaces in current cassandra database based on `SearchRepositoriesConfiguration` inheritors
+ and if they're exists it will initialize all repositories beans for this keyspaces and put them into spring context. 
+
+This is useful when you want to interact with all of available keyspaces and indicies.
+For example in search-api module we need all of repositories beans to build requests.
