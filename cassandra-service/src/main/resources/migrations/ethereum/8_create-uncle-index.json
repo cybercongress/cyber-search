@@ -1,9 +1,0 @@
-{
-  "method": "PUT",
-  "url": "/${chainName}.uncle/",
-  "data": {
-    "settings": {
-      "keyspace": "${chainName}"
-    }
-  }
-}

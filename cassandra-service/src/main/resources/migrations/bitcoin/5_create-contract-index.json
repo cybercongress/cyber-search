@@ -1,9 +1,0 @@
-{
-  "method": "PUT",
-  "url": "/${chainName}.contract_summary/",
-  "data": {
-    "settings": {
-      "keyspace": "${chainName}"
-    }
-  }
-}

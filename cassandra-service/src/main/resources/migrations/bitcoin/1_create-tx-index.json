@@ -1,9 +1,0 @@
-{
-  "method": "PUT",
-  "url": "/${chainName}.tx/",
-  "data": {
-    "settings": {
-      "keyspace": "${chainName}"
-    }
-  }
-}
