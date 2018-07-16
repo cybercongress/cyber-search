@@ -14,6 +14,7 @@
 
 **Merged pull requests:**
 
+- Landing make up [\#245](https://github.com/cybercongress/cyber-search/pull/245) ([SaveTheAles](https://github.com/SaveTheAles))
 - Describe cassandra-service context start-up [\#244](https://github.com/cybercongress/cyber-search/pull/244) ([arturalbov](https://github.com/arturalbov))
 - Chain reorganization going wrong [\#243](https://github.com/cybercongress/cyber-search/pull/243) ([arturalbov](https://github.com/arturalbov))
 - Script collecting docs from project /docs folder [\#240](https://github.com/cybercongress/cyber-search/pull/240) ([arturalbov](https://github.com/arturalbov))
