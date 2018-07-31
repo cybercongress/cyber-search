@@ -11,7 +11,6 @@ import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractMinedBlo
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractMinedUncleRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractTxRepository
 import fund.cyber.common.toSearchEthereumHashFormat
-import fund.cyber.common.toSearchHashFormat
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.DependsOn
@@ -27,7 +26,7 @@ class EthereumContractHandlersConfiguration {
         EthereumContractTxRepository::class.java
     ) { request, conractRepository, contractTxRepository ->
 
-        val contractId = request.pathVariable("hash").toSearchHashFormat().toLowerCase()
+        val contractId = request.pathVariable("hash").toSearchEthereumHashFormat()
 
         val contract = conractRepository.findById(contractId)
         val contractUnconfirmedTxes = contractTxRepository.findAllByContractHashAndBlockTime(contractId, -1)
