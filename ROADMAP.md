@@ -23,7 +23,7 @@ Next 6 sprints block planing and adventures!
 
 ## Sprint 8
 - [#85](/../../issues/85) Bitcoin pump/dump and bitcoin contract summary docker images, dockerhub  
-- [#84](/../../issues/84) API: bitcoin endpoints  
+- [#84](/../../issues/84) API: Bitcoin endpoints  
 
 ## Sprint 7
 - [#71](/../../issues/71) Base Alerting Implementation For Ethereum Pump 
