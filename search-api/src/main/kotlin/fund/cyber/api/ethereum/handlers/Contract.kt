@@ -10,6 +10,7 @@ import fund.cyber.cassandra.ethereum.repository.EthereumContractTxRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractMinedBlockRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractMinedUncleRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumContractTxRepository
+import fund.cyber.common.toSearchEthereumHashFormat
 import fund.cyber.common.toSearchHashFormat
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -26,7 +27,7 @@ class EthereumContractHandlersConfiguration {
         EthereumContractTxRepository::class.java
     ) { request, conractRepository, contractTxRepository ->
 
-        val contractId = request.pathVariable("hash").toSearchHashFormat()
+        val contractId = request.pathVariable("hash").toSearchHashFormat().toLowerCase()
 
         val contract = conractRepository.findById(contractId)
         val contractUnconfirmedTxes = contractTxRepository.findAllByContractHashAndBlockTime(contractId, -1)
@@ -43,7 +44,7 @@ class EthereumContractHandlersConfiguration {
         PageableEthereumContractTxRepository::class.java
     ) { request, repository ->
 
-        val hash = request.pathVariable("hash").toSearchHashFormat()
+        val hash = request.pathVariable("hash").toSearchEthereumHashFormat()
         request.toPageableFlux { pageable ->
             repository.findAllByContractHash(hash, pageable)
         }.asServerResponse()
@@ -55,7 +56,7 @@ class EthereumContractHandlersConfiguration {
         PageableEthereumContractMinedBlockRepository::class.java
     ) { request, repository ->
 
-        val hash = request.pathVariable("hash").toSearchHashFormat()
+        val hash = request.pathVariable("hash").toSearchEthereumHashFormat()
         request.toPageableFlux { pageable ->
             repository.findAllByMinerContractHash(hash, pageable)
         }.asServerResponse()
@@ -67,7 +68,7 @@ class EthereumContractHandlersConfiguration {
         PageableEthereumContractMinedUncleRepository::class.java
     ) { request, repository ->
 
-        val hash = request.pathVariable("hash").toSearchHashFormat()
+        val hash = request.pathVariable("hash").toSearchEthereumHashFormat()
         request.toPageableFlux { pageable ->
             repository.findAllByMinerContractHash(hash, pageable)
         }.asServerResponse()
