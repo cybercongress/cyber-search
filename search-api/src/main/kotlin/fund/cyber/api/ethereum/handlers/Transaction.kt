@@ -4,7 +4,6 @@ import fund.cyber.api.common.SingleRepositoryItemRequestHandler
 import fund.cyber.api.common.asServerResponse
 import fund.cyber.cassandra.ethereum.repository.EthereumTxRepository
 import fund.cyber.common.toSearchEthereumHashFormat
-import fund.cyber.common.toSearchHashFormat
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.DependsOn
