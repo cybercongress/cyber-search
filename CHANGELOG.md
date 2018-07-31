@@ -1,8 +1,7 @@
 # Change Log
 
-## [Unreleased](https://github.com/cybercongress/cyber-search/tree/HEAD)
-
-[Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.8.0...HEAD)
+## [0.9.0](https://github.com/cybercongress/cyber-search/tree/0.9.0) (2018-07-31)
+[Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.8.0...0.9.0)
 
 **Closed issues:**
 
