@@ -24,8 +24,9 @@ Project status: **alpha**. Not all planned features are completed. The API, spec
 
 * [Development Quick Start Guide](./docs/contributing/dev-environment.md)
 * [Architecture Overview](https://cybersearch.io/cyber-search/components/search-common-components/)
-* [Api OpenAPI 3.0 Documentation](http://docs.cybersearch.io/)
-* [Api Test Server](http://api.cybersearch.io/search?query=42)
+* [API OpenAPI 3.0 Documentation](http://docs.cybersearch.io/)
+* [API Test Server](http://api.cybersearch.io/search?query=42)
+* [Live API Monitoring ](http://cybersearch.live)
 * [Docker Images](https://hub.docker.com/r/cybernode/)
 * [Kubernetes Descriptors](https://github.com/cybercongress/cybernode/tree/master/kubernetes-definitions/search)
 
