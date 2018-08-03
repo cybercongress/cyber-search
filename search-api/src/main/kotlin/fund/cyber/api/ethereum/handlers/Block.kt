@@ -2,7 +2,7 @@ package fund.cyber.api.ethereum.handlers
 
 import fund.cyber.api.common.SingleRepositoryItemRequestHandler
 import fund.cyber.api.common.asServerResponse
-import fund.cyber.api.common.toPageableFlux
+import fund.cyber.api.common.toPageableResponse
 import fund.cyber.cassandra.ethereum.repository.EthereumBlockRepository
 import fund.cyber.cassandra.ethereum.repository.PageableEthereumBlockTxRepository
 import org.springframework.context.annotation.Bean
@@ -31,8 +31,7 @@ class EthereumBlockHandlersConfiguration {
     ) { request, repository ->
 
         val blockNumber = request.pathVariable("blockNumber").toLong()
-        request.toPageableFlux { pageable -> repository.findAllByBlockNumber(blockNumber, pageable) }
-            .asServerResponse()
+        request.toPageableResponse { pageable -> repository.findAllByBlockNumber(blockNumber, pageable) }
     }
 
 }

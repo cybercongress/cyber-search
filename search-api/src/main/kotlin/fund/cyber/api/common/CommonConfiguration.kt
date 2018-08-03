@@ -46,6 +46,7 @@ inline fun <reified T> Flux<T>.asServerResponse() = this.collectList().flatMap {
     }
 }
 
+@Suppress("UNCHECKED_CAST")
 fun <E : ServerResponse> List<RouterFunction<E>>.asSingleRouterFunction(): RouterFunction<E> {
     return if (isEmpty()) {
         RouterFunctions.route(path("/ping"), HandlerFunction<E> { _ -> ServerResponse.ok().build() as Mono<E> })

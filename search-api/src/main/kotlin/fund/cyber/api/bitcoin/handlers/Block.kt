@@ -2,7 +2,7 @@ package fund.cyber.api.bitcoin.handlers
 
 import fund.cyber.api.common.SingleRepositoryItemRequestHandler
 import fund.cyber.api.common.asServerResponse
-import fund.cyber.api.common.toPageableFlux
+import fund.cyber.api.common.toPageableResponse
 import fund.cyber.cassandra.bitcoin.repository.BitcoinBlockRepository
 import fund.cyber.cassandra.bitcoin.repository.PageableBitcoinBlockTxRepository
 import org.springframework.context.annotation.Bean
@@ -31,8 +31,6 @@ class BitcoinBlockHandlersConfiguration {
     ) { request, repository ->
 
         val blockNumber = request.pathVariable("blockNumber").toLong()
-        request.toPageableFlux { pageable -> repository.findAllByBlockNumber(blockNumber, pageable) }
-            .asServerResponse()
+        request.toPageableResponse { pageable -> repository.findAllByBlockNumber(blockNumber, pageable) }
     }
-
 }
