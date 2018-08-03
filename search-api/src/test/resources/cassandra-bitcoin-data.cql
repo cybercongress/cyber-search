@@ -132,6 +132,22 @@ INSERT INTO bitcoin.tx_preview_by_contract
 (contract_hash, block_time, hash)
 VALUES ('a', 1231006505, 'txa');
 
+INSERT INTO bitcoin.tx_preview_by_contract
+(contract_hash, block_time, hash)
+VALUES ('a', 1233006505, 'txb');
+
+INSERT INTO bitcoin.tx_preview_by_contract
+(contract_hash, block_time, hash)
+VALUES ('a', 1232006505, 'txc');
+
+INSERT INTO bitcoin.tx_preview_by_contract
+(contract_hash, block_time, hash)
+VALUES ('a', 1232007505, 'txm');
+
+INSERT INTO bitcoin.tx_preview_by_contract
+(contract_hash, block_time, hash)
+VALUES ('a', 1232008505, 'txm2');
+
 
 INSERT INTO bitcoin.mined_block_by_contract
 (miner_contract_hash, block_number, block_time, block_reward, tx_fees, tx_number)
@@ -143,3 +159,22 @@ INSERT INTO bitcoin.tx
 VALUES
 ('txa', 0, 'a', '2017-04-01T11:21:59.001+0000', '2017-04-01T11:21:59.001+0000', 0, '', '0', '0', '50', [], [{contracts: ['a'], amount: 50, asm: '', out: 0, required_signatures: 1}]);
 
+INSERT INTO bitcoin.tx
+(hash, block_number, block_hash, block_time, first_seen_time, size, coinbase, fee, total_input, total_output, ins, outs)
+VALUES
+('txb', 100, 'b', '2017-04-01T11:21:59.001+0000', '2017-04-01T11:21:59.001+0000', 0, '', '0', '0', '50', [], [{contracts: ['a'], amount: 50, asm: '', out: 0, required_signatures: 1}]);
+
+INSERT INTO bitcoin.tx
+(hash, block_number, block_hash, block_time, first_seen_time, size, coinbase, fee, total_input, total_output, ins, outs)
+VALUES
+('txc', 53, 'c', '2017-04-01T11:21:59.001+0000', '2017-04-01T11:21:59.001+0000', 0, '', '0', '0', '50', [], [{contracts: ['a'], amount: 50, asm: '', out: 0, required_signatures: 1}]);
+
+INSERT INTO bitcoin.tx
+(hash, block_number, block_hash, block_time, first_seen_time, size, coinbase, fee, total_input, total_output, ins, outs)
+VALUES
+('txm', -1, '', null, '2017-06-01T11:21:59.001+0000', 0, '', '0', '0', '50', [], [{contracts: ['a'], amount: 50, asm: '', out: 0, required_signatures: 1}]);
+
+INSERT INTO bitcoin.tx
+(hash, block_number, block_hash, block_time, first_seen_time, size, coinbase, fee, total_input, total_output, ins, outs)
+VALUES
+('txm2', -1, '', null, '2017-06-02T11:21:59.001+0000', 0, '', '0', '0', '50', [], [{contracts: ['a'], amount: 50, asm: '', out: 0, required_signatures: 1}]);
