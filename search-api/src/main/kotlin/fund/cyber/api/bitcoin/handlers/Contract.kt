@@ -5,7 +5,7 @@ import fund.cyber.api.common.BiRepositoryItemRequestHandler
 import fund.cyber.api.common.SingleRepositoryItemRequestHandler
 import fund.cyber.api.common.TripleRepositoryItemRequestHandler
 import fund.cyber.api.common.asServerResponse
-import fund.cyber.api.common.toPageableFlux
+import fund.cyber.api.common.toPageableResponse
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractSummaryRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinContractTxRepository
 import fund.cyber.cassandra.bitcoin.repository.BitcoinTxRepository
@@ -48,10 +48,22 @@ class BitcoinContractHandlersConfiguration {
     ) { request, contractTxRepository, txRepository ->
 
         val hash = request.pathVariable("hash").toSearchHashFormat()
-        request
-            .toPageableFlux { pageable -> contractTxRepository.findAllByContractHash(hash, pageable) }
-            .flatMap { contractTx -> txRepository.findById(contractTx.hash) }
-            .asServerResponse()
+
+        request.toPageableResponse(
+            getPage = { pageable -> contractTxRepository.findAllByContractHash(hash, pageable) },
+            mapPage = { pageFlux ->
+                pageFlux.flatMap { contractTx -> txRepository.findById(contractTx.hash) }
+                    .sort { a, b ->
+                        if (a.isMempoolTx() && b.isMempoolTx()) {
+                            return@sort b.firstSeenTime.compareTo(a.firstSeenTime)
+                        }
+                        if (a.isMempoolTx() || b.isMempoolTx()) {
+                            return@sort if (a.isMempoolTx()) -1 else 1
+                        }
+                        return@sort b.blockNumber.compareTo(a.blockNumber)
+                    }
+            }
+        )
     }
 
     @Bean
@@ -61,7 +73,7 @@ class BitcoinContractHandlersConfiguration {
     ) { request, repository ->
 
         val hash = request.pathVariable("hash").toSearchHashFormat()
-        request.toPageableFlux { pageable -> repository.findAllByMinerContractHash(hash, pageable) }.asServerResponse()
+        request.toPageableResponse { pageable -> repository.findAllByMinerContractHash(hash, pageable) }
     }
 
 }

@@ -143,38 +143,29 @@ class ApiTest : BaseApiContextTest() {
             .accept(MediaType.APPLICATION_JSON_UTF8).exchange()
             .expectStatus().isOk()
             .expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8)
-            .expectBody().json("[\n" +
-                "  {\n" +
-                "    \"hash\": \"txa\",\n" +
-                "    \"blockNumber\": 0,\n" +
-                "    \"blockHash\": \"a\",\n" +
-                "    \"coinbase\": \"\",\n" +
-                "    \"firstSeenTime\": 1.491045719001E9,\n" +
-                "    \"blockTime\": 1.491045719001E9,\n" +
-                "    \"size\": 0,\n" +
-                "    \"fee\": \"0\",\n" +
-                "    \"totalInput\": \"0\",\n" +
-                "    \"totalOutput\": \"50\",\n" +
-                "    \"ins\": [],\n" +
-                "    \"outs\": [\n" +
-                "      {\n" +
-                "        \"contracts\": [\n" +
-                "          \"a\"\n" +
-                "        ],\n" +
-                "        \"amount\": 50,\n" +
-                "        \"asm\": \"\",\n" +
-                "        \"out\": 0,\n" +
-                "        \"requiredSignatures\": 1\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "]\n")
+            .expectBody().json(CONTRACT_A_TRANSACTION_JSON)
+    }
+
+    @Test
+    fun bitcoinContractTxesTestForbidden() {
+
+        webClient.get().uri("/bitcoin/contract/a/transactions?pageSize=101")
+            .accept(MediaType.APPLICATION_JSON_UTF8).exchange()
+            .expectStatus().isForbidden()
     }
 
     @Test
     fun bitcoinContractTxesTestNotFound() {
 
         webClient.get().uri("/bitcoin/contract/b/transactions")
+            .accept(MediaType.APPLICATION_JSON_UTF8).exchange()
+            .expectStatus().isNotFound()
+    }
+
+    @Test
+    fun bitcoinContractTxesWithPageTestNotFound() {
+
+        webClient.get().uri("/bitcoin/contract/b/transactions?page=13666")
             .accept(MediaType.APPLICATION_JSON_UTF8).exchange()
             .expectStatus().isNotFound()
     }
@@ -242,7 +233,7 @@ class ApiTest : BaseApiContextTest() {
     @Test
     fun bitcoinTransactionTestNotFound() {
 
-        webClient.get().uri("/bitcoin/tx/txb")
+        webClient.get().uri("/bitcoin/tx/txd")
             .accept(MediaType.APPLICATION_JSON_UTF8).exchange()
             .expectStatus().isNotFound()
     }
@@ -304,7 +295,7 @@ class ApiTest : BaseApiContextTest() {
                 "    \"from\": \"b\",\n" +
                 "    \"to\": \"a\",\n" +
                 "    \"createsContract\": false\n" +
-                "  }\n"+
+                "  }\n" +
                 "]")
     }
 
