@@ -223,6 +223,22 @@ jobs:
              docker tag build/chain-contract-summary-bitcoin cybernode/chain-contract-summary-bitcoin:latest
              docker push cybernode/chain-contract-summary-bitcoin:latest
 
+  deploy_chain_supply_bitcoin_image:
+    <<: *defaults
+    steps:
+    - setup_remote_docker:
+        version: 17.11.0-ce
+    - attach_workspace:
+        at: ~/build
+    - run:
+        name: Build Bitcoin Supply Service
+        command: |
+          docker build -t build/bitcoin_supply_service -f ./supply/bitcoin/Dockerfile ./supply/bitcoin
+          docker login -u $DOCKER_USER -p $DOCKER_PASS
+          docker tag build/bitcoin_supply_service cybernode/bitcoin_supply_service:$CIRCLE_TAG
+          docker push cybernode/bitcoin_supply_service:$CIRCLE_TAG
+          docker tag build/bitcoin_supply_service cybernode/bitcoin_supply_service:latest
+          docker push cybernode/bitcoin_supply_service:latest
 
 # Common images
   deploy_search_api_image:
@@ -308,6 +324,10 @@ workflows:
           <<: *release_filter
           requires:
             - build_project
+      - deploy_chain_supply_bitcoin_image:
+          <<: *release_filter
+          requires:
+          - build_project
       - deploy_search_api_image:
           <<: *release_filter
           requires:
