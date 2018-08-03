@@ -9,4 +9,8 @@ fun String.toSearchHashFormat(): String {
     return this
 }
 
+fun String.toSearchEthereumHashFormat(): String {
+    return this.toSearchHashFormat().toLowerCase()
+}
+
 fun String.isEmptyHexValue() = this == "0x"

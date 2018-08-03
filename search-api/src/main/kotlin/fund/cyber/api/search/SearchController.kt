@@ -1,5 +1,6 @@
 package fund.cyber.api.search
 
+import fund.cyber.common.toSearchHashFormat
 import org.elasticsearch.action.support.IndicesOptions
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.unit.Fuzziness
@@ -24,7 +25,7 @@ class SearchController(
         @RequestParam(required = false, defaultValue = "") types: Array<String>
     ): Mono<SearchResponse> {
 
-        val elasticQuery = QueryBuilders.matchQuery("_all", query).fuzziness(Fuzziness.ZERO)
+        val elasticQuery = QueryBuilders.matchQuery("_all", query.toSearchHashFormat()).fuzziness(Fuzziness.ZERO)
 
         return Mono.fromCallable {
             elasticClient.prepareSearch(*prepareIndices(chains, types))

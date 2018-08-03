@@ -1,8 +1,7 @@
 # Change Log
 
-## [Unreleased](https://github.com/cybercongress/cyber-search/tree/HEAD)
-
-[Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.8.0...HEAD)
+## [0.9.0](https://github.com/cybercongress/cyber-search/tree/0.9.0) (2018-07-31)
+[Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.8.0...0.9.0)
 
 **Closed issues:**
 
@@ -14,6 +13,7 @@
 
 **Merged pull requests:**
 
+-  Fix Search API. Make ethereum hashes case insensitive. Remove hash prefix on search. [\#247](https://github.com/cybercongress/cyber-search/pull/247) ([arturalbov](https://github.com/arturalbov))
 - Landing make up [\#245](https://github.com/cybercongress/cyber-search/pull/245) ([SaveTheAles](https://github.com/SaveTheAles))
 - Describe cassandra-service context start-up [\#244](https://github.com/cybercongress/cyber-search/pull/244) ([arturalbov](https://github.com/arturalbov))
 - Chain reorganization going wrong [\#243](https://github.com/cybercongress/cyber-search/pull/243) ([arturalbov](https://github.com/arturalbov))
