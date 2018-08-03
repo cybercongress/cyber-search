@@ -5,6 +5,7 @@ include "cassandra-service"
 
 include "supply:common"
 include "supply:ethereum"
+include "supply:bitcoin"
 
 include "contract-summary:common"
 include "contract-summary:bitcoin"

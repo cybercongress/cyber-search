@@ -29,3 +29,14 @@ project(":supply:ethereum") {
         testCompile project(':common-kafka').sourceSets.test.output
     }
 }
+
+project(":supply:bitcoin") {
+
+    apply plugin: "org.springframework.boot"
+
+    dependencies {
+        compile project(":supply:common")
+
+        testCompile project(':common-kafka').sourceSets.test.output
+    }
+}
