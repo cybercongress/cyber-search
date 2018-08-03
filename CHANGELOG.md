@@ -1,5 +1,13 @@
 # Change Log
 
+## [Unreleased](https://github.com/cybercongress/cyber-search/tree/HEAD)
+
+[Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.9.0...HEAD)
+
+**Merged pull requests:**
+
+- \#249 Wrong order of transactions in [\#251](https://github.com/cybercongress/cyber-search/pull/251) ([hleb-albau](https://github.com/hleb-albau))
+
 ## [0.9.0](https://github.com/cybercongress/cyber-search/tree/0.9.0) (2018-07-31)
 [Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.8.0...0.9.0)
 
