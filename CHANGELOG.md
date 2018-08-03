@@ -4,9 +4,14 @@
 
 [Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.9.0...HEAD)
 
+**Closed issues:**
+
+- BTC Supply Service [\#194](https://github.com/cybercongress/cyber-search/issues/194)
+
 **Merged pull requests:**
 
 - \#249 Wrong order of transactions in [\#251](https://github.com/cybercongress/cyber-search/pull/251) ([hleb-albau](https://github.com/hleb-albau))
+- \#194 Add bitcoin supply service [\#250](https://github.com/cybercongress/cyber-search/pull/250) ([KevinLiLu](https://github.com/KevinLiLu))
 
 ## [0.9.0](https://github.com/cybercongress/cyber-search/tree/0.9.0) (2018-07-31)
 [Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.8.0...0.9.0)
