@@ -28,7 +28,11 @@ data class BitcoinBlock(
         override val number: Long = height
 ) : BlockEntity
 
+const val BITCOIN_REWARD_INITIAL = 50
+const val BITCOIN_REWARD_BLOCK_NUMBER = 210000
+const val BITCOIN_REWARD_RATIO = 0.5
+
 fun getBlockReward(height: Long): BigDecimal {
-    val power = (height / 210000).toInt()
-    return BigDecimal(50 * ((0.5).pow(power)))
+    val power = (height / BITCOIN_REWARD_BLOCK_NUMBER).toInt()
+    return BigDecimal(BITCOIN_REWARD_INITIAL * ((BITCOIN_REWARD_RATIO).pow(power)))
 }
