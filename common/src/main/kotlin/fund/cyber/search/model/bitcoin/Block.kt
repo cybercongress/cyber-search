@@ -4,6 +4,7 @@ import fund.cyber.search.model.chains.BlockEntity
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
+import kotlin.math.pow
 
 
 data class BitcoinBlock(
@@ -27,13 +28,11 @@ data class BitcoinBlock(
         override val number: Long = height
 ) : BlockEntity
 
-const val BITCOIN_REWARD_FIRST_CHANGE_BLOCK_NUMBER = 210000
-const val BITCOIN_REWARD_SECOND_CHANGE_BLOCK_NUMBER = 420000
+const val BITCOIN_REWARD_INITIAL = 50
+const val BITCOIN_REWARD_BLOCK_NUMBER = 210000
+const val BITCOIN_REWARD_RATIO = 0.5
 
-fun getBlockReward(number: Long): BigDecimal {
-    return when {
-        number < BITCOIN_REWARD_FIRST_CHANGE_BLOCK_NUMBER -> BigDecimal("50")
-        number < BITCOIN_REWARD_SECOND_CHANGE_BLOCK_NUMBER -> BigDecimal("25")
-        else -> BigDecimal("12.5")
-    }
+fun getBlockReward(height: Long): BigDecimal {
+    val power = (height / BITCOIN_REWARD_BLOCK_NUMBER).toInt()
+    return BigDecimal(BITCOIN_REWARD_INITIAL * ((BITCOIN_REWARD_RATIO).pow(power)))
 }
