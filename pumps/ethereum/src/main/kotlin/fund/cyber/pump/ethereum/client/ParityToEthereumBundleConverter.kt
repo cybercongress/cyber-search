@@ -1,7 +1,5 @@
 package fund.cyber.pump.ethereum.client
 
-import fund.cyber.common.DECIMAL_SCALE
-import fund.cyber.common.decimal32
 import fund.cyber.common.hexToLong
 import fund.cyber.common.sum
 import fund.cyber.common.toSearchHashFormat
@@ -11,15 +9,14 @@ import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
 import fund.cyber.search.model.ethereum.TxTrace
-import fund.cyber.search.model.ethereum.getBlockReward
-import fund.cyber.search.model.ethereum.getUncleReward
 import fund.cyber.search.model.ethereum.weiToEthRate
 import org.springframework.stereotype.Component
 import org.web3j.protocol.core.methods.response.EthBlock
 import org.web3j.protocol.core.methods.response.Transaction
 import org.web3j.protocol.core.methods.response.TransactionReceipt
+import org.web3j.protocol.parity.methods.response.Trace
 import java.math.BigDecimal
-import java.math.RoundingMode
+import java.math.BigInteger
 import java.time.Instant
 
 @Component
@@ -28,11 +25,11 @@ class ParityToEthereumBundleConverter(
 ) {
 
 
-    fun convert(rawData: BundleRawData): EthereumBlockBundle {
+    fun convert(rawData: BundleRawData): EthereumBlockBundle {println(rawData.block.numberRaw + ": " + rawData.calls)
 
         val transactions = parityTransactionsToDao(rawData)
-        val block = parityBlockToDao(rawData.block, transactions)
-        val blockUncles = parityUnclesToDao(block, rawData.uncles)
+        val block = parityBlockToDao(rawData.block, transactions, rawData.calls)
+        val blockUncles = parityUnclesToDao(block, rawData.uncles, rawData.calls)
 
         //todo parent hash test, reorganisation
         return EthereumBlockBundle(
@@ -57,7 +54,7 @@ class ParityToEthereumBundleConverter(
         )
     }
 
-    private fun parityUnclesToDao(block: EthereumBlock, uncles: List<EthBlock.Block>): List<EthereumUncle> {
+    private fun parityUnclesToDao(block: EthereumBlock, uncles: List<EthBlock.Block>, traces: List<Trace>): List<EthereumUncle> {
         return uncles.mapIndexed { index, uncle ->
             val uncleNumber = uncle.number.toLong()
             EthereumUncle(
@@ -66,7 +63,7 @@ class ParityToEthereumBundleConverter(
                 timestamp = Instant.ofEpochSecond(uncle.timestampRaw.hexToLong()),
                 blockNumber = block.number, blockTime = block.timestamp,
                 blockHash = block.hash.toSearchHashFormat(),
-                uncleReward = getUncleReward(chainInfo, uncleNumber, block.number)
+                uncleReward = getReward("uncle", traces)
             )
         }
     }
@@ -109,14 +106,12 @@ class ParityToEthereumBundleConverter(
     }
 
 
-    private fun parityBlockToDao(parityBlock: EthBlock.Block, transactions: List<EthereumTx>): EthereumBlock {
-
+    private fun parityBlockToDao(parityBlock: EthBlock.Block, transactions: List<EthereumTx>, traces: List<Trace>): EthereumBlock {
         val blockTxesFees = transactions.map { tx -> tx.fee }
 
         val number = parityBlock.numberRaw.hexToLong()
-        val blockReward = getBlockReward(chainInfo, number)
-        val uncleReward = (blockReward * parityBlock.uncles.size.toBigDecimal())
-            .divide(decimal32, DECIMAL_SCALE, RoundingMode.FLOOR).stripTrailingZeros()
+        val blockReward = getReward("block", traces)
+        val uncleReward = getReward("uncle", traces)
 
         return EthereumBlock(
             hash = parityBlock.hash.toSearchHashFormat(), parentHash = parityBlock.parentHash.toSearchHashFormat(),
@@ -133,5 +128,14 @@ class ParityToEthereumBundleConverter(
             txNumber = parityBlock.transactions.size, nonce = parityBlock.nonce.toLong(),
             txFees = blockTxesFees.sum(), blockReward = blockReward, unclesReward = uncleReward
         )
+    }
+
+    fun getReward(type: String, traces: List<Trace>): BigDecimal {
+        val rewardInWei = traces
+            .filter { trace ->
+                (trace.action is Trace.RewardAction && (trace.action as Trace.RewardAction).rewardType == type) }
+            .map { trace -> (trace.action as Trace.RewardAction).value }
+            .fold(BigInteger.ZERO){ sum, trace -> sum.add(trace) }
+        return rewardInWei.toBigDecimal() * weiToEthRate
     }
 }

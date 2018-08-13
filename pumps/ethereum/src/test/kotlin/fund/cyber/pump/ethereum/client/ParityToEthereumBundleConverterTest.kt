@@ -54,8 +54,8 @@ class ParityToEthereumBundleConverterTest {
         Assertions.assertThat(bundle.block.gasUsed).isEqualTo(150)
         Assertions.assertThat(bundle.block.txNumber).isEqualTo(1)
         Assertions.assertThat(bundle.block.uncles.size).isEqualTo(1)
-        Assertions.assertThat(bundle.block.blockReward).isEqualTo(BigDecimal("5"))
-        Assertions.assertThat(bundle.block.unclesReward).isEqualTo(BigDecimal("0.15625"))
+        Assertions.assertThat(bundle.block.blockReward.stripTrailingZeros()).isEqualTo(BigDecimal(5.15625))
+        Assertions.assertThat(bundle.block.unclesReward.stripTrailingZeros()).isEqualTo(BigDecimal(7.5))
         Assertions.assertThat(bundle.block.txFees).isEqualTo(BigDecimal("0.000084000000000000"))
 
         Assertions.assertThat(bundle.uncles.size).isEqualTo(1)
@@ -67,7 +67,7 @@ class ParityToEthereumBundleConverterTest {
         Assertions.assertThat(bundle.uncles[0].blockTime).isEqualTo(Instant.ofEpochSecond(111111111))
         Assertions.assertThat(bundle.uncles[0].blockHash).isEqualTo("B")
         Assertions.assertThat(bundle.uncles[0].miner).isEqualTo("UMINER")
-        Assertions.assertThat(bundle.uncles[0].uncleReward).isEqualTo(BigDecimal("5"))
+        Assertions.assertThat(bundle.uncles[0].uncleReward.stripTrailingZeros()).isEqualTo(BigDecimal(7.5))
 
 
         Assertions.assertThat(bundle.txes.size).isEqualTo(1)
@@ -129,5 +129,4 @@ class ParityToEthereumBundleConverterTest {
         Assertions.assertThat(convertedTx.createdSmartContract).isNull()
         Assertions.assertThat(convertedTx.trace).isNull()
     }
-
 }
