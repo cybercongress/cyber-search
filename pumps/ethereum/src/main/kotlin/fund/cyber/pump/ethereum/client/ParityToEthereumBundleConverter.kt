@@ -54,7 +54,9 @@ class ParityToEthereumBundleConverter(
         )
     }
 
-    private fun parityUnclesToDao(block: EthereumBlock, uncles: List<EthBlock.Block>, traces: List<Trace>): List<EthereumUncle> {
+    private fun parityUnclesToDao(block: EthereumBlock, uncles: List<EthBlock.Block>, traces: List<Trace>)
+        : List<EthereumUncle>
+    {
         return uncles.mapIndexed { index, uncle ->
             val uncleNumber = uncle.number.toLong()
             EthereumUncle(
@@ -106,7 +108,9 @@ class ParityToEthereumBundleConverter(
     }
 
 
-    private fun parityBlockToDao(parityBlock: EthBlock.Block, transactions: List<EthereumTx>, traces: List<Trace>): EthereumBlock {
+    private fun parityBlockToDao(parityBlock: EthBlock.Block, transactions: List<EthereumTx>, traces: List<Trace>)
+        : EthereumBlock
+    {
         val blockTxesFees = transactions.map { tx -> tx.fee }
 
         val number = parityBlock.numberRaw.hexToLong()

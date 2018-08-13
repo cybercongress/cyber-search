@@ -1,13 +1,9 @@
 package fund.cyber.search.model.ethereum
 
 import fund.cyber.search.model.chains.BlockEntity
-import fund.cyber.search.model.chains.ChainInfo
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
-
-const val ETHEREUM_CLASSIC_REWARD_CHANGED_BLOCK_NUMBER = 5000000
-const val ETHEREUM_REWARD_CHANGED_BLOCK_NUMBER = 4370000
 
 data class EthereumBlock(
     override val number: Long,                   //parsed from hex
@@ -33,13 +29,3 @@ data class EthereumBlock(
     val unclesReward: BigDecimal,          //including uncles reward, todo rename
     val txFees: BigDecimal
 ) : BlockEntity
-
-//todo change to use block trace rewards operations
-//todo: 1) add properly support of new classic fork. 2) add support of custom reward functions in forks
-fun getBlockReward(chainInfo: ChainInfo, number: Long): BigDecimal {
-    return if (chainInfo.name == "ETHEREUM_CLASSIC") {
-        if (number < ETHEREUM_CLASSIC_REWARD_CHANGED_BLOCK_NUMBER) BigDecimal("5") else BigDecimal("4")
-    } else {
-        if (number < ETHEREUM_REWARD_CHANGED_BLOCK_NUMBER) BigDecimal("5") else BigDecimal("3")
-    }
-}
