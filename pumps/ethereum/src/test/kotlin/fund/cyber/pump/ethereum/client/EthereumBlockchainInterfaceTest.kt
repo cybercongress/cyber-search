@@ -33,7 +33,7 @@ class EthereumBlockchainInterfaceTest {
     @Test
     fun blockBundleByNumberTest() {
 
-        val blockNumber = 1L
+        val blockNumber = 6149845L
         val ethBlock = testData.getBlock(blockNumber)
         val uncle = testData.getUncle(ethBlock.block.hash, 0)
         val receipt = testData.getReceipt("0xd7b10b163b1de8f8967d824ea73d996c476588a91a4c714ad897b135cf7fa4c5")
@@ -57,15 +57,15 @@ class EthereumBlockchainInterfaceTest {
         val blockchainInterface = EthereumBlockchainInterface(jsonRpcParity, converter, genesisMock, SimpleMeterRegistry())
         val bundle = blockchainInterface.blockBundleByNumber(1)
 
-        Assertions.assertThat(bundle.number).isEqualTo(1)
-        Assertions.assertThat(bundle.hash).isEqualTo("B")
+        Assertions.assertThat(bundle.number).isEqualTo(6149845)
+        Assertions.assertThat(bundle.hash).isEqualTo("02e2ee54556a80710af3f80691781bf4eae37ae869d40bcf46b4186aeb6ce4d7")
         Assertions.assertThat(bundle.parentHash).isEqualTo("A")
         Assertions.assertThat(bundle.txes).hasSize(1)
-        Assertions.assertThat(bundle.uncles).hasSize(1)
+        Assertions.assertThat(bundle.uncles).hasSize(2)
         Assertions.assertThat(bundle.block).isNotNull()
-        Assertions.assertThat(bundle.block.hash).isEqualTo("B")
+        Assertions.assertThat(bundle.block.hash).isEqualTo("02e2ee54556a80710af3f80691781bf4eae37ae869d40bcf46b4186aeb6ce4d7")
         Assertions.assertThat(bundle.txes[0].hash).isEqualTo("d7b10b163b1de8f8967d824ea73d996c476588a91a4c714ad897b135cf7fa4c5")
-        Assertions.assertThat(bundle.uncles[0].hash).isEqualTo("UB")
+        Assertions.assertThat(bundle.uncles[0].hash).isEqualTo("772205e8de3b9d52bc6c410c7adf1348abb32c97adbee6aebdd9a2bb33f7fbf8")
     }
 
     @Test

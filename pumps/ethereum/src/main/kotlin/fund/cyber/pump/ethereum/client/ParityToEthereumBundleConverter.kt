@@ -116,9 +116,10 @@ class ParityToEthereumBundleConverter(
         val blockTxesFees = transactions.map { tx -> tx.fee }
 
         val number = parityBlock.numberRaw.hexToLong()
-        val blockReward = getBlockReward(traces)
-        val uncleReward = (blockReward * parityBlock.uncles.size.toBigDecimal())
+        val staticBlockReward = getStaticBlockReward(traces)
+        val uncleInclusionReward = (staticBlockReward * parityBlock.uncles.size.toBigDecimal())
             .divide(decimal32, DECIMAL_SCALE, RoundingMode.FLOOR).stripTrailingZeros()
+        val blockReward = staticBlockReward + uncleInclusionReward
 
         return EthereumBlock(
             hash = parityBlock.hash.toSearchHashFormat(), parentHash = parityBlock.parentHash.toSearchHashFormat(),
@@ -133,7 +134,7 @@ class ParityToEthereumBundleConverter(
             stateRoot = parityBlock.stateRoot.toSearchHashFormat(),
             sha3Uncles = parityBlock.sha3Uncles.toSearchHashFormat(), uncles = parityBlock.uncles,
             txNumber = parityBlock.transactions.size, nonce = parityBlock.nonce.toLong(),
-            txFees = blockTxesFees.sum(), blockReward = blockReward, unclesReward = uncleReward
+            txFees = blockTxesFees.sum(), blockReward = blockReward, unclesReward = uncleInclusionReward
         )
     }
 
@@ -143,7 +144,7 @@ class ParityToEthereumBundleConverter(
             .filterIsInstance<Trace.RewardAction>()
     }
 
-    fun getBlockReward(traces: List<Trace>): BigDecimal {
+    fun getStaticBlockReward(traces: List<Trace>): BigDecimal {
         return getRewardTraces(traces)
             .filter { rewardAction -> rewardAction.rewardType == "block" }[0].value.toBigDecimal() * weiToEthRate
     }
