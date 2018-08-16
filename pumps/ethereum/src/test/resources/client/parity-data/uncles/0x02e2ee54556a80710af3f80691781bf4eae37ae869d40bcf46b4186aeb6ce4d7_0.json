@@ -1,7 +1,7 @@
 {
   "result": {
-    "number": "0x1",
-    "hash": "0xUB",
+    "number": "0x5DD6D5",
+    "hash": "0x772205e8de3b9d52bc6c410c7adf1348abb32c97adbee6aebdd9a2bb33f7fbf8",
     "parentHash": "0xA",
     "nonce": "0x0",
     "sha3Uncles": "",
@@ -9,8 +9,8 @@
     "transactionsRoot": "0xTXROOT",
     "stateRoot": "",
     "receiptsRoot": "",
-    "author": "0xUAUTHOR",
-    "miner": "0xUMINER",
+    "author": "0xc8ebccc5f5689fa8659d83713341e5ad19349448",
+    "miner": "0xc8ebccc5f5689fa8659d83713341e5ad19349448",
     "mixHash": "",
     "difficulty": "0x64",
     "totalDifficulty": "0x64",
