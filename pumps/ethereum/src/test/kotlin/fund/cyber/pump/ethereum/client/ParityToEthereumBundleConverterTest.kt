@@ -56,9 +56,9 @@ class ParityToEthereumBundleConverterTest {
         Assertions.assertThat(bundle.block.gasUsed).isEqualTo(150)
         Assertions.assertThat(bundle.block.txNumber).isEqualTo(1)
         Assertions.assertThat(bundle.block.uncles.size).isEqualTo(2)
-        val expectedIncludingUnclesReward = ((3.1875 * 2).toBigDecimal()).divide(decimal32, DECIMAL_SCALE, RoundingMode.FLOOR).stripTrailingZeros()
+        val expectedIncludingUnclesReward = ((3 * 2).toBigDecimal()).divide(decimal32, DECIMAL_SCALE, RoundingMode.FLOOR).stripTrailingZeros()
         Assertions.assertThat(bundle.block.unclesReward.stripTrailingZeros()).isEqualTo(expectedIncludingUnclesReward)
-        Assertions.assertThat(bundle.block.blockReward.stripTrailingZeros()).isEqualTo(BigDecimal(3.1875).add(expectedIncludingUnclesReward))
+        Assertions.assertThat(bundle.block.blockReward.stripTrailingZeros()).isEqualTo(BigDecimal(3))
         Assertions.assertThat(bundle.block.txFees).isEqualTo(BigDecimal("0.000084000000000000"))
 
         Assertions.assertThat(bundle.uncles.size).isEqualTo(2)
@@ -135,9 +135,9 @@ class ParityToEthereumBundleConverterTest {
         Assertions.assertThat(bundle.block.hash).isEqualTo("12e2ee54556a80710af3f80691781bf4eae37ae869d40bcf46b4186aeb6ce4d7")
         Assertions.assertThat(bundle.block.number).isEqualTo(6154914)
         Assertions.assertThat(bundle.block.uncles.size).isEqualTo(2)
-        val expectedUncleInclusionReward = ((3.1875 * 2).toBigDecimal()).divide(decimal32, DECIMAL_SCALE, RoundingMode.FLOOR).stripTrailingZeros()
+        val expectedUncleInclusionReward = ((3 * 2).toBigDecimal()).divide(decimal32, DECIMAL_SCALE, RoundingMode.FLOOR).stripTrailingZeros()
         Assertions.assertThat(bundle.block.unclesReward.stripTrailingZeros()).isEqualTo(expectedUncleInclusionReward)
-        Assertions.assertThat(bundle.block.blockReward.stripTrailingZeros()).isEqualTo(BigDecimal(3.1875).add(expectedUncleInclusionReward))
+        Assertions.assertThat(bundle.block.blockReward.stripTrailingZeros()).isEqualTo(BigDecimal(3))
         Assertions.assertThat(bundle.block.txFees).isEqualTo(BigDecimal("0"))
 
         Assertions.assertThat(bundle.uncles.size).isEqualTo(2)
