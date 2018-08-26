@@ -1,6 +1,5 @@
 package fund.cyber.pump.ethereum.client
 
-import fund.cyber.common.DECIMAL_SCALE
 import fund.cyber.common.decimal32
 import fund.cyber.common.hexToLong
 import fund.cyber.common.sum
@@ -11,15 +10,13 @@ import fund.cyber.search.model.ethereum.EthereumBlock
 import fund.cyber.search.model.ethereum.EthereumTx
 import fund.cyber.search.model.ethereum.EthereumUncle
 import fund.cyber.search.model.ethereum.TxTrace
-import fund.cyber.search.model.ethereum.getBlockReward
-import fund.cyber.search.model.ethereum.getUncleReward
 import fund.cyber.search.model.ethereum.weiToEthRate
 import org.springframework.stereotype.Component
 import org.web3j.protocol.core.methods.response.EthBlock
 import org.web3j.protocol.core.methods.response.Transaction
 import org.web3j.protocol.core.methods.response.TransactionReceipt
+import org.web3j.protocol.parity.methods.response.Trace
 import java.math.BigDecimal
-import java.math.RoundingMode
 import java.time.Instant
 
 @Component
@@ -31,8 +28,8 @@ class ParityToEthereumBundleConverter(
     fun convert(rawData: BundleRawData): EthereumBlockBundle {
 
         val transactions = parityTransactionsToDao(rawData)
-        val block = parityBlockToDao(rawData.block, transactions)
-        val blockUncles = parityUnclesToDao(block, rawData.uncles)
+        val block = parityBlockToDao(rawData.block, transactions, rawData.calls)
+        val blockUncles = parityUnclesToDao(block, rawData.uncles, rawData.calls)
 
         //todo parent hash test, reorganisation
         return EthereumBlockBundle(
@@ -57,7 +54,9 @@ class ParityToEthereumBundleConverter(
         )
     }
 
-    private fun parityUnclesToDao(block: EthereumBlock, uncles: List<EthBlock.Block>): List<EthereumUncle> {
+    private fun parityUnclesToDao(block: EthereumBlock, uncles: List<EthBlock.Block>, traces: List<Trace>)
+        : List<EthereumUncle>
+    {
         return uncles.mapIndexed { index, uncle ->
             val uncleNumber = uncle.number.toLong()
             EthereumUncle(
@@ -66,7 +65,7 @@ class ParityToEthereumBundleConverter(
                 timestamp = Instant.ofEpochSecond(uncle.timestampRaw.hexToLong()),
                 blockNumber = block.number, blockTime = block.timestamp,
                 blockHash = block.hash.toSearchHashFormat(),
-                uncleReward = getUncleReward(chainInfo, uncleNumber, block.number)
+                uncleReward = getUncleReward(traces, uncle.miner.toSearchHashFormat(), index)
             )
         }
     }
@@ -109,14 +108,16 @@ class ParityToEthereumBundleConverter(
     }
 
 
-    private fun parityBlockToDao(parityBlock: EthBlock.Block, transactions: List<EthereumTx>): EthereumBlock {
-
+    private fun parityBlockToDao(parityBlock: EthBlock.Block, transactions: List<EthereumTx>, traces: List<Trace>)
+        : EthereumBlock
+    {
         val blockTxesFees = transactions.map { tx -> tx.fee }
 
         val number = parityBlock.numberRaw.hexToLong()
-        val blockReward = getBlockReward(chainInfo, number)
-        val uncleReward = (blockReward * parityBlock.uncles.size.toBigDecimal())
-            .divide(decimal32, DECIMAL_SCALE, RoundingMode.FLOOR).stripTrailingZeros()
+        val blockReward = getBlockReward(traces)
+        val uncleInclusionReward = blockReward.multiply(parityBlock.uncles.size.toBigDecimal())
+            .divide(decimal32.plus(parityBlock.uncles.size.toBigDecimal())).stripTrailingZeros()
+        val staticBlockReward = blockReward.minus(uncleInclusionReward).stripTrailingZeros()
 
         return EthereumBlock(
             hash = parityBlock.hash.toSearchHashFormat(), parentHash = parityBlock.parentHash.toSearchHashFormat(),
@@ -131,7 +132,28 @@ class ParityToEthereumBundleConverter(
             stateRoot = parityBlock.stateRoot.toSearchHashFormat(),
             sha3Uncles = parityBlock.sha3Uncles.toSearchHashFormat(), uncles = parityBlock.uncles,
             txNumber = parityBlock.transactions.size, nonce = parityBlock.nonce.toLong(),
-            txFees = blockTxesFees.sum(), blockReward = blockReward, unclesReward = uncleReward
+            txFees = blockTxesFees.sum(), blockReward = staticBlockReward,
+            unclesReward = uncleInclusionReward
         )
+    }
+
+    fun getRewardTraces(traces: List<Trace>): List<Trace.RewardAction> {
+        return traces
+            .map { trace -> trace.action }
+            .filterIsInstance<Trace.RewardAction>()
+    }
+
+    fun getBlockReward(traces: List<Trace>): BigDecimal {
+        return getRewardTraces(traces)
+            .filter { rewardAction -> rewardAction.rewardType == "block" }[0].value.toBigDecimal() * weiToEthRate
+    }
+
+    fun getUncleReward(traces: List<Trace>, miner: String, unclePosition: Int): BigDecimal {
+        val uncleRewardTracesByMiner = getRewardTraces(traces)
+            .filter { rewardAction -> 
+                rewardAction.rewardType == "uncle" && rewardAction.author.toSearchHashFormat() == miner}
+        if (uncleRewardTracesByMiner.size == 1)
+            return uncleRewardTracesByMiner.get(0).value.toBigDecimal() * weiToEthRate
+        return uncleRewardTracesByMiner[unclePosition].value.toBigDecimal() * weiToEthRate
     }
 }
