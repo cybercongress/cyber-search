@@ -2,11 +2,24 @@
 
 ## [Unreleased](https://github.com/cybercongress/cyber-search/tree/HEAD)
 
-[Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.9.0...HEAD)
+[Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.9.1...HEAD)
 
 **Closed issues:**
 
+- Wrong order of transactions in  [\#249](https://github.com/cybercongress/cyber-search/issues/249)
+- \[API\] Set pageable endpoints  pageSize limits [\#248](https://github.com/cybercongress/cyber-search/issues/248)
+- Develop design of cyberSearch landing [\#233](https://github.com/cybercongress/cyber-search/issues/233)
 - BTC Supply Service [\#194](https://github.com/cybercongress/cyber-search/issues/194)
+- Ethereum block and uncles rewards should be calculated by block traces [\#185](https://github.com/cybercongress/cyber-search/issues/185)
+
+**Merged pull requests:**
+
+- Landing update [\#260](https://github.com/cybercongress/cyber-search/pull/260) ([asadovka](https://github.com/asadovka))
+- \#185 ETH: calculate block & uncle rewards from block traces [\#256](https://github.com/cybercongress/cyber-search/pull/256) ([KevinLiLu](https://github.com/KevinLiLu))
+- Improve BitcoinBlock getBlockReward [\#254](https://github.com/cybercongress/cyber-search/pull/254) ([KevinLiLu](https://github.com/KevinLiLu))
+
+## [0.9.1](https://github.com/cybercongress/cyber-search/tree/0.9.1) (2018-08-03)
+[Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.9.0...0.9.1)
 
 **Merged pull requests:**
 
