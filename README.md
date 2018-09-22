@@ -14,7 +14,7 @@
 </br>
 
 <dev align="center">
-  <img src="/design/read_logo.png" alt="cyber.Search" width="970"></a>
+  <img src="/design/logo/read_logo.png" alt="cyber.Search" width="970"></a>
 </dev>
 
 ## Project Status
