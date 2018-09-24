@@ -8,7 +8,6 @@
 
 - Wrong order of transactions in  [\#249](https://github.com/cybercongress/cyber-search/issues/249)
 - \[API\] Set pageable endpoints  pageSize limits [\#248](https://github.com/cybercongress/cyber-search/issues/248)
-- Develop design of cyberSearch landing [\#233](https://github.com/cybercongress/cyber-search/issues/233)
 - BTC Supply Service [\#194](https://github.com/cybercongress/cyber-search/issues/194)
 - Ethereum block and uncles rewards should be calculated by block traces [\#185](https://github.com/cybercongress/cyber-search/issues/185)
 
