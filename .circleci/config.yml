@@ -88,14 +88,14 @@ jobs:
         working_directory: ~/workdir/congress
         command: |
           # We need to remove current files in folder to avoid duplicating renamed files
-          rm -rf ./knowledge/docs/cyber-search/*
-          cp -r ~/build/docs/. ./knowledge/docs/cyber-search/
-          git add -N knowledge/docs/cyber-search
-          diff=$(git diff knowledge/docs/cyber-search/)
+          rm -rf ./wiki/docs/cyber-search/*
+          cp -r ~/build/docs/. ./wiki/docs/cyber-search/
+          git add -N wiki/docs/cyber-search
+          diff=$(git diff wiki/docs/cyber-search/)
           if [[  -n  "$diff" ]]; then
             git config user.email "cybercongress42@gmail.com"
             git config user.name "Cyber Admin"
-            git add knowledge/docs/cyber-search/
+            git add wiki/docs/cyber-search/
             git commit -m "Circle CI: Update Docs"
             # Push quietly to prevent showing the token in log
             git push -q https://${DOCS_GITHUB_TOKEN}@github.com/cybercongress/congress.git master
