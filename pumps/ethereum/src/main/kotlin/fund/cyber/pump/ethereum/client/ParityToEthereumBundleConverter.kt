@@ -153,6 +153,8 @@ class ParityToEthereumBundleConverter(
         val uncleRewardTracesByMiner = getRewardTraces(traces)
             .filter { rewardAction -> 
                 rewardAction.rewardType == "uncle" && rewardAction.author.toSearchHashFormat() == miner}
+        if (uncleRewardTracesByMiner.size == 1)
+            return uncleRewardTracesByMiner[0].value.toBigDecimal() * weiToEthRate
         return if (uncleRewardTracesByMiner.isNotEmpty())
             uncleRewardTracesByMiner[unclePosition].value.toBigDecimal() * weiToEthRate else BigDecimal.ZERO
     }
