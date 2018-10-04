@@ -20,7 +20,8 @@ interface EthereumGenesisDataProvider : GenesisDataProvider<EthereumBlockBundle>
 
 @Component
 class EthereumGenesisDataFileProvider(
-    private val genesisFileRootDirectory: String = "genesis"
+    private val genesisFileRootDirectory: String = "genesis",
+    private val genesisBlockReward: Long = 5
 ) : EthereumGenesisDataProvider {
 
     override fun provide(blockBundle: EthereumBlockBundle): EthereumBlockBundle {
@@ -84,7 +85,7 @@ class EthereumGenesisDataFileProvider(
             receiptsRoot = blockBundle.block.receiptsRoot, stateRoot = blockBundle.block.stateRoot,
             sha3Uncles = blockBundle.block.sha3Uncles, uncles = blockBundle.block.uncles,
             txNumber = txs.size, nonce = blockBundle.block.nonce,
-            txFees = blockBundle.block.txFees, blockReward = blockBundle.block.blockReward,
+            txFees = blockBundle.block.txFees, blockReward = BigDecimal.valueOf(genesisBlockReward),
             unclesReward = blockBundle.block.blockReward
         )
 
