@@ -1,5 +1,6 @@
 package fund.cyber.common.kafka
 
+import kafka.server.KafkaServer
 import org.apache.kafka.clients.admin.AdminClient
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Tag
@@ -9,8 +10,8 @@ import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.kafka.test.rule.KafkaEmbedded
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
+import java.lang.reflect.Field
 import javax.annotation.PostConstruct
-
 
 @Tag("kafka-integration")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -25,6 +26,21 @@ abstract class BaseKafkaIntegrationTest {
     @PostConstruct
     fun postConstruct() {
         adminClient = AdminClient.create(adminClientProperties(embeddedKafka.brokersAsString))!!
+
+        Runtime.getRuntime().addShutdownHook(Thread {
+            kotlin.run {
+                val server: KafkaServer? = embeddedKafka.kafkaServers.stream().findFirst().orElse(null)
+                if (server != null) {
+                    server.replicaManager().shutdown(false)
+                    val replicaManagerField: Field? = server.javaClass.getDeclaredField("replicaManager")
+                    if (replicaManagerField != null) {
+                        replicaManagerField.setAccessible(true)
+                        replicaManagerField.set(server, null)
+                    }
+                }
+                embeddedKafka.after()
+            }
+        })
     }
 }
 
