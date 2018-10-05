@@ -13,6 +13,7 @@
 
 **Merged pull requests:**
 
+- \#265-fix-bug-on-genesis-block [\#266](https://github.com/cybercongress/cyber-search/pull/266) ([KevinLiLu](https://github.com/KevinLiLu))
 - Redirect commits to wiki folder [\#264](https://github.com/cybercongress/cyber-search/pull/264) ([SaveTheAles](https://github.com/SaveTheAles))
 - Landing update [\#260](https://github.com/cybercongress/cyber-search/pull/260) ([asadovka](https://github.com/asadovka))
 - \#185 ETH: calculate block & uncle rewards from block traces [\#256](https://github.com/cybercongress/cyber-search/pull/256) ([KevinLiLu](https://github.com/KevinLiLu))
