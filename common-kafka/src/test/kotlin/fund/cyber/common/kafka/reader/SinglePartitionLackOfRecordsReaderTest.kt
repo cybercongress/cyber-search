@@ -7,18 +7,10 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.springframework.kafka.test.context.EmbeddedKafka
 
 
 const val EXISTING_TOPIC_WITH_RECORDS_LACK = "EXISTING_EMPTY_TOPIC"
 
-@EmbeddedKafka(
-    partitions = 1, topics = [EXISTING_TOPIC_WITH_RECORDS_LACK],
-    brokerProperties = [
-        "auto.create.topics.enable=false", "transaction.state.log.replication.factor=1",
-        "transaction.state.log.min.isr=1"
-    ]
-)
 @DisplayName("Single-partitioned topic lack of records reader test")
 class SinglePartitionLackOfRecordsReaderTest : BaseKafkaIntegrationTest() {
 
