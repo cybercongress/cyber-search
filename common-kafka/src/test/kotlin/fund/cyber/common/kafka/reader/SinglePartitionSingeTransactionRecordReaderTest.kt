@@ -7,18 +7,10 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.springframework.kafka.test.context.EmbeddedKafka
 
 
 const val SINGLE_TRANSACTION_RECORD_TOPIC = "SINGLE_TRANSACTION_RECORD_TOPIC"
 
-@EmbeddedKafka(
-    partitions = 1, topics = [SINGLE_TRANSACTION_RECORD_TOPIC],
-    brokerProperties = [
-        "auto.create.topics.enable=false", "transaction.state.log.replication.factor=1",
-        "transaction.state.log.min.isr=1"
-    ]
-)
 @DisplayName("Single-partitioned topic last item reader test")
 class SinglePartitionSingeTransactionRecordReaderTest : BaseKafkaIntegrationTest() {
 
