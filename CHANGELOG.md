@@ -2,7 +2,14 @@
 
 ## [Unreleased](https://github.com/cybercongress/cyber-search/tree/HEAD)
 
-[Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.9.1...HEAD)
+[Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.9.2...HEAD)
+
+**Merged pull requests:**
+
+- UPD CI job update\_docs [\#270](https://github.com/cybercongress/cyber-search/pull/270) ([SaveTheAles](https://github.com/SaveTheAles))
+
+## [0.9.2](https://github.com/cybercongress/cyber-search/tree/0.9.2) (2018-11-06)
+[Full Changelog](https://github.com/cybercongress/cyber-search/compare/0.9.1...0.9.2)
 
 **Closed issues:**
 
