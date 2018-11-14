@@ -144,8 +144,9 @@ class ParityToEthereumBundleConverter(
     }
 
     fun getBlockReward(traces: List<Trace>): BigDecimal {
-        return getRewardTraces(traces)
-            .filter { rewardAction -> rewardAction.rewardType == "block" }[0].value.toBigDecimal() * weiToEthRate
+        val blockReward = getRewardTraces(traces)
+            .filter { rewardAction -> rewardAction.rewardType == "block" }
+        return if (blockReward.isNotEmpty()) blockReward[0].value.toBigDecimal() * weiToEthRate else BigDecimal.ZERO
     }
 
     fun getUncleReward(traces: List<Trace>, miner: String, unclePosition: Int): BigDecimal {
@@ -153,7 +154,8 @@ class ParityToEthereumBundleConverter(
             .filter { rewardAction -> 
                 rewardAction.rewardType == "uncle" && rewardAction.author.toSearchHashFormat() == miner}
         if (uncleRewardTracesByMiner.size == 1)
-            return uncleRewardTracesByMiner.get(0).value.toBigDecimal() * weiToEthRate
-        return uncleRewardTracesByMiner[unclePosition].value.toBigDecimal() * weiToEthRate
+            return uncleRewardTracesByMiner[0].value.toBigDecimal() * weiToEthRate
+        return if (uncleRewardTracesByMiner.isNotEmpty())
+            uncleRewardTracesByMiner[unclePosition].value.toBigDecimal() * weiToEthRate else BigDecimal.ZERO
     }
 }

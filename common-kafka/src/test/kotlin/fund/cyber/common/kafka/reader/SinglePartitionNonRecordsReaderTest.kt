@@ -4,13 +4,11 @@ import fund.cyber.common.kafka.BaseKafkaIntegrationTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.springframework.kafka.test.context.EmbeddedKafka
 
 
 const val NON_EXISTING_TOPIC = "NON_EXISTING_TOPIC"
-const val EXISTING_EMPTY_TOPIC = "EXISTING_EMPTY_TOPIC"
+const val EXISTING_EMPTY_TOPIC = "EMPTY_TOPIC"
 
-@EmbeddedKafka(topics = [EXISTING_EMPTY_TOPIC], partitions = 1)
 @DisplayName("Single-partitioned topic without items reader tests")
 class SinglePartitionNonRecordsReaderTest : BaseKafkaIntegrationTest() {
 

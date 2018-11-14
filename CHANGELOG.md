@@ -6,6 +6,10 @@
 
 **Closed issues:**
 
+- Ethereum Pump: failed to process block with height 0 [\#265](https://github.com/cybercongress/cyber-search/issues/265)
+- Post full cluster shutdown maintenance  [\#262](https://github.com/cybercongress/cyber-search/issues/262)
+- Actualize cyber-search Gitcoin tasks [\#261](https://github.com/cybercongress/cyber-search/issues/261)
+- Kafka and Cassandra integration tests are very unstable [\#255](https://github.com/cybercongress/cyber-search/issues/255)
 - Wrong order of transactions in  [\#249](https://github.com/cybercongress/cyber-search/issues/249)
 - \[API\] Set pageable endpoints  pageSize limits [\#248](https://github.com/cybercongress/cyber-search/issues/248)
 - BTC Supply Service [\#194](https://github.com/cybercongress/cyber-search/issues/194)
@@ -13,6 +17,8 @@
 
 **Merged pull requests:**
 
+- Fix Kafka tests and use a single Kafka instance per test module [\#268](https://github.com/cybercongress/cyber-search/pull/268) ([KevinLiLu](https://github.com/KevinLiLu))
+- \#265-fix-bug-on-genesis-block [\#266](https://github.com/cybercongress/cyber-search/pull/266) ([KevinLiLu](https://github.com/KevinLiLu))
 - Redirect commits to wiki folder [\#264](https://github.com/cybercongress/cyber-search/pull/264) ([SaveTheAles](https://github.com/SaveTheAles))
 - Landing update [\#260](https://github.com/cybercongress/cyber-search/pull/260) ([asadovka](https://github.com/asadovka))
 - \#185 ETH: calculate block & uncle rewards from block traces [\#256](https://github.com/cybercongress/cyber-search/pull/256) ([KevinLiLu](https://github.com/KevinLiLu))
